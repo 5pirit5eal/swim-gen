@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
@@ -15,6 +16,7 @@ import (
 	"github.com/tmc/langchaingo/llms/googleai"
 	"github.com/tmc/langchaingo/llms/googleai/vertex"
 	"github.com/tmc/langchaingo/schema"
+	"github.com/tmc/langchaingo/vectorstores"
 	"github.com/tmc/langchaingo/vectorstores/pgvector"
 )
 
@@ -100,7 +102,13 @@ func GetDBPass(ctx context.Context, location string) (string, error) {
 //	defer ragServer.store.Close()
 func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 	// Initialize the LLM client
-	vertexClient, err := vertex.New(ctx, googleai.WithCloudProject(config.ProjectID), googleai.WithCloudLocation(config.Region), googleai.WithDefaultModel(config.Model), googleai.WithDefaultEmbeddingModel(config.Embedding.Model), googleai.WithHarmThreshold(googleai.HarmBlockLowAndAbove))
+	vertexClient, err := vertex.New(
+		ctx, googleai.WithCloudProject(config.ProjectID),
+		googleai.WithCloudLocation(config.Region),
+		googleai.WithDefaultModel(config.Model),
+		googleai.WithDefaultEmbeddingModel(config.Embedding.Model),
+		googleai.WithHarmThreshold(googleai.HarmBlockLowAndAbove),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -123,6 +131,7 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 		pgvector.WithEmbeddingTableName(config.Embedding.Model+"-"+config.Embedding.Name),
 		pgvector.WithCollectionTableName("documents"),
 		pgvector.WithEmbedder(embedder),
+		pgvector.WithVectorDimensions(config.Embedding.SIZE),
 	)
 	if err != nil {
 		return nil, err
@@ -135,10 +144,11 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 	}, nil
 }
 
-func (rs *RAGServer) addDocumentsHandler(w http.ResponseWriter, req *http.Request) {
+func (rs *RAGServer) AddDocuments(w http.ResponseWriter, req *http.Request) {
 	// Parse HTTP request from JSON.
 	type document struct {
-		Text string `json:"text"`
+		Text     string            `json:"text"`
+		Metadata map[string]string `json:"metadata,omitempty"`
 	}
 	type addRequest struct {
 		Documents []document `json:"documents"`
@@ -154,7 +164,7 @@ func (rs *RAGServer) addDocumentsHandler(w http.ResponseWriter, req *http.Reques
 	// Convert the documents to the format expected by the store
 	var documents []schema.Document
 	for _, doc := range ar.Documents {
-		documents = append(documents, schema.Document{PageContent: doc.Text})
+		documents = append(documents, schema.Document{PageContent: doc.Text, Metadata: doc.Metadata})
 	}
 
 	// Store documents and their embeddings in the database
@@ -167,6 +177,68 @@ func (rs *RAGServer) addDocumentsHandler(w http.ResponseWriter, req *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"success","ids":` + fmt.Sprintf("%v", ids) + `}`))
+}
+
+func (rs *RAGServer) Query(w http.ResponseWriter, req *http.Request) {
+	// Parse HTTP request from JSON.
+	type queryRequest struct {
+		Content string            `json:"content"`
+		Filter  map[string]string `json:"filter,omitempty"`
+	}
+	qr := &queryRequest{}
+	err := GetRequestJSON(req, qr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Find the most similar documents.
+	docs, err := rs.store.SimilaritySearch(rs.ctx, qr.Content, 5, vectorstores.WithFilters(qr.Filter))
+	if err != nil {
+		http.Error(w, fmt.Errorf("similarity search: %w", err).Error(), http.StatusInternalServerError)
+		return
+	}
+	var docsContents []string
+	for _, doc := range docs {
+		docsContents = append(docsContents, doc.PageContent)
+	}
+
+	// Create a RAG query for the LLM with the most relevant documents as context
+	query := fmt.Sprintf(ragTemplateStr, qr.Content, strings.Join(docsContents, "\n"))
+	answer, err := llms.GenerateFromSinglePrompt(rs.ctx, rs.modelClient, query)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	WriteResponseJSON(w, http.StatusOK, answer)
+}
+
+const ragTemplateStr = `
+I will ask you a question and will provide some additional context information.
+Assume this context information is factual and correct, as part of internal
+documentation.
+If the question relates to the context, answer it using the context.
+If the question does not relate to the context, answer it as normal.
+
+For example, let's say the context has nothing in it about tropical flowers;
+then if I ask you about tropical flowers, just answer what you know about them
+without referring to the context.
+
+For example, if the context does mention minerology and I ask you about that,
+provide information from the context along with general knowledge.
+
+Question:
+%s
+
+Context:
+%s
+`
+
+func (rs *RAGServer) Close() {
+	if err := rs.store.Close(); err != nil {
+		log.Printf("error closing store: %v", err)
+	}
 }
 
 func Example(ctx context.Context, config Config) string {
@@ -183,7 +255,7 @@ func Example(ctx context.Context, config Config) string {
 		log.Fatal(err)
 	}
 
-	prompt := "What is the fastest swimming technique?"
+	prompt := "Tell me a danish joke in danish"
 	answer, err := llms.GenerateFromSinglePrompt(ctx, llm, prompt)
 	if err != nil {
 		log.Fatal(err)
