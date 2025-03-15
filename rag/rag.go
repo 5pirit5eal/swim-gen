@@ -52,6 +52,9 @@ type RAGServer struct {
 // The secret location should be in the format:
 // "projects/{project_id}/secrets/{secret_name}/versions/latest".
 func GetDBPass(ctx context.Context, location string) (string, error) {
+	log.Println("Getting DB password from secret manager")
+	// Create a new Secret Manager client
+	// and access the secret version.
 	c, err := secretmanager.NewClient(ctx)
 	defer c.Close()
 	if err != nil {
@@ -63,6 +66,8 @@ func GetDBPass(ctx context.Context, location string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	log.Println("Got DB password from secret manager successfully")
+	// The secret payload is a byte array, so convert it to a string.
 	return string(secret.Payload.Data), nil
 }
 
@@ -101,6 +106,7 @@ func GetDBPass(ctx context.Context, location string) (string, error) {
 //	// Don't forget to close the server when done
 //	defer ragServer.store.Close()
 func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
+	log.Println("Initializing RAG server with config:", config)
 	// Initialize the LLM client
 	vertexClient, err := vertex.New(
 		ctx, googleai.WithCloudProject(config.ProjectID),
@@ -125,6 +131,7 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 		return nil, err
 	}
 
+	log.Println("Creating database connection...")
 	// Initialize the database connection
 	store, err := pgvector.New(
 		ctx, pgvector.WithConnectionURL("postgres://"+config.DB.User+":"+pass+"@"+config.DB.IP+":"+config.DB.Port+"/"+config.DB.Name),
@@ -137,6 +144,8 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 		return nil, err
 	}
 
+	log.Println("Creating database connection successfully")
+
 	return &RAGServer{
 		ctx:         ctx,
 		store:       store,
@@ -145,10 +154,11 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 }
 
 func (rs *RAGServer) AddDocuments(w http.ResponseWriter, req *http.Request) {
+	log.Println("Adding documents to the database...")
 	// Parse HTTP request from JSON.
 	type document struct {
-		Text     string            `json:"text"`
-		Metadata map[string]string `json:"metadata,omitempty"`
+		Text     string         `json:"text"`
+		Metadata map[string]any `json:"metadata,omitempty"`
 	}
 	type addRequest struct {
 		Documents []document `json:"documents"`
@@ -180,6 +190,7 @@ func (rs *RAGServer) AddDocuments(w http.ResponseWriter, req *http.Request) {
 }
 
 func (rs *RAGServer) Query(w http.ResponseWriter, req *http.Request) {
+	log.Println("Querying the database...")
 	// Parse HTTP request from JSON.
 	type queryRequest struct {
 		Content string            `json:"content"`
@@ -203,6 +214,8 @@ func (rs *RAGServer) Query(w http.ResponseWriter, req *http.Request) {
 		docsContents = append(docsContents, doc.PageContent)
 	}
 
+	log.Printf("Found %d documents", len(docsContents))
+
 	// Create a RAG query for the LLM with the most relevant documents as context
 	query := fmt.Sprintf(ragTemplateStr, qr.Content, strings.Join(docsContents, "\n"))
 	answer, err := llms.GenerateFromSinglePrompt(rs.ctx, rs.modelClient, query)
@@ -210,6 +223,8 @@ func (rs *RAGServer) Query(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	log.Println("Answer generated successfully")
 
 	WriteResponseJSON(w, http.StatusOK, answer)
 }
@@ -242,6 +257,7 @@ func (rs *RAGServer) Close() {
 }
 
 func Example(ctx context.Context, config Config) string {
+	log.Println("Initializing example...")
 	file, err := os.Open(".env")
 	if err != nil {
 		log.Fatal(err)
@@ -260,6 +276,9 @@ func Example(ctx context.Context, config Config) string {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.Println("Example generated successfully")
+
 	return answer
 
 }
