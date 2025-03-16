@@ -1,6 +1,7 @@
-package scraper
+package rag
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -12,6 +13,19 @@ import (
 type Plan struct {
 	URL, Title, Description string
 	Table                   Table
+}
+
+func (p *Plan) String() string {
+	return fmt.Sprintf("%s:\n %s\n %s", p.Title, p.Description, p.Table.String())
+}
+
+func (p *Plan) Map() map[string]any {
+	m := make(map[string]any)
+	m["URL"] = p.URL
+	m["Title"] = p.Title
+	m["Description"] = p.Description
+	m["Table"] = p.Table
+	return m
 }
 
 type Table []Row
@@ -27,7 +41,16 @@ type Row struct {
 }
 
 func (r Row) String() string {
-	return strconv.Itoa(r.Amount) + "|" + r.Multiplier + "|" + strconv.Itoa(r.Distance) + "|" + r.Break + "|" + r.Content + "|" + r.Intensity + "|" + strconv.Itoa(r.Sum)
+	return fmt.Sprintf("| %d | %s | %d | %s | %s | %s | %d |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Content, r.Intensity, r.Sum)
+}
+
+func (t *Table) String() string {
+	tstr := "Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |"
+	tstr += "|---|---|---|---|---|---|---|"
+	for _, row := range *t {
+		tstr += row.String() + "\n"
+	}
+	return tstr
 }
 
 type URLMap struct {
@@ -35,10 +58,14 @@ type URLMap struct {
 	m   map[string]Plan
 }
 
-func NewURLMap() *URLMap {
+func NewURLMap(alreadyVisited []string) *URLMap {
+	m := make(map[string]Plan)
+	for _, url := range alreadyVisited {
+		m[url] = Plan{}
+	}
 	return &URLMap{
 		mux: sync.Mutex{},
-		m:   make(map[string]Plan),
+		m:   m,
 	}
 }
 
@@ -84,7 +111,7 @@ var TABLE_HEADER = []string{
 	"Umfang",
 }
 
-func Scrape(seeds ...string) (*URLMap, error) {
+func Scrape(alreadyVisited []string, seeds ...string) (*URLMap, error) {
 
 	// Create a new scraper
 	scraper := colly.NewCollector(
@@ -104,7 +131,7 @@ func Scrape(seeds ...string) (*URLMap, error) {
 	})
 
 	// Create a map to track visited URLs and plans
-	visitedURLs := NewURLMap()
+	visitedURLs := NewURLMap(alreadyVisited)
 
 	scraper.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		log.Println("Found link:", e.Attr("href"))
@@ -177,10 +204,11 @@ func Scrape(seeds ...string) (*URLMap, error) {
 						log.Println("No previous row to append content to")
 					}
 					return
-				} else {
-					log.Println("Skipping empty row")
-					return
 				}
+				// } else {
+				// 	log.Println("Skipping empty row")
+				// 	return
+				// }
 			}
 
 			row := Row{

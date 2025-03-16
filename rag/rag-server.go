@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
+	cloudtasks "cloud.google.com/go/cloudtasks/apiv2beta3"
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
-	"github.com/golobby/dotenv"
+	pgx "github.com/jackc/pgx/v5"
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/googleai"
@@ -36,6 +36,7 @@ type Config struct {
 		Port         string `env:"DB_PORT"`
 		User         string `env:"DB_USER"`
 		PassLocation string `env:"DB_PASS_LOCATION"`
+		Pass         string
 	}
 }
 
@@ -43,6 +44,7 @@ type RAGServer struct {
 	ctx         context.Context
 	store       pgvector.Store
 	modelClient llms.Model
+	config      Config
 }
 
 // GetDBPass retrieves the database password from Google Secret Manager.
@@ -124,6 +126,8 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 	if err != nil {
 		return nil, err
 	}
+	config.DB.Pass = pass
+	log.Println("Got DB password successfully")
 
 	// Create an embedder
 	embedder, err := embeddings.NewEmbedder(vertexClient)
@@ -133,14 +137,27 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 
 	log.Println("Creating database connection...")
 	// Initialize the database connection
+	conn, err := pgx.Connect(ctx, "postgres://"+config.DB.User+":"+pass+"@"+config.DB.IP+":"+config.DB.Port+"/"+config.DB.Name)
 	store, err := pgvector.New(
-		ctx, pgvector.WithConnectionURL("postgres://"+config.DB.User+":"+pass+"@"+config.DB.IP+":"+config.DB.Port+"/"+config.DB.Name),
+		ctx, pgvector.WithConn(conn),
 		pgvector.WithEmbeddingTableName(config.Embedding.Model+"-"+config.Embedding.Name),
 		pgvector.WithCollectionTableName("documents"),
 		pgvector.WithEmbedder(embedder),
 		pgvector.WithVectorDimensions(config.Embedding.SIZE),
 	)
 	if err != nil {
+		return nil, err
+	}
+	// Create the URL table if it doesn't exist
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+	if err := createURLTableIfNotExists(ctx, tx); err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
 
@@ -150,19 +167,38 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 		ctx:         ctx,
 		store:       store,
 		modelClient: vertexClient,
+		config:      config,
 	}, nil
+}
+
+func createURLTableIfNotExists(ctx context.Context, tx pgx.Tx) error {
+	if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", 1573678846307946497); err != nil {
+		return err
+	}
+	_, err := tx.Exec(ctx, `
+		CREATE TABLE IF NOT EXISTS urls (
+			id SERIAL PRIMARY KEY,
+			url TEXT NOT NULL UNIQUE
+		);
+	`)
+	if err != nil {
+		return fmt.Errorf("failed to create urls table: %w", err)
+	}
+	return nil
+}
+
+type document struct {
+	Text     string         `json:"text"`
+	Metadata map[string]any `json:"metadata,omitempty"`
+}
+type addRequest struct {
+	Documents []document `json:"documents"`
 }
 
 func (rs *RAGServer) AddDocuments(w http.ResponseWriter, req *http.Request) {
 	log.Println("Adding documents to the database...")
 	// Parse HTTP request from JSON.
-	type document struct {
-		Text     string         `json:"text"`
-		Metadata map[string]any `json:"metadata,omitempty"`
-	}
-	type addRequest struct {
-		Documents []document `json:"documents"`
-	}
+
 	ar := &addRequest{}
 
 	err := GetRequestJSON(req, ar)
@@ -204,7 +240,7 @@ func (rs *RAGServer) Query(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Find the most similar documents.
-	docs, err := rs.store.SimilaritySearch(rs.ctx, qr.Content, 5, vectorstores.WithFilters(qr.Filter))
+	docs, err := rs.store.SimilaritySearch(rs.ctx, qr.Content, 10, vectorstores.WithFilters(qr.Filter))
 	if err != nil {
 		http.Error(w, fmt.Errorf("similarity search: %w", err).Error(), http.StatusInternalServerError)
 		return
@@ -229,6 +265,13 @@ func (rs *RAGServer) Query(w http.ResponseWriter, req *http.Request) {
 	WriteResponseJSON(w, http.StatusOK, answer)
 }
 
+func (rs *RAGServer) Close() {
+	if err := rs.store.Close(); err != nil {
+		log.Printf("error closing store: %v", err)
+	}
+}
+
+// TODO: Improve this augmentation prompt and make it more swimming specific
 const ragTemplateStr = `
 I will ask you a question and will provide some additional context information.
 Assume this context information is factual and correct, as part of internal
@@ -250,35 +293,65 @@ Context:
 %s
 `
 
-func (rs *RAGServer) Close() {
-	if err := rs.store.Close(); err != nil {
-		log.Printf("error closing store: %v", err)
+func (rs *RAGServer) ScrapeHandler(w http.ResponseWriter, rq *http.Request) {
+	// Parse the URL from the request
+	url := rq.URL.Query().Get("url")
+	if url == "" {
+		http.Error(w, "Missing url parameter", http.StatusBadRequest)
+		return
 	}
-}
 
-func Example(ctx context.Context, config Config) string {
-	log.Println("Initializing example...")
-	file, err := os.Open(".env")
+	// Load urls in the database into the scraper
+	alreadyVisited := make([]string, 0)
+	conn, err := pgx.Connect(rs.ctx, "postgres://"+rs.config.DB.User+":"+rs.config.DB.Pass+"@"+rs.config.DB.IP+":"+rs.config.DB.Port+"/"+rs.config.DB.Name)
+
 	if err != nil {
-		log.Fatal(err)
+		http.Error(w, "Failed to connect to database: "+err.Error(), http.StatusInternalServerError)
+		return
 	}
-	if err := dotenv.NewDecoder(file).Decode(&config); err != nil {
-		log.Fatal(err)
-	}
-
-	llm, err := vertex.New(ctx, googleai.WithCloudProject(config.ProjectID), googleai.WithCloudLocation(config.Region), googleai.WithDefaultModel(config.Model))
+	defer conn.Close(rs.ctx)
+	rows, err := conn.Query(rs.ctx, "SELECT url FROM urls")
 	if err != nil {
-		log.Fatal(err)
+		http.Error(w, "Failed to query database: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var url string
+		if err := rows.Scan(&url); err != nil {
+			http.Error(w, "Failed to scan database row: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		alreadyVisited = append(alreadyVisited, url)
 	}
 
-	prompt := "Tell me a danish joke in danish"
-	answer, err := llms.GenerateFromSinglePrompt(ctx, llm, prompt)
+	// Scrape the URL
+	plans, err := Scrape(alreadyVisited, url)
 	if err != nil {
-		log.Fatal(err)
+		http.Error(w, "Failed to scrape URL: "+err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	log.Println("Example generated successfully")
+	// Add the scraped data to a cloud task
+	client, err := cloudtasks.NewClient(rs.ctx)
+	if err != nil {
+		http.Error(w, "Failed to create Cloud Tasks client: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer client.Close()
 
-	return answer
+	// TODO: Create request body by converting the plans into documents
+	documents := make([]document, 0)
+	for kvp := range plans.Range() {
+		documents = append(documents, document{
+			Text:     kvp.Plan.String(),
+			Metadata: kvp.Plan.Map(),
+		})
+	}
+
+	// TODO: Enhance scraped documents with gemini and create meaningful metadata
+	// TODO: Write enhanced documents into db
+	// TODO: Write newly scraped urls into db
+	// TODO: Return Status OK
 
 }
