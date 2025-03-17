@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mime"
 	"net/http"
+	"reflect"
 )
 
 // GetRequestJSON decodes a JSON request body into the provided struct.
@@ -37,4 +38,32 @@ func WriteResponseJSON(w http.ResponseWriter, statusCode int, v any) error {
 	w.WriteHeader(statusCode)
 	w.Write(json)
 	return nil
+}
+
+// StructToMap converts a struct to a map[string]any.
+func StructToMap(item any) map[string]any {
+	out := make(map[string]any)
+
+	v := reflect.ValueOf(item)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	// we only accept structs
+	if v.Kind() != reflect.Struct {
+		return nil
+	}
+
+	typ := v.Type()
+	for i := 0; i < typ.NumField(); i++ {
+		// gets us a struct field
+		field := typ.Field(i)
+		// reads the tag value
+		tag := field.Tag.Get("json")
+		// gets us a value
+		value := v.Field(i).Interface()
+
+		out[tag] = value
+	}
+	return out
 }

@@ -2,12 +2,13 @@ package rag
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"maps"
 	"net/http"
 	"strings"
 
-	cloudtasks "cloud.google.com/go/cloudtasks/apiv2beta3"
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	pgx "github.com/jackc/pgx/v5"
@@ -19,26 +20,6 @@ import (
 	"github.com/tmc/langchaingo/vectorstores"
 	"github.com/tmc/langchaingo/vectorstores/pgvector"
 )
-
-type Config struct {
-	ProjectID string `env:"PROJECT_ID"`
-	Region    string `env:"REGION"`
-	Model     string `env:"MODEL"`
-	Embedding struct {
-		Name  string `env:"EMBEDDING_NAME"`
-		Model string `env:"EMBEDDING_MODEL"`
-		SIZE  int    `env:"EMBEDDING_SIZE"`
-	}
-
-	DB struct {
-		Name         string `env:"DB_NAME"`
-		IP           string `env:"DB_IP"`
-		Port         string `env:"DB_PORT"`
-		User         string `env:"DB_USER"`
-		PassLocation string `env:"DB_PASS_LOCATION"`
-		Pass         string
-	}
-}
 
 type RAGServer struct {
 	ctx         context.Context
@@ -137,7 +118,8 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 
 	log.Println("Creating database connection...")
 	// Initialize the database connection
-	conn, err := pgx.Connect(ctx, "postgres://"+config.DB.User+":"+pass+"@"+config.DB.IP+":"+config.DB.Port+"/"+config.DB.Name)
+	config.DB.URL = "postgres://" + config.DB.User + ":" + pass + "@" + config.DB.IP + ":" + config.DB.Port + "/" + config.DB.Name
+	conn, err := pgx.Connect(ctx, config.DB.URL)
 	store, err := pgvector.New(
 		ctx, pgvector.WithConn(conn),
 		pgvector.WithEmbeddingTableName(config.Embedding.Model+"-"+config.Embedding.Name),
@@ -271,28 +253,6 @@ func (rs *RAGServer) Close() {
 	}
 }
 
-// TODO: Improve this augmentation prompt and make it more swimming specific
-const ragTemplateStr = `
-I will ask you a question and will provide some additional context information.
-Assume this context information is factual and correct, as part of internal
-documentation.
-If the question relates to the context, answer it using the context.
-If the question does not relate to the context, answer it as normal.
-
-For example, let's say the context has nothing in it about tropical flowers;
-then if I ask you about tropical flowers, just answer what you know about them
-without referring to the context.
-
-For example, if the context does mention minerology and I ask you about that,
-provide information from the context along with general knowledge.
-
-Question:
-%s
-
-Context:
-%s
-`
-
 func (rs *RAGServer) ScrapeHandler(w http.ResponseWriter, rq *http.Request) {
 	// Parse the URL from the request
 	url := rq.URL.Query().Get("url")
@@ -332,26 +292,64 @@ func (rs *RAGServer) ScrapeHandler(w http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	// Add the scraped data to a cloud task
-	client, err := cloudtasks.NewClient(rs.ctx)
+	// Get the metadata schema
+	ms, err := MetadataSchema()
 	if err != nil {
-		http.Error(w, "Failed to create Cloud Tasks client: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to get metadata schema: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer client.Close()
 
-	// TODO: Create request body by converting the plans into documents
-	documents := make([]document, 0)
+	documents := make([]schema.Document, 0)
+
 	for kvp := range plans.Range() {
-		documents = append(documents, document{
-			Text:     kvp.Plan.String(),
-			Metadata: kvp.Plan.Map(),
+		var metadata Metadata
+		// Enhance scraped documents with gemini and create meaningful metadata
+		plan := kvp.Plan
+		query := fmt.Sprintf(scrapeTemplateStr, plan.Title, plan.Description, plan.Table.String(), ms)
+		answer, err := llms.GenerateFromSinglePrompt(rs.ctx, rs.modelClient, query, llms.WithResponseMIMEType("application/json"))
+
+		planMap := plan.Map()
+		// Parse the answer as JSON
+		err = json.Unmarshal([]byte(answer), &metadata)
+		if err == nil {
+			// Add the results to the map
+			maps.Copy(planMap, StructToMap(metadata))
+		}
+		// Create request body by converting the plans into documents
+		documents = append(documents, schema.Document{
+			PageContent: kvp.Plan.String(),
+			Metadata:    planMap,
 		})
 	}
 
-	// TODO: Enhance scraped documents with gemini and create meaningful metadata
-	// TODO: Write enhanced documents into db
-	// TODO: Write newly scraped urls into db
-	// TODO: Return Status OK
+	// Store documents and their embeddings in the database
+	ids, err := rs.store.AddDocuments(rs.ctx, documents)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
+	// Write newly scraped urls into db
+	conn2, err := pgx.Connect(rs.ctx, rs.config.DB.URL)
+	if err != nil {
+		http.Error(w, "Failed to connect to database: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	defer conn2.Close(rs.ctx)
+	batch := &pgx.Batch{}
+	for kvp := range plans.Range() {
+		batch.Queue("INSERT INTO urls (url) VALUES ($1)", kvp.URL)
+	}
+	br := conn2.SendBatch(rs.ctx, batch)
+
+	if err := br.Close(); err != nil {
+		http.Error(w, "Failed to insert urls into database: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with a success message
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"status":"success","ids":` + fmt.Sprintf("%v", ids) + `}`))
 }

@@ -23,3 +23,7 @@ go.work.sum
 
 # env file
 .env
+
+# Data files and other artifacts
+*.json
+*.html

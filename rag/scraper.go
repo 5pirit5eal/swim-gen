@@ -53,6 +53,15 @@ func (t *Table) String() string {
 	return tstr
 }
 
+// Adds a final row to the table with the total sum
+func (t *Table) AddSum() {
+	sum := 0
+	for _, row := range *t {
+		sum += row.Sum
+	}
+	*t = append(*t, Row{Content: "Gesamt", Sum: sum})
+}
+
 type URLMap struct {
 	mux sync.Mutex
 	m   map[string]Plan
@@ -229,6 +238,10 @@ func Scrape(alreadyVisited []string, seeds ...string) (*URLMap, error) {
 
 		log.Println("Found description:", desc)
 		log.Println("Found table with", len(table), "rows")
+
+		if len(table) > 0 {
+			table.AddSum()
+		}
 
 		url := e.Request.URL.String()
 
