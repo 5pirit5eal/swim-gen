@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/secretmanager v1.14.5
 	github.com/gocolly/colly v1.2.0
 	github.com/golobby/dotenv v1.3.2
+	github.com/jackc/pgx/v5 v5.5.5
 	github.com/tmc/langchaingo v0.1.13
 )
 
@@ -15,7 +16,6 @@ require (
 	cloud.google.com/go/aiplatform v1.74.0 // indirect
 	cloud.google.com/go/auth v0.15.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.7 // indirect
-	cloud.google.com/go/cloudtasks v1.13.5 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
 	cloud.google.com/go/iam v1.4.1 // indirect
 	cloud.google.com/go/longrunning v0.6.4 // indirect
@@ -40,7 +40,6 @@ require (
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
-	github.com/jackc/pgx/v5 v5.5.5 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/pgvector/pgvector-go v0.1.1 // indirect
 	github.com/pkoukk/tiktoken-go v0.1.6 // indirect
