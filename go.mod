@@ -40,6 +40,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
+	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/pgvector/pgvector-go v0.1.1 // indirect
 	github.com/pkoukk/tiktoken-go v0.1.6 // indirect

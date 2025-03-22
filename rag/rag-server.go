@@ -118,6 +118,7 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 
 	log.Println("Creating database connection...")
 	// Initialize the database connection
+	// replace with connection pool and connect via cloud sql proxy and TCP or Unix socket
 	config.DB.URL = "postgres://" + config.DB.User + ":" + pass + "@" + config.DB.IP + ":" + config.DB.Port + "/" + config.DB.Name
 	conn, err := pgx.Connect(ctx, config.DB.URL)
 	store, err := pgvector.New(

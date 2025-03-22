@@ -21,8 +21,8 @@ type Config struct {
 		Port         string `env:"DB_PORT"`
 		User         string `env:"DB_USER"`
 		PassLocation string `env:"DB_PASS_LOCATION"`
-		Pass         string
-		URL          string
+		Pass         string `env:"DB_PASS"`
+		URL          string `env:"DB_URL"`
 	}
 }
 

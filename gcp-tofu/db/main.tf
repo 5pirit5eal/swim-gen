@@ -1,0 +1,63 @@
+resource "google_sql_database_instance" "main" {
+  name             = "main-instance-${random_id.db_name_suffix.hex}"
+  database_version = "POSTGRES_17"
+  region           = var.region
+  project          = var.project_id
+  root_password    = data.google_secret_manager_secret_version_access.dbpassword.secret_data
+
+  settings {
+    tier              = "db-custom-2-7680"
+    edition           = "ENTERPRISE"
+    activation_policy = "ALWAYS"
+    # connector_enforcement        = "REQUIRED"
+    enable_google_ml_integration = true
+    # password_validation_policy {
+    #   min_length                  = 6
+    #   reuse_interval              = 2
+    #   complexity                  = "COMPLEXITY_DEFAULT"
+    #   disallow_username_substring = true
+    #   password_change_interval    = "30s"
+    #   enable_password_policy      = true
+    # }
+    availability_type = "ZONAL"
+    ip_configuration {
+      ssl_mode = "ENCRYPTED_ONLY"
+      # Add optional authorized networks
+      # Update to match the customer's networks
+      #   authorized_networks {
+      #     name  = "test-net-3"
+      #     value = "203.0.113.0/24"
+      #   }
+      # Enable public IP
+      ipv4_enabled = true
+    }
+    backup_configuration {
+      enabled    = true
+      start_time = "20:55"
+      backup_retention_settings {
+        retained_backups = 42
+        retention_unit   = "COUNT"
+      }
+    }
+  }
+  deletion_protection = false
+  depends_on          = [google_project_service.apis]
+}
+
+resource "google_sql_database" "swim-db" {
+  name            = var.dbname
+  instance        = google_sql_database_instance.main.name
+  deletion_policy = "ABANDON"
+}
+
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
+
+resource "google_sql_user" "swim-db-user" {
+  name       = var.dbuser
+  instance   = google_sql_database_instance.main.name
+  password   = data.google_secret_manager_secret.dbpassword-root.secret_data
+  depends_on = [google_sql_database.swim-db]
+}
