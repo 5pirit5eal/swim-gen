@@ -1,24 +1,28 @@
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
 resource "google_sql_database_instance" "main" {
   name             = "main-instance-${random_id.db_name_suffix.hex}"
   database_version = "POSTGRES_17"
   region           = var.region
   project          = var.project_id
-  root_password    = data.google_secret_manager_secret_version_access.dbpassword.secret_data
+  root_password    = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
 
   settings {
-    tier              = "db-custom-2-7680"
+    tier              = var.dbtier
+    disk_size         = 10
     edition           = "ENTERPRISE"
     activation_policy = "ALWAYS"
-    # connector_enforcement        = "REQUIRED"
-    enable_google_ml_integration = true
-    # password_validation_policy {
-    #   min_length                  = 6
-    #   reuse_interval              = 2
-    #   complexity                  = "COMPLEXITY_DEFAULT"
-    #   disallow_username_substring = true
-    #   password_change_interval    = "30s"
-    #   enable_password_policy      = true
-    # }
+    # enable_google_ml_integration = true
+    password_validation_policy {
+      min_length                  = 6
+      reuse_interval              = 5
+      complexity                  = "COMPLEXITY_DEFAULT"
+      disallow_username_substring = true
+      password_change_interval    = "30s"
+      enable_password_policy      = true
+    }
     availability_type = "ZONAL"
     ip_configuration {
       ssl_mode = "ENCRYPTED_ONLY"
@@ -44,20 +48,17 @@ resource "google_sql_database_instance" "main" {
   depends_on          = [google_project_service.apis]
 }
 
-resource "google_sql_database" "swim-db" {
+resource "google_sql_database" "main_db" {
   name            = var.dbname
   instance        = google_sql_database_instance.main.name
   deletion_policy = "ABANDON"
 }
 
-resource "random_id" "db_name_suffix" {
-  byte_length = 4
-}
-
-
-resource "google_sql_user" "swim-db-user" {
-  name       = var.dbuser
-  instance   = google_sql_database_instance.main.name
-  password   = data.google_secret_manager_secret.dbpassword-root.secret_data
-  depends_on = [google_sql_database.swim-db]
+resource "google_sql_user" "dbuser" {
+  name     = google_secret_manager_secret_version.dbuser.secret_data
+  instance = google_sql_database_instance.main.name
+  password = data.google_secret_manager_secret_version_access.dbpassword_user.secret_data
+  password_policy {
+    allowed_failed_attempts = 5
+  }
 }

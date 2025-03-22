@@ -28,3 +28,8 @@ variable "dbuser" {
   description = "The GCP Cloud SQL Database User"
   type        = string
 }
+
+variable "dbtier" {
+  description = "The GCP Cloud SQL Database Tier"
+  type        = string
+}

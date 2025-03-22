@@ -4,10 +4,9 @@ locals {
     project_id = var.project_id
     region     = var.region
     csql_db = {
-      id   = try(google_sql_database.swim-rag.id, null)
+      id   = try(google_sql_database.main_db.id, null)
       name = var.dbname
-      user = google_secret_manager_secret.dbuser.secret_data
-      # password = data.google_secret_manager_secret_version_access.dbpassword.secret_data
+      tier = var.dbtier
     }
     csql_instance = {
       "connection_name" = try(google_sql_database_instance.main.connection_name, null)
@@ -15,10 +14,7 @@ locals {
       "public_ip"       = try(google_sql_database_instance.main.public_ip_address, null)
       "private_ip"      = try(google_sql_database_instance.main.private_ip_address, null)
     }
-    secret_ids = [
-      google_secret_manager_secret.dbuser.id,
-      data.google_secret_manager_secret.dbpassword-root.id
-    ]
+    secret_ids = local.secret_ids
   }
 }
 
