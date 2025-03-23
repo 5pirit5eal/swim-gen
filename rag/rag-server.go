@@ -2,16 +2,15 @@ package rag
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
-	"maps"
 	"net/http"
 	"strings"
 
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	pgx "github.com/jackc/pgx/v5"
+	pgxpool "github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/googleai"
@@ -23,26 +22,27 @@ import (
 
 type RAGServer struct {
 	ctx         context.Context
+	conn        *pgxpool.Pool
 	store       pgvector.Store
 	modelClient llms.Model
 	config      Config
 }
 
-// GetDBPass retrieves the database password from Google Secret Manager.
+// GetSecret retrieves the database password from Google Secret Manager.
 // It takes a context and the secret location as parameters.
 // It returns the password as a string and an error if any occurred during
 // retrieval.
 // The secret location should be in the format:
 // "projects/{project_id}/secrets/{secret_name}/versions/latest".
-func GetDBPass(ctx context.Context, location string) (string, error) {
-	log.Println("Getting DB password from secret manager")
+func GetSecret(ctx context.Context, location string) (string, error) {
+	log.Printf("Getting %s from secret manager", location)
 	// Create a new Secret Manager client
 	// and access the secret version.
 	c, err := secretmanager.NewClient(ctx)
-	defer c.Close()
 	if err != nil {
 		return "", err
 	}
+	defer c.Close()
 	secret, err := c.AccessSecretVersion(ctx, &secretmanagerpb.AccessSecretVersionRequest{
 		Name: location,
 	})
@@ -59,35 +59,6 @@ func GetDBPass(ctx context.Context, location string) (string, error) {
 // the database connection and LLM client.
 // It returns a pointer to the RAGServer and an error if any occurred during
 // initialization.
-//
-// Example usage:
-//
-//	ctx := context.Background()
-//	config := Config{
-//		ProjectID: "your-project-id",
-//		Region:    "us-central1",
-//		Model:     "your-model-name",
-//		Embedding: struct {
-//			Name:  "your-embedding-name",
-//			Model: "your-embedding-model",
-//			SIZE:  768,
-//		},
-//		DB: struct {
-//			Name:         "your-db-name",
-//			IP:           "your-db-ip",
-//			Port:         "your-db-port",
-//			User
-//			PassLocation: "projects/your-project-id/secrets/your-secret-name/versions/latest",
-//		},
-//	}
-//	ragServer, err := NewRAGServer(ctx, config)
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//	// Use ragServer for further operations...
-//	// ...
-//	// Don't forget to close the server when done
-//	defer ragServer.store.Close()
 func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 	log.Println("Initializing RAG server with config:", config)
 	// Initialize the LLM client
@@ -103,11 +74,13 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 	}
 
 	// Load the database password from Google Secret Manager
-	pass, err := GetDBPass(ctx, config.DB.PassLocation)
-	if err != nil {
-		return nil, err
+	if config.DB.Pass == "" {
+		pass, err := GetSecret(ctx, config.DB.PassLocation)
+		if err != nil {
+			return nil, err
+		}
+		config.DB.Pass = pass
 	}
-	config.DB.Pass = pass
 	log.Println("Got DB password successfully")
 
 	// Create an embedder
@@ -118,9 +91,16 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 
 	log.Println("Creating database connection...")
 	// Initialize the database connection
-	// replace with connection pool and connect via cloud sql proxy and TCP or Unix socket
-	config.DB.URL = "postgres://" + config.DB.User + ":" + pass + "@" + config.DB.IP + ":" + config.DB.Port + "/" + config.DB.Name
-	conn, err := pgx.Connect(ctx, config.DB.URL)
+	// replace with connection pool and connect via cloud sql proxy and Unix socket
+	config.DB.URL = "postgres://" + config.DB.User + ":" + config.DB.Pass + "@" + config.DB.IP + ":" + config.DB.Port + "/" + config.DB.Name
+	conn, err := pgxpool.New(ctx, config.DB.URL)
+	if err != nil {
+		return nil, err
+	}
+	if _, err = conn.Exec(ctx, "CREATE EXTENSION IF NOT EXISTS vector"); err != nil {
+		return nil, err
+	}
+	// Create a new store
 	store, err := pgvector.New(
 		ctx, pgvector.WithConn(conn),
 		pgvector.WithEmbeddingTableName(config.Embedding.Model+"-"+config.Embedding.Name),
@@ -161,7 +141,8 @@ func createURLTableIfNotExists(ctx context.Context, tx pgx.Tx) error {
 	_, err := tx.Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS urls (
 			id SERIAL PRIMARY KEY,
-			url TEXT NOT NULL UNIQUE
+			url TEXT NOT NULL UNIQUE,
+			created_at TIMESTAMPTZ DEFAULT NOW()
 		);
 	`)
 	if err != nil {
@@ -264,14 +245,8 @@ func (rs *RAGServer) ScrapeHandler(w http.ResponseWriter, rq *http.Request) {
 
 	// Load urls in the database into the scraper
 	alreadyVisited := make([]string, 0)
-	conn, err := pgx.Connect(rs.ctx, "postgres://"+rs.config.DB.User+":"+rs.config.DB.Pass+"@"+rs.config.DB.IP+":"+rs.config.DB.Port+"/"+rs.config.DB.Name)
 
-	if err != nil {
-		http.Error(w, "Failed to connect to database: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer conn.Close(rs.ctx)
-	rows, err := conn.Query(rs.ctx, "SELECT url FROM urls")
+	rows, err := rs.conn.Query(rs.ctx, "SELECT url FROM urls")
 	if err != nil {
 		http.Error(w, "Failed to query database: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -293,34 +268,27 @@ func (rs *RAGServer) ScrapeHandler(w http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	// Get the metadata schema
-	ms, err := MetadataSchema()
-	if err != nil {
-		http.Error(w, "Failed to get metadata schema: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
+	dc := make(chan schema.Document)
+	ec := make(chan error)
 	documents := make([]schema.Document, 0)
+	errors := make([]error, 0)
 
 	for kvp := range plans.Range() {
-		var metadata Metadata
-		// Enhance scraped documents with gemini and create meaningful metadata
-		plan := kvp.Plan
-		query := fmt.Sprintf(scrapeTemplateStr, plan.Title, plan.Description, plan.Table.String(), ms)
-		answer, err := llms.GenerateFromSinglePrompt(rs.ctx, rs.modelClient, query, llms.WithResponseMIMEType("application/json"))
+		go improvePlan(rs.ctx, rs.modelClient, kvp.Plan, dc, ec)
+	}
 
-		planMap := plan.Map()
-		// Parse the answer as JSON
-		err = json.Unmarshal([]byte(answer), &metadata)
-		if err == nil {
-			// Add the results to the map
-			maps.Copy(planMap, StructToMap(metadata))
+	for i := 0; i < plans.Len(); i++ {
+		select {
+		case doc := <-dc:
+			documents = append(documents, doc)
+		case err := <-ec:
+			errors = append(errors, err)
 		}
-		// Create request body by converting the plans into documents
-		documents = append(documents, schema.Document{
-			PageContent: kvp.Plan.String(),
-			Metadata:    planMap,
-		})
+	}
+
+	if len(errors) > 0 {
+		http.Error(w, fmt.Sprintf("Failed to improve plans: %v", errors), http.StatusInternalServerError)
+		return
 	}
 
 	// Store documents and their embeddings in the database
@@ -330,19 +298,11 @@ func (rs *RAGServer) ScrapeHandler(w http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	// Write newly scraped urls into db
-	conn2, err := pgx.Connect(rs.ctx, rs.config.DB.URL)
-	if err != nil {
-		http.Error(w, "Failed to connect to database: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	defer conn2.Close(rs.ctx)
 	batch := &pgx.Batch{}
 	for kvp := range plans.Range() {
 		batch.Queue("INSERT INTO urls (url) VALUES ($1)", kvp.URL)
 	}
-	br := conn2.SendBatch(rs.ctx, batch)
+	br := rs.conn.SendBatch(rs.ctx, batch)
 
 	if err := br.Close(); err != nil {
 		http.Error(w, "Failed to insert urls into database: "+err.Error(), http.StatusInternalServerError)
@@ -352,5 +312,9 @@ func (rs *RAGServer) ScrapeHandler(w http.ResponseWriter, rq *http.Request) {
 	// Respond with a success message
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"success","ids":` + fmt.Sprintf("%v", ids) + `}`))
+	urls := make([]string, len(documents))
+	for i, doc := range documents {
+		urls[i] = doc.Metadata["url"].(string)
+	}
+	w.Write([]byte(`{"status":"success","ids":` + fmt.Sprintf("%v", ids) + `,"urls":` + fmt.Sprintf("%v", urls) + `}`))
 }

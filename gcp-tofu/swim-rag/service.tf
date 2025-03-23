@@ -1,5 +1,36 @@
+resource "google_artifact_registry_repository" "docker" {
+  location               = var.region
+  repository_id          = "docker"
+  description            = "Docker repository for my sandbox projects using cloud run."
+  format                 = "DOCKER"
+  cleanup_policy_dry_run = false
+  cleanup_policies {
+    id     = "delete-untagged"
+    action = "DELETE"
+    condition {
+      tag_state = "UNTAGGED"
+    }
+  }
+  cleanup_policies {
+    id     = "keep-new-untagged"
+    action = "KEEP"
+    condition {
+      tag_state  = "UNTAGGED"
+      newer_than = "7d"
+    }
+  }
+  cleanup_policies {
+    id     = "keep-tagged-release"
+    action = "KEEP"
+    condition {
+      tag_state    = "TAGGED"
+      tag_prefixes = ["release"]
+    }
+  }
+}
+
 resource "google_cloud_run_v2_service" "default" {
-  name     = "cloudrun-service"
+  name     = "swim-rag-backend-go"
   location = var.region
 
 
@@ -8,7 +39,7 @@ resource "google_cloud_run_v2_service" "default" {
   template {
     service_account = google_service_account.service_account.email
     containers {
-      image = "us-docker.pkg.dev/cloudrun/container/hello:latest" # Image to deploy
+      image = "${google_artifact_registry_repository.docker.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker.repository_id}/swim-rag-backend-go:latest"
       liveness_probe {
         http_get {
           path = "/health"
@@ -25,8 +56,8 @@ resource "google_cloud_run_v2_service" "default" {
         name = "DB_USER"
         value_source {
           secret_key_ref {
-            secret  = google_secret_manager_secret.dbuser.secret_id
-            version = google_secret_manager_secret_version.dbuser_data.name
+            secret  = data.google_secret_manager_secret.dbuser.secret_id
+            version = data.google_secret_manager_secret_version.dbuser_data.name
           }
         }
       }

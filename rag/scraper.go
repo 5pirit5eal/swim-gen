@@ -1,13 +1,18 @@
 package rag
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"maps"
 	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/gocolly/colly"
+	"github.com/tmc/langchaingo/llms"
+	"github.com/tmc/langchaingo/schema"
 )
 
 type Plan struct {
@@ -21,10 +26,10 @@ func (p *Plan) String() string {
 
 func (p *Plan) Map() map[string]any {
 	m := make(map[string]any)
-	m["URL"] = p.URL
-	m["Title"] = p.Title
-	m["Description"] = p.Description
-	m["Table"] = p.Table
+	m["url"] = p.URL
+	m["title"] = p.Title
+	m["description"] = p.Description
+	m["table"] = p.Table
 	return m
 }
 
@@ -45,8 +50,8 @@ func (r Row) String() string {
 }
 
 func (t *Table) String() string {
-	tstr := "Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |"
-	tstr += "|---|---|---|---|---|---|---|"
+	tstr := "Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |\n"
+	tstr += "|---|---|---|---|---|---|---|\n"
 	for _, row := range *t {
 		tstr += row.String() + "\n"
 	}
@@ -89,6 +94,10 @@ func (um *URLMap) Load(key string) (Plan, bool) {
 	defer um.mux.Unlock()
 	value, found := um.m[key]
 	return value, found
+}
+
+func (um *URLMap) Len() int {
+	return len(um.m)
 }
 
 type KeyValuePair struct {
@@ -213,11 +222,10 @@ func Scrape(alreadyVisited []string, seeds ...string) (*URLMap, error) {
 						log.Println("No previous row to append content to")
 					}
 					return
+				} else {
+					log.Println("Skipping empty row")
+					return
 				}
-				// } else {
-				// 	log.Println("Skipping empty row")
-				// 	return
-				// }
 			}
 
 			row := Row{
@@ -268,4 +276,39 @@ func Scrape(alreadyVisited []string, seeds ...string) (*URLMap, error) {
 	}
 	scraper.Wait()
 	return visitedURLs, nil
+}
+
+func improvePlan(ctx context.Context, model llms.Model, p Plan, c chan schema.Document, ec chan error) {
+	ms, err := MetadataSchema()
+	if err != nil {
+		log.Println("Failed in retrieving Schema")
+		ec <- err
+		return
+	}
+	var metadata Metadata
+	// Enhance scraped documents with gemini and create meaningful metadata
+	query := fmt.Sprintf(scrapeTemplateStr, p.Title, p.Description, p.Table.String(), ms)
+	answer, err := llms.GenerateFromSinglePrompt(ctx, model, query, llms.WithResponseMIMEType("application/json"))
+	if err != nil {
+		log.Println("Error when generating answer with LLM:", err)
+		ec <- fmt.Errorf("LLM generation error: %w", err)
+		return
+	}
+	log.Println("Successful answer from LLM: ", answer)
+
+	planMap := p.Map()
+	// Parse the answer as JSON
+	err = json.Unmarshal([]byte(answer), &metadata)
+	if err != nil {
+		log.Println("Error parsing LLM response:", err)
+		ec <- fmt.Errorf("JSON unmarshal error: %w", err)
+		return
+	}
+	// Add the results to the map
+	maps.Copy(planMap, StructToMap(metadata))
+	// Create request body by converting the plans into documents
+	c <- schema.Document{
+		PageContent: p.String(),
+		Metadata:    planMap,
+	}
 }

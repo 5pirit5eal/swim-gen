@@ -54,8 +54,10 @@ type Metadata struct {
 	Brust              bool               `json:"brust"`
 	Delfin             bool               `json:"delfin"`
 	Ruecken            bool               `json:"ruecken"`
+	Lagen              bool               `json:"lagen"`
 	Schwierigkeitsgrad Schwierigkeitsgrad `json:"schwierigkeitsgrad"`
 	Trainingstyp       Trainingstyp       `json:"trainingstyp"`
+	Begründung         string
 }
 
 func MetadataSchema() (string, error) {
@@ -66,19 +68,23 @@ func MetadataSchema() (string, error) {
 		"properties": map[string]interface{}{
 			"freistil": map[string]interface{}{
 				"type":        "boolean",
-				"description": "Indicates if the training includes Freistil (Crawl)",
+				"description": "Indicates if the training explicitely includes Freistil (Crawl)",
 			},
 			"brust": map[string]interface{}{
 				"type":        "boolean",
-				"description": "Indicates if the training includes Brust (Breaststroke)",
+				"description": "Indicates if the training explicitely includes Brust (Breaststroke)",
 			},
 			"delfin": map[string]interface{}{
 				"type":        "boolean",
-				"description": "Indicates if the training includes Delfin (Butterfly)",
+				"description": "Indicates if the training explicitely includes Delfin (Butterfly)",
 			},
 			"ruecken": map[string]interface{}{
 				"type":        "boolean",
-				"description": "Indicates if the training includes Ruecken (Backstroke)",
+				"description": "Indicates if the training explicitely includes Ruecken (Backstroke)",
+			},
+			"lagen": map[string]interface{}{
+				"type":        "boolean",
+				"description": "Indicates if the training explicitely includes Lagen (Medley)",
 			},
 			"schwierigkeitsgrad": map[string]interface{}{
 				"type": "string",
@@ -89,7 +95,7 @@ func MetadataSchema() (string, error) {
 					Leistungsschwimmer,
 					Athlet,
 				},
-				"description": "The difficulty level of the training",
+				"description": "The difficulty level of the training. Consider total volume, swim techniques, intensity and breaks",
 			},
 			"trainingstyp": map[string]interface{}{
 				"type": "string",
@@ -105,14 +111,20 @@ func MetadataSchema() (string, error) {
 				},
 				"description": "The type of training",
 			},
+			"Begründung": map[string]interface{}{
+				"type":        "string",
+				"description": "Reasoning for why the LLM added what it did",
+			},
 		},
 		"required": []string{
 			"freistil",
 			"brust",
 			"delfin",
 			"ruecken",
+			"lagen",
 			"schwierigkeitsgrad",
 			"trainingstyp",
+			"Begründung",
 		},
 	}
 

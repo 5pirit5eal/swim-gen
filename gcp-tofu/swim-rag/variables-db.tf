@@ -12,11 +12,11 @@ variable "csql_instance" {
 
 variable "csql_db" {
   type = object({
-    name     = string
-    user     = string
-    password = optional(string)
+    id   = string
+    name = string
+    tier = string
   })
-  description = "Name of the database"
+  description = "Database details including ID, name, and tier"
 }
 
 variable "project_id" {

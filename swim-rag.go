@@ -45,7 +45,7 @@ func main() {
 	// log.Println("listening on", address)
 	// log.Fatal(http.ListenAndServe(address, mux))
 	plans, err := rag.Scrape(make([]string, 0), "https://docswim.de/index.php/2017/07/10/trainingsplan-01-grundlagen-fundament-3-700m/", "https://docswim.de/index.php/2019/09/02/trainingsplan-99-kraulschwimmen-lernen-der-kraul-kurs-teil-2-2-1-700m/")
-	log.Println("Scraping produced", len(plans.Range()), "plans")
+	log.Println("Scraping produced", plans.Len(), "plans")
 	if err != nil {
 		log.Fatal(err)
 	}

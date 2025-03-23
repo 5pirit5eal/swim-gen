@@ -25,7 +25,30 @@ Context:
 const scrapeTemplateStr = `
 Deine Aufgabe ist die Klassifikation von Schwimmtrainingsplänen. 
 Du bekommst eine Reihe von Informationen über den Trainingsplan und 
-sollst eine strukturierte Antwort mit Deutschem Text wiedergeben. 
+sollst eine strukturierte Antwort mit Deutschem Text wiedergeben.
+Typischerweise wird bei Trainingsplänen mit GA (Grundlagenausdauer) in
+den jeweiligen Abschnitten Kraul geschwommen.
+Dabei sind folgende Abkürzungen relevant:
+{
+    "K": "Kraulschwimmen",
+    "Kr": "Kraulschwimmen",
+    "Freistil": "Kraulschwimmen",
+    "F": "Kraulschwimmen",
+    "Fr": "Kraulschwimmen",
+    "R": "Rückenschwimmen",
+    "B": "Brustschwimmen",
+    "Br": "Brustschwimmen",
+    "S": "Schmetterlingsschwimmen",
+    "D": "Delfinsschwimmen",
+    "Lagen": "Lagenstaffel",
+    "DL": "Dauerlauf",
+    "SL": "Sprintlauf",
+    "GA*": "Grundlagenausdauer",
+    "SA": "Schnelligkeitsausdauer",
+    "TA": "Technikausdauer",
+    "TÜ": "Technische Übung",
+}
+
 Die folgenden Informationen sind zu beachten:
 
 Titel:

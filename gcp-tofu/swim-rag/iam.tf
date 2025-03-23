@@ -9,7 +9,7 @@ locals {
 }
 
 resource "google_service_account" "service_account" {
-  account_id                   = "swim-rag-sa"
+  account_id                   = "swim-rag-cr-sa"
   display_name                 = "Swim RAG Cloud Run Service Account"
   project                      = var.project_id
   create_ignore_already_exists = true
@@ -23,7 +23,7 @@ resource "google_project_iam_member" "service_account_iam" {
 }
 
 resource "google_secret_manager_secret_iam_member" "sa_secret_access" {
-  for_each  = var.secret_ids
+  for_each  = toset(var.secret_ids)
   secret_id = each.key
   project   = var.project_id
   role      = "roles/secretmanager.secretAccessor"
