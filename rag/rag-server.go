@@ -91,7 +91,7 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 
 	log.Println("Creating database connection...")
 	// Initialize the database connection
-	// replace with connection pool and connect via cloud sql proxy and Unix socket
+	// TODO: connect via cloud sql proxy (Unix socket or TCP) or directly via URL
 	config.DB.URL = "postgres://" + config.DB.User + ":" + config.DB.Pass + "@" + config.DB.IP + ":" + config.DB.Port + "/" + config.DB.Name
 	conn, err := pgxpool.New(ctx, config.DB.URL)
 	if err != nil {
@@ -235,7 +235,7 @@ func (rs *RAGServer) Close() {
 	}
 }
 
-func (rs *RAGServer) ScrapeHandler(w http.ResponseWriter, rq *http.Request) {
+func (rs *RAGServer) Scrape(w http.ResponseWriter, rq *http.Request) {
 	// Parse the URL from the request
 	url := rq.URL.Query().Get("url")
 	if url == "" {

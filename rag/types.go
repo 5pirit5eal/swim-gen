@@ -5,6 +5,14 @@ import (
 	"fmt"
 )
 
+type DBMethod string
+
+const (
+	MethodUnixSocket DBMethod = "unix"
+	MethodTCP        DBMethod = "tcp"
+	MethodURL        DBMethod = "url"
+)
+
 type Config struct {
 	ProjectID string `env:"PROJECT_ID"`
 	Region    string `env:"REGION"`
@@ -16,13 +24,14 @@ type Config struct {
 	}
 
 	DB struct {
-		Name         string `env:"DB_NAME"`
-		IP           string `env:"DB_IP"`
-		Port         string `env:"DB_PORT"`
-		User         string `env:"DB_USER"`
-		PassLocation string `env:"DB_PASS_LOCATION"`
-		Pass         string `env:"DB_PASS"`
-		URL          string `env:"DB_URL"`
+		Name         string   `env:"DB_NAME"`
+		IP           string   `env:"DB_IP"`
+		Port         string   `env:"DB_PORT"`
+		User         string   `env:"DB_USER"`
+		PassLocation string   `env:"DB_PASS_LOCATION"`
+		Pass         string   `env:"DB_PASS"`
+		URL          string   `env:"DB_URL"`
+		Method       DBMethod `env:"DB_METHOD"`
 	}
 }
 
