@@ -47,6 +47,13 @@ docker-run() {
     -i $container_id
 }
 
+start-proxy() {
+    docker run -d -v ./cloudsql:/cloudsql \
+        -v ~/.config/gcloud/application_default_credentials.json:/gcp/creds.json \
+        gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.15.2 --unix-socket=/cloudsql \
+        --credentials-file /gcp/creds.json "$DB_URL"
+}
+
 # Check if the provided argument matches any of the functions
 if [ -n "$1" ] && ! declare -f "$1" > /dev/null; then
   echo "Error: Unknown task '$1'"
