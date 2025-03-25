@@ -113,6 +113,10 @@ func (um *URLMap) Range() <-chan KeyValuePair {
 			um.mux.Lock()
 			kvp := KeyValuePair{URL: k, Plan: v}
 			um.mux.Unlock()
+			// Only return plans with a table
+			if len(v.Table) == 0 {
+				continue
+			}
 			ch <- kvp
 		}
 	}()

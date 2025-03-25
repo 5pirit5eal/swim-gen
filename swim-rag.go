@@ -36,7 +36,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /add/", ragServer.AddDocuments)
 	mux.HandleFunc("POST /query/", ragServer.Query)
-	mux.HandleFunc("POST /scrape/", ragServer.Scrape)
+	mux.HandleFunc("GET /scrape", ragServer.Scrape)
 	mux.HandleFunc("GET /example/", func(w http.ResponseWriter, r *http.Request) {
 		if err := rag.WriteResponseJSON(w, http.StatusOK, rag.Example(ctx, config)); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

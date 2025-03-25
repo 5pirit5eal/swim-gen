@@ -20,17 +20,16 @@ type Config struct {
 	Embedding struct {
 		Name  string `env:"EMBEDDING_NAME"`
 		Model string `env:"EMBEDDING_MODEL"`
-		SIZE  int    `env:"EMBEDDING_SIZE"`
+		Size  int    `env:"EMBEDDING_SIZE"`
 	}
 
 	DB struct {
 		Name         string   `env:"DB_NAME"`
-		IP           string   `env:"DB_IP"`
+		Instance     string   `env:"DB_INSTANCE"`
 		Port         string   `env:"DB_PORT"`
 		User         string   `env:"DB_USER"`
-		PassLocation string   `env:"DB_PASS_LOCATION"`
 		Pass         string   `env:"DB_PASS"`
-		URL          string   `env:"DB_URL"`
+		PassLocation string   `env:"DB_PASS_LOCATION"`
 		Method       DBMethod `env:"DB_METHOD"`
 	}
 }

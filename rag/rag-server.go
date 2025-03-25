@@ -23,7 +23,7 @@ import (
 type RAGServer struct {
 	ctx         context.Context
 	conn        *pgxpool.Pool
-	store       pgvector.Store
+	store       *pgvector.Store
 	modelClient llms.Model
 	config      Config
 }
@@ -92,25 +92,30 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 	log.Println("Creating database connection...")
 	// Initialize the database connection
 	// TODO: connect via cloud sql proxy (Unix socket or TCP) or directly via URL
-	config.DB.URL = "postgres://" + config.DB.User + ":" + config.DB.Pass + "@" + config.DB.IP + ":" + config.DB.Port + "/" + config.DB.Name
-	conn, err := pgxpool.New(ctx, config.DB.URL)
+	config.DB.Instance = fmt.Sprintf("host=/tmp/cloudsql/%s database=%s user=%s password=%s",
+		config.DB.Instance, config.DB.Name, config.DB.User, config.DB.Pass)
+	conn, err := pgxpool.New(ctx, config.DB.Instance)
 	if err != nil {
 		return nil, err
 	}
+	log.Println("Database connection created successfully")
 	if _, err = conn.Exec(ctx, "CREATE EXTENSION IF NOT EXISTS vector"); err != nil {
+		log.Println("Failed to create vector extension:", err.Error())
 		return nil, err
 	}
+	log.Println("Created vector extension successfully")
 	// Create a new store
 	store, err := pgvector.New(
 		ctx, pgvector.WithConn(conn),
-		pgvector.WithEmbeddingTableName(config.Embedding.Model+"-"+config.Embedding.Name),
+		pgvector.WithEmbeddingTableName(config.Embedding.Name),
 		pgvector.WithCollectionTableName("documents"),
 		pgvector.WithEmbedder(embedder),
-		pgvector.WithVectorDimensions(config.Embedding.SIZE),
+		pgvector.WithVectorDimensions(config.Embedding.Size),
 	)
 	if err != nil {
 		return nil, err
 	}
+	log.Println("Created store successfully")
 	// Create the URL table if it doesn't exist
 	tx, err := conn.Begin(ctx)
 	if err != nil {
@@ -128,9 +133,10 @@ func NewRAGServer(ctx context.Context, config Config) (*RAGServer, error) {
 
 	return &RAGServer{
 		ctx:         ctx,
-		store:       store,
+		store:       &store,
 		modelClient: vertexClient,
 		config:      config,
+		conn:        conn,
 	}, nil
 }
 
@@ -236,21 +242,24 @@ func (rs *RAGServer) Close() {
 }
 
 func (rs *RAGServer) Scrape(w http.ResponseWriter, rq *http.Request) {
+	log.Println("Getting scraping request...")
 	// Parse the URL from the request
 	url := rq.URL.Query().Get("url")
 	if url == "" {
 		http.Error(w, "Missing url parameter", http.StatusBadRequest)
 		return
 	}
+	log.Println("...for URL:", url)
 
 	// Load urls in the database into the scraper
 	alreadyVisited := make([]string, 0)
 
-	rows, err := rs.conn.Query(rs.ctx, "SELECT url FROM urls")
+	rows, err := rs.conn.Query(rs.ctx, "select url from urls")
 	if err != nil {
 		http.Error(w, "Failed to query database: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Println("Queried database successfully")
 	defer rows.Close()
 	for rows.Next() {
 		var url string
@@ -277,7 +286,7 @@ func (rs *RAGServer) Scrape(w http.ResponseWriter, rq *http.Request) {
 		go improvePlan(rs.ctx, rs.modelClient, kvp.Plan, dc, ec)
 	}
 
-	for i := 0; i < plans.Len(); i++ {
+	for range plans.Range() {
 		select {
 		case doc := <-dc:
 			documents = append(documents, doc)
@@ -290,6 +299,7 @@ func (rs *RAGServer) Scrape(w http.ResponseWriter, rq *http.Request) {
 		http.Error(w, fmt.Sprintf("Failed to improve plans: %v", errors), http.StatusInternalServerError)
 		return
 	}
+	log.Println("Adding documents to the database...")
 
 	// Store documents and their embeddings in the database
 	ids, err := rs.store.AddDocuments(rs.ctx, documents)
@@ -297,10 +307,12 @@ func (rs *RAGServer) Scrape(w http.ResponseWriter, rq *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Println("Added documents to the database successfully")
 
 	batch := &pgx.Batch{}
 	for kvp := range plans.Range() {
-		batch.Queue("INSERT INTO urls (url) VALUES ($1)", kvp.URL)
+		log.Println("Inserting URL into database:", kvp.URL)
+		batch.Queue("INSERT INTO urls (url) VALUES ($1) ON CONFLICT (url) DO NOTHING", kvp.URL)
 	}
 	br := rs.conn.SendBatch(rs.ctx, batch)
 
@@ -308,6 +320,7 @@ func (rs *RAGServer) Scrape(w http.ResponseWriter, rq *http.Request) {
 		http.Error(w, "Failed to insert urls into database: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Println("Inserted URLs into database successfully")
 
 	// Respond with a success message
 	w.Header().Set("Content-Type", "application/json")
