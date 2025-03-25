@@ -48,7 +48,7 @@ docker-run() {
 }
 
 start-proxy() {
-    mkdir /tmp/cloudsql
+    mkdir -p /tmp/cloudsql
     chmod 777 /tmp/cloudsql
     docker run -d -v /tmp/cloudsql:/cloudsql \
       -v ~/.config/gcloud/application_default_credentials.json:/gcp/creds.json \
