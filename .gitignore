@@ -30,3 +30,7 @@ go.work.sum
 # Data files and other artifacts
 *.json
 *.html
+cloud-sql-proxy
+
+# third-party dependencies
+third-party/*
