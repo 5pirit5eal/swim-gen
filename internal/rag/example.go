@@ -5,13 +5,14 @@ import (
 	"log"
 	"os"
 
+	"github.com/5pirit5eal/swim-rag/internal/models"
 	"github.com/golobby/dotenv"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/googleai"
 	"github.com/tmc/langchaingo/llms/googleai/vertex"
 )
 
-func Example(ctx context.Context, config Config) string {
+func Example(ctx context.Context, config models.Config) string {
 	log.Println("Initializing example...")
 	file, err := os.Open(".env")
 	if err != nil {

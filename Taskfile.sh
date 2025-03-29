@@ -5,7 +5,19 @@ source .env
 
 run() {
   echo "Running the application..."
-  go run swim-rag.go
+  go run ./cmd/swim-rag/swim-rag.go
+}
+
+validate() {
+  go vet ./...
+}
+
+format() {
+  go fmt ./...
+}
+
+test() {
+  go test -v ./...
 }
 
 create-identity-token() {
@@ -50,7 +62,7 @@ docker-run() {
 start-proxy() {
     mkdir -p /tmp/cloudsql
     chmod 777 /tmp/cloudsql
-    docker run -d -v /tmp/cloudsql:/cloudsql \
+    sudo docker run -d -v /tmp/cloudsql:/cloudsql \
       -v ~/.config/gcloud/application_default_credentials.json:/gcp/creds.json \
       gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.15.2 --unix-socket=/cloudsql \
       --credentials-file /gcp/creds.json "$DB_INSTANCE"

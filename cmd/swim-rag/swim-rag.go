@@ -9,7 +9,9 @@ import (
 
 	"github.com/golobby/dotenv"
 
-	"github.com/5pirit5eal/swim-rag/rag"
+	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-rag/internal/rag"
+	"github.com/5pirit5eal/swim-rag/internal/server"
 )
 
 func main() {
@@ -18,7 +20,7 @@ func main() {
 	log.Println("Starting server...")
 
 	ctx := context.Background()
-	config := rag.Config{}
+	config := models.Config{}
 	file, err := os.Open(".env")
 	if err != nil {
 		log.Fatal(err)
@@ -27,7 +29,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ragServer, err := rag.NewRAGServer(ctx, config)
+	ragServer, err := server.NewRAGServer(ctx, config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,7 +40,7 @@ func main() {
 	mux.HandleFunc("POST /query/", ragServer.Query)
 	mux.HandleFunc("GET /scrape", ragServer.Scrape)
 	mux.HandleFunc("GET /example/", func(w http.ResponseWriter, r *http.Request) {
-		if err := rag.WriteResponseJSON(w, http.StatusOK, rag.Example(ctx, config)); err != nil {
+		if err := models.WriteResponseJSON(w, http.StatusOK, rag.Example(ctx, config)); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	})

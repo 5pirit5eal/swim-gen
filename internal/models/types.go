@@ -1,4 +1,4 @@
-package rag
+package models
 
 import (
 	"encoding/json"
@@ -17,6 +17,7 @@ type Config struct {
 	ProjectID string `env:"PROJECT_ID"`
 	Region    string `env:"REGION"`
 	Model     string `env:"MODEL"`
+	APIKey    string `env:"API_KEY"`
 	Embedding struct {
 		Name  string `env:"EMBEDDING_NAME"`
 		Model string `env:"EMBEDDING_MODEL"`
@@ -32,6 +33,16 @@ type Config struct {
 		PassLocation string   `env:"DB_PASS_LOCATION"`
 		Method       DBMethod `env:"DB_METHOD"`
 	}
+}
+
+var TABLE_HEADER = []string{
+	"Anzahl",
+	"Multiplikator",
+	"Strecke(m)",
+	"Pause(s)",
+	"Inhalt",
+	"Intensität",
+	"Umfang",
 }
 
 type Schwierigkeitsgrad string
@@ -65,7 +76,7 @@ type Metadata struct {
 	Lagen              bool               `json:"lagen"`
 	Schwierigkeitsgrad Schwierigkeitsgrad `json:"schwierigkeitsgrad"`
 	Trainingstyp       Trainingstyp       `json:"trainingstyp"`
-	Begründung         string
+	Begründung         string             `json:"Begründung"`
 }
 
 func MetadataSchema() (string, error) {
