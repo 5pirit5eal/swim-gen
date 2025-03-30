@@ -12,7 +12,6 @@ import (
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/googleai"
 	"github.com/tmc/langchaingo/schema"
-	"github.com/tmc/langchaingo/vectorstores"
 )
 
 type RAGServer struct {
@@ -98,16 +97,9 @@ func (rs *RAGServer) Query(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Find the most similar documents.
-	docs, err := rs.db.Store.SimilaritySearch(rs.ctx, qr.Content, 10, vectorstores.WithFilters(qr.Filter))
+	answer, err := rs.db.Query(rs.ctx, rs.client, qr.Content, qr.Filter)
 	if err != nil {
-		http.Error(w, fmt.Errorf("similarity search: %w", err).Error(), http.StatusInternalServerError)
-		return
-	}
-
-	answer, err := rag.Answer(rs.ctx, rs.client, qr.Content, docs)
-	if err != nil {
-		http.Error(w, fmt.Errorf("answer generation: %w", err).Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

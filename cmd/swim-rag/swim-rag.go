@@ -36,10 +36,10 @@ func main() {
 	defer ragServer.Close()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /add/", ragServer.AddDocuments)
-	mux.HandleFunc("POST /query/", ragServer.Query)
+	mux.HandleFunc("POST /add", ragServer.AddDocuments)
+	mux.HandleFunc("POST /query", ragServer.Query)
 	mux.HandleFunc("GET /scrape", ragServer.Scrape)
-	mux.HandleFunc("GET /example/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /example", func(w http.ResponseWriter, r *http.Request) {
 		if err := models.WriteResponseJSON(w, http.StatusOK, rag.Example(ctx, config)); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}

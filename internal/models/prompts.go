@@ -13,38 +13,6 @@ const (
 	MethodURL        DBMethod = "url"
 )
 
-type Config struct {
-	ProjectID string `env:"PROJECT_ID"`
-	Region    string `env:"REGION"`
-	Model     string `env:"MODEL"`
-	APIKey    string `env:"API_KEY"`
-	Embedding struct {
-		Name  string `env:"EMBEDDING_NAME"`
-		Model string `env:"EMBEDDING_MODEL"`
-		Size  int    `env:"EMBEDDING_SIZE"`
-	}
-
-	DB struct {
-		Name         string   `env:"DB_NAME"`
-		Instance     string   `env:"DB_INSTANCE"`
-		Port         string   `env:"DB_PORT"`
-		User         string   `env:"DB_USER"`
-		Pass         string   `env:"DB_PASS"`
-		PassLocation string   `env:"DB_PASS_LOCATION"`
-		Method       DBMethod `env:"DB_METHOD"`
-	}
-}
-
-var TABLE_HEADER = []string{
-	"Anzahl",
-	"Multiplikator",
-	"Strecke(m)",
-	"Pause(s)",
-	"Inhalt",
-	"Intensität",
-	"Umfang",
-}
-
 type Schwierigkeitsgrad string
 
 const (
@@ -144,6 +112,63 @@ func MetadataSchema() (string, error) {
 			"schwierigkeitsgrad",
 			"trainingstyp",
 			"Begründung",
+		},
+	}
+
+	jsonSchema, err := json.MarshalIndent(schema, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal JSON schema: %w", err)
+	}
+
+	return string(jsonSchema), nil
+}
+
+func TableSchema() (string, error) {
+	schema := map[string]interface{}{
+		"$schema": "http://json-schema.org/draft-07/schema#",
+		"title":   "Table",
+		"type":    "array",
+		"items": map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"amount": map[string]interface{}{
+					"type":        "integer",
+					"description": "The number of repetitions or sets",
+				},
+				"multiplier": map[string]interface{}{
+					"type":        "string",
+					"description": "The multiplier for the distance (e.g., 'x', 'times')",
+				},
+				"distance": map[string]interface{}{
+					"type":        "integer",
+					"description": "The distance in meters",
+				},
+				"break": map[string]interface{}{
+					"type":        "string",
+					"description": "The break time in seconds",
+				},
+				"content": map[string]interface{}{
+					"type":        "string",
+					"description": "The content or description of the row",
+				},
+				"intensity": map[string]interface{}{
+					"type":        "string",
+					"description": "The intensity level of the activity",
+				},
+				"sum": map[string]interface{}{
+					"type":        "integer",
+					"description": "The total volume or sum for the row",
+				},
+			},
+			"required": []string{
+				"amount",
+				"multiplier",
+				"distance",
+				"break",
+				"content",
+				"intensity",
+				"sum",
+			},
 		},
 	}
 
