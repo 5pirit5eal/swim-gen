@@ -33,7 +33,7 @@ Die Antwort soll in Deutsch sein.
 Die Antwort soll in JSON-Format sein.
 {
 	"description": "Eine kurze Beschreibung, Kommentare oder Anmerkungen zu dem Trainingsplan, damit der Schwimmer den Plan besser versteht",
-	"index": "Der Index des Trainingsplans in der Liste",
+	"index": "Der Index des Trainingsplans in der Liste als integer",
 }
 
 Die Antwort soll keine Fragen enthalten und auch nicht die Anweisung wiederholen.

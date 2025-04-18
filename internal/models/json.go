@@ -67,3 +67,48 @@ func StructToMap(item any) map[string]any {
 	}
 	return out
 }
+
+func JSONInterfaceToStruct(data any, target any) error {
+	dv := reflect.ValueOf(data)
+	if dv.Kind() == reflect.Ptr {
+		dv = dv.Elem()
+	}
+	tv := reflect.ValueOf(target)
+	if tv.Kind() == reflect.Ptr {
+		tv = tv.Elem()
+	}
+
+	tt := tv.Type()
+
+	switch {
+	case dv.Kind() == reflect.Map && tt.Kind() == reflect.Struct:
+		for i := 0; i < tt.NumField(); i++ {
+			field := tt.Field(i)
+			jsonTag, found := field.Tag.Lookup("json")
+			if !found {
+				return fmt.Errorf("error getting JSON tag")
+			}
+			fieldValue := dv.MapIndex(reflect.ValueOf(jsonTag))
+			if fieldValue.IsValid() {
+				if err := JSONInterfaceToStruct(fieldValue.Interface(), tv.FieldByName(field.Name).Addr().Interface()); err != nil {
+					return err
+				}
+			}
+		}
+	case dv.Kind() == reflect.Slice && tt.Kind() == reflect.Slice:
+		for i := 0; i < dv.Len(); i++ {
+			elem := dv.Index(i)
+			newElem := reflect.New(tt.Elem()).Elem()
+			if err := JSONInterfaceToStruct(elem.Interface(), newElem.Addr().Interface()); err != nil {
+				return err
+			}
+			tv.Set(reflect.Append(tv, newElem))
+		}
+	case dv.Kind() == reflect.Float64 && tt.Kind() == reflect.Int:
+		tv.Set(reflect.ValueOf(int(dv.Float())))
+	case dv.Kind() == tt.Kind():
+		tv.Set(reflect.ValueOf(dv.Interface()))
+	}
+	return nil
+
+}

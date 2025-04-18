@@ -59,6 +59,7 @@ func ChoosePlan(ctx context.Context, llm llms.Model, q string, docs []schema.Doc
 	if err != nil {
 		return nil, fmt.Errorf("error generating answer: %w", err)
 	}
+	log.Println("Answer from LLM:", answer)
 	answer = cleanResponse(answer)
 	var cr models.ChooseResponse
 	err = json.Unmarshal([]byte(answer), &cr)
@@ -67,10 +68,9 @@ func ChoosePlan(ctx context.Context, llm llms.Model, q string, docs []schema.Doc
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 	var t models.Table
-	err = json.Unmarshal([]byte(docs[cr.Idx].Metadata["table"].(string)), &t)
+	err = models.JSONInterfaceToStruct(docs[cr.Idx].Metadata["table"], t)
 	if err != nil {
-		log.Println("Error parsing Table:", err)
-		return nil, fmt.Errorf("error parsing LLM response: %w", err)
+		return nil, fmt.Errorf("error parsing table from LLM response: %w", err)
 	}
 
 	return &models.RAGResponse{

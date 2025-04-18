@@ -131,43 +131,43 @@ func TableSchema() (string, error) {
 		"items": map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
-				"amount": map[string]interface{}{
+				"Amount": map[string]interface{}{
 					"type":        "integer",
 					"description": "The number of repetitions or sets",
 				},
-				"multiplier": map[string]interface{}{
+				"Multiplier": map[string]interface{}{
 					"type":        "string",
 					"description": "The multiplier for the distance (e.g., 'x', 'times')",
 				},
-				"distance": map[string]interface{}{
+				"Distance": map[string]interface{}{
 					"type":        "integer",
 					"description": "The distance in meters",
 				},
-				"break": map[string]interface{}{
+				"Break": map[string]interface{}{
 					"type":        "string",
 					"description": "The break time in seconds",
 				},
-				"content": map[string]interface{}{
+				"Content": map[string]interface{}{
 					"type":        "string",
 					"description": "The content or description of the row",
 				},
-				"intensity": map[string]interface{}{
+				"Intensity": map[string]interface{}{
 					"type":        "string",
 					"description": "The intensity level of the activity",
 				},
-				"sum": map[string]interface{}{
+				"Sum": map[string]interface{}{
 					"type":        "integer",
 					"description": "The total volume or sum for the row",
 				},
 			},
 			"required": []string{
-				"amount",
-				"multiplier",
-				"distance",
-				"break",
-				"content",
-				"intensity",
-				"sum",
+				"Amount",
+				"Multiplier",
+				"Distance",
+				"Break",
+				"Content",
+				"Intensity",
+				"Sum",
 			},
 		},
 	}

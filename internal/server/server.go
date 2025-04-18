@@ -82,7 +82,6 @@ func (rs *RAGServer) AddDocuments(w http.ResponseWriter, req *http.Request) {
 	}
 	// Respond with a success message
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"success","ids":` + fmt.Sprintf("%v", ids) + `}`))
 }
 
@@ -134,5 +133,4 @@ func (rs *RAGServer) Scrape(w http.ResponseWriter, rq *http.Request) {
 	// Respond with a success message
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"success"}`))
 }
