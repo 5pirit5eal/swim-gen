@@ -5,6 +5,9 @@ type Config struct {
 	Region    string `env:"REGION"`
 	Model     string `env:"MODEL"`
 	APIKey    string `env:"API_KEY"`
+	LogLevel  string `env:"LOG_LEVEL"`
+	Port      string `env:"PORT"`
+
 	Embedding struct {
 		Name  string `env:"EMBEDDING_NAME"`
 		Model string `env:"EMBEDDING_MODEL"`

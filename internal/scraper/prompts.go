@@ -16,15 +16,17 @@ Dabei sind folgende Abkürzungen relevant:
     "R": "Rückenschwimmen",
     "B": "Brustschwimmen",
     "Br": "Brustschwimmen",
-    "S": "Schmetterlingsschwimmen",
-    "D": "Delfinsschwimmen",
+    "Be", "Beinarbeit",
+    "S": "Schmetterling/Delfinschwimmen",
+    "D": "Schmetterling/Delfinschwimmen",
     "Lagen": "Lagenstaffel",
     "DL": "Dauerlauf",
     "SL": "Sprintlauf",
-    "GA*": "Grundlagenausdauer",
+    "GA": "Grundlagenausdauer",
     "SA": "Schnelligkeitsausdauer",
     "TA": "Technikausdauer",
     "TÜ": "Technische Übung",
+    "TS": "Technisch Sauber"
 }
 
 Die folgenden Informationen sind zu beachten:

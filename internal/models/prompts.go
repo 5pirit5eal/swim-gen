@@ -13,38 +13,38 @@ const (
 	MethodURL        DBMethod = "url"
 )
 
-type Schwierigkeitsgrad string
+type DifficultyLevel string
 
 const (
-	Nichtschwimmer     Schwierigkeitsgrad = "Nichtschwimmer"
-	Anfaenger          Schwierigkeitsgrad = "Anfaenger"
-	Fortgeschritten    Schwierigkeitsgrad = "Fortgeschritten"
-	Leistungsschwimmer Schwierigkeitsgrad = "Leistungsschwimmer"
-	Athlet             Schwierigkeitsgrad = "Top-Athlet"
+	Nichtschwimmer     DifficultyLevel = "Nichtschwimmer"
+	Anfaenger          DifficultyLevel = "Anfaenger"
+	Fortgeschritten    DifficultyLevel = "Fortgeschritten"
+	Leistungsschwimmer DifficultyLevel = "Leistungsschwimmer"
+	Athlet             DifficultyLevel = "Top-Athlet"
 )
 
-type Trainingstyp string
+type Training string
 
 const (
-	Techniktraining       Trainingstyp = "Techniktraining"
-	Leistungstest         Trainingstyp = "Leistungstest"
-	Grundlagen            Trainingstyp = "Grundlagenausdauer"
-	Recovery              Trainingstyp = "Recovery"
-	Kurzstrecken          Trainingstyp = "Kurzstrecken"
-	Langstrecken          Trainingstyp = "Langstrecken"
-	Atemmangel            Trainingstyp = "Atemmangel"
-	Wettkampfvorbereitung Trainingstyp = "Wettkampfvorbereitung"
+	Techniktraining       Training = "Techniktraining"
+	Leistungstest         Training = "Leistungstest"
+	Grundlagen            Training = "Grundlagenausdauer"
+	Recovery              Training = "Recovery"
+	Kurzstrecken          Training = "Kurzstrecken"
+	Langstrecken          Training = "Langstrecken"
+	Atemmangel            Training = "Atemmangel"
+	Wettkampfvorbereitung Training = "Wettkampfvorbereitung"
 )
 
 type Metadata struct {
-	Freistil           bool               `json:"freistil"`
-	Brust              bool               `json:"brust"`
-	Delfin             bool               `json:"delfin"`
-	Ruecken            bool               `json:"ruecken"`
-	Lagen              bool               `json:"lagen"`
-	Schwierigkeitsgrad Schwierigkeitsgrad `json:"schwierigkeitsgrad"`
-	Trainingstyp       Trainingstyp       `json:"trainingstyp"`
-	Begründung         string             `json:"Begründung"`
+	HasFreestyle    bool            `json:"freistil"`
+	HasBreaststroke bool            `json:"brust"`
+	HasButterfly    bool            `json:"delfin"`
+	HasBackstroke   bool            `json:"ruecken"`
+	HasMeddley      bool            `json:"lagen"`
+	Difficulty      DifficultyLevel `json:"schwierigkeitsgrad"`
+	TrainingType    Training        `json:"trainingstyp"`
+	Reasoning       string          `json:"Begründung"`
 }
 
 func MetadataSchema() (string, error) {
@@ -75,7 +75,7 @@ func MetadataSchema() (string, error) {
 			},
 			"schwierigkeitsgrad": map[string]interface{}{
 				"type": "string",
-				"enum": []Schwierigkeitsgrad{
+				"enum": []DifficultyLevel{
 					Nichtschwimmer,
 					Anfaenger,
 					Fortgeschritten,
@@ -86,7 +86,7 @@ func MetadataSchema() (string, error) {
 			},
 			"trainingstyp": map[string]interface{}{
 				"type": "string",
-				"enum": []Trainingstyp{
+				"enum": []Training{
 					Techniktraining,
 					Leistungstest,
 					Grundlagen,

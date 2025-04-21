@@ -3,14 +3,16 @@ package rag
 import (
 	"context"
 	"fmt"
-	"log"
 
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/go-chi/httplog/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tmc/langchaingo/embeddings"
+	"github.com/tmc/langchaingo/llms"
+	"github.com/tmc/langchaingo/llms/googleai"
 	"github.com/tmc/langchaingo/vectorstores/pgvector"
 )
 
@@ -19,11 +21,25 @@ const (
 )
 
 type RAGDB struct {
-	Conn  pgvector.PGXConn
-	Store *pgvector.Store
+	Conn   pgvector.PGXConn
+	Store  *pgvector.Store
+	Client llms.Model
 }
 
-func NewStore(client embeddings.EmbedderClient, ctx context.Context, cfg models.Config) (*RAGDB, error) {
+func NewGoogleAIStore(ctx context.Context, cfg models.Config) (*RAGDB, error) {
+	logger := httplog.LogEntry(ctx)
+	// Initialize the LLM client
+	client, err := googleai.New(
+		ctx, googleai.WithCloudProject(cfg.ProjectID),
+		googleai.WithCloudLocation(cfg.Region),
+		googleai.WithDefaultModel(cfg.Model),
+		googleai.WithDefaultEmbeddingModel(cfg.Embedding.Model),
+		googleai.WithHarmThreshold(googleai.HarmBlockLowAndAbove),
+		googleai.WithAPIKey(cfg.APIKey),
+	)
+	if err != nil {
+		return nil, err
+	}
 	// Load the database password from Google Secret Manager
 	if cfg.DB.Pass == "" {
 		pass, err := GetSecret(ctx, cfg.DB.PassLocation)
@@ -32,7 +48,7 @@ func NewStore(client embeddings.EmbedderClient, ctx context.Context, cfg models.
 		}
 		cfg.DB.Pass = pass
 	}
-	log.Println("Got DB password successfully")
+	logger.Info("Got DB password successfully")
 
 	// Create an embedder
 	embedder, err := embeddings.NewEmbedder(client)
@@ -40,7 +56,7 @@ func NewStore(client embeddings.EmbedderClient, ctx context.Context, cfg models.
 		return nil, err
 	}
 
-	log.Println("Creating database connection...")
+	logger.Info("Creating database connection...")
 	// Initialize the database connection
 	// TODO: connect via cloud sql proxy (Unix socket or TCP) or directly via URL
 	cfg.DB.Instance = fmt.Sprintf("host=/tmp/cloudsql/%s database=%s user=%s password=%s",
@@ -49,7 +65,7 @@ func NewStore(client embeddings.EmbedderClient, ctx context.Context, cfg models.
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Database connection created successfully")
+	logger.Info("Database connection created successfully")
 
 	// Create a new store
 	store, err := pgvector.New(
@@ -64,7 +80,7 @@ func NewStore(client embeddings.EmbedderClient, ctx context.Context, cfg models.
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Created store successfully")
+	logger.Info("Created store successfully")
 	// Create the URL table if it doesn't exist
 	tx, err := conn.Begin(ctx)
 	if err != nil {
@@ -77,7 +93,8 @@ func NewStore(client embeddings.EmbedderClient, ctx context.Context, cfg models.
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
-	return &RAGDB{Store: &store, Conn: conn}, nil
+	logger.Info("Setup URL table successfully")
+	return &RAGDB{Store: &store, Conn: conn, Client: client}, nil
 }
 
 // GetSecret retrieves the database password from Google Secret Manager.
@@ -87,7 +104,8 @@ func NewStore(client embeddings.EmbedderClient, ctx context.Context, cfg models.
 // The secret location should be in the format:
 // "projects/{project_id}/secrets/{secret_name}/versions/latest".
 func GetSecret(ctx context.Context, location string) (string, error) {
-	log.Printf("Getting %s from secret manager", location)
+	logger := httplog.LogEntry(ctx)
+	logger.Info("Getting secret from secret manager", "location", location)
 	// Create a new Secret Manager client
 	// and access the secret version.
 	c, err := secretmanager.NewClient(ctx)
@@ -101,7 +119,7 @@ func GetSecret(ctx context.Context, location string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	log.Println("Got DB password from secret manager successfully")
+	logger.Info("Got DB password from secret manager successfully")
 	// The secret payload is a byte array, so convert it to a string.
 	return string(secret.Payload.Data), nil
 }

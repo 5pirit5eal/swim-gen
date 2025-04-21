@@ -3,14 +3,22 @@ package main
 import (
 	"cmp"
 	"context"
+	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httplog/v2"
+	"github.com/go-chi/render"
 	"github.com/golobby/dotenv"
 
 	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-rag/internal/scraper"
 	"github.com/5pirit5eal/swim-rag/internal/server"
 )
 
@@ -19,8 +27,7 @@ func main() {
 	log.SetOutput(os.Stdout)
 	log.Println("Starting server...")
 
-	ctx := context.Background()
-	config := models.Config{}
+	cfg := models.Config{}
 	projectRoot, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -29,27 +36,83 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := dotenv.NewDecoder(file).Decode(&config); err != nil {
+	if err := dotenv.NewDecoder(file).Decode(&cfg); err != nil {
 		log.Fatal(err)
 	}
 
-	ragServer, err := server.NewRAGServer(ctx, config)
+	logger, err := setupLogger(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer ragServer.Close()
+	router := NewRouter("", cfg, logger)
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /add", ragServer.AddDocuments)
-	mux.HandleFunc("POST /query", ragServer.Query)
-	mux.HandleFunc("GET /scrape", ragServer.Scrape)
-	// mux.HandleFunc("GET /example", func(w http.ResponseWriter, r *http.Request) {
-	// 	if err := models.WriteResponseJSON(w, http.StatusOK, rag.Example(ctx, config)); err != nil {
-	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	}
-	// })
-	port := cmp.Or(os.Getenv("SERVERPORT"), "8080")
+	port := cmp.Or(cfg.Port, "8080")
 	address := "localhost:" + port
 	log.Println("listening on", address)
-	log.Fatal(http.ListenAndServe(address, mux))
+	log.Fatal(http.ListenAndServe(address, router))
+}
+
+func setupLogger(cfg models.Config) (*httplog.Logger, error) {
+	// Check if we are in Cloud Run by looking for the K_SERVICE env var
+	var j bool
+	if _, exists := os.LookupEnv("K_SERVICE"); exists {
+		j = true
+	}
+	levelMap := map[string]slog.Level{
+		"DEBUG": slog.LevelDebug,
+		"INFO":  slog.LevelInfo,
+		"WARN":  slog.LevelWarn,
+		"ERROR": slog.LevelError,
+	}
+	logger := httplog.NewLogger("swim-rag", httplog.Options{
+		LogLevel: levelMap[cfg.LogLevel],
+		JSON:     j,
+		Concise:  true,
+		// RequestHeaders:   true,
+		// ResponseHeaders:  true,
+		MessageFieldName: "message",
+		LevelFieldName:   "severity",
+		TimeFieldFormat:  time.RFC3339,
+		QuietDownRoutes: []string{
+			"/",
+			"/health",
+		},
+		QuietDownPeriod: 10 * time.Second,
+	})
+
+	if logger == nil {
+		return nil, fmt.Errorf("failed to create logger")
+	}
+
+	return logger, nil
+}
+
+// Setup of routes for the RAG service
+func NewRouter(basePath string, cfg models.Config, logger *httplog.Logger) chi.Router {
+	ctx := context.Background()
+	ragServer, err := server.NewRAGService(ctx, cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	scraper, err := scraper.NewScraper(ctx, cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Service
+	r := chi.NewRouter()
+	r.Use(httplog.RequestLogger(logger, []string{"/health"}))
+	r.Use(middleware.Heartbeat("/health"))
+	r.Use(render.SetContentType(render.ContentTypeJSON))
+
+	r.Route(basePath, func(r chi.Router) {
+		r.Post("/add", ragServer.AddDocumentsHandler)
+		r.Post("/query", ragServer.QueryHandler)
+		r.Get("/scrape", scraper.ScrapeHandler)
+		r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("OK"))
+		})
+	})
+
+	return r
 }

@@ -3,7 +3,8 @@ package scraper
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
+	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -11,17 +12,38 @@ import (
 
 	"github.com/5pirit5eal/swim-rag/internal/models"
 	"github.com/5pirit5eal/swim-rag/internal/rag"
+	"github.com/go-chi/httplog/v2"
 	"github.com/gocolly/colly"
 	"github.com/jackc/pgx/v5"
-	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/schema"
 )
 
+// Helper struct to hold the database connection and LLM client for scraping.
+type Scraper struct {
+	db  *rag.RAGDB
+	cfg models.Config
+}
+
+// NewScraper initializes a new Scraper with the given database connection and LLM client.
+func NewScraper(ctx context.Context, cfg models.Config) (*Scraper, error) {
+	db, err := rag.NewGoogleAIStore(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+	return &Scraper{
+		db:  db,
+		cfg: cfg,
+	}, nil
+}
+
+// URLMap is a thread-safe map to store URLs that have already been visited
+// and to prevent duplicate scraping of the same URL.
 type URLMap struct {
 	mux sync.Mutex
 	m   map[string]bool
 }
 
+// NewURLMap initializes a new URLMap with the given already visited URLs.
 func NewURLMap(alreadyVisited []string) *URLMap {
 	m := make(map[string]bool)
 	for _, url := range alreadyVisited {
@@ -50,9 +72,8 @@ func (um *URLMap) Len() int {
 	return len(um.m)
 }
 
-func Scrape(alreadyVisited []string, ctx context.Context, client llms.Model, c chan schema.Document, ec chan error, seeds ...string) {
-	defer close(c)
-	defer close(ec)
+func (s *Scraper) NewCollector(ctx context.Context, visitedURLs *URLMap, c chan schema.Document, ec chan error) *colly.Collector {
+	logger := httplog.LogEntry(ctx)
 	tables := 0
 
 	// Create a new scraper
@@ -69,35 +90,33 @@ func Scrape(alreadyVisited []string, ctx context.Context, client llms.Model, c c
 	})
 	scraper.OnError(func(_ *colly.Response, err error) {
 		// Handle errors during scraping
-		log.Println("Error occurred while scraping: ", err)
+		logger.Error("Error occurred while scraping", httplog.ErrAttr(err))
+		ec <- err
 	})
-
-	// Create a map to track visited URLs and models.plans
-	visitedURLs := NewURLMap(alreadyVisited)
 
 	scraper.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		// Check if the link is a valid URL
 		if e.Attr("href") == "" || strings.HasPrefix(e.Attr("href"), "#") {
-			log.Println("Invalid link, skipping")
+			logger.Debug("Invalid link, skipping")
 			return
 		}
 		// Check if the link is an internal link
 		if e.Attr("href")[0] == '/' {
-			log.Println("Internal link, skipping")
+			logger.Debug("Internal link, skipping")
 			return
 		}
 		// Extract the href attribute
 		href := e.Attr("href")
 		// Check if the href has been visited
 		if found := visitedURLs.Load(href); !found {
-			log.Println("Found new link:", e.Attr("href"))
+			logger.Info("Found new link", "new", e.Attr("href"))
 			// Mark the href as visited
 			visitedURLs.Store(href)
 			// Visit the link
 			err := e.Request.Visit(href)
 			if err != nil {
 				if !strings.Contains(err.Error(), "Max depth limit reached") {
-					log.Println("Error visiting link:", err)
+					logger.Error("Error visiting link", httplog.ErrAttr(err))
 				}
 			}
 		}
@@ -107,7 +126,7 @@ func Scrape(alreadyVisited []string, ctx context.Context, client llms.Model, c c
 		desc := e.ChildText("div.cm-posts > article.post h3")
 
 		if table := e.ChildText("table"); table == "" {
-			log.Println("No table found, skipping")
+			logger.Debug("No table found, skipping")
 			return
 		}
 
@@ -143,13 +162,7 @@ func Scrape(alreadyVisited []string, ctx context.Context, client llms.Model, c c
 					if len(table) > 0 {
 						table[len(table)-1].Content += " " + r.ChildText("td:nth-child(5)")
 					}
-					// else {
-					// 	// log.Println("No previous row to append content to")
-					// }
 				}
-				// else {
-				// 	log.Println("Skipping empty row")
-				// }
 				return
 			}
 
@@ -164,14 +177,12 @@ func Scrape(alreadyVisited []string, ctx context.Context, client llms.Model, c c
 			}
 
 			// Append the row to the table
-			// log.Println("Added row to table:", row.String())
 			table = append(table, row)
 		})
 
-		// log.Println("Found description:", desc)
-		// log.Println("Found table with", len(table), "rows")
 		tables++
-		log.Println("Found table nr. ", tables)
+		logger.Info(fmt.Sprintf("Found table nr. %d", tables), "length", len(table), "title", title)
+		logger.Debug("Found description", "description", desc)
 
 		if len(table) > 0 {
 			table.AddSum()
@@ -181,7 +192,7 @@ func Scrape(alreadyVisited []string, ctx context.Context, client llms.Model, c c
 
 		visitedURLs.Store(url)
 
-		go ImprovePlan(ctx, client, models.Plan{
+		go s.ImprovePlan(ctx, models.Plan{
 			URL:         url,
 			Title:       title,
 			Description: desc,
@@ -190,38 +201,49 @@ func Scrape(alreadyVisited []string, ctx context.Context, client llms.Model, c c
 	})
 
 	scraper.OnScraped(func(r *colly.Response) {
-		log.Println("Scraping finished for:", r.Request.URL)
+		logger.Info("Scraping finished", "url", r.Request.URL)
 	})
-
-	// Visit each seed URL and scrape the data
-	for _, url := range seeds {
-		// Mark the seed as visited
-		visitedURLs.Store(url)
-
-		err := scraper.Visit(url)
-		if err != nil {
-			log.Println("Error visiting seed URL:", err)
-			ec <- err
-		}
-	}
-	scraper.Wait()
+	return scraper
 }
 
-func ScrapeURL(db *rag.RAGDB, ctx context.Context, client llms.Model, cfg models.Config, url string) error {
+// Scrapes the given URLs and extracts the relevant data from the HTML content.
+func (s *Scraper) scrape(ctx context.Context, alreadyVisited []string, c chan schema.Document, ec chan error, url string) {
+	logger := httplog.LogEntry(ctx)
+	defer close(c)
+	defer close(ec)
+
+	// Mark the seed as visited
+	// Create a map to track visited URLs and models.plans
+	visitedURLs := NewURLMap(alreadyVisited)
+	visitedURLs.Store(url)
+	collector := s.NewCollector(ctx, visitedURLs, c, ec)
+
+	err := collector.Visit(url)
+	if err != nil {
+		logger.Error("Error visiting seed URL", httplog.ErrAttr(err))
+		ec <- err
+	}
+
+	collector.Wait()
+}
+
+func (s *Scraper) ScrapeURL(ctx context.Context, url string) error {
+	logger := httplog.LogEntry(ctx)
+	logger.Info("Starting to scrape")
 	// Load urls in the database into the scraper
 	alreadyVisited := make([]string, 0)
 
-	rows, err := db.Conn.Query(ctx, fmt.Sprintf(`
+	rows, err := s.db.Conn.Query(ctx, fmt.Sprintf(`
 		SELECT url FROM urls
 		WHERE (created_at > now() - interval '60 days'
 		AND collection_id = (
 			SELECT uuid FROM %s WHERE name = $1
 			ORDER BY name limit 1
-		))`, rag.CollectionTableName), cfg.Embedding.Model)
+		))`, rag.CollectionTableName), s.cfg.Embedding.Model)
 	if err != nil {
 		return fmt.Errorf("failed to query database: %w", err)
 	}
-	log.Println("Queried database successfully")
+	logger.Info("Queried database successfully")
 	defer rows.Close()
 	for rows.Next() {
 		var url string
@@ -234,7 +256,7 @@ func ScrapeURL(db *rag.RAGDB, ctx context.Context, client llms.Model, cfg models
 	// Scrape the URL
 	dc := make(chan schema.Document)
 	ec := make(chan error)
-	go Scrape(alreadyVisited, ctx, client, dc, ec, url)
+	go s.scrape(ctx, alreadyVisited, dc, ec, url)
 
 	documents := make([]schema.Document, 0)
 	errors := make([]error, 0)
@@ -243,52 +265,50 @@ Forloop:
 	for {
 		select {
 		case doc, dcOpen := <-dc:
-			if dcOpen {
-				documents = append(documents, doc)
-			} else {
-				log.Println("Channel closed, stopping scraping")
+			if !dcOpen {
+				logger.Info("Channel closed, stopping scraping")
 				break Forloop
 			}
+			documents = append(documents, doc)
 		case err, ecOpen := <-ec:
-			if ecOpen {
-				errors = append(errors, err)
-			} else {
-				log.Println("Channel closed, stopping scraping")
+			if !ecOpen {
+				logger.Info("Channel closed, stopping scraping")
 				break Forloop
 			}
+			errors = append(errors, err)
 		case <-ctx.Done():
-			log.Println("Context done, stopping scraping")
+			logger.Info("Context done, stopping scraping")
 			break Forloop
 		case <-time.After(3600 * time.Second):
 			errors = append(errors, fmt.Errorf("timeout while scraping"))
 			break Forloop
 		}
 	}
-	log.Println("Scraping finished, received", len(documents), "documents and", len(errors), "errors")
+	logger.Info("Scraping finished", "documents", len(documents), "errors", len(errors))
 	if len(errors) > 0 {
-		log.Println("Failed to improve plans or errors during scraping:", errors)
+		logger.Error("Failed to improve plans or errors during scraping", "err", slog.AnyValue(errors))
 		// return fmt.Errorf("failed to improve plans or errors during scraping: %v", errors)
 	}
-	log.Println("Adding documents to the database...")
+	logger.Info("Adding documents to the database")
 
 	// Store documents and their embeddings in the database
-	ids, err := db.Store.AddDocuments(ctx, documents)
+	ids, err := s.db.Store.AddDocuments(ctx, documents)
 	if err != nil {
-		log.Println("Failed to add documents to the database:", err.Error())
+		logger.Error("Failed to add documents to the database", httplog.ErrAttr(err))
 		return fmt.Errorf("failed to add documents to the database: %w", err)
 	}
-	log.Println("Added documents to the database successfully")
+	logger.Info("Added documents to the database successfully")
 
 	var collectionUUID string
-	err = db.Conn.QueryRow(ctx, `SELECT uuid FROM documents WHERE name = $1 ORDER BY name limit 1`, cfg.Embedding.Model).Scan(&collectionUUID)
+	err = s.db.Conn.QueryRow(ctx, `SELECT uuid FROM documents WHERE name = $1 ORDER BY name limit 1`, s.cfg.Embedding.Model).Scan(&collectionUUID)
 	if err != nil {
-		log.Println("Failed to query collection UUID:", err.Error())
+		logger.Error("Failed to query collection UUID", httplog.ErrAttr(err))
 		return fmt.Errorf("failed to query collection UUID: %w", err)
 	}
 
 	batch := &pgx.Batch{}
 	for i := range documents {
-		log.Println("Inserting URL into database:", documents[i].Metadata["url"])
+		logger.Debug(fmt.Sprintf("Inserting URL %s into database", documents[i].Metadata["url"]), "url", documents[i].Metadata["url"])
 		batch.Queue(fmt.Sprintf(`
 			WITH deleted AS (
 				DELETE FROM %s 
@@ -302,16 +322,43 @@ Forloop:
 			INSERT INTO urls (url, document_id, collection_id) 
 			VALUES ($1, $2, $3) 
 			ON CONFLICT (url, collection_id) 
-			DO UPDATE SET document_id = EXCLUDED.document_id`, cfg.Embedding.Name),
+			DO UPDATE SET document_id = EXCLUDED.document_id`, s.cfg.Embedding.Name),
 			documents[i].Metadata["url"], ids[i], collectionUUID)
 	}
-	log.Println("Inserting URLs into database...")
+	logger.Info("Inserting URLs into database...")
 	// Execute the batch
-	br := db.Conn.SendBatch(ctx, batch)
+	br := s.db.Conn.SendBatch(ctx, batch)
 
 	if err := br.Close(); err != nil {
 		return err
 	}
-	log.Printf("Inserted %d URLs into database successfully", len(documents))
+	logger.Info("Inserted URLs into database successfully", slog.Int("n_urls", len(documents)))
 	return nil
+}
+
+// ScrapeHandler handles the HTTP request for scraping a URL.
+// It extracts the URL from the request, scrapes the data, and responds with a success message.
+func (s *Scraper) ScrapeHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Getting scraping request...")
+	// Parse the URL from the request
+	url := req.URL.Query().Get("url")
+	if url == "" {
+		logger.Error("Missing url parameter")
+		http.Error(w, "Missing url parameter", http.StatusBadRequest)
+		return
+	}
+	httplog.LogEntrySetField(req.Context(), "url", slog.StringValue(url))
+
+	// Scrape the URL
+	err := s.ScrapeURL(req.Context(), url)
+	if err != nil {
+		logger.Error("Failed to scrape URL", httplog.ErrAttr(err))
+		http.Error(w, fmt.Errorf("failed to scrape URL %s: %w", url, err).Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with a success message
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Scraping completed successfully"))
 }

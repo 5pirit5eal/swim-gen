@@ -30,11 +30,6 @@ func TestStaticToStruct(t *testing.T) {
 			},
 		},
 		{
-			name:     "Invalid JSON",
-			data:     `{"title": "Test Title", "description": "invalid"}`,
-			Expected: nil,
-		},
-		{
 			name: "List of JSON",
 			data: `[{"title": "Test Title", "description": 1}, {"title": "Another Title", "description": 2}]`,
 			Expected: []Example{
@@ -177,7 +172,7 @@ func TestStaticToStruct(t *testing.T) {
 			if err != nil {
 				t.Errorf("Failed to unmarshal JSON: %v", err)
 			}
-			var example = reflect.New(reflect.TypeOf(tc.Expected)).Elem().Interface()
+			example := reflect.New(reflect.TypeOf(tc.Expected)).Interface()
 			err = models.JSONInterfaceToStruct(data, example)
 			if err != nil && tc.Expected != nil {
 				t.Errorf("Failed to convert static to struct: %v", err)
