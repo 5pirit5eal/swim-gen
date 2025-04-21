@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/5pirit5eal/swim-rag/internal/config"
 	"github.com/5pirit5eal/swim-rag/internal/models"
 	"github.com/5pirit5eal/swim-rag/internal/rag"
 	"github.com/go-chi/httplog/v2"
@@ -20,20 +21,32 @@ import (
 
 // Helper struct to hold the database connection and LLM client for scraping.
 type Scraper struct {
+	ctx context.Context
 	db  *rag.RAGDB
-	cfg models.Config
+	cfg config.Config
 }
 
 // NewScraper initializes a new Scraper with the given database connection and LLM client.
-func NewScraper(ctx context.Context, cfg models.Config) (*Scraper, error) {
+func NewScraper(ctx context.Context, cfg config.Config) (*Scraper, error) {
 	db, err := rag.NewGoogleAIStore(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
 	return &Scraper{
+		ctx: ctx,
 		db:  db,
 		cfg: cfg,
 	}, nil
+}
+
+// Close closes the database connection.
+func (s *Scraper) Close() {
+	logger := httplog.LogEntry(s.ctx)
+	logger.Info("Closing Scraper...")
+	if err := s.db.Store.Close(); err != nil {
+		logger.Error("Error closing database connection", httplog.ErrAttr(err))
+	}
+	logger.Info("Scrapers DB connection closed successfully")
 }
 
 // URLMap is a thread-safe map to store URLs that have already been visited
@@ -72,7 +85,7 @@ func (um *URLMap) Len() int {
 	return len(um.m)
 }
 
-func (s *Scraper) NewCollector(ctx context.Context, visitedURLs *URLMap, c chan schema.Document, ec chan error) *colly.Collector {
+func (s *Scraper) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGroup *sync.WaitGroup, c chan schema.Document, ec chan error) *colly.Collector {
 	logger := httplog.LogEntry(ctx)
 	tables := 0
 
@@ -109,13 +122,13 @@ func (s *Scraper) NewCollector(ctx context.Context, visitedURLs *URLMap, c chan 
 		href := e.Attr("href")
 		// Check if the href has been visited
 		if found := visitedURLs.Load(href); !found {
-			logger.Info("Found new link", "new", e.Attr("href"))
+			logger.Debug("Found new link", "new", e.Attr("href"))
 			// Mark the href as visited
 			visitedURLs.Store(href)
 			// Visit the link
 			err := e.Request.Visit(href)
 			if err != nil {
-				if !strings.Contains(err.Error(), "Max depth limit reached") {
+				if !strings.Contains(err.Error(), "Max depth limit reached") && !strings.Contains(err.Error(), "Forbidden domain") {
 					logger.Error("Error visiting link", httplog.ErrAttr(err))
 				}
 			}
@@ -192,16 +205,17 @@ func (s *Scraper) NewCollector(ctx context.Context, visitedURLs *URLMap, c chan 
 
 		visitedURLs.Store(url)
 
+		syncGroup.Add(1)
 		go s.ImprovePlan(ctx, models.Plan{
 			URL:         url,
 			Title:       title,
 			Description: desc,
 			Table:       table,
-		}, c, ec)
+		}, syncGroup, c, ec)
 	})
 
 	scraper.OnScraped(func(r *colly.Response) {
-		logger.Info("Scraping finished", "url", r.Request.URL)
+		logger.Debug("Scraping finished", "sub_url", r.Request.URL)
 	})
 	return scraper
 }
@@ -209,6 +223,7 @@ func (s *Scraper) NewCollector(ctx context.Context, visitedURLs *URLMap, c chan 
 // Scrapes the given URLs and extracts the relevant data from the HTML content.
 func (s *Scraper) scrape(ctx context.Context, alreadyVisited []string, c chan schema.Document, ec chan error, url string) {
 	logger := httplog.LogEntry(ctx)
+	syncGroup := &sync.WaitGroup{}
 	defer close(c)
 	defer close(ec)
 
@@ -216,7 +231,7 @@ func (s *Scraper) scrape(ctx context.Context, alreadyVisited []string, c chan sc
 	// Create a map to track visited URLs and models.plans
 	visitedURLs := NewURLMap(alreadyVisited)
 	visitedURLs.Store(url)
-	collector := s.NewCollector(ctx, visitedURLs, c, ec)
+	collector := s.NewCollector(ctx, visitedURLs, syncGroup, c, ec)
 
 	err := collector.Visit(url)
 	if err != nil {
@@ -225,6 +240,7 @@ func (s *Scraper) scrape(ctx context.Context, alreadyVisited []string, c chan sc
 	}
 
 	collector.Wait()
+	syncGroup.Wait()
 }
 
 func (s *Scraper) ScrapeURL(ctx context.Context, url string) error {

@@ -4,7 +4,6 @@ set -e
 source .env
 
 run() {
-  echo "Running the application..."
   go run ./cmd/swim-rag/swim-rag.go
 }
 
@@ -59,14 +58,6 @@ docker-run() {
     -i $container_id
 }
 
-start-proxy() {
-    mkdir -p /tmp/cloudsql
-    chmod 777 /tmp/cloudsql
-    sudo docker run -d -v /tmp/cloudsql:/cloudsql \
-      -v ~/.config/gcloud/application_default_credentials.json:/gcp/creds.json \
-      gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.15.2 --unix-socket=/cloudsql \
-      --credentials-file /gcp/creds.json "$DB_INSTANCE"
-}
 
 # Check if the provided argument matches any of the functions
 if [ -n "$1" ] && ! declare -f "$1" > /dev/null; then

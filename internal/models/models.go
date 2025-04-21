@@ -23,13 +23,13 @@ func (p *Plan) Map() map[string]any {
 type Table []Row
 
 type Row struct {
-	Amount     int    `json:"Amount"`     // Amount of repetitions
-	Multiplier string `json:"Multiplier"` // Multiplier for the distance (e.g., "x", "times")
-	Distance   int    `json:"Distance"`   // Distance in meters
-	Break      string `json:"Break"`      // Break time in seconds
-	Content    string `json:"Content"`    // Content or description of the row
-	Intensity  string `json:"Intensity"`  // Intensity level of the activity
-	Sum        int    `json:"Sum"`        // Total volume or sum for the row
+	Amount     int    `json:"Amount" jsonschema_description:"Amount of repetitions"`
+	Multiplier string `json:"Multiplier" jsonschema_description:"Multiplier for the distance (e.g. 'x' or 'times')"`
+	Distance   int    `json:"Distance" jsonschema_description:"Distance in meters"`
+	Break      string `json:"Break" jsonschema_description:"Break time in seconds"`
+	Content    string `json:"Content" jsonschema_description:"Content or description of the row"`
+	Intensity  string `json:"Intensity" jsonschema_description:"Intensity level of the activity"`
+	Sum        int    `json:"Sum" jsonschema_description:"Total volume or sum for the row"`
 }
 
 func (r Row) String() string {

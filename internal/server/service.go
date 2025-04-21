@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/5pirit5eal/swim-rag/internal/config"
 	"github.com/5pirit5eal/swim-rag/internal/models"
 	"github.com/5pirit5eal/swim-rag/internal/rag"
 	"github.com/go-chi/httplog/v2"
@@ -16,7 +17,7 @@ type RAGService struct {
 	// Database client used for storing and querying documents
 	db *rag.RAGDB
 	// Configuration for the RAG server
-	cfg models.Config
+	cfg config.Config
 }
 
 // Initializes a new RAG service with the given configuration.
@@ -24,7 +25,7 @@ type RAGService struct {
 // the database connection and LLM client.
 // It returns a pointer to the RAGService and an error if any occurred during
 // initialization.
-func NewRAGService(ctx context.Context, cfg models.Config) (*RAGService, error) {
+func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) {
 	logger := httplog.LogEntry(ctx)
 	logger.Info("Initializing RAG server with config", "cfg", httplog.StructValue(cfg))
 	db, err := rag.NewGoogleAIStore(ctx, cfg)
@@ -39,6 +40,18 @@ func NewRAGService(ctx context.Context, cfg models.Config) (*RAGService, error) 
 		cfg: cfg,
 		db:  db,
 	}, nil
+}
+
+// Closes the database connection and LLM client.
+// It is important to call this method when the service is no longer needed
+// to release resources and avoid memory leaks.
+func (rs *RAGService) Close() {
+	logger := httplog.LogEntry(rs.ctx)
+	logger.Info("Closing RAG server...")
+	if err := rs.db.Store.Close(); err != nil {
+		logger.Error("Error closing database connection", httplog.ErrAttr(err))
+	}
+	logger.Info("RAG server closed successfully")
 }
 
 func (rs *RAGService) AddDocumentsHandler(w http.ResponseWriter, req *http.Request) {

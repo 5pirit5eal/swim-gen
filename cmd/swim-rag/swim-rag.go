@@ -15,28 +15,20 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog/v2"
 	"github.com/go-chi/render"
-	"github.com/golobby/dotenv"
 
-	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-rag/internal/config"
 	"github.com/5pirit5eal/swim-rag/internal/scraper"
 	"github.com/5pirit5eal/swim-rag/internal/server"
 )
 
 func main() {
 	// Configure log to write to stdout
-	log.SetOutput(os.Stdout)
-	log.Println("Starting server...")
-
-	cfg := models.Config{}
 	projectRoot, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
-	file, err := os.Open(filepath.Join(projectRoot, ".env"))
+	cfg, err := config.LoadConfig(filepath.Join(projectRoot, ".env"), true)
 	if err != nil {
-		log.Fatal(err)
-	}
-	if err := dotenv.NewDecoder(file).Decode(&cfg); err != nil {
 		log.Fatal(err)
 	}
 
@@ -44,15 +36,29 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	router := NewRouter("", cfg, logger)
+	ctx := context.Background()
+	ragServer, err := server.NewRAGService(ctx, cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ragServer.Close()
+	scraper, err := scraper.NewScraper(ctx, cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer scraper.Close()
+	router := newRouter("/", ragServer, scraper, cfg, logger)
 
 	port := cmp.Or(cfg.Port, "8080")
 	address := "localhost:" + port
-	log.Println("listening on", address)
-	log.Fatal(http.ListenAndServe(address, router))
+	logger.Info("Starting server", "listening on", address)
+	if err := http.ListenAndServe(address, router); err != nil {
+		logger.Error("Server stopped with error", httplog.ErrAttr(err))
+		log.Fatal(err)
+	}
 }
 
-func setupLogger(cfg models.Config) (*httplog.Logger, error) {
+func setupLogger(cfg config.Config) (*httplog.Logger, error) {
 	// Check if we are in Cloud Run by looking for the K_SERVICE env var
 	var j bool
 	if _, exists := os.LookupEnv("K_SERVICE"); exists {
@@ -88,16 +94,7 @@ func setupLogger(cfg models.Config) (*httplog.Logger, error) {
 }
 
 // Setup of routes for the RAG service
-func NewRouter(basePath string, cfg models.Config, logger *httplog.Logger) chi.Router {
-	ctx := context.Background()
-	ragServer, err := server.NewRAGService(ctx, cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-	scraper, err := scraper.NewScraper(ctx, cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
+func newRouter(basePath string, ragServer *server.RAGService, scraper *scraper.Scraper, cfg config.Config, logger *httplog.Logger) chi.Router {
 
 	// Service
 	r := chi.NewRouter()

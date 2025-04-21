@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-rag/internal/config"
 	"github.com/go-chi/httplog/v2"
 	"github.com/golobby/dotenv"
 	"github.com/tmc/langchaingo/llms"
@@ -12,7 +12,7 @@ import (
 	"github.com/tmc/langchaingo/llms/googleai/vertex"
 )
 
-func Example(ctx context.Context, config models.Config) string {
+func Example(ctx context.Context, config config.Config) string {
 	logger := httplog.LogEntry(ctx)
 	logger.Info("Initializing example...")
 	file, err := os.Open(".env")

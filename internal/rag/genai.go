@@ -38,7 +38,7 @@ func (db *RAGDB) GeneratePlan(ctx context.Context, q string, docs []schema.Docum
 	var p models.RAGResponse
 	err = json.Unmarshal([]byte(answer), &p)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err))
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 	// Add the total to the table if it is not already present
@@ -70,7 +70,7 @@ func (db *RAGDB) ChoosePlan(ctx context.Context, q string, docs []schema.Documen
 	var cr models.ChooseResponse
 	err = json.Unmarshal([]byte(answer), &cr)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err))
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 	var t models.Table
@@ -89,6 +89,7 @@ func (db *RAGDB) ChoosePlan(ctx context.Context, q string, docs []schema.Documen
 
 // Query searches for documents in the database based on the provided query and filter.
 func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any) (*models.RAGResponse, error) {
+	logger := httplog.LogEntry(ctx)
 	var docs []schema.Document
 	var err error
 	switch {
@@ -102,8 +103,10 @@ func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any)
 		docs, err = db.Store.SimilaritySearch(ctx, query, 10, vectorstores.WithFilters(filter))
 	}
 	if err != nil {
+		logger.Error("Error searching for documents", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error searching for documents: %w", err)
 	}
+	logger.Info("Documents found", "count", len(docs))
 	var answer *models.RAGResponse
 	if query != "" {
 		answer, err = db.GeneratePlan(ctx, query, docs)
@@ -114,6 +117,7 @@ func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any)
 	if err != nil {
 		return nil, err
 	}
+	logger.Info("Answer generated successfully", "answer", answer)
 
 	return answer, nil
 }

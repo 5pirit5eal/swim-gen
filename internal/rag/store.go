@@ -3,10 +3,12 @@ package rag
 import (
 	"context"
 	"fmt"
+	"net"
 
+	"cloud.google.com/go/cloudsqlconn"
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
-	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-rag/internal/config"
 	"github.com/go-chi/httplog/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -26,7 +28,7 @@ type RAGDB struct {
 	Client llms.Model
 }
 
-func NewGoogleAIStore(ctx context.Context, cfg models.Config) (*RAGDB, error) {
+func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	logger := httplog.LogEntry(ctx)
 	// Initialize the LLM client
 	client, err := googleai.New(
@@ -36,6 +38,7 @@ func NewGoogleAIStore(ctx context.Context, cfg models.Config) (*RAGDB, error) {
 		googleai.WithDefaultEmbeddingModel(cfg.Embedding.Model),
 		googleai.WithHarmThreshold(googleai.HarmBlockLowAndAbove),
 		googleai.WithAPIKey(cfg.APIKey),
+		googleai.WithDefaultMaxTokens(10000),
 	)
 	if err != nil {
 		return nil, err
@@ -58,10 +61,7 @@ func NewGoogleAIStore(ctx context.Context, cfg models.Config) (*RAGDB, error) {
 
 	logger.Info("Creating database connection...")
 	// Initialize the database connection
-	// TODO: connect via cloud sql proxy (Unix socket or TCP) or directly via URL
-	cfg.DB.Instance = fmt.Sprintf("host=/tmp/cloudsql/%s database=%s user=%s password=%s",
-		cfg.DB.Instance, cfg.DB.Name, cfg.DB.User, cfg.DB.Pass)
-	conn, err := pgxpool.New(ctx, cfg.DB.Instance)
+	conn, err := connect(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +95,13 @@ func NewGoogleAIStore(ctx context.Context, cfg models.Config) (*RAGDB, error) {
 	}
 	logger.Info("Setup URL table successfully")
 	return &RAGDB{Store: &store, Conn: conn, Client: client}, nil
+}
+
+func (rag *RAGDB) Close() error {
+	if err := rag.Store.Close(); err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetSecret retrieves the database password from Google Secret Manager.
@@ -142,4 +149,32 @@ func createURLTableIfNotExists(ctx context.Context, tx pgx.Tx, embeddingsTableNa
 		return fmt.Errorf("failed to create urls table: %w", err)
 	}
 	return nil
+}
+
+func connect(ctx context.Context, cfg config.Config) (*pgxpool.Pool, error) {
+	// Configure the driver to connect to the database
+	connString := fmt.Sprintf("dbname=%s user=%s password=%s sslmode=disable",
+		cfg.DB.Name, cfg.DB.User, cfg.DB.Pass)
+	config, err := pgxpool.ParseConfig(connString)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse config: %w", err)
+	}
+
+	// Create a new dialer with any options
+	d, err := cloudsqlconn.NewDialer(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create dialer: %w", err)
+	}
+
+	// Tell the driver to use the Cloud SQL Go Connector to create connections
+	config.ConnConfig.DialFunc = func(ctx context.Context, _ string, instance string) (net.Conn, error) {
+		return d.Dial(ctx, cfg.DB.Instance)
+	}
+
+	// Interact with the driver directly as you normally would
+	pool, err := pgxpool.NewWithConfig(ctx, config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create pool: %w", err)
+	}
+	return pool, nil
 }

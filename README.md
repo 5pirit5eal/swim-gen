@@ -74,9 +74,3 @@ The third version further builds upon v1 and v2 by adding more input options for
 Additionally, an anonymous mode is added which enables new users to test the application in a similar way to how v1 works.
 
 ## Todos
-
-Replace langchain go with custom implementation, or fork and adapt:
-
-[ ] AddDocuments
-[ ] Similarity Search
-[ ] Embedding single document and inferring with single document

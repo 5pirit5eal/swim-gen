@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"maps"
+	"sync"
 
 	"github.com/5pirit5eal/swim-rag/internal/models"
 	"github.com/go-chi/httplog/v2"
@@ -12,7 +13,8 @@ import (
 	"github.com/tmc/langchaingo/schema"
 )
 
-func (s *Scraper) ImprovePlan(ctx context.Context, plan models.Plan, c chan schema.Document, ec chan error) {
+func (s *Scraper) ImprovePlan(ctx context.Context, plan models.Plan, syncGroup *sync.WaitGroup, c chan schema.Document, ec chan error) {
+	defer syncGroup.Done()
 	logger := httplog.LogEntry(ctx)
 	ms, err := models.MetadataSchema()
 	if err != nil {
@@ -35,8 +37,8 @@ func (s *Scraper) ImprovePlan(ctx context.Context, plan models.Plan, c chan sche
 	var metadata models.Metadata
 	err = json.Unmarshal([]byte(answer), &metadata)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err))
-		ec <- fmt.Errorf("JSON unmarshal error: %w", err)
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)
+		ec <- fmt.Errorf("JSON unmarshal error: %w with raw response %s", err, answer)
 		return
 	}
 
