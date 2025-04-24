@@ -53,3 +53,11 @@ func (t *Table) AddSum() {
 	}
 	*t = append(*t, Row{Content: "Gesamt", Sum: sum})
 }
+
+// Recalculates the sum for each row
+// This is useful if the table has been modified and we need to update the sums
+func (t *Table) UpdateSum() {
+	for i, row := range *t {
+		(*t)[i].Sum = row.Amount * row.Distance
+	}
+}

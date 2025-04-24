@@ -3,13 +3,13 @@ package rag
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net"
 
 	"cloud.google.com/go/cloudsqlconn"
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"github.com/5pirit5eal/swim-rag/internal/config"
-	"github.com/go-chi/httplog/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tmc/langchaingo/embeddings"
@@ -29,7 +29,7 @@ type RAGDB struct {
 }
 
 func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
-	logger := httplog.LogEntry(ctx)
+	slog.Info("Initializing Google AI store with config", "cfg", slog.AnyValue(cfg))
 	// Initialize the LLM client
 	client, err := googleai.New(
 		ctx, googleai.WithCloudProject(cfg.ProjectID),
@@ -47,11 +47,12 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	if cfg.DB.Pass == "" {
 		pass, err := GetSecret(ctx, cfg.DB.PassLocation)
 		if err != nil {
+			slog.Error("Failed to get DB password from secret manager", "error", err)
 			return nil, err
 		}
 		cfg.DB.Pass = pass
 	}
-	logger.Info("Got DB password successfully")
+	slog.Info("Got DB password successfully")
 
 	// Create an embedder
 	embedder, err := embeddings.NewEmbedder(client)
@@ -59,13 +60,13 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 		return nil, err
 	}
 
-	logger.Info("Creating database connection...")
+	slog.Info("Creating database connection...")
 	// Initialize the database connection
 	conn, err := connect(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
-	logger.Info("Database connection created successfully")
+	slog.Info("Database connection created successfully")
 
 	// Create a new store
 	store, err := pgvector.New(
@@ -80,7 +81,7 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Info("Created store successfully")
+	slog.Info("Created store successfully")
 	// Create the URL table if it doesn't exist
 	tx, err := conn.Begin(ctx)
 	if err != nil {
@@ -93,7 +94,7 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
-	logger.Info("Setup URL table successfully")
+	slog.Info("Setup URL table successfully")
 	return &RAGDB{Store: &store, Conn: conn, Client: client}, nil
 }
 
@@ -111,8 +112,7 @@ func (rag *RAGDB) Close() error {
 // The secret location should be in the format:
 // "projects/{project_id}/secrets/{secret_name}/versions/latest".
 func GetSecret(ctx context.Context, location string) (string, error) {
-	logger := httplog.LogEntry(ctx)
-	logger.Info("Getting secret from secret manager", "location", location)
+	slog.Info("Getting secret from secret manager", "location", location)
 	// Create a new Secret Manager client
 	// and access the secret version.
 	c, err := secretmanager.NewClient(ctx)
@@ -126,7 +126,7 @@ func GetSecret(ctx context.Context, location string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	logger.Info("Got DB password from secret manager successfully")
+	slog.Info("Got DB password from secret manager successfully")
 	// The secret payload is a byte array, so convert it to a string.
 	return string(secret.Payload.Data), nil
 }

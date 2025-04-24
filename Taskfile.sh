@@ -51,13 +51,15 @@ docker-run() {
     -p $port:8080 -e PORT=8080 \
     -e GOOGLE_APPLICATION_CREDENTIALS=/gcp/creds.json \
     -e GOOGLE_CLOUD_PROJECT="$PROJECT_ID" \
-    -e IMAGE_BUCKET="$IMAGE_BUCKET" \
-    -e PROJECT_ID="$PROJECT_ID" \
-    -e LOG_LEVEL=DEBUG \
+    --env-file .env \
     $background \
     -i $container_id
 }
 
+docker-build-and-run() {
+  docker build .
+  docker-run $(docker images --format "{{.ID}}" | head -n 1)
+}
 
 # Check if the provided argument matches any of the functions
 if [ -n "$1" ] && ! declare -f "$1" > /dev/null; then

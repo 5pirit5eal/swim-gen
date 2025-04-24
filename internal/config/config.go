@@ -87,6 +87,13 @@ func set(ptr any, envTag string, defaultTag string, overwrite bool) error {
 		if !v.Field(i).IsZero() && !overwrite {
 			continue
 		}
+		// Recursive call for nested structs
+		if t.Field(i).Type.Kind() == reflect.Struct {
+			if err := set(v.Field(i).Addr().Interface(), envTag, defaultTag, overwrite); err != nil {
+				return err
+			}
+		}
+
 		defaultVal := t.Field(i).Tag.Get(defaultTag)
 		if envVal := t.Field(i).Tag.Get(envTag); envVal != "" {
 			val, found := os.LookupEnv(envVal)

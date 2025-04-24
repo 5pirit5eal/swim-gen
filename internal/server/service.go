@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/5pirit5eal/swim-rag/internal/config"
@@ -26,14 +27,13 @@ type RAGService struct {
 // It returns a pointer to the RAGService and an error if any occurred during
 // initialization.
 func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) {
-	logger := httplog.LogEntry(ctx)
-	logger.Info("Initializing RAG server with config", "cfg", httplog.StructValue(cfg))
+	slog.Info("Initializing RAG server with config", "cfg", slog.AnyValue(cfg))
 	db, err := rag.NewGoogleAIStore(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	logger.Info("Creating database connection successfully")
+	slog.Info("Creating database connection successfully")
 
 	return &RAGService{
 		ctx: ctx,
@@ -46,12 +46,11 @@ func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) 
 // It is important to call this method when the service is no longer needed
 // to release resources and avoid memory leaks.
 func (rs *RAGService) Close() {
-	logger := httplog.LogEntry(rs.ctx)
-	logger.Info("Closing RAG server...")
+	slog.Info("Closing RAG server...")
 	if err := rs.db.Store.Close(); err != nil {
-		logger.Error("Error closing database connection", httplog.ErrAttr(err))
+		slog.Error("Error closing database connection", "err", err.Error())
 	}
-	logger.Info("RAG server closed successfully")
+	slog.Info("RAG server closed successfully")
 }
 
 func (rs *RAGService) AddDocumentsHandler(w http.ResponseWriter, req *http.Request) {
@@ -100,6 +99,9 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Recalculate the sums of the rows to be sure they are correct
+	answer.Table.UpdateSum()
 
 	logger.Info("Answer generated successfully")
 	models.WriteResponseJSON(w, http.StatusOK, answer)

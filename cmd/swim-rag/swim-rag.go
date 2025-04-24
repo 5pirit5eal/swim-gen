@@ -50,7 +50,7 @@ func main() {
 	router := newRouter("/", ragServer, scraper, cfg, logger)
 
 	port := cmp.Or(cfg.Port, "8080")
-	address := "localhost:" + port
+	address := "0.0.0.0:" + port
 	logger.Info("Starting server", "listening on", address)
 	if err := http.ListenAndServe(address, router); err != nil {
 		logger.Error("Server stopped with error", httplog.ErrAttr(err))
