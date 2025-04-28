@@ -43,6 +43,6 @@ func TestUpdateSum(t *testing.T) {
 
 	// Assertions
 	assert.Equal(t, 200, table[0].Sum, "Sum for the first row should be 200")
-	assert.Equal(t, 100, table[1].Sum, "Sum for the second row should be 200")
-	assert.Equal(t, 300, table[2].Sum, "Sum for the third row should be 200")
+	assert.Equal(t, 100, table[1].Sum, "Sum for the second row should be 100")
+	assert.Equal(t, 300, table[2].Sum, "Sum for the third row should be 300")
 }
