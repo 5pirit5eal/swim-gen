@@ -16,4 +16,6 @@ FROM gcr.io/distroless/static-debian12
 # Copy Go binary
 COPY --from=builder /build/service /bin
 
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl --fail --silent http://0.0.0.0:8080/health || exit 1
+
 CMD ["/bin/service"]

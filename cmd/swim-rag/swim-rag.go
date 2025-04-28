@@ -106,6 +106,7 @@ func newRouter(basePath string, ragServer *server.RAGService, scraper *scraper.S
 		r.Post("/add", ragServer.AddDocumentsHandler)
 		r.Post("/query", ragServer.QueryHandler)
 		r.Get("/scrape", scraper.ScrapeHandler)
+		r.Post("/export-pdf", ragServer.PlanToPDFHandler)
 		r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("OK"))
 		})

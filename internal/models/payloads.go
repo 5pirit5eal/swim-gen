@@ -22,12 +22,22 @@ type QueryRequest struct {
 }
 
 type RAGResponse struct {
+	Title       string `json:"title"`
 	Description string `json:"description"`
-	Plan        string `json:"plan,omitempty"`
 	Table       Table  `json:"table"`
 }
 
 type ChooseResponse struct {
 	Idx         int    `json:"index"`
 	Description string `json:"description"`
+}
+
+type PlanToPDFRequest struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Table       Table  `json:"table"`
+}
+
+type PlanToPDFResponse struct {
+	URI string `json:"uri"`
 }

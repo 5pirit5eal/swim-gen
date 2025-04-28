@@ -7,6 +7,7 @@ import (
 
 	"github.com/5pirit5eal/swim-rag/internal/config"
 	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-rag/internal/pdf"
 	"github.com/5pirit5eal/swim-rag/internal/rag"
 	"github.com/go-chi/httplog/v2"
 	"github.com/tmc/langchaingo/schema"
@@ -53,6 +54,9 @@ func (rs *RAGService) Close() {
 	slog.Info("RAG server closed successfully")
 }
 
+// Handles the HTTP request to add documents to the database.
+// It parses the request, stores the documents and their embeddings in the
+// database, and responds with a success message.
 func (rs *RAGService) AddDocumentsHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Adding documents to the database...")
@@ -82,6 +86,8 @@ func (rs *RAGService) AddDocumentsHandler(w http.ResponseWriter, req *http.Reque
 	models.WriteResponseJSON(w, http.StatusOK, models.AddResponse{Status: "OK", IDs: ids})
 }
 
+// Handles the RAG query request.
+// It parses the request, queries the RAG, generating or choosing a plan, and returns the result as JSON.
 func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Querying the database...")
@@ -102,6 +108,46 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Recalculate the sums of the rows to be sure they are correct
 	answer.Table.UpdateSum()
+	logger.Debug("Updated the table sums...", "sum", answer.Table[len(answer.Table)-1].Sum)
+
+	logger.Info("Answer generated successfully")
+	models.WriteResponseJSON(w, http.StatusOK, answer)
+}
+
+// Handles the Plan to PDF export request.
+func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Exporting table to PDF...")
+
+	// Parse HTTP request from JSON.
+	qr := &models.PlanToPDFRequest{}
+	err := models.GetRequestJSON(req, qr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Convert the table to PDF
+	planPDF, err := pdf.PlanToPDF(models.Plan{
+		Title:       qr.Title,
+		Description: qr.Description,
+		Table:       qr.Table,
+	})
+	if err != nil {
+		logger.Error("Table generation failed", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Upload the PDF to cloud storage
+	uri, err := pdf.UploadPDF(req.Context(), rs.cfg.Bucket.Name, pdf.GenerateFilename(), planPDF)
+	if err != nil {
+		logger.Error("PDF upload failed", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	answer := &models.PlanToPDFResponse{URI: uri}
 
 	logger.Info("Answer generated successfully")
 	models.WriteResponseJSON(w, http.StatusOK, answer)
