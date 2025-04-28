@@ -26,7 +26,7 @@ type Row struct {
 	Amount     int    `json:"Amount" jsonschema_description:"Amount of repetitions"`
 	Multiplier string `json:"Multiplier" jsonschema_description:"Multiplier for the distance (e.g. 'x' or 'times')"`
 	Distance   int    `json:"Distance" jsonschema_description:"Distance in meters"`
-	Break      string `json:"Break" jsonschema_description:"Break time in seconds"`
+	Break      string `json:"Break" jsonschema_description:"Break time typically in seconds. This needs to be a string, as other times are possible"`
 	Content    string `json:"Content" jsonschema_description:"Content or description of the row"`
 	Intensity  string `json:"Intensity" jsonschema_description:"Intensity level of the activity"`
 	Sum        int    `json:"Sum" jsonschema_description:"Total volume or sum for the row"`
@@ -37,7 +37,7 @@ func (r Row) String() string {
 }
 
 func (t *Table) String() string {
-	tstr := "Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |\n"
+	tstr := "| Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |\n"
 	tstr += "|---|---|---|---|---|---|---|\n"
 	for _, row := range *t {
 		tstr += row.String() + "\n"
@@ -57,7 +57,20 @@ func (t *Table) AddSum() {
 // Recalculates the sum for each row
 // This is useful if the table has been modified and we need to update the sums
 func (t *Table) UpdateSum() {
+	total := 0
 	for i, row := range *t {
-		(*t)[i].Sum = row.Amount * row.Distance
+		if row.Content == "Gesamt" {
+			(*t)[i].Sum = total
+		} else {
+			(*t)[i].Sum = row.Amount * row.Distance
+			total += (*t)[i].Sum
+		}
 	}
+}
+
+// Returns the Header of the table
+//
+// | Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |
+func (t *Table) Header() []string {
+	return []string{"Anzahl", "", "Strecke(m)", "Pause(s)", "Inhalt", "Intensität", "Umfang"}
 }

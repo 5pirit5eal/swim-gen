@@ -33,6 +33,10 @@ type Config struct {
 		PassLocation string          `env:"DB_PASS_LOCATION"`
 		Method       models.DBMethod `env:"DB_METHOD"`
 	}
+
+	Bucket struct {
+		Name string `env:"BUCKET_NAME"`
+	}
 }
 
 func LoadConfig(filename string, overwrite bool) (Config, error) {

@@ -29,12 +29,14 @@ func (db *RAGDB) GeneratePlan(ctx context.Context, q string, docs []schema.Docum
 
 	// Create a RAG query for the LLM with the most relevant documents as context
 	query := fmt.Sprintf(ragTemplateStr, ts, q, strings.Join(dc, "\n \n"))
-	answer, err := llms.GenerateFromSinglePrompt(ctx, db.Client, query, llms.WithResponseMIMEType("application/json"))
+	answer, err := llms.GenerateFromSinglePrompt(ctx, db.Client, query,
+		llms.WithResponseMIMEType("application/json"), llms.WithTemperature(float64(1.0)))
 	if err != nil {
 		logger.Error("Error when generating answer with LLM", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error generating answer: %w", err)
 	}
 	answer = cleanResponse(answer)
+	// read description and table from the LLM response
 	var p models.RAGResponse
 	err = json.Unmarshal([]byte(answer), &p)
 	if err != nil {
@@ -45,8 +47,11 @@ func (db *RAGDB) GeneratePlan(ctx context.Context, q string, docs []schema.Docum
 	if !strings.Contains(p.Table[len(p.Table)-1].Content, "Total") {
 		p.Table.AddSum()
 	}
-	p.Plan = p.Table.String()
-	logger.Debug("Plan generated successfully", "plan", p.Plan)
+	// Recalculate the sums of the rows to be sure they are correct
+	p.Table.UpdateSum()
+
+	// Add the plan to the response
+	logger.Debug("Plan generated successfully")
 	return &p, nil
 }
 
@@ -74,15 +79,21 @@ func (db *RAGDB) ChoosePlan(ctx context.Context, q string, docs []schema.Documen
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 	var t models.Table
-	err = models.JSONInterfaceToStruct(docs[cr.Idx].Metadata["table"], t)
+	docString, err := json.Marshal(docs[cr.Idx].Metadata["table"])
+	logger.Info("Generated docstring", "table", string(docString))
 	if err != nil {
-		logger.Error("Error parsing table from LLM response", httplog.ErrAttr(err))
+		logger.Error("Error parsing table from LLM response, json.Marshal:", httplog.ErrAttr(err))
+		return nil, fmt.Errorf("error parsing table from LLM response: %w", err)
+	}
+	err = json.Unmarshal(docString, &t)
+	if err != nil {
+		logger.Error("Error parsing table from LLM response, json.Unmarshal:", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error parsing table from LLM response: %w", err)
 	}
 
 	return &models.RAGResponse{
-		Description: cr.Description,
-		Plan:        docs[cr.Idx].PageContent,
+		Title:       docs[cr.Idx].Metadata["title"].(string),
+		Description: "Begründung:" + cr.Description + "\n" + docs[cr.Idx].Metadata["description"].(string),
 		Table:       t,
 	}, nil
 }
