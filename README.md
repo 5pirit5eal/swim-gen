@@ -43,6 +43,9 @@ The initial version only contains the core concept of being able to generate ind
   - Authentication is omitted for v1
   - Any user information is stored encrypted if not configured otherwise
   - Frontend displays the option to not donate results in advanced settings
+- **Backend allows user to donate training plans**
+  - Backend-only implementation of training plan donation
+  - Backend-only implementation of feedback
 
 ### V2: User-specific TPs and TP History
 

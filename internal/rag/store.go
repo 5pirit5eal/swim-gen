@@ -10,11 +10,10 @@ import (
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"github.com/5pirit5eal/swim-rag/internal/config"
+	"github.com/5pirit5eal/swim-rag/internal/genai"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tmc/langchaingo/embeddings"
-	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/llms/googleai"
 	"github.com/tmc/langchaingo/vectorstores/pgvector"
 )
 
@@ -25,21 +24,14 @@ const (
 type RAGDB struct {
 	Conn   pgvector.PGXConn
 	Store  *pgvector.Store
-	Client llms.Model
+	Client *genai.GoogleGenAIClient
+	cfg    config.Config
 }
 
 func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	slog.Info("Initializing Google AI store with config", "cfg", slog.AnyValue(cfg))
 	// Initialize the LLM client
-	client, err := googleai.New(
-		ctx, googleai.WithCloudProject(cfg.ProjectID),
-		googleai.WithCloudLocation(cfg.Region),
-		googleai.WithDefaultModel(cfg.Model),
-		googleai.WithDefaultEmbeddingModel(cfg.Embedding.Model),
-		googleai.WithHarmThreshold(googleai.HarmBlockLowAndAbove),
-		googleai.WithAPIKey(cfg.APIKey),
-		googleai.WithDefaultMaxTokens(10000),
-	)
+	client, err := genai.NewGoogleGenAIClient(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +87,7 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 		return nil, err
 	}
 	slog.Info("Setup URL table successfully")
-	return &RAGDB{Store: &store, Conn: conn, Client: client}, nil
+	return &RAGDB{Store: &store, Conn: conn, Client: client, cfg: cfg}, nil
 }
 
 func (rag *RAGDB) Close() error {

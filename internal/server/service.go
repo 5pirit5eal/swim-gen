@@ -10,7 +10,6 @@ import (
 	"github.com/5pirit5eal/swim-rag/internal/pdf"
 	"github.com/5pirit5eal/swim-rag/internal/rag"
 	"github.com/go-chi/httplog/v2"
-	"github.com/tmc/langchaingo/schema"
 )
 
 type RAGService struct {
@@ -54,36 +53,52 @@ func (rs *RAGService) Close() {
 	slog.Info("RAG server closed successfully")
 }
 
-// Handles the HTTP request to add documents to the database.
+// Handles the HTTP request to donate a training plan to the database.
 // It parses the request, stores the documents and their embeddings in the
 // database, and responds with a success message.
-func (rs *RAGService) AddDocumentsHandler(w http.ResponseWriter, req *http.Request) {
+func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Adding documents to the database...")
 	// Parse HTTP request from JSON.
 
-	ar := &models.AddRequest{}
+	dpr := &models.DonatePlanRequest{}
 
-	err := models.GetRequestJSON(req, ar)
+	err := models.GetRequestJSON(req, dpr)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Convert the documents to the format expected by the store
-	var documents []schema.Document
-	for _, doc := range ar.Documents {
-		documents = append(documents, schema.Document{PageContent: doc.Text, Metadata: doc.Metadata})
-	}
-
-	// Store documents and their embeddings in the database
-	ids, err := rs.db.Store.AddDocuments(req.Context(), documents)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// Check if the table is filled
+	if len(dpr.Table) == 0 {
+		http.Error(w, "Table is empty", http.StatusBadRequest)
 		return
 	}
+
+	// Check if description is empty and generate one if needed
+	if dpr.Description == "" || dpr.Title == "" {
+		// Generate a description for the plan
+		desc, err := rs.db.Client.DescribePlan(req.Context(), dpr.Table)
+		if err != nil {
+			logger.Error("Error when generating description with LLM", httplog.ErrAttr(err))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		switch {
+		case dpr.Title == "":
+			dpr.Title = desc.Title
+			fallthrough
+		case dpr.Description == "":
+			dpr.Description = desc.Text
+		}
+	} else {
+		// Generate metadata with improve plan
+		// metadata, err := rs.db.Client.ImprovePlan(req.Context(), dpr.Table, dpr.Title, dpr.Description)
+	}
+
 	// Respond with a success message
-	models.WriteResponseJSON(w, http.StatusOK, models.AddResponse{Status: "OK", IDs: ids})
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Scraping completed successfully"))
 }
 
 // Handles the RAG query request.

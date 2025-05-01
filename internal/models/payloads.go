@@ -5,13 +5,10 @@ type Document struct {
 	Metadata map[string]any `json:"metadata,omitempty"`
 }
 
-type AddRequest struct {
-	Documents []Document `json:"documents"`
-}
-
-type AddResponse struct {
-	Status string   `json:"status"`
-	IDs    []string `json:"ids"`
+type DonatePlanRequest struct {
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+	Table       Table  `json:"table"`
 }
 
 type QueryRequest struct {

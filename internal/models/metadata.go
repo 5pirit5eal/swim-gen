@@ -46,7 +46,13 @@ type Metadata struct {
 	HasMeddley      bool            `json:"lagen" jsonschema_description:"Indicates if the training explicitely includes Lagen (Medley)"`
 	Difficulty      DifficultyLevel `json:"schwierigkeitsgrad" jsonschema:"description=The difficulty level of the training,enum=Nichtschwimmer,enum=Anfaenger,enum=Fortgeschritten,enum=Leistungsschwimmer,enum=Top-Athlet"`
 	TrainingType    Training        `json:"trainingstyp" jsonschema:"description=The type of training,enum=Techniktraining,enum=Leistungstest,enum=Grundlagen,enum=Recovery,enum=Kurzstrecken,enum=Langstrecken,enum=Atemmangel,enum=Wettkampfvorbereitung"`
-	Reasoning       string          `json:"Begründung" jsonschema_description:"Reasoning for why the LLM added what it did"`
+	Reasoning       string          `json:"Begründung" jsonschema_description:"Reasoning for why the attributes were chosen"`
+}
+
+type Description struct {
+	Title    string   `json:"title" jsonschema_description:"Title of the training plan"`
+	Text     string   `json:"text" jsonschema_description:"Description of the training plan"`
+	Metadata Metadata `json:"metadata" jsonschema_description:"Metadata for the training plan"`
 }
 
 func MetadataSchema() (string, error) {

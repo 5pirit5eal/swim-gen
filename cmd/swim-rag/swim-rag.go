@@ -103,7 +103,7 @@ func newRouter(basePath string, ragServer *server.RAGService, scraper *scraper.S
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	r.Route(basePath, func(r chi.Router) {
-		r.Post("/add", ragServer.AddDocumentsHandler)
+		r.Post("/add", ragServer.DonatePlanHandler)
 		r.Post("/query", ragServer.QueryHandler)
 		r.Get("/scrape", scraper.ScrapeHandler)
 		r.Post("/export-pdf", ragServer.PlanToPDFHandler)
