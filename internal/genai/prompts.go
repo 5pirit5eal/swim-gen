@@ -65,7 +65,7 @@ Dabei sind folgende Abkürzungen relevant:
     "R": "Rückenschwimmen",
     "B": "Brustschwimmen",
     "Br": "Brustschwimmen",
-    "Be", "Beinarbeit",
+    "Be": "Beinarbeit",
     "S": "Schmetterling/Delfinschwimmen",
     "D": "Schmetterling/Delfinschwimmen",
     "Lagen": "Lagenstaffel",
