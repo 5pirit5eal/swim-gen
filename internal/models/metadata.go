@@ -47,12 +47,13 @@ type Metadata struct {
 	Difficulty      DifficultyLevel `json:"schwierigkeitsgrad" jsonschema:"description=The difficulty level of the training,enum=Nichtschwimmer,enum=Anfaenger,enum=Fortgeschritten,enum=Leistungsschwimmer,enum=Top-Athlet"`
 	TrainingType    Training        `json:"trainingstyp" jsonschema:"description=The type of training,enum=Techniktraining,enum=Leistungstest,enum=Grundlagen,enum=Recovery,enum=Kurzstrecken,enum=Langstrecken,enum=Atemmangel,enum=Wettkampfvorbereitung"`
 	Reasoning       string          `json:"Begründung" jsonschema_description:"Reasoning for why the attributes were chosen"`
+	Equipment       []string        `json:"Ausrüstung" jsonschema_description:"Equipment needed for the training"`
 }
 
 type Description struct {
-	Title    string   `json:"title" jsonschema_description:"Title of the training plan"`
-	Text     string   `json:"text" jsonschema_description:"Description of the training plan"`
-	Metadata Metadata `json:"metadata" jsonschema_description:"Metadata for the training plan"`
+	Title    string    `json:"title" jsonschema_description:"Title of the training plan"`
+	Text     string    `json:"text" jsonschema_description:"Description of the training plan"`
+	Metadata *Metadata `json:"metadata" jsonschema_description:"Metadata for the training plan"`
 }
 
 func MetadataSchema() (string, error) {
@@ -72,5 +73,14 @@ func TableSchema() (string, error) {
 		return "", fmt.Errorf("failed to marshal JSON schema: %w", err)
 	}
 
+	return string(jsonSchema), nil
+}
+
+func DescriptionSchema() (string, error) {
+	schema := jsonschema.Reflect(&Description{})
+	jsonSchema, err := json.Marshal(schema)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal JSON schema: %w", err)
+	}
 	return string(jsonSchema), nil
 }

@@ -8,9 +8,10 @@ import (
 )
 
 type GoogleGenAIClient struct {
-	gc   *genai.Client
-	gcfg *genai.GenerateContentConfig
-	cfg  config.Config
+	gc       *genai.Client
+	gcfg     *genai.GenerateContentConfig
+	embedCfg *genai.EmbedContentConfig
+	cfg      config.Config
 }
 
 func NewGoogleGenAIClient(ctx context.Context, cfg config.Config) (*GoogleGenAIClient, error) {
@@ -32,8 +33,14 @@ func NewGoogleGenAIClient(ctx context.Context, cfg config.Config) (*GoogleGenAIC
 			{Category: genai.HarmCategoryDangerousContent, Threshold: genai.HarmBlockThresholdBlockNone},
 		},
 	}
+	embedCfg := &genai.EmbedContentConfig{
+		// Default embedding task type
+		TaskType: "RETRIEVAL_DOCUMENT",
+	}
 	return &GoogleGenAIClient{
-		gc:   gc,
-		gcfg: gcfg,
+		gc:       gc,
+		gcfg:     gcfg,
+		embedCfg: embedCfg,
+		cfg:      cfg,
 	}, nil
 }

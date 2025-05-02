@@ -4,12 +4,14 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/5pirit5eal/swim-rag/internal/config"
 	"github.com/5pirit5eal/swim-rag/internal/models"
 	"github.com/5pirit5eal/swim-rag/internal/pdf"
 	"github.com/5pirit5eal/swim-rag/internal/rag"
 	"github.com/go-chi/httplog/v2"
+	"github.com/google/uuid"
 )
 
 type RAGService struct {
@@ -75,26 +77,45 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 		return
 	}
 
+	desc := &models.Description{}
 	// Check if description is empty and generate one if needed
 	if dpr.Description == "" || dpr.Title == "" {
 		// Generate a description for the plan
-		desc, err := rs.db.Client.DescribePlan(req.Context(), dpr.Table)
+		desc, err := rs.db.Client.DescribePlan(req.Context(), &dpr.Table)
 		if err != nil {
 			logger.Error("Error when generating description with LLM", httplog.ErrAttr(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		switch {
-		case dpr.Title == "":
-			dpr.Title = desc.Title
+		case dpr.Title != "":
+			desc.Title = dpr.Title
 			fallthrough
-		case dpr.Description == "":
-			dpr.Description = desc.Text
+		case dpr.Description != "":
+			desc.Text = dpr.Description
 		}
 	} else {
 		// Generate metadata with improve plan
-		// metadata, err := rs.db.Client.ImprovePlan(req.Context(), dpr.Table, dpr.Title, dpr.Description)
+		m, err := rs.db.Client.GenerateMetadata(req.Context(), &models.Plan{Title: dpr.Title, Description: dpr.Description, Table: dpr.Table})
+		if err != nil {
+			logger.Error("Error when generating metadata with LLM", httplog.ErrAttr(err))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		desc.Metadata = m
 	}
+
+	// Create a donated plan
+	plan := &models.DonatedPlan{
+		PlanID:      uuid.NewString(),
+		CreatedAt:   time.Now().Format(time.DateTime),
+		Title:       desc.Title,
+		Description: desc.Text,
+		Table:       dpr.Table,
+	}
+
+	// Store the plan in the database
+	err = rs.db.AddDonatedPlan(req.Context(), plan, desc.Metadata)
 
 	// Respond with a success message
 	w.WriteHeader(http.StatusOK)
@@ -143,7 +164,7 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 	}
 
 	// Convert the table to PDF
-	planPDF, err := pdf.PlanToPDF(models.Plan{
+	planPDF, err := pdf.PlanToPDF(&models.Plan{
 		Title:       qr.Title,
 		Description: qr.Description,
 		Table:       qr.Table,

@@ -6,9 +6,14 @@ type Document struct {
 }
 
 type DonatePlanRequest struct {
+	// v2: add user_id
+	// UserID      string `json:"user_id"`
 	Title       string `json:"title,omitempty"`
 	Description string `json:"description,omitempty"`
 	Table       Table  `json:"table"`
+	// v3: add other table modalities
+	// Image 	 string `json:"image,omitempty"`
+	// URI 		 string `json:"uri,omitempty"`
 }
 
 type QueryRequest struct {

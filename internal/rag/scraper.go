@@ -173,7 +173,7 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 		visitedURLs.Store(url)
 
 		syncGroup.Add(1)
-		go db.Client.ImprovePlan(ctx, models.Plan{
+		go db.Client.ImprovePlan(ctx, &models.ScrapedPlan{
 			URL:         url,
 			Title:       title,
 			Description: desc,
@@ -212,17 +212,19 @@ func (db *RAGDB) scrape(ctx context.Context, alreadyVisited []string, c chan sch
 
 func (db *RAGDB) ScrapeURL(ctx context.Context, url string) error {
 	logger := httplog.LogEntry(ctx)
+	// Set the embedder to document embedding mode
+	db.Client.DocumentMode()
 	logger.Info("Starting to scrape")
 	// Load urls in the database into the scraper
 	alreadyVisited := make([]string, 0)
 
 	rows, err := db.Conn.Query(ctx, fmt.Sprintf(`
-		SELECT url FROM urls
+		SELECT url FROM %s
 		WHERE (created_at > now() - interval '60 days'
 		AND collection_id = (
 			SELECT uuid FROM %s WHERE name = $1
 			ORDER BY name limit 1
-		))`, CollectionTableName), db.cfg.Embedding.Model)
+		))`, ScrapedTableName, CollectionTableName), db.cfg.Embedding.Model)
 	if err != nil {
 		return fmt.Errorf("failed to query database: %w", err)
 	}
@@ -275,7 +277,7 @@ Forloop:
 	logger.Info("Adding documents to the database")
 
 	// Store documents and their embeddings in the database
-	ids, err := db.Store.AddDocuments(ctx, documents)
+	_, err = db.Store.AddDocuments(ctx, documents)
 	if err != nil {
 		logger.Error("Failed to add documents to the database", httplog.ErrAttr(err))
 		return fmt.Errorf("failed to add documents to the database: %w", err)
@@ -292,21 +294,23 @@ Forloop:
 	batch := &pgx.Batch{}
 	for i := range documents {
 		logger.Debug(fmt.Sprintf("Inserting URL %s into database", documents[i].Metadata["url"]), "url", documents[i].Metadata["url"])
+		// If a URL already exists, delete the old entry and insert the new one
+		// TODO: Additionally save the
 		batch.Queue(fmt.Sprintf(`
 			WITH deleted AS (
 				DELETE FROM %s 
 				WHERE uuid = (
-					SELECT document_id 
-					FROM urls 
+					SELECT plan_id 
+					FROM %s 
 					WHERE url = $1 AND collection_id = $3
 				)
 				RETURNING uuid
 			)
-			INSERT INTO urls (url, document_id, collection_id) 
+			INSERT INTO %s (url, plan_id, collection_id) 
 			VALUES ($1, $2, $3) 
 			ON CONFLICT (url, collection_id) 
-			DO UPDATE SET document_id = EXCLUDED.document_id`, db.cfg.Embedding.Name),
-			documents[i].Metadata["url"], ids[i], collectionUUID)
+			DO UPDATE SET document_id = EXCLUDED.document_id`, db.cfg.Embedding.Name, ScrapedTableName, ScrapedTableName),
+			documents[i].Metadata["url"], documents[i].Metadata["plan_id"], collectionUUID)
 	}
 	logger.Info("Inserting URLs into database...")
 	// Execute the batch

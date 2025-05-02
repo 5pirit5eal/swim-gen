@@ -14,7 +14,6 @@ type Config struct {
 	ProjectID string `env:"PROJECT_ID"`
 	Region    string `env:"REGION"`
 	Model     string `env:"MODEL"`
-	APIKey    string `env:"API_KEY"`
 	LogLevel  string `env:"LOG_LEVEL"`
 	Port      string `env:"PORT"`
 

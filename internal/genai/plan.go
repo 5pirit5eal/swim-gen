@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"maps"
 	"strings"
 	"sync"
 
@@ -82,6 +81,7 @@ func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q string, docs []sc
 		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
+	// TODO: Replace with returning the plan id from the chosen plan
 	var t models.Table
 	docString, err := json.Marshal(docs[cr.Idx].Metadata["table"])
 	logger.Info("Generated docstring", "table", string(docString))
@@ -102,7 +102,7 @@ func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q string, docs []sc
 	}, nil
 }
 
-func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Plan, syncGroup *sync.WaitGroup, c chan schema.Document, ec chan error) {
+func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Mappable, syncGroup *sync.WaitGroup, c chan<- schema.Document, ec chan<- error) {
 	if syncGroup != nil {
 		defer syncGroup.Done()
 	}
@@ -114,28 +114,19 @@ func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Plan, 
 		return
 	}
 
-	// Add the results to the map
-	planMap := plan.Map()
-	maps.Copy(planMap, models.StructToMap(metadata))
-
-	// Add the description to the plan descriptions
-	plan.Description += "\n" + metadata.Reasoning
-	// Create request body by converting the models.plans into documents
-	c <- schema.Document{
-		PageContent: plan.String(),
-		Metadata:    planMap,
-	}
+	// Create request body by converting the plans into documents
+	c <- models.PlanToDoc(plan, metadata)
 }
 
-func (gc *GoogleGenAIClient) DescribePlan(ctx context.Context, table models.Table) (*models.Description, error) {
+func (gc *GoogleGenAIClient) DescribePlan(ctx context.Context, table *models.Table) (*models.Description, error) {
 	logger := httplog.LogEntry(ctx)
-	ms, err := models.MetadataSchema()
+	ds, err := models.DescriptionSchema()
 	if err != nil {
 		logger.Error("Failed in retrieving Schema", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("models.MetadataSchema: %w", err)
 	}
 	// Create a description of the table
-	query := fmt.Sprintf(describeTemplateStr, ms, table.String())
+	query := fmt.Sprintf(describeTemplateStr, ds, table.String())
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
@@ -151,7 +142,7 @@ func (gc *GoogleGenAIClient) DescribePlan(ctx context.Context, table models.Tabl
 	return &desc, nil
 }
 
-func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan models.Plan) (*models.Metadata, error) {
+func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan models.Mappable) (*models.Metadata, error) {
 	logger := httplog.LogEntry(ctx)
 	ms, err := models.MetadataSchema()
 	if err != nil {
@@ -159,7 +150,8 @@ func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan models.P
 		return nil, fmt.Errorf("models.MetadataSchema: %w", err)
 	}
 	// Enhance scraped documents with gemini and create meaningful metadata
-	query := fmt.Sprintf(metadataTemplateStr, plan.Title, plan.Description, plan.Table.String(), ms)
+	genericPlan := plan.Plan()
+	query := fmt.Sprintf(metadataTemplateStr, genericPlan.Title, genericPlan.Description, genericPlan.Table.String(), ms)
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)

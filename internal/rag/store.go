@@ -18,7 +18,11 @@ import (
 )
 
 const (
-	CollectionTableName string = "documents"
+	CollectionTableName string = "embedders"
+	PlanTableName       string = "plans"
+	ScrapedTableName    string = "scraped"
+	FeedbackTable       string = "feedback"
+	DonatedPlanTable    string = "donations"
 )
 
 type RAGDB struct {
@@ -80,9 +84,19 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 		return nil, err
 	}
 	defer tx.Rollback(ctx)
-	if err := createURLTableIfNotExists(ctx, tx, cfg.Embedding.Name); err != nil {
+	if err := createScrapedTableIfNotExists(ctx, tx); err != nil {
 		return nil, err
 	}
+	if err := createPlanTableIfNotExists(ctx, tx); err != nil {
+		return nil, err
+	}
+	if err := createFeedbackTableIfNotExists(ctx, tx); err != nil {
+		return nil, err
+	}
+	if err := createDonatedPlanTableIfNotExists(ctx, tx); err != nil {
+		return nil, err
+	}
+	// Commit the transaction
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
@@ -123,22 +137,73 @@ func GetSecret(ctx context.Context, location string) (string, error) {
 	return string(secret.Payload.Data), nil
 }
 
-func createURLTableIfNotExists(ctx context.Context, tx pgx.Tx, embeddingsTableName string) error {
+func createScrapedTableIfNotExists(ctx context.Context, tx pgx.Tx) error {
 	if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", 1573678846307946497); err != nil {
 		return err
 	}
 	_, err := tx.Exec(ctx,
-		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS urls (
+		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
 			url TEXT NOT NULL,
 			collection_id uuid NOT NULL,
 			created_at TIMESTAMPTZ DEFAULT NOW(),
-			document_id uuid,
+			plan_id uuid,
 			PRIMARY KEY (url, collection_id),
-			FOREIGN KEY (collection_id) REFERENCES %s (uuid) ON DELETE CASCADE,
-			FOREIGN KEY (document_id) REFERENCES %s (uuid) ON DELETE CASCADE)`,
-			CollectionTableName, embeddingsTableName))
+			FOREIGN KEY (collection_id) REFERENCES %s (uuid) ON DELETE CASCADE)`,
+			ScrapedTableName, CollectionTableName))
+	if err != nil {
+		return fmt.Errorf("failed to create scraped table: %w", err)
+	}
+	return nil
+}
+
+func createPlanTableIfNotExists(ctx context.Context, tx pgx.Tx) error {
+	if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", 1573678846307946498); err != nil {
+		return err
+	}
+	_, err := tx.Exec(ctx,
+		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
+			plan_id uuid NOT NULL DEFAULT gen_random_uuid(),
+			title TEXT NOT NULL,
+			description TEXT NOT NULL,
+			plan_table JSON NOT NULL,
+			PRIMARY KEY (plan_id))`, PlanTableName))
 	if err != nil {
 		return fmt.Errorf("failed to create urls table: %w", err)
+	}
+	return nil
+}
+
+func createFeedbackTableIfNotExists(ctx context.Context, tx pgx.Tx) error {
+	if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", 1573678846307946499); err != nil {
+		return err
+	}
+	_, err := tx.Exec(ctx,
+		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
+			user_id uuid NOT NULL,
+			plan_id uuid NOT NULL,
+			rating INT NOT NULL,
+			comment TEXT NOT NULL,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW(),
+			PRIMARY KEY (user_id, plan_id))`, FeedbackTable))
+	if err != nil {
+		return fmt.Errorf("failed to create feedback table: %w", err)
+	}
+	return nil
+}
+
+func createDonatedPlanTableIfNotExists(ctx context.Context, tx pgx.Tx) error {
+	if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", 1573678846307946500); err != nil {
+		return err
+	}
+	_, err := tx.Exec(ctx,
+		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
+			user_id uuid NOT NULL,
+			plan_id uuid NOT NULL,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			PRIMARY KEY (user_id, plan_id))`, DonatedPlanTable))
+	if err != nil {
+		return fmt.Errorf("failed to create donated table: %w", err)
 	}
 	return nil
 }

@@ -276,11 +276,13 @@ func TestPlantoPDF(t *testing.T) {
 		},
 	}
 	// Create a sample plan
-	plan := models.Plan{
-		Title:       "Kraul-Sprint Training für Höchstgeschwindigkeit",
-		Description: "Dieser Trainingsplan ist ein Super-Sprint-Plan, inspiriert von einem Olympiasieger. Er konzentriert sich auf die Entwicklung deiner absoluten Höchstgeschwindigkeit im Kraulschwimmen durch kurze, intensive Sprint-Abschnitte und spezifische Technikübungen. Achte auf die Einhaltung der Pausen, um dich optimal auf die Sprints vorzubereiten.",
-		URL:         "https://example.com/plan.pdf",
-		Table:       table,
+	plan := &models.Plan{
+		Title: "Kraul-Sprint Training für Höchstgeschwindigkeit",
+		Description: `Dieser Trainingsplan ist ein Super-Sprint-Plan, inspiriert von einem Olympiasieger. 
+Er konzentriert sich auf die Entwicklung deiner absoluten Höchstgeschwindigkeit im Kraulschwimmen durch kurze, 
+intensive Sprint-Abschnitte und spezifische Technikübungen. Achte auf die Einhaltung der Pausen, 
+um dich optimal auf die Sprints vorzubereiten.`,
+		Table: table,
 	}
 
 	planPDF, err := pdf.PlanToPDF(plan)
