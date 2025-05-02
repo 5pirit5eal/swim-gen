@@ -51,9 +51,9 @@ type Metadata struct {
 }
 
 type Description struct {
-	Title    string    `json:"title" jsonschema_description:"Title of the training plan"`
-	Text     string    `json:"text" jsonschema_description:"Description of the training plan"`
-	Metadata *Metadata `json:"metadata" jsonschema_description:"Metadata for the training plan"`
+	Title string    `json:"title" jsonschema_description:"Title of the training plan"`
+	Text  string    `json:"text" jsonschema_description:"Description of the training plan"`
+	Meta  *Metadata `json:"metadata" jsonschema_description:"Metadata for the training plan"`
 }
 
 func MetadataSchema() (string, error) {

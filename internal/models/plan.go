@@ -8,7 +8,7 @@ import (
 	"github.com/tmc/langchaingo/schema"
 )
 
-type Mappable interface {
+type Planable interface {
 	// Map represenation of the object with at least the plan_id
 	Map() map[string]any
 	Plan() *Plan
@@ -37,6 +37,7 @@ func (d *DonatedPlan) Map() map[string]any {
 
 func (d *DonatedPlan) Plan() *Plan {
 	return &Plan{
+		PlanID:      d.PlanID,
 		Title:       d.Title,
 		Description: d.Description,
 		Table:       d.Table,
@@ -65,6 +66,7 @@ func (s *ScrapedPlan) Map() map[string]any {
 
 func (s *ScrapedPlan) Plan() *Plan {
 	return &Plan{
+		PlanID:      s.PlanID,
 		Title:       s.Title,
 		Description: s.Description,
 		Table:       s.Table,
@@ -75,7 +77,7 @@ type Plan struct {
 	PlanID      string `db:"plan_id"`
 	Title       string `db:"title"`
 	Description string `db:"description"`
-	Table       Table  `db:"table"`
+	Table       Table  `db:"plan_table"`
 }
 
 func (p *Plan) Map() map[string]any {
@@ -93,23 +95,6 @@ func (p *Plan) Plan() *Plan {
 
 func (p *Plan) String() string {
 	return fmt.Sprintf("%s:\n %s\n %s", p.Title, p.Description, p.Table.String())
-}
-
-func PlanToDoc(plan Mappable, metadata *Metadata) schema.Document {
-	genericPlan := plan.Plan()
-	// Create a map of the plan
-	planMap := plan.Map()
-
-	// Add the metadata to the map
-	maps.Copy(planMap, StructToMap(metadata))
-
-	// Add the description to the plan descriptions
-	genericPlan.Description += "\n" + metadata.Reasoning
-	// Create a document from the plan
-	return schema.Document{
-		PageContent: genericPlan.String(),
-		Metadata:    planMap,
-	}
 }
 
 type Table []Row
@@ -174,4 +159,30 @@ func (t *Table) JSON() (string, error) {
 		return "", fmt.Errorf("failed to marshal table to JSON: %w", err)
 	}
 	return string(bytes), nil
+}
+
+type Document struct {
+	Plan Planable
+	Meta *Metadata
+}
+
+func PlanToDoc(doc *Document) (schema.Document, error) {
+	genericPlan := doc.Plan.Plan()
+	// Create a map of the plan
+	planMap := doc.Plan.Map()
+
+	if _, found := planMap["plan_id"]; !found {
+		return schema.Document{}, fmt.Errorf("plan_id not found in plan map")
+	}
+
+	// Add the metadata to the map
+	maps.Copy(planMap, StructToMap(doc.Meta))
+
+	// Add the description to the plan descriptions
+	genericPlan.Description += "\n" + doc.Meta.Reasoning
+	// Create a document from the plan
+	return schema.Document{
+		PageContent: genericPlan.String(),
+		Metadata:    planMap,
+	}, nil
 }

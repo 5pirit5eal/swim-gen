@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/5pirit5eal/swim-rag/internal/config"
@@ -81,7 +82,7 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 	// Check if description is empty and generate one if needed
 	if dpr.Description == "" || dpr.Title == "" {
 		// Generate a description for the plan
-		desc, err := rs.db.Client.DescribePlan(req.Context(), &dpr.Table)
+		desc, err := rs.db.Client.DescribeTable(req.Context(), &dpr.Table)
 		if err != nil {
 			logger.Error("Error when generating description with LLM", httplog.ErrAttr(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -102,11 +103,12 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		desc.Metadata = m
+		desc.Meta = m
 	}
 
 	// Create a donated plan
 	plan := &models.DonatedPlan{
+		UserID:      dpr.UserID,
 		PlanID:      uuid.NewString(),
 		CreatedAt:   time.Now().Format(time.DateTime),
 		Title:       desc.Title,
@@ -115,7 +117,12 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 	}
 
 	// Store the plan in the database
-	err = rs.db.AddDonatedPlan(req.Context(), plan, desc.Metadata)
+	err = rs.db.AddDonatedPlan(req.Context(), plan, desc.Meta)
+	if err != nil {
+		logger.Error("Failed to store plan in the database", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Respond with a success message
 	w.WriteHeader(http.StatusOK)
@@ -136,8 +143,12 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	answer, err := rs.db.Query(req.Context(), qr.Content, qr.Filter)
+	answer, err := rs.db.Query(req.Context(), qr.Content, qr.Filter, qr.Method)
 	if err != nil {
+		if strings.HasPrefix(err.Error(), "unsupported method:") {
+			http.Error(w, "Method may only be 'choose' or 'generate', invalid choice.", http.StatusBadRequest)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

@@ -1,19 +1,14 @@
 package rag
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
+	"strings"
+
+	"github.com/google/uuid"
 )
 
-// Calculates a hash for the given slice of strings
-// GenerateHash generates a SHA256 hash of len 64 from a given string.
-func GenerateHash(inputs ...string) string {
-	hasher := sha256.New()
-	bytes := []byte{}
-	for _, input := range inputs {
-		bytes = append(bytes, []byte(input)...)
-	}
-	hasher.Write(bytes)
-	hash := hasher.Sum(nil)
-	return hex.EncodeToString(hash)[:64]
+// Calculates a uuid for the given slice of strings
+func GenerateUUID(inputs ...string) string {
+	combined := uuid.NewSHA1(uuid.NameSpaceOID, []byte(strings.Join(inputs, "")))
+
+	return combined.String()
 }

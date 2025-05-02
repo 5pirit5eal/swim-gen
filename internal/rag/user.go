@@ -15,7 +15,7 @@ func (db *RAGDB) AddUser(ctx context.Context, user *models.User) error {
 
 	// Create a new user in the database using the struct fields
 	_, err := db.Conn.Exec(ctx, "INSERT INTO users (user_id, name, email, created_at, last_active) VALUES ($1, $2, $3, $4, $5)",
-		GenerateHash(user.Email, user.Name), user.Name, user.Email, user.CreatedAt, user.LastActive)
+		GenerateUUID(user.Email, user.Name), user.Name, user.Email, user.CreatedAt, user.LastActive)
 	if err != nil {
 		logger.Error("Error creating user", httplog.ErrAttr(err))
 		return err

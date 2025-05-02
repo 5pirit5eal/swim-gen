@@ -14,14 +14,28 @@ func (c *GoogleGenAIClient) CreateEmbedding(ctx context.Context, texts []string)
 		contents[i] = genai.NewContentFromText(text, genai.RoleUser)
 	}
 
-	resp, err := c.gc.Models.EmbedContent(ctx, c.cfg.Embedding.Model, contents, c.embedCfg)
-	if err != nil {
-		return nil, fmt.Errorf("Models.EmbedContent: %w", err)
+	// Embed in batches to avoid exceeding the max tokens
+	batchSize := 10
+	embeddings := make([][]float32, len(texts))
+	for i := 0; i < (len(texts)+batchSize-1)/batchSize; i++ {
+		if i*batchSize >= len(texts) {
+			break
+		}
+		var batch []*genai.Content
+		if i*batchSize+batchSize > len(texts) {
+			batch = contents[i*batchSize:]
+		} else {
+			batch = contents[i*batchSize : i*batchSize+batchSize]
+		}
+		resp, err := c.gc.Models.EmbedContent(ctx, c.cfg.Embedding.Model, batch, c.embedCfg)
+		if err != nil {
+			return nil, fmt.Errorf("Models.EmbedContent: %w", err)
+		}
+		for j, embedding := range resp.Embeddings {
+			embeddings[i*batchSize+j] = embedding.Values
+		}
 	}
-	embeddings := make([][]float32, len(resp.Embeddings))
-	for i, embedding := range resp.Embeddings {
-		embeddings[i] = embedding.Values
-	}
+
 	return embeddings, nil
 }
 

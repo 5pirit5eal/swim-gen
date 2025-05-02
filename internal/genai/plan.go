@@ -57,7 +57,8 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q string, docs []
 }
 
 // ChoosePlan lets an LLM choose the best fitting plan from the given documents.
-func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q string, docs []schema.Document) (*models.RAGResponse, error) {
+// Returns the plan id of the chosen plan
+func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q string, docs []schema.Document) (string, error) {
 	logger := httplog.LogEntry(ctx)
 	var dc string
 	for i, doc := range docs {
@@ -71,7 +72,7 @@ func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q string, docs []sc
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
 	if err != nil {
 		logger.Error("Error when generating answer with LLM", httplog.ErrAttr(err))
-		return nil, fmt.Errorf("error generating answer: %w", err)
+		return "", fmt.Errorf("error generating answer: %w", err)
 	}
 	logger.Debug("Successful answer from LLM", "answer", answer)
 
@@ -79,35 +80,17 @@ func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q string, docs []sc
 	err = json.Unmarshal([]byte(answer.Text()), &cr)
 	if err != nil {
 		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)
-		return nil, fmt.Errorf("error parsing LLM response: %w", err)
+		return "", fmt.Errorf("error parsing LLM response: %w", err)
 	}
-	// TODO: Replace with returning the plan id from the chosen plan
-	var t models.Table
-	docString, err := json.Marshal(docs[cr.Idx].Metadata["table"])
-	logger.Info("Generated docstring", "table", string(docString))
-	if err != nil {
-		logger.Error("Error parsing table from LLM response, json.Marshal:", httplog.ErrAttr(err))
-		return nil, fmt.Errorf("error parsing table from LLM response: %w", err)
-	}
-	err = json.Unmarshal(docString, &t)
-	if err != nil {
-		logger.Error("Error parsing table from LLM response, json.Unmarshal:", httplog.ErrAttr(err))
-		return nil, fmt.Errorf("error parsing table from LLM response: %w", err)
-	}
-
-	return &models.RAGResponse{
-		Title:       docs[cr.Idx].Metadata["title"].(string),
-		Description: "Begründung:" + cr.Description + "\n" + docs[cr.Idx].Metadata["description"].(string),
-		Table:       t,
-	}, nil
+	return docs[cr.Idx].Metadata["plan_id"].(string), nil
 }
 
-func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Mappable, syncGroup *sync.WaitGroup, c chan<- schema.Document, ec chan<- error) {
+func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Planable, syncGroup *sync.WaitGroup, c chan<- models.Document, ec chan<- error) {
 	if syncGroup != nil {
 		defer syncGroup.Done()
 	}
 	logger := httplog.LogEntry(ctx)
-	metadata, err := gc.GenerateMetadata(ctx, plan)
+	meta, err := gc.GenerateMetadata(ctx, plan)
 	if err != nil {
 		logger.Error("Error when generating metadata with LLM", httplog.ErrAttr(err))
 		ec <- fmt.Errorf("error generating metadata: %w", err)
@@ -115,10 +98,13 @@ func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Mappab
 	}
 
 	// Create request body by converting the plans into documents
-	c <- models.PlanToDoc(plan, metadata)
+	c <- models.Document{
+		Plan: plan,
+		Meta: meta,
+	}
 }
 
-func (gc *GoogleGenAIClient) DescribePlan(ctx context.Context, table *models.Table) (*models.Description, error) {
+func (gc *GoogleGenAIClient) DescribeTable(ctx context.Context, table *models.Table) (*models.Description, error) {
 	logger := httplog.LogEntry(ctx)
 	ds, err := models.DescriptionSchema()
 	if err != nil {
@@ -142,7 +128,7 @@ func (gc *GoogleGenAIClient) DescribePlan(ctx context.Context, table *models.Tab
 	return &desc, nil
 }
 
-func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan models.Mappable) (*models.Metadata, error) {
+func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan models.Planable) (*models.Metadata, error) {
 	logger := httplog.LogEntry(ctx)
 	ms, err := models.MetadataSchema()
 	if err != nil {

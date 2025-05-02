@@ -11,8 +11,19 @@ import (
 	"github.com/tmc/langchaingo/vectorstores"
 )
 
+type SourceOption string
+
+const (
+	// SourceOptionPlan indicates that the source is a plan.
+	SourceOptionPlan SourceOption = "plan"
+	// SourceOptionScraped indicates that the source is a scraped plan.
+	SourceOptionScraped SourceOption = "scraped"
+	// SourceOptionDonated indicates that the source is a donated plan.
+	SourceOptionDonated SourceOption = "donated"
+)
+
 // Query searches for documents in the database based on the provided query and filter.
-func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any) (*models.RAGResponse, error) {
+func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any, method string) (*models.RAGResponse, error) {
 	logger := httplog.LogEntry(ctx)
 	// Set the embedder to query mode
 	db.Client.QueryMode()
@@ -33,13 +44,27 @@ func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any)
 		return nil, fmt.Errorf("error searching for documents: %w", err)
 	}
 	logger.Info("Documents found", "count", len(docs))
-	var answer *models.RAGResponse
-	if query != "" {
+	logger.Debug("Documents:", "docs", docs)
+	answer := &models.RAGResponse{}
+	if method == "generate" {
 		answer, err = db.Client.GeneratePlan(ctx, query, docs)
+	} else if method == "choose" {
+		planID, err := db.Client.ChoosePlan(ctx, query, docs)
+		if err != nil {
+			logger.Error("Error choosing plan", httplog.ErrAttr(err))
+			return nil, fmt.Errorf("error choosing plan: %w", err)
+		}
+		plan, err := db.GetPlan(ctx, planID, SourceOptionPlan)
+		if err != nil {
+			logger.Error("Error getting plan", httplog.ErrAttr(err))
+			return nil, fmt.Errorf("error getting plan: %w", err)
+		}
+		genericPlan := plan.Plan()
+		answer.Title = genericPlan.Title
+		answer.Description = genericPlan.Description
+		answer.Table = genericPlan.Table
 	} else {
-		query = fmt.Sprintf("Ich suche nach einem Plan mit folgenden Kriterien: %v", filter)
-		answer, err = db.Client.ChoosePlan(ctx, query, docs)
-		// TODO: instead of getting the answer directly, use the returned id and query for the plan
+		return nil, fmt.Errorf("unsupported method: %s", method)
 	}
 	if err != nil {
 		return nil, err
@@ -49,14 +74,22 @@ func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any)
 	return answer, nil
 }
 
-func (db *RAGDB) GetPlan(ctx context.Context, id string) (*models.Plan, error) {
+func (db *RAGDB) GetPlan(ctx context.Context, planID string, source SourceOption) (models.Planable, error) {
 	logger := httplog.LogEntry(ctx)
 	// Query the database for the plan with the given ID
-	var plan models.Plan
-	err := pgxscan.Get(ctx, db.Conn, &plan, fmt.Sprintf(`SELECT * FROM %s WHERE plan_id = $1`, PlanTableName), id)
-	if err != nil {
-		logger.Error("Error querying plan", httplog.ErrAttr(err))
-		return nil, err
+	switch source {
+	case SourceOptionPlan:
+		var plan models.Plan
+		err := pgxscan.Get(ctx, db.Conn, &plan, fmt.Sprintf(`SELECT plan_id, title, description, plan_table FROM %s WHERE plan_id = $1`, PlanTableName), planID)
+		if err != nil {
+			logger.Error("Error querying plan", httplog.ErrAttr(err))
+			return nil, err
+		}
+		return &plan, nil
+	case SourceOptionScraped:
+		return db.GetScrapedPlan(ctx, planID)
+	case SourceOptionDonated:
+		return db.GetDonatedPlan(ctx, planID)
 	}
-	return &plan, nil
+	return nil, fmt.Errorf("unsupported source option: %s", source)
 }
