@@ -43,6 +43,9 @@ The initial version only contains the core concept of being able to generate ind
   - Authentication is omitted for v1
   - Any user information is stored encrypted if not configured otherwise
   - Frontend displays the option to not donate results in advanced settings
+- **Backend allows user to donate training plans**
+  - Backend-only implementation of training plan donation
+  - Backend-only implementation of feedback
 
 ### V2: User-specific TPs and TP History
 
@@ -66,11 +69,24 @@ The next version takes lessons learned in v1 into consideration and adds user au
 - **Enable deletion of user data**
   - Add url to soft-delete all user data at the bottom of the page
   - User data is retrievable or 30 days, then fully deleted
-- **Add content required by german law**
+- **Add content required by german/eu law**
+  - Impressum
 
 ### V3: Multimodal Generation and Community-Sharing
 
-The third version further builds upon v1 and v2 by adding more input options for generating or donating TPs, and creating a searchable community forum of previously created and liked TPs. This also allows user interaction, such as comments, likes and tagging.
-Additionally, an anonymous mode is added which enables new users to test the application in a similar way to how v1 works.
+- **Generate TP based on multimodal user input (pdf, image, hand-written notes)**
+  - The third version further builds upon v1 and v2 by adding more input options for generating or donating TPs
+- **Searchable Community Board for most popular TP**
+  - A searchable community forum of previously created and liked TPs.
+  - This also allows user interaction, such as comments, likes and tagging.
+  - Optional sign-up for a leaderboard of most active users
+- **Add anonymous/guest mode**
+  - An anonymous mode is added which enables new users to test the application in a similar way to how v1 works.
 
-## Todos
+### V4: Usage Statistics Dashboard
+
+- **Add usage statistics dashboard for each signed-in user**
+  - KM swam in plans
+  - Number of plans exported
+  - Number of plans donated
+  - Comparative statistics with other user behaviour

@@ -17,7 +17,6 @@ import (
 	"github.com/go-chi/render"
 
 	"github.com/5pirit5eal/swim-rag/internal/config"
-	"github.com/5pirit5eal/swim-rag/internal/scraper"
 	"github.com/5pirit5eal/swim-rag/internal/server"
 )
 
@@ -42,12 +41,8 @@ func main() {
 		log.Fatal(err)
 	}
 	defer ragServer.Close()
-	scraper, err := scraper.NewScraper(ctx, cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer scraper.Close()
-	router := newRouter("/", ragServer, scraper, cfg, logger)
+
+	router := newRouter("/", ragServer, cfg, logger)
 
 	port := cmp.Or(cfg.Port, "8080")
 	address := "0.0.0.0:" + port
@@ -94,7 +89,7 @@ func setupLogger(cfg config.Config) (*httplog.Logger, error) {
 }
 
 // Setup of routes for the RAG service
-func newRouter(basePath string, ragServer *server.RAGService, scraper *scraper.Scraper, cfg config.Config, logger *httplog.Logger) chi.Router {
+func newRouter(basePath string, ragServer *server.RAGService, cfg config.Config, logger *httplog.Logger) chi.Router {
 
 	// Service
 	r := chi.NewRouter()
@@ -103,9 +98,9 @@ func newRouter(basePath string, ragServer *server.RAGService, scraper *scraper.S
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	r.Route(basePath, func(r chi.Router) {
-		r.Post("/add", ragServer.AddDocumentsHandler)
+		r.Post("/add", ragServer.DonatePlanHandler)
 		r.Post("/query", ragServer.QueryHandler)
-		r.Get("/scrape", scraper.ScrapeHandler)
+		r.Get("/scrape", ragServer.ScrapeHandler)
 		r.Post("/export-pdf", ragServer.PlanToPDFHandler)
 		r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("OK"))

@@ -1,23 +1,100 @@
 package models
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"maps"
+
+	"github.com/tmc/langchaingo/schema"
+)
+
+type Planable interface {
+	// Map represenation of the object with at least the plan_id
+	Map() map[string]any
+	Plan() *Plan
+}
+
+type DonatedPlan struct {
+	UserID string `db:"user_id"`
+	PlanID string `db:"plan_id"`
+	// CreatedAt is the time the plan was donated as a datetime string
+	CreatedAt   string `db:"created_at"`
+	Title       string `db:"title"`
+	Description string `db:"description"`
+	// Table is the table associated with the plan
+	Table Table `db:"plan_table"`
+}
+
+func (d *DonatedPlan) Map() map[string]any {
+	m := map[string]any{
+		"plan_id":    d.PlanID,
+		"created_at": d.CreatedAt,
+		"title":      d.Title,
+	}
+
+	return m
+}
+
+func (d *DonatedPlan) Plan() *Plan {
+	return &Plan{
+		PlanID:      d.PlanID,
+		Title:       d.Title,
+		Description: d.Description,
+		Table:       d.Table,
+	}
+}
+
+type ScrapedPlan struct {
+	PlanID string `db:"plan_id"`
+	URL    string `db:"url"`
+	// CreatedAt is the time the plan was scraped as a datetime string
+	CreatedAt   string `db:"created_at"`
+	Title       string `db:"title"`
+	Description string `db:"description"`
+	Table       Table  `db:"plan_table"`
+}
+
+func (s *ScrapedPlan) Map() map[string]any {
+	m := map[string]any{
+		"plan_id": s.PlanID,
+		"url":     s.URL,
+		"title":   s.Title,
+	}
+
+	return m
+}
+
+func (s *ScrapedPlan) Plan() *Plan {
+	return &Plan{
+		PlanID:      s.PlanID,
+		Title:       s.Title,
+		Description: s.Description,
+		Table:       s.Table,
+	}
+}
 
 type Plan struct {
-	URL, Title, Description string
-	Table                   Table
+	PlanID      string `db:"plan_id"`
+	Title       string `db:"title"`
+	Description string `db:"description"`
+	Table       Table  `db:"plan_table"`
+}
+
+func (p *Plan) Map() map[string]any {
+	m := map[string]any{
+		"plan_id":     p.PlanID,
+		"title":       p.Title,
+		"description": p.Description,
+	}
+
+	return m
+}
+func (p *Plan) Plan() *Plan {
+	return p
 }
 
 func (p *Plan) String() string {
 	return fmt.Sprintf("%s:\n %s\n %s", p.Title, p.Description, p.Table.String())
-}
-
-func (p *Plan) Map() map[string]any {
-	m := make(map[string]any)
-	m["url"] = p.URL
-	m["title"] = p.Title
-	m["description"] = p.Description
-	m["table"] = p.Table
-	return m
 }
 
 type Table []Row
@@ -73,4 +150,39 @@ func (t *Table) UpdateSum() {
 // | Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |
 func (t *Table) Header() []string {
 	return []string{"Anzahl", "", "Strecke(m)", "Pause(s)", "Inhalt", "Intensität", "Umfang"}
+}
+
+// Returns the json encoded table as a string
+func (t *Table) JSON() (string, error) {
+	bytes, err := json.Marshal(t)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal table to JSON: %w", err)
+	}
+	return string(bytes), nil
+}
+
+type Document struct {
+	Plan Planable
+	Meta *Metadata
+}
+
+func PlanToDoc(doc *Document) (schema.Document, error) {
+	genericPlan := doc.Plan.Plan()
+	// Create a map of the plan
+	planMap := doc.Plan.Map()
+
+	if _, found := planMap["plan_id"]; !found {
+		return schema.Document{}, fmt.Errorf("plan_id not found in plan map")
+	}
+
+	// Add the metadata to the map
+	maps.Copy(planMap, StructToMap(doc.Meta))
+
+	// Add the description to the plan descriptions
+	genericPlan.Description += "\n" + doc.Meta.Reasoning
+	// Create a document from the plan
+	return schema.Document{
+		PageContent: genericPlan.String(),
+		Metadata:    planMap,
+	}, nil
 }

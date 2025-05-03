@@ -40,14 +40,14 @@ func TableToPDF(table models.Table) ([]byte, error) {
 	return document.GetBytes(), nil
 }
 
-func PlanToPDF(plan models.Plan) ([]byte, error) {
+func PlanToPDF(plan *models.Plan) ([]byte, error) {
 	m := getMaroto()
 
 	m.RegisterHeader(text.NewAutoRow(plan.Title, props.Text{Size: 18, Style: fontstyle.Bold, Align: align.Center}))
 
 	m.AddAutoRow(col.New().Add(text.New(plan.Description, props.Text{Size: 10, Top: 10, Bottom: 10})))
 
-	m.AddRows(getRows(plan.Table)...)
+	m.AddRows(getRows((*plan).Table)...)
 
 	document, err := m.Generate()
 	if err != nil {
