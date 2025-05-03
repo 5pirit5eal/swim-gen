@@ -82,7 +82,15 @@ func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q string, docs []sc
 		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)
 		return "", fmt.Errorf("error parsing LLM response: %w", err)
 	}
-	return docs[cr.Idx].Metadata["plan_id"].(string), nil
+	planID, ok := docs[cr.Idx].Metadata["plan_id"]
+	if !ok {
+		return "", fmt.Errorf("plan_id not found in Metadata for document at index %d", cr.Idx)
+	}
+	planIDStr, ok := planID.(string)
+	if !ok {
+		return "", fmt.Errorf("plan_id is not a string in Metadata for document at index %d", cr.Idx)
+	}
+	return planIDStr, nil
 }
 
 func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Planable, syncGroup *sync.WaitGroup, c chan<- models.Document, ec chan<- error) {
