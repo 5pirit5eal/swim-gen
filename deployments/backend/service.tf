@@ -39,7 +39,7 @@ resource "google_cloud_run_v2_service" "default" {
   template {
     service_account = google_service_account.service_account.email
     containers {
-      image = "${google_artifact_registry_repository.docker.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker.repository_id}/swim-rag-backend-go:latest"
+      image = "${google_artifact_registry_repository.docker.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker.repository_id}/swim-rag-backend:latest"
       liveness_probe {
         http_get {
           path = "/health"
