@@ -5,7 +5,7 @@ steps:
       [
         "build",
         "-t",
-        "'${_REGION}-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA', '.'",
+        "${_REGION}-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA",
         ".",
       ]
     dir: "backend"
