@@ -21,9 +21,9 @@ steps:
         - "${_REGION}-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"
         - "--region"
         - "${_REGION}"
-        - "--platform"
-        - "managed"
+        - "--platform=managed"
         - "--authenticated"
+        - "--service-account=%{_SERVICE_ACCOUNT}"
         - "--set-env-variable=PROJECT_ID=${_PROJECT_ID}"
         - "--set-env-variable=REGION=${_REGION}"
         - "--set-env-variable=MODEL=${_MODEL}"
@@ -39,3 +39,6 @@ steps:
 images: ["$LOCATION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"]
 options:
   logging: CLOUD_LOGGING_ONLY
+  volumes:
+    - name: "go-cache"
+      path: "/go/pkg/mod"

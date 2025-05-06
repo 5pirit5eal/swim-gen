@@ -109,7 +109,10 @@ resource "google_cloudbuild_trigger" "swim_rag_backend_release" {
     }
   }
 
-  substitutions = merge(local.env_variables, { _AR_REPO_NAME = google_artifact_registry_repository.docker.name })
+  substitutions = merge(local.env_variables, {
+    _AR_REPO_NAME    = google_artifact_registry_repository.docker.name
+    _SERVICE_ACCOUNT = google_service_account.cloud_run_sa.email
+  })
 
   tags = ["backend", "PR", "swim-rag", "main"]
 

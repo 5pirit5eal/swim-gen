@@ -22,7 +22,8 @@ resource "google_project_iam_member" "cloud_build_iam" {
     "roles/iam.serviceAccountUser",
     "roles/iam.serviceAccountTokenCreator",
     "roles/artifactregistry.writer",
-    "roles/secretmanager.secretAccessor"
+    "roles/secretmanager.secretAccessor",
+    "roles/aiplatform.user"
   ])
   project = var.project_id
   role    = each.key
@@ -50,7 +51,8 @@ resource "google_project_iam_member" "service_account_iam" {
     "roles/secretmanager.secretAccessor",
     "roles/cloudsql.client",
     "roles/cloudsql.editor",
-    "roles/storage.admin"
+    "roles/storage.admin",
+    "roles/aiplatform.user"
   ])
   project = var.project_id
   role    = each.key
