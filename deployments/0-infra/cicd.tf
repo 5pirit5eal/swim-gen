@@ -116,5 +116,5 @@ resource "google_cloudbuild_trigger" "swim_rag_backend_release" {
 
   tags = ["backend", "PR", "swim-rag", "main"]
 
-  filename = "backend/main-pr.cloudbuild.yaml"
+  filename = "backend/release.cloudbuild.yaml"
 }
