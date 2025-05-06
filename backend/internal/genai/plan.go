@@ -45,7 +45,7 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q string, docs []
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 	// Add the total to the table if it is not already present
-	if !strings.Contains(p.Table[len(p.Table)-1].Content, "Total") {
+	if !strings.Contains(p.Table[len(p.Table)-1].Content, "Gesamt") {
 		p.Table.AddSum()
 	}
 	// Recalculate the sums of the rows to be sure they are correct

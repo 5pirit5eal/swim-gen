@@ -1,0 +1,27 @@
+steps:
+  # Build the image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "'$LOCATION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA', '.'",
+        ".",
+      ]
+    dir: "backend"
+  # Push the image
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "$LOCATION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"]
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+        - "run"
+        - "deploy"
+        - "swim-rag-backend"
+        - "--image"
+        - "$LOCATION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"
+        - "--region"
+        - "$LOCATION"
+        - "--platform"
+        - "managed"
+        - "--authenticated"
+images: ["$LOCATION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"]

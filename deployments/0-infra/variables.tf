@@ -33,3 +33,19 @@ variable "dbtier" {
   description = "The GCP Cloud SQL Database Tier"
   type        = string
 }
+
+variable "github_token" {
+  description = "The GitHub token"
+  type        = string
+}
+
+variable "github_app_installation_id" {
+  description = "The GitHub app installation ID"
+  type        = number
+}
+
+variable "github_uri" {
+  description = "The GitHub URI"
+  type        = string
+  default     = null
+}

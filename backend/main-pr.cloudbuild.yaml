@@ -1,0 +1,18 @@
+steps:
+  # Run vet
+  - name: golang:1.24
+    args: ["go", "vet", "./..."]
+    dir: "backend"
+  # Run format
+  - name: golang:1.24
+    args: ["go", "fmt", "./..."]
+    dir: "backend"
+  # Run tests
+  - name: golang:1.24
+    entrypoint: /bin/bash
+    args: 
+      - -c
+      - |
+        go install github.com/jstemmer/go-junit-report/v2@latest
+        2>&1 go test -timeout 1m -v ./... | /go/bin/go-junit-report -set-exit-code -iocopy -out ${SHORT_SHA}_test_log.xml
+    dir: "backend"
