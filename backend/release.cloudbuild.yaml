@@ -22,7 +22,7 @@ steps:
         - "--region"
         - "${_REGION}"
         - "--platform=managed"
-        - "--authenticated"
+        - "--no-allow-unauthenticated"
         - "--service-account=%{_SERVICE_ACCOUNT}"
         - "--set-env-variable=PROJECT_ID=${_PROJECT_ID}"
         - "--set-env-variable=REGION=${_REGION}"
