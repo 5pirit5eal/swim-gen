@@ -23,7 +23,6 @@ options:
     - name: "go-cache"
       path: "/go"
   env:
-    - $GOCACHE="/go"
     - "PROJECT_ID=${_PROJECT_ID}"
     - "REGION=${_REGION}"
     - "MODEL=${_MODEL}"
