@@ -14,7 +14,8 @@ locals {
       "public_ip"       = try(google_sql_database_instance.main.public_ip_address, null)
       "private_ip"      = try(google_sql_database_instance.main.private_ip_address, null)
     }
-    secret_ids = local.secret_ids
+    secret_ids  = local.secret_ids
+    bucket_name = google_storage_bucket.exported_pdfs.name
   }
 }
 

@@ -1,3 +1,21 @@
+locals {
+  env_variables = {
+    _PROJECT_ID      = var.project_id
+    _REGION          = var.region
+    _MODEL           = var.model
+    _EMBEDDING_NAME  = var.embedding_name
+    _EMBEDDING_MODEL = var.embedding_model
+    _EMBEDDING_SIZE  = var.embedding_size
+    _DB_NAME         = var.dbname
+    _DB_USER         = var.dbuser
+    _DB_PASS         = data.google_secret_manager_secret_version_access.dbpassword_user.id
+    _PORT            = var.port
+    _LOG_LEVEL       = var.log_level
+    _BUCKET_NAME     = google_storage_bucket.exported_pdfs.name
+  }
+}
+
+
 resource "google_artifact_registry_repository" "docker" {
   location               = var.region
   repository_id          = "docker"
@@ -70,6 +88,30 @@ resource "google_cloudbuild_trigger" "swim_rag_backend_pr_main" {
       branch = "main"
     }
   }
+
+  substitutions = local.env_variables
+  tags          = ["backend", "PR", "swim-rag", "main"]
+
+  filename = "backend/main-pr.cloudbuild.yaml"
+}
+
+resource "google_cloudbuild_trigger" "swim_rag_backend_release" {
+  name               = "swim-rag-backend-release"
+  description        = "Trigger for swim-rag release from main branch"
+  service_account    = google_service_account.cloud_build_sa.id
+  location           = "europe-west1"
+  include_build_logs = "INCLUDE_BUILD_LOGS_WITH_STATUS"
+
+  repository_event_config {
+    repository = google_cloudbuildv2_repository.swim_rag.id
+    push {
+      branch = "main"
+    }
+  }
+
+  substitutions = merge(local.env_variables, { _AR_REPO_NAME = google_artifact_registry_repository.docker.name })
+
+  tags = ["backend", "PR", "swim-rag", "main"]
 
   filename = "backend/main-pr.cloudbuild.yaml"
 }

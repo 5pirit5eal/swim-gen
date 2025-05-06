@@ -49,3 +49,28 @@ variable "github_uri" {
   type        = string
   default     = null
 }
+
+variable "model" {
+  description = "The model name"
+  type        = string
+}
+variable "embedding_name" {
+  description = "The embedding name"
+  type        = string
+}
+variable "embedding_model" {
+  description = "The embedding model"
+  type        = string
+}
+variable "embedding_size" {
+  description = "The embedding size"
+  type        = number
+}
+variable "port" {
+  description = "The port number"
+  type        = number
+}
+variable "log_level" {
+  description = "The log level"
+  type        = string
+}

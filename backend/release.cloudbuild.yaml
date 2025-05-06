@@ -5,25 +5,37 @@ steps:
       [
         "build",
         "-t",
-        "'$LOCATION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA', '.'",
+        "'${_REGION}-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA', '.'",
         ".",
       ]
     dir: "backend"
   # Push the image
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "$LOCATION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"]
+    args: ["push", "${_REGION}-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"]
   - name: "gcr.io/cloud-builders/gcloud"
     args:
         - "run"
         - "deploy"
         - "swim-rag-backend"
         - "--image"
-        - "$LOCATION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"
+        - "${_REGION}-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"
         - "--region"
-        - "$LOCATION"
+        - "${_REGION}"
         - "--platform"
         - "managed"
         - "--authenticated"
+        - "--set-env-variable=PROJECT_ID=${_PROJECT_ID}"
+        - "--set-env-variable=REGION=${_REGION}"
+        - "--set-env-variable=MODEL=${_MODEL}"
+        - "--set-env-variable=EMBEDDING_NAME=${_EMBEDDING_NAME}"
+        - "--set-env-variable=EMBEDDING_MODEL=${_EMBEDDING_MODEL}"
+        - "--set-env-variable=EMBEDDING_SIZE=${_EMBEDDING_SIZE}"
+        - "--set-env-variable=DB_NAME=${_DB_NAME}"
+        - "--set-env-variable=DB_USER=${_DB_USER}"
+        - "--set-env-variable=DB_PASS=${_DB_PASS}"
+        - "--set-env-variable=PORT=${_PORT}"
+        - "--set-env-variable=LOG_LEVEL=${_LOG_LEVEL}"
+        - "--set-env-variable=BUCKET_NAME=${_BUCKET_NAME}"
 images: ["$LOCATION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"]
 options:
   logging: CLOUD_LOGGING_ONLY
