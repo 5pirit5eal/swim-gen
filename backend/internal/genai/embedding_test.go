@@ -19,9 +19,8 @@ func TestCreateEmbedding(t *testing.T) {
 	require.NoError(t, err)
 	texts := []string{"Hello", "World"}
 
-	embeddings, err := client.CreateEmbedding(ctx, texts)
+	_, err = client.CreateEmbedding(ctx, texts)
 	assert.NoError(t, err)
-	fmt.Println(embeddings)
 }
 
 func TestCreateEmbeddingWithManyTexts(t *testing.T) {
@@ -39,5 +38,4 @@ func TestCreateEmbeddingWithManyTexts(t *testing.T) {
 	embeddings, err := client.CreateEmbedding(ctx, texts)
 	assert.NoError(t, err)
 	assert.Equal(t, 190, len(embeddings))
-	fmt.Println(embeddings)
 }

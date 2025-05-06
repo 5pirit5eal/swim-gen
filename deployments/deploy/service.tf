@@ -1,34 +1,3 @@
-resource "google_artifact_registry_repository" "docker" {
-  location               = var.region
-  repository_id          = "docker"
-  description            = "Docker repository for my sandbox projects using cloud run."
-  format                 = "DOCKER"
-  cleanup_policy_dry_run = false
-  cleanup_policies {
-    id     = "delete-untagged"
-    action = "DELETE"
-    condition {
-      tag_state = "UNTAGGED"
-    }
-  }
-  cleanup_policies {
-    id     = "keep-new-untagged"
-    action = "KEEP"
-    condition {
-      tag_state  = "UNTAGGED"
-      newer_than = "7d"
-    }
-  }
-  cleanup_policies {
-    id     = "keep-tagged-release"
-    action = "KEEP"
-    condition {
-      tag_state    = "TAGGED"
-      tag_prefixes = ["release"]
-    }
-  }
-}
-
 resource "google_cloud_run_v2_service" "default" {
   name     = "swim-rag-backend-go"
   location = var.region
@@ -37,9 +6,9 @@ resource "google_cloud_run_v2_service" "default" {
   deletion_protection = false # set to "true" in production
 
   template {
-    service_account = google_service_account.service_account.email
+    service_account = google_service_account.cloud_run_sa.email
     containers {
-      image = "${google_artifact_registry_repository.docker.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker.repository_id}/swim-rag-backend-go:latest"
+      image = "${google_artifact_registry_repository.docker.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker.repository_id}/swim-rag-backend:latest"
       liveness_probe {
         http_get {
           path = "/health"
@@ -91,5 +60,5 @@ resource "google_cloud_run_v2_service" "default" {
     }
   }
   client     = "terraform"
-  depends_on = [google_service_account.service_account]
+  depends_on = [google_service_account.cloud_run_sa]
 }

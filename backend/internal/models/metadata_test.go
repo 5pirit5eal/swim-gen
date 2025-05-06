@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"testing"
 
 	"github.com/5pirit5eal/swim-rag/internal/models"
@@ -23,7 +22,6 @@ func TestMetadataSchema(t *testing.T) {
 func TestTableSchema(t *testing.T) {
 	schema, err := models.TableSchema()
 	assert.NoError(t, err, "Failed to retrieve schema")
-	fmt.Println(schema)
 
 	// check if the schema is valid json
 	var result map[string]interface{}
