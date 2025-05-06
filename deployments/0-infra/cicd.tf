@@ -58,10 +58,11 @@ resource "google_cloudbuildv2_repository" "swim_rag" {
 
 # cloud build triggers
 resource "google_cloudbuild_trigger" "swim_rag_backend_pr_main" {
-  name            = "swim-rag-backend-pr-main"
-  description     = "Trigger for swim-rag PR to main branch"
-  service_account = "projects/${var.project_id}/serviceAccounts/${google_service_account.cloud_build_sa.email}"
-  location        = var.region
+  name               = "swim-rag-backend-pr-main"
+  description        = "Trigger for swim-rag PR to main branch"
+  service_account    = google_service_account.cloud_build_sa.id
+  location           = var.region
+  include_build_logs = "INCLUDE_BUILD_LOGS_WITH_STATUS"
 
   repository_event_config {
     repository = google_cloudbuildv2_repository.swim_rag.id

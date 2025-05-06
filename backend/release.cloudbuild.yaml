@@ -25,3 +25,5 @@ steps:
         - "managed"
         - "--authenticated"
 images: ["$LOCATION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"]
+options:
+  logging: CLOUD_LOGGING_ONLY
