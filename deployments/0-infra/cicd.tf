@@ -32,7 +32,7 @@ resource "google_artifact_registry_repository" "docker" {
 # github connection using the cloudbuildv2
 resource "google_cloudbuildv2_connection" "github" {
   project  = var.project_id
-  location = var.region
+  location = "europe-west1"
   name     = "swim-rag-github-connection"
 
   github_config {
@@ -50,7 +50,7 @@ resource "google_cloudbuildv2_connection" "github" {
 
 resource "google_cloudbuildv2_repository" "swim_rag" {
   project           = var.project_id
-  location          = var.region
+  location          = "europe-west1"
   name              = "swim-rag"
   parent_connection = google_cloudbuildv2_connection.github.name
   remote_uri        = "${var.github_uri}.git"
@@ -61,7 +61,7 @@ resource "google_cloudbuild_trigger" "swim_rag_backend_pr_main" {
   name               = "swim-rag-backend-pr-main"
   description        = "Trigger for swim-rag PR to main branch"
   service_account    = google_service_account.cloud_build_sa.id
-  location           = var.region
+  location           = "europe-west1"
   include_build_logs = "INCLUDE_BUILD_LOGS_WITH_STATUS"
 
   repository_event_config {
