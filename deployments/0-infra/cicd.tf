@@ -1,18 +1,18 @@
 locals {
   env_variables = {
-    _PROJECT_ID      = var.project_id
-    _REGION          = var.region
-    _MODEL           = var.model
-    _EMBEDDING_NAME  = var.embedding_name
-    _EMBEDDING_MODEL = var.embedding_model
-    _EMBEDDING_SIZE  = var.embedding_size
-    _DB_NAME         = var.dbname
-    _DB_INSTANCE     = google_sql_database_instance.main.connection_name
-    _DB_USER         = var.dbuser
-    _DB_PASS         = data.google_secret_manager_secret_version_access.dbpassword_user.id
-    _PORT            = var.port
-    _LOG_LEVEL       = var.log_level
-    _BUCKET_NAME     = google_storage_bucket.exported_pdfs.name
+    _PROJECT_ID       = var.project_id
+    _REGION           = var.region
+    _MODEL            = var.model
+    _EMBEDDING_NAME   = var.embedding_name
+    _EMBEDDING_MODEL  = var.embedding_model
+    _EMBEDDING_SIZE   = var.embedding_size
+    _DB_NAME          = var.dbname
+    _DB_INSTANCE      = google_sql_database_instance.main.connection_name
+    _DB_USER          = var.dbuser
+    _DB_PASS_LOCATION = data.google_secret_manager_secret_version_access.dbpassword_user.id
+    _PORT             = var.port
+    _LOG_LEVEL        = var.log_level
+    _BUCKET_NAME      = google_storage_bucket.exported_pdfs.name
   }
 }
 

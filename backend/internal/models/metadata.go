@@ -7,14 +7,6 @@ import (
 	"github.com/invopop/jsonschema"
 )
 
-type DBMethod string
-
-const (
-	MethodUnixSocket DBMethod = "unix"
-	MethodTCP        DBMethod = "tcp"
-	MethodURL        DBMethod = "url"
-)
-
 type DifficultyLevel string
 
 const (
