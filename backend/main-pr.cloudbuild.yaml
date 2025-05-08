@@ -32,6 +32,6 @@ options:
     - "EMBEDDING_SIZE=${_EMBEDDING_SIZE}"
     - "DB_NAME=${_DB_NAME}"
     - "DB_USER=${_DB_USER}"
-    - "DB_PASS=${_DB_PASS}"
+    - "DB_PASS_LOCATION=${_DB_PASS_LOCATION}"
     - "LOG_LEVEL=${_LOG_LEVEL}"
     - "BUCKET_NAME=${_BUCKET_NAME}"
