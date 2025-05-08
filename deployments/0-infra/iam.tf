@@ -21,7 +21,7 @@ resource "google_project_iam_member" "cloud_build_iam" {
     "roles/logging.logWriter",
     "roles/iam.serviceAccountUser",
     "roles/iam.serviceAccountTokenCreator",
-    "roles/artifactregistry.writer",
+    "roles/artifactregistry.admin",
     "roles/secretmanager.secretAccessor",
     "roles/aiplatform.user"
   ])

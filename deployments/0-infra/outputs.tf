@@ -16,6 +16,20 @@ locals {
     }
     secret_ids  = local.secret_ids
     bucket_name = google_storage_bucket.exported_pdfs.name
+    artifactregistry = {
+      "repository" = google_artifact_registry_repository.docker.name
+      "location"   = google_artifact_registry_repository.docker.location
+    }
+    iam = {
+      "cloud_build" = {
+        "email" = try(google_service_account.cloud_build_sa.email, null)
+        "id"    = try(google_service_account.cloud_build_sa.id, null)
+      }
+      "cloud_run" = {
+        "email" = try(google_service_account.cloud_run_sa.email, null)
+        "id"    = try(google_service_account.cloud_run_sa.id, null)
+      }
+    }
   }
 }
 
@@ -29,6 +43,6 @@ output "tfvars" {
 resource "local_file" "tfvars" {
   for_each        = var.outputs_location == null ? {} : { 1 = 1 }
   file_permission = "0644"
-  filename        = "${local.outputs_location}/db.auto.tfvars.json"
+  filename        = "${local.outputs_location}/infra.auto.tfvars.json"
   content         = jsonencode(local.tfvars)
 }
