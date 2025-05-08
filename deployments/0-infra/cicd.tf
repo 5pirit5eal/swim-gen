@@ -7,6 +7,7 @@ locals {
     _EMBEDDING_MODEL = var.embedding_model
     _EMBEDDING_SIZE  = var.embedding_size
     _DB_NAME         = var.dbname
+    _DB_INSTANCE     = google_sql_database_instance.main.connection_name
     _DB_USER         = var.dbuser
     _DB_PASS         = data.google_secret_manager_secret_version_access.dbpassword_user.id
     _PORT            = var.port

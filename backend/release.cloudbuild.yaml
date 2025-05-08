@@ -51,6 +51,7 @@ steps:
         - "--set-env-vars=EMBEDDING_MODEL=${_EMBEDDING_MODEL}"
         - "--set-env-vars=EMBEDDING_SIZE=${_EMBEDDING_SIZE}"
         - "--set-env-vars=DB_NAME=${_DB_NAME}"
+        - "--set-env-vars=DB_INSTANCE=${_DB_INSTANCE}"
         - "--set-env-vars=DB_USER=${_DB_USER}"
         - "--set-env-vars=DB_PASS=${_DB_PASS}"
         - "--set-env-vars=LOG_LEVEL=${_LOG_LEVEL}"

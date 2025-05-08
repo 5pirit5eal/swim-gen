@@ -16,6 +16,7 @@ locals {
     }
     secret_ids  = local.secret_ids
     bucket_name = google_storage_bucket.exported_pdfs.name
+    env_vars    = local.env_variables
     artifactregistry = {
       "repository" = google_artifact_registry_repository.docker.name
       "location"   = google_artifact_registry_repository.docker.location
