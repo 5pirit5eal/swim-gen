@@ -56,7 +56,6 @@ steps:
         - "--set-env-vars=DB_PASS_LOCATION=${_DB_PASS_LOCATION}"
         - "--set-env-vars=LOG_LEVEL=${_LOG_LEVEL}"
         - "--set-env-vars=BUCKET_NAME=${_BUCKET_NAME}"
-images: ["$LOCATION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-backend:$SHORT_SHA"]
 options:
   logging: CLOUD_LOGGING_ONLY
   volumes:
