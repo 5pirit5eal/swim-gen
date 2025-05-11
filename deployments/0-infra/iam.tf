@@ -46,13 +46,14 @@ resource "google_service_account" "cloud_run_sa" {
   create_ignore_already_exists = true
 }
 
-resource "google_project_iam_member" "service_account_iam" {
+resource "google_project_iam_member" "cloud_run_iam" {
   for_each = toset([
     "roles/secretmanager.secretAccessor",
     "roles/cloudsql.client",
     "roles/cloudsql.editor",
     "roles/storage.admin",
-    "roles/aiplatform.user"
+    "roles/aiplatform.user",
+    "roles/iam.serviceAccountTokenCreator",
   ])
   project = var.project_id
   role    = each.key
@@ -80,4 +81,31 @@ resource "google_secret_manager_secret_iam_member" "cloud_build_sa_github_token_
   project   = var.project_id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+}
+
+# Sign PDF Service Account
+resource "google_service_account" "pdf_export_sa" {
+  account_id                   = "pdf-export-sa"
+  display_name                 = "Sign PDF Service Account"
+  project                      = var.project_id
+  create_ignore_already_exists = true
+}
+
+
+# Allow the Cloud Run service account to impersonate the PDF export service account
+resource "google_service_account_iam_member" "pdf_export_sa_user" {
+  service_account_id = google_service_account.pdf_export_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+}
+
+# Give the PDF export service account access to the storage bucket
+resource "google_storage_bucket_iam_member" "pdf_export_sa_access" {
+  for_each = toset([
+    "roles/storage.objectAdmin",
+    "roles/storage.objectViewer",
+  ])
+  bucket = google_storage_bucket.exported_pdfs.name
+  role   = each.key
+  member = "serviceAccount:${google_service_account.pdf_export_sa.email}"
 }
