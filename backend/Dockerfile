@@ -7,7 +7,7 @@ RUN go mod download
 COPY . ./
 
 # CGO_ENABLED=0 disables cgo, which allows to build a static binary.
-RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v -o service ./cmd/swim-rag/swim-rag.go
+RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v -o service ./main.go
 
 # Prepare final image
 # static-debian11 is a distroless image (approx. 2MiB) including ca-certificates.

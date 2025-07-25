@@ -56,9 +56,19 @@ func (rs *RAGService) Close() {
 	slog.Info("RAG server closed successfully")
 }
 
-// Handles the HTTP request to donate a training plan to the database.
+// DonatePlanHandler handles the HTTP request to donate a training plan to the database.
 // It parses the request, stores the documents and their embeddings in the
 // database, and responds with a success message.
+// @Summary Add a new training plan
+// @Description Upload and store a new swim training plan in the RAG system
+// @Tags plans
+// @Accept json
+// @Produce json
+// @Param plan body models.DonatePlanRequest true "Training plan data"
+// @Success 200 {string} string "Plan added successfully"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Router /add [post]
 func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Adding documents to the database...")
@@ -129,8 +139,18 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 	w.Write([]byte("Scraping completed successfully"))
 }
 
-// Handles the RAG query request.
+// QueryHandler handles the RAG query request.
 // It parses the request, queries the RAG, generating or choosing a plan, and returns the result as JSON.
+// @Summary Query training plans
+// @Description Query the RAG system for relevant training plans based on input
+// @Tags query
+// @Accept json
+// @Produce json
+// @Param query body models.QueryRequest true "Query parameters"
+// @Success 200 {object} models.QueryResponse "Query results"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Router /query [post]
 func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Querying the database...")
@@ -161,7 +181,17 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	models.WriteResponseJSON(w, http.StatusOK, answer)
 }
 
-// Handles the Plan to PDF export request.
+// PlanToPDFHandler handles the Plan to PDF export request.
+// @Summary Export training plan to PDF
+// @Description Generate and download a PDF version of a training plan
+// @Tags export
+// @Accept json
+// @Produce json
+// @Param plan body models.PlanToPDFRequest true "Training plan data to export"
+// @Success 200 {object} models.PlanToPDFResponse "PDF export response with URI"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Router /export-pdf [post]
 func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Exporting table to PDF...")
