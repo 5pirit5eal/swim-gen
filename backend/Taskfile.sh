@@ -19,6 +19,10 @@ test() {
   go test -v ./...
 }
 
+docs() {
+  swag init
+}
+
 create-identity-token() {
   gcloud auth print-identity-token
 }
