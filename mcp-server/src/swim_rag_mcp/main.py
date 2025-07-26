@@ -77,7 +77,7 @@ async def export_plan(plan: QueryResponse) -> ExportResponse:
     """Export a plan as a PDF file for easier printing and sharing."""
     try:
         response = httpx.post(
-            url=URL + "/export",
+            url=URL + "/export-pdf",
             json=plan.model_dump(),
             timeout=60.0,  # Set a timeout for the request
             auth=get_auth_token(URL),  # Get the auth token if available
