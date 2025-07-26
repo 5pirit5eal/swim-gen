@@ -6,7 +6,7 @@ steps:
       - -c
       - |
         uv sync --group dev
-    dir: "."
+    dir: "mcp-server"
   # Run code formatting check
   - name: "ghcr.io/astral-sh/uv:python3.12-bookworm-slim"
     entrypoint: /bin/bash
@@ -15,7 +15,7 @@ steps:
       - |
         uv run ruff format . --diff
         uv run ruff check --select I .
-    dir: "."
+    dir: "mcp-server"
   # Run validation (linting, type checking, security)
   - name: "ghcr.io/astral-sh/uv:python3.12-bookworm-slim"
     entrypoint: /bin/bash
@@ -25,7 +25,7 @@ steps:
         mkdir -p .mypy_cache
         uv run mypy . --cache-dir .mypy_cache
         uv run bandit -c pyproject.toml -ll -x ./.venv/ -r .
-    dir: "."
+    dir: "mcp-server"
   # TODO: Run tests
   # - name: "ghcr.io/astral-sh/uv:python3.12-bookworm-slim"
   #   entrypoint: /bin/bash
@@ -48,7 +48,7 @@ steps:
   #       if [ ! -d "tests" ]; then
   #         find . -name "test_*.py" -o -name "*_test.py" | head -1 > /dev/null && uv run --group dev pytest --junitxml=${SHORT_SHA}_test_log.xml || echo "No tests found"
   #       fi
-  #   dir: "."
+  #   dir: "mcp-server"
 options:
   logging: CLOUD_LOGGING_ONLY
   automapSubstitutions: true
