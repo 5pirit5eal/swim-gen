@@ -89,3 +89,9 @@ variable "service_timeout" {
   description = "The timeout for the service"
   type        = number
 }
+
+variable "backend_url" {
+  description = "The backend URL for the MCP service"
+  type        = string
+  default     = "http://localhost:8080"
+}

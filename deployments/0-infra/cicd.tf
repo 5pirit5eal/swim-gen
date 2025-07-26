@@ -15,12 +15,13 @@ locals {
     _BUCKET_NAME      = google_storage_bucket.exported_pdfs.name
   }
   mcp_env_variables = {
-    _PROJECT_ID      = var.project_id
-    _REGION          = var.region
-    _SERVICE_CPU     = var.service_cpu
-    _SERVICE_MEMORY  = var.service_memory
-    _SERVICE_TIMEOUT = var.service_timeout
-    _LOG_LEVEL       = var.log_level
+    _PROJECT_ID       = var.project_id
+    _REGION           = var.region
+    _SERVICE_CPU      = var.service_cpu
+    _SERVICE_MEMORY   = var.service_memory
+    _SERVICE_TIMEOUT  = var.service_timeout
+    _LOG_LEVEL        = var.log_level
+    _SWIM_RAG_API_URL = var.backend_url
   }
 }
 
