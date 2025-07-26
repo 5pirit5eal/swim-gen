@@ -19,6 +19,7 @@ from swim_rag_mcp.utils import get_auth_token
 load_dotenv(".config.env")
 
 URL = os.getenv("SWIM_RAG_API_URL", "http://localhost:8080")
+print(f"Using Swim RAG API URL: {URL}")
 
 mcp: FastMCP = FastMCP(
     name="swim-rag-mcp",
