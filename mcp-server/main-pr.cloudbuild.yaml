@@ -5,7 +5,6 @@ steps:
     args:
       - -c
       - |
-        cd /workspace
         uv sync --group dev
     dir: "."
   # Run code formatting check
@@ -14,7 +13,6 @@ steps:
     args:
       - -c
       - |
-        cd /workspace
         uv run ruff format . --diff
         uv run ruff check --select I .
     dir: "."
@@ -24,8 +22,6 @@ steps:
     args:
       - -c
       - |
-        cd /workspace
-        uv run ruff check .
         mkdir -p .mypy_cache
         uv run mypy . --cache-dir .mypy_cache
         uv run bandit -c pyproject.toml -ll -x ./.venv/ -r .
@@ -36,7 +32,6 @@ steps:
     args:
       - -c
       - |
-        cd /workspace
         # Run unit tests if they exist
         if [ -d "tests/unit_tests" ]; then
           uv run --group dev pytest tests/unit_tests/test_* --junitxml=${SHORT_SHA}_unit_test_log.xml || true

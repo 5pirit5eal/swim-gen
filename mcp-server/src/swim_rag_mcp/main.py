@@ -18,6 +18,8 @@ from dotenv import load_dotenv
 
 load_dotenv(".config.env")
 
+URL = os.getenv("SWIM_RAG_API_URL", "http://localhost:8080")
+
 mcp = FastMCP(
     name="swim-rag-mcp",
     instructions="""
@@ -42,8 +44,6 @@ mcp = FastMCP(
         RetryMiddleware(max_retries=3),
     ],
 )
-
-URL = os.getenv("SWIM_RAG_API_URL", "http://localhost:8080")
 
 
 @mcp.tool(tags={"public"})
