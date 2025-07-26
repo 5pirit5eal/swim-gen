@@ -11,15 +11,31 @@ import (
 	"path/filepath"
 	"time"
 
+	_ "github.com/5pirit5eal/swim-rag/docs"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog/v2"
 	"github.com/go-chi/render"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 
 	"github.com/5pirit5eal/swim-rag/internal/config"
 	"github.com/5pirit5eal/swim-rag/internal/server"
 )
 
+// Package main provides the swim-rag API server
+//
+//	@title			Swim RAG API
+//	@version		1.0
+//	@description	A REST API for swim training plan management with RAG capabilities
+//
+//
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+//
+//	@BasePath	/
+//
+//	@externalDocs.description	OpenAPI
+//	@externalDocs.url			https://swagger.io/resources/open-api/
 func main() {
 	// Configure log to write to stdout
 	projectRoot, err := os.Getwd()
@@ -42,7 +58,7 @@ func main() {
 	}
 	defer ragServer.Close()
 
-	router := newRouter("/", ragServer, cfg, logger)
+	router := setupRouter("/", ragServer, cfg, logger)
 
 	port := cmp.Or(cfg.Port, "8080")
 	address := "0.0.0.0:" + port
@@ -88,8 +104,19 @@ func setupLogger(cfg config.Config) (*httplog.Logger, error) {
 	return logger, nil
 }
 
+// healthHandler handles health check requests
+// @Summary Health check
+// @Description Returns the health status of the API
+// @Tags health
+// @Produce plain
+// @Success 200 {string} string "OK"
+// @Router /health [get]
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
+}
+
 // Setup of routes for the RAG service
-func newRouter(basePath string, ragServer *server.RAGService, cfg config.Config, logger *httplog.Logger) chi.Router {
+func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Config, logger *httplog.Logger) chi.Router {
 
 	// Service
 	r := chi.NewRouter()
@@ -102,9 +129,11 @@ func newRouter(basePath string, ragServer *server.RAGService, cfg config.Config,
 		r.Post("/query", ragServer.QueryHandler)
 		r.Get("/scrape", ragServer.ScrapeHandler)
 		r.Post("/export-pdf", ragServer.PlanToPDFHandler)
-		r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("OK"))
-		})
+		r.Get("/health", healthHandler)
+		r.Get("/swagger/*", httpSwagger.Handler(
+			httpSwagger.URL("0.0.0.0:"+cmp.Or(cfg.Port, "8080")+basePath+"swagger/doc.json"),
+			httpSwagger.DeepLinking(true)),
+		)
 	})
 
 	return r

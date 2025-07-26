@@ -98,16 +98,20 @@ func (p *Plan) String() string {
 	return fmt.Sprintf("%s:\n %s\n %s", p.Title, p.Description, p.Table.String())
 }
 
+// Table represents a training plan table with multiple rows
+// @Description A structured training plan table containing exercise rows
 type Table []Row
 
+// Row represents a single exercise entry in a training plan
+// @Description A single exercise entry with amount, distance, breaks, content, intensity and total volume
 type Row struct {
-	Amount     int    `json:"Amount" jsonschema_description:"Amount of repetitions"`
-	Multiplier string `json:"Multiplier" jsonschema_description:"Multiplier for the distance (e.g. 'x' or 'times')"`
-	Distance   int    `json:"Distance" jsonschema_description:"Distance in meters"`
-	Break      string `json:"Break" jsonschema_description:"Break time typically in seconds. This needs to be a string, as other times are possible"`
-	Content    string `json:"Content" jsonschema_description:"Content or description of the row"`
-	Intensity  string `json:"Intensity" jsonschema_description:"Intensity level of the activity"`
-	Sum        int    `json:"Sum" jsonschema_description:"Total volume or sum for the row"`
+	Amount     int    `json:"Amount" example:"4" jsonschema_description:"Amount of repetitions"`
+	Multiplier string `json:"Multiplier" example:"x" jsonschema_description:"Multiplier for the distance (e.g. 'x' or 'times')"`
+	Distance   int    `json:"Distance" example:"100" jsonschema_description:"Distance in meters"`
+	Break      string `json:"Break" example:"20" jsonschema_description:"Break time typically in seconds. This needs to be a string, as other times are possible"`
+	Content    string `json:"Content" example:"Freestyle swim" jsonschema_description:"Content or description of the row"`
+	Intensity  string `json:"Intensity" example:"Easy" jsonschema_description:"Intensity level of the activity"`
+	Sum        int    `json:"Sum" example:"400" jsonschema_description:"Total volume or sum for the row"`
 }
 
 func (r Row) String() string {

@@ -4,7 +4,7 @@ set -e
 source .env
 
 run() {
-  go run ./cmd/swim-rag/swim-rag.go
+  go run ./main.go
 }
 
 validate() {
@@ -17,6 +17,10 @@ format() {
 
 test() {
   go test -v ./...
+}
+
+docs() {
+  swag init
 }
 
 create-identity-token() {
