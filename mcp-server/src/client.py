@@ -1,9 +1,9 @@
-from fastmcp import Client
 import asyncio
 
-from swim_rag_mcp.main import mcp
-from swim_rag_mcp.schemas import QueryRequest
+from fastmcp import Client
 from fastmcp.client.transports import StreamableHttpTransport
+
+from swim_rag_mcp.schemas import QueryRequest
 
 transport = StreamableHttpTransport(url="http://localhost:8000/mcp")
 client = Client(transport)

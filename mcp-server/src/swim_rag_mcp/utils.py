@@ -1,5 +1,5 @@
-from google.auth.transport.requests import Request
 import os
+
 import httpx
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token as token

@@ -1,26 +1,26 @@
-import os
-import logging
 import asyncio
+import logging
+import os
+
+import httpx
+from dotenv import load_dotenv
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
+from fastmcp.server.middleware.error_handling import RetryMiddleware
 from fastmcp.server.middleware.logging import StructuredLoggingMiddleware
 from fastmcp.server.middleware.rate_limiting import (
     RateLimitingMiddleware,
     SlidingWindowRateLimitingMiddleware,
 )
-from fastmcp.server.middleware.error_handling import RetryMiddleware
 
-import httpx
-from swim_rag_mcp.schemas import QueryRequest, QueryResponse, ExportResponse
+from swim_rag_mcp.schemas import ExportResponse, QueryRequest, QueryResponse
 from swim_rag_mcp.utils import get_auth_token
-from dotenv import load_dotenv
-
 
 load_dotenv(".config.env")
 
 URL = os.getenv("SWIM_RAG_API_URL", "http://localhost:8080")
 
-mcp = FastMCP(
+mcp: FastMCP = FastMCP(
     name="swim-rag-mcp",
     instructions="""
         This is the MCP Server connected to the Swim RAG backend, an application meant for generating and 
@@ -81,7 +81,8 @@ async def export_plan(plan: QueryResponse) -> ExportResponse:
             json=plan.model_dump(),
             timeout=60.0,  # Set a timeout for the request
             auth=get_auth_token(URL),  # Get the auth token if available
-        ).raise_for_status()  # Raise an error for bad responses
+        )
+        response.raise_for_status()  # Raise an error for bad responses
     except httpx.RequestError as e:
         raise ToolError(f"Request error: {e}")
     except httpx.HTTPStatusError as e:
