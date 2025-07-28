@@ -14,7 +14,7 @@ from fastmcp.server.middleware.rate_limiting import (
 )
 
 from swim_rag_mcp.schemas import ExportResponse, QueryRequest, QueryResponse
-from swim_rag_mcp.utils import get_auth_token
+from swim_rag_mcp.utils import get_id_token
 
 load_dotenv(".config.env")
 
@@ -58,7 +58,7 @@ async def generate_or_choose_plan(query: QueryRequest) -> QueryResponse:
             url=URL + "/query",
             json=query.model_dump(),
             timeout=60.0,  # Set a timeout for the request
-            auth=get_auth_token(URL),  # Get the auth token if available,
+            headers=await get_id_token(URL),  # Get the auth token if available,
         )
         response.raise_for_status()  # Raise an error for bad responses
     except httpx.RequestError as e:
@@ -81,7 +81,7 @@ async def export_plan(plan: QueryResponse) -> ExportResponse:
             url=URL + "/export-pdf",
             json=plan.model_dump(),
             timeout=60.0,  # Set a timeout for the request
-            auth=get_auth_token(URL),  # Get the auth token if available
+            headers=await get_id_token(URL),  # Get the auth token if available
         )
         response.raise_for_status()  # Raise an error for bad responses
     except httpx.RequestError as e:

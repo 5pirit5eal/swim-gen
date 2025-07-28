@@ -1,11 +1,12 @@
 import os
 
+import requests
 import httpx
-from google.auth.transport.requests import Request
-from google.oauth2 import id_token as token
+from google.oauth2 import _id_token_async
+from google.auth.transport import _aiohttp_requests
 
 
-def get_auth_token(url: str) -> httpx.BasicAuth | None:
+async def get_id_token(url: str) -> dict[str, str] | None:
     """Get the authorization token for the Swim RAG API.
 
     Args:
@@ -16,9 +17,9 @@ def get_auth_token(url: str) -> httpx.BasicAuth | None:
     """
     if os.getenv("K_SERVICE"):
         # Add authorization headers from the service account in env as the service runs in google cloud run
-        auth_req = Request()
-        id_token = token.fetch_id_token(auth_req, url)
-        auth = httpx.BasicAuth(username="Bearer Token", password=id_token)  # type: ignore
+        request = _aiohttp_requests.Request()
+        id_token = await _id_token_async.fetch_id_token(request, url)
+        auth = {"X-Serverless-Authorization": f"Bearer {id_token}"}
     else:
         # Expect local proxy of cloud run service
         auth = None
