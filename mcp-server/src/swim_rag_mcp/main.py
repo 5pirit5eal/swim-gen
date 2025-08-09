@@ -6,6 +6,7 @@ import httpx
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
+from fastmcp.server.dependencies import get_context
 from fastmcp.server.middleware.error_handling import RetryMiddleware
 from fastmcp.server.middleware.logging import StructuredLoggingMiddleware
 from fastmcp.server.middleware.rate_limiting import (
@@ -13,18 +14,63 @@ from fastmcp.server.middleware.rate_limiting import (
     SlidingWindowRateLimitingMiddleware,
 )
 
+from swim_rag_mcp.auth import IdTokenManager
 from swim_rag_mcp.schemas import ExportResponse, QueryRequest, QueryResponse
-from swim_rag_mcp.utils import get_id_token
 
 load_dotenv(".config.env")
 
 URL = os.getenv("SWIM_RAG_API_URL", "http://localhost:8080")
+MCP_URL = os.getenv("SWIM_RAG_MCP_URL", "http://localhost:5000")
 print(f"Using Swim RAG API URL: {URL}")
+
+# Instantiate the manager once at application startup
+token_manager = IdTokenManager()
+
+
+async def make_authenticated_request(
+    url: str,
+    method: str = "GET",
+    json_data: dict = None,  # type: ignore[no-untyped-def]
+) -> httpx.Response:
+    """Make an authenticated request to the Swim RAG API with retries on 401 Unauthorized."""
+    ctx = get_context()
+    max_retries = 2
+    for attempt in range(max_retries):
+        try:
+            id_token = await token_manager.get_id_token(URL)  # Use the manager
+            headers = {
+                "Authorization": f"Bearer {id_token}",
+                "Content-Type": "application/json",
+            }
+            await ctx.debug(
+                f"Attempt {attempt + 1}: Making {method} request to {url} with httpx..."
+            )
+            async with httpx.AsyncClient() as client:
+                response = await client.request(
+                    method, url, headers=headers, json=json_data, timeout=60
+                )
+                response.raise_for_status()
+            return response
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 401 and attempt < max_retries - 1:
+                await ctx.info(
+                    f"Request failed with 401 Unauthorized. Invalidating cached token and retrying..."
+                )
+                await token_manager.invalidate_token()  # Invalidate via manager
+            else:
+                await ctx.error(f"Request failed: {e}")
+                raise
+        except Exception as e:
+            await ctx.error(f"An unexpected error occurred: {e}")
+            raise
+
+    raise RuntimeError("Max retries exceeded for authenticated request.")
+
 
 mcp: FastMCP = FastMCP(
     name="swim-rag-mcp",
     instructions="""
-        This is the MCP Server connected to the Swim RAG backend, an application meant for generating and 
+        This is the MCP Server connected to the Swim RAG backend, an application meant for generating and
         exporting german training plans for swimming. It allows the user to query for a personalized training plan,
         edit it and send the edited plan to the Swim RAG backend for export to a PDF file.
     """,
@@ -51,18 +97,22 @@ mcp: FastMCP = FastMCP(
 async def generate_or_choose_plan(query: QueryRequest) -> QueryResponse:
     """Query the Swim RAG system with a given german query string.
     It parses the request, queries the RAG, generating or choosing a plan, and returns the result as JSON.
+    This function can be used to generate a new training plan or choose an existing one from the database.
+    It is not suited for editing plans, but rather for querying the Swim RAG backend.
     """
     # Send the request to the Swim RAG backend
     try:
-        response = httpx.post(
+        response = await make_authenticated_request(
             url=URL + "/query",
-            json=query.model_dump(),
-            timeout=60.0,  # Set a timeout for the request
-            headers=await get_id_token(URL),  # Get the auth token if available,
+            method="POST",
+            json_data=query.model_dump(),
         )
         response.raise_for_status()  # Raise an error for bad responses
     except httpx.RequestError as e:
-        raise ToolError(f"Request error: {e}")
+        raise ToolError(
+            "The connection to the MCP Server is successful, "
+            f"but the request to the connected API failed with error: {e}"
+        )
     except httpx.HTTPStatusError as e:
         raise ToolError(
             f"HTTP error: {e.response.status_code} - {e.response.text}"
@@ -77,11 +127,10 @@ async def generate_or_choose_plan(query: QueryRequest) -> QueryResponse:
 async def export_plan(plan: QueryResponse) -> ExportResponse:
     """Export a plan as a PDF file for easier printing and sharing."""
     try:
-        response = httpx.post(
+        response = await make_authenticated_request(
             url=URL + "/export-pdf",
-            json=plan.model_dump(),
-            timeout=60.0,  # Set a timeout for the request
-            headers=await get_id_token(URL),  # Get the auth token if available
+            method="POST",
+            json_data=plan.model_dump(),
         )
         response.raise_for_status()  # Raise an error for bad responses
     except httpx.RequestError as e:
