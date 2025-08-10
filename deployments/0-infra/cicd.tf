@@ -85,7 +85,7 @@ resource "google_cloudbuildv2_repository" "swim_rag" {
 }
 
 # cloud build triggers for mcp server
-resource "google_cloudbuild_trigger" "swim_rag_mcp_server_main" {
+resource "google_cloudbuild_trigger" "swim_rag_mcp_server_pr_main" {
   name               = "swim-rag-mcp-server-pr-main"
   description        = "Trigger for swim-rag PR to main branch"
   service_account    = google_service_account.cloud_build_sa.id
