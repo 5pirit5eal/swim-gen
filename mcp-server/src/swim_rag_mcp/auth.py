@@ -2,29 +2,9 @@ import os
 import threading
 import time
 
-from fastmcp.server.auth import JWTVerifier, RemoteAuthProvider
 from fastmcp.server.dependencies import get_context
-from google.auth import default
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token as token
-from pydantic import AnyHttpUrl
-
-
-def get_auth(server_url: str) -> RemoteAuthProvider:
-    """Get the authentication provider for the Swim RAG MCP server."""
-    token_verifier = JWTVerifier(
-        jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
-        issuer="https://accounts.google.com",
-        audience=os.getenv("GOOGLE_CLIENT_ID"),
-    )
-
-    # Create RemoteAuthProvider with full MCP endpoint URL
-    auth = RemoteAuthProvider(
-        token_verifier=token_verifier,
-        authorization_servers=[AnyHttpUrl("https://accounts.google.com")],
-        resource_server_url=server_url,  # Note: includes /mcp/ path
-    )
-    return auth
 
 
 class IdTokenManager:

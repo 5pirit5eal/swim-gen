@@ -1,36 +1,10 @@
-# import statements
 import os
 import time
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-import asyncio
-from unittest.mock import patch, MagicMock, AsyncMock
-from src.swim_rag_mcp import auth
 
-
-def test_get_auth(monkeypatch):
-    # Mock os.getenv
-    monkeypatch.setattr(os, "getenv", lambda key: "test-client-id")
-    # Mock JWTVerifier and RemoteAuthProvider
-    with (
-        patch("src.swim_rag_mcp.auth.JWTVerifier") as MockJWTVerifier,
-        patch(
-            "src.swim_rag_mcp.auth.RemoteAuthProvider"
-        ) as MockRemoteAuthProvider,
-        patch("src.swim_rag_mcp.auth.AnyHttpUrl", side_effect=lambda url: url),
-    ):
-        mock_verifier = MagicMock()
-        MockJWTVerifier.return_value = mock_verifier
-        mock_auth = MagicMock()
-        MockRemoteAuthProvider.return_value = mock_auth
-
-        result = auth.get_auth("https://server/mcp/")
-        MockJWTVerifier.assert_called_once_with(
-            jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
-            issuer="https://accounts.google.com",
-            audience="test-client-id",
-        )
-        MockRemoteAuthProvider.assert_called_once()
-        assert result == mock_auth
+from swim_rag_mcp import auth
 
 
 @pytest.mark.asyncio

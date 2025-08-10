@@ -30,10 +30,14 @@ token_manager = IdTokenManager()
 async def make_authenticated_request(
     url: str,
     method: str = "GET",
-    json_data: dict = None,  # type: ignore[no-untyped-def]
+    json_data: dict = None,  # type: ignore[assignment]
 ) -> httpx.Response:
     """Make an authenticated request to the Swim RAG API with retries on 401 Unauthorized."""
     ctx = get_context()
+
+    if not json_data:
+        json_data = {}
+
     max_retries = 2
     for attempt in range(max_retries):
         try:
@@ -54,7 +58,7 @@ async def make_authenticated_request(
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 401 and attempt < max_retries - 1:
                 await ctx.info(
-                    f"Request failed with 401 Unauthorized. Invalidating cached token and retrying..."
+                    "Request failed with 401 Unauthorized. Invalidating cached token and retrying..."
                 )
                 await token_manager.invalidate_token()  # Invalidate via manager
             else:
