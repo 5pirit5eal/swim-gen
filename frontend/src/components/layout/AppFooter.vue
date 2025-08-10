@@ -35,7 +35,9 @@ const showContact = () => {
         <div class="footer-section">
           <h4>Privacy & Legal</h4>
           <ul class="footer-links">
-            <li><a href="#privacy" @click.prevent="showPrivacyPolicy">Privacy Policy</a></li>
+            <li>
+              <a href="#privacy" @click.prevent="showPrivacyPolicy">Privacy Policy</a>
+            </li>
             <li><a href="#terms" @click.prevent="showTerms">Terms of Service</a></li>
             <li><a href="#impressum" @click.prevent="showImpressum">Impressum</a></li>
           </ul>

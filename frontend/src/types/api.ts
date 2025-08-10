@@ -12,6 +12,16 @@ export interface ApiErrorResponse {
   status: number
 }
 
+export interface ApiResult<T> {
+  success: boolean
+  data?: T
+  error?: {
+    message: string
+    status: number
+    details?: string
+  }
+}
+
 // Health check response (simple string)
 export type HealthCheckResponse = string
 

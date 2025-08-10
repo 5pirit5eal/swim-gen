@@ -9,7 +9,7 @@ import type {
   PlanToPDFRequest,
   PlanToPDFResponse,
   HealthCheckResponse,
-  ApiEndpoints,
+  ApiResult,
 } from '@/types'
 
 class ApiClient {
@@ -22,13 +22,42 @@ class ApiClient {
   /**
    * Check API health status
    */
-  async checkHealth(): Promise<HealthCheckResponse | null> {
+  async checkHealth(): Promise<ApiResult<HealthCheckResponse>> {
     try {
-      const response = await fetch(`${this.baseUrl}/health`)
-      if (!response.ok) return null
-      return await response.text()
-    } catch {
-      return null
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      const response = await fetch(`${this.baseUrl}/health`, {
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: {
+            message: 'Health check failed',
+            status: response.status,
+            details: response.statusText,
+          },
+        }
+      }
+
+      const data = await response.text()
+      return {
+        success: true,
+        data,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          message: error instanceof Error ? error.message : 'Network error',
+          status: 0,
+          details: 'Failed to connect to server',
+        },
+      }
     }
   }
 
@@ -37,17 +66,26 @@ class ApiClient {
    */
   async query(request: QueryRequest): Promise<RAGResponse | null> {
     try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 60000)
+
       const response = await fetch(`${this.baseUrl}/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
+        signal: controller.signal,
       })
+
+      clearTimeout(timeoutId)
 
       if (!response.ok) return null
       return await response.json()
-    } catch {
-      return null
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('Request timed out after 60 seconds')
+      }
     }
+    return null
   }
 
   /**

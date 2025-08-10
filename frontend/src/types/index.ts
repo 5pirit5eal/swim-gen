@@ -17,6 +17,7 @@ export type {
 export type {
   HttpMethod,
   ApiErrorResponse,
+  ApiResult,
   HealthCheckResponse,
   ValidationError,
   ValidationResult,
