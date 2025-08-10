@@ -62,9 +62,9 @@ class ApiClient {
   }
 
   /**
-   * Query for training plans
+   * Query for training plans (may take up to 60 seconds)
    */
-  async query(request: QueryRequest): Promise<RAGResponse | null> {
+  async query(request: QueryRequest): Promise<ApiResult<RAGResponse>> {
     try {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 60000)
@@ -78,20 +78,41 @@ class ApiClient {
 
       clearTimeout(timeoutId)
 
-      if (!response.ok) return null
-      return await response.json()
+      if (!response.ok) {
+        return {
+          success: false,
+          error: {
+            message: 'Query failed',
+            status: response.status,
+            details: response.statusText,
+          },
+        }
+      }
+
+      const data = await response.json()
+      return {
+        success: true,
+        data,
+      }
     } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.error('Request timed out after 60 seconds')
+      return {
+        success: false,
+        error: {
+          message: error instanceof Error ? error.message : 'Network error',
+          status: 0,
+          details:
+            error instanceof Error && error.name === 'AbortError'
+              ? 'Request timed out after 60 seconds'
+              : 'Failed to connect to server',
+        },
       }
     }
-    return null
   }
 
   /**
    * Export training plan as PDF
    */
-  async exportPDF(request: PlanToPDFRequest): Promise<PlanToPDFResponse | null> {
+  async exportPDF(request: PlanToPDFRequest): Promise<ApiResult<PlanToPDFResponse>> {
     try {
       const response = await fetch(`${this.baseUrl}/export-pdf`, {
         method: 'POST',
@@ -99,10 +120,34 @@ class ApiClient {
         body: JSON.stringify(request),
       })
 
-      if (!response.ok) return null
-      return await response.json()
-    } catch {
-      return null
+      if (!response.ok) {
+        return {
+          success: false,
+          error: {
+            message: 'Converting plan to PDF failed',
+            status: response.status,
+            details: response.statusText,
+          },
+        }
+      }
+
+      const data = await response.json()
+      return {
+        success: true,
+        data,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          message: error instanceof Error ? error.message : 'Network error',
+          status: 0,
+          details:
+            error instanceof Error && error.name === 'AbortError'
+              ? 'Request timed out after 60 seconds'
+              : 'Failed to connect to server',
+        },
+      }
     }
   }
 }

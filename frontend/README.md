@@ -35,15 +35,15 @@ npm run preview      # Preview production build locally
   - [x] ~~Create directory structure and placeholder files~~
   - [x] ~~Set up TypeScript type definitions with backend API alignment~~
   - [x] ~~Configure API client structure with error handling and timeouts~~
-  - [ ] **Set up Pinia stores structure**
+  - [x] ~~Set up Pinia stores structure~~
 - [ ] **Design API client structure for backend communication**
 - [ ] **Set up environment variables for backend URL configuration**
 
 ### 🎨 UI/UX Design & Layout
 
-- [x] ~~**Create main application layout component**~~
-- [x] ~~**Design responsive header with navigation**~~
-- [x] ~~**Implement footer with privacy/legal links**~~
+- [x] ~~Create main application layout component~~
+- [x] ~~Design responsive header with navigation~~
+- [x] ~~Implement footer with privacy/legal links~~
 - [ ] **Set up CSS design system (colors, typography, spacing)**
 - [ ] **Create loading states and error handling UI patterns**
 
