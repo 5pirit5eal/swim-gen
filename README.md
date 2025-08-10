@@ -32,7 +32,7 @@ The web application is hosted in Google Cloud. The following components are invo
 
 The initial version only contains the core concept of being able to generate individual training plans based on user input (text/form).
 
-- **Generate TP based on user input (free form or configuration menu)**
+- **Generate TP based on user input (free form and configuration menu)**
   - Frontend displays simple one page app with text box and advanced settings
   - Backend provides endpoint for retrieval-augmented generation
   - Database contains training plans scraped from the web (tiny scope) and their embeddings
@@ -51,8 +51,10 @@ The initial version only contains the core concept of being able to generate ind
 
 The next version takes lessons learned in v1 into consideration and adds user authentication and generation history, making the web application a lot more useful.
 
-- **Generate TP based on user input (free form, configuration) and enable the user to give feedback to adapt results**
-  - Builds upon the content of v1 by adding chat history in backend
+- **Add chat interaction for logged-in users for adaptation of results**
+  - Builds upon the content of v1 by adding chat-like interaction
+  - Chat interaction is integrated as part of the go backend
+  - Chat history and user data saved in DB
 - **TP are exportable as PDF, excel or odt**
 - **TP can be recommended/donated**
   - Form added to frontend to input/donate your favorite training plans
@@ -60,15 +62,18 @@ The next version takes lessons learned in v1 into consideration and adds user au
   - Request user feedback to plan after new login after previously exporting TP
   - Endpoint in backend for saving feedback
   - Notation/Abbreviations of different sources can be processed correctly
-- **User authentication and identification**
-  - Identity-Aware Proxy for user identification and user data persistence (TPs)
+- **User authentication and authorization**
+  - Frontend extended with `Login` page and user info about benefits of logging in
+  - Google Auth Platform for user authentication
+  - User Email and Password as another option
+  - Users get up to 1000 interactions to avoid abuse
+  - Whitelisted users with unlimited interactions
 - **TP History can be viewed**
-  - TPs are saved associated with user ID (JWT)
+  - TPs are saved associated with user email
   - Frontend is extended with `History` page to view previously created TPs
 - **TP can be shared via URL**
 - **Enable deletion of user data**
-  - Add url to soft-delete all user data at the bottom of the page
-  - User data is retrievable or 30 days, then fully deleted
+  - Add url to delete all user data at the bottom of the page
 - **Add content required by german/eu law**
   - Impressum
 
@@ -90,3 +95,9 @@ The next version takes lessons learned in v1 into consideration and adds user au
   - Number of plans exported
   - Number of plans donated
   - Comparative statistics with other user behaviour
+
+# Side-Quest
+
+- **MCP-Server**:
+  - Connecting other chat interfaces to the functionality of the Go Backend
+  - 
