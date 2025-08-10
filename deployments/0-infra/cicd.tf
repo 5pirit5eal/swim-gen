@@ -99,6 +99,8 @@ resource "google_cloudbuild_trigger" "swim_rag_mcp_server_pr_main" {
     }
   }
 
+  included_files = ["mcp-server/**"]
+
   substitutions = local.mcp_env_variables
   tags          = ["mcp-server", "PR", "swim-rag", "main"]
 
@@ -124,6 +126,8 @@ resource "google_cloudbuild_trigger" "swim_rag_mcp_server_release" {
     _SERVICE_ACCOUNT = google_service_account.cloud_run_sa.email
   })
 
+  included_files = ["mcp-server/**"]
+
   tags = ["mcp-server", "PR", "swim-rag", "main"]
 
   filename = "mcp-server/release.cloudbuild.yaml"
@@ -144,6 +148,8 @@ resource "google_cloudbuild_trigger" "swim_rag_backend_pr_main" {
     }
   }
 
+  included_files = ["backend/**"]
+
   substitutions = local.backend_env_variables
   tags          = ["backend", "PR", "swim-rag", "main"]
 
@@ -163,6 +169,8 @@ resource "google_cloudbuild_trigger" "swim_rag_backend_release" {
       branch = "main"
     }
   }
+
+  included_files = ["backend/**"]
 
   substitutions = merge(local.backend_env_variables, {
     _AR_REPO_NAME    = google_artifact_registry_repository.docker.name
