@@ -30,6 +30,12 @@ npm run preview      # Preview production build locally
 - [x] ~~Configure Vue Router for navigation~~
 - [x] ~~Set up Vitest for unit testing~~
 - [ ] **Plan application architecture and component structure**
+  - [x] ~~Research Vue.js architecture patterns and best practices~~
+  - [x] ~~Design component hierarchy and folder structure~~
+  - [ ] **Create directory structure and placeholder files**
+  - [ ] **Set up TypeScript type definitions**
+  - [ ] **Configure API client structure**
+  - [ ] **Set up Pinia stores structure**
 - [ ] **Design API client structure for backend communication**
 - [ ] **Set up environment variables for backend URL configuration**
 
