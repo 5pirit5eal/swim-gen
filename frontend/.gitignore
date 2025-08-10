@@ -28,3 +28,4 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+.github/copilot-instructions.md
