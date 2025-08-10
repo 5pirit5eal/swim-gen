@@ -11,6 +11,8 @@ steps:
         ".",
       ]
     dir: "mcp-server"
+    env:
+      - "DOCKER_BUILDKIT=1"
   # Push the image
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "${_REGION}-docker.pkg.dev/$PROJECT_ID/$_AR_REPO_NAME/swim-rag-mcp:$SHORT_SHA"]
