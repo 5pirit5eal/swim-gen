@@ -47,3 +47,48 @@ export interface DonatePlanRequest {
   table: Row[]
   user_id: string
 }
+
+// Backend filter structure (matching the Pydantic model)
+export interface Filter {
+  freistil?: boolean // Freestyle swimming technique
+  brust?: boolean // Breaststroke swimming technique
+  ruecken?: boolean // Backstroke swimming technique
+  delfin?: boolean // Butterfly swimming technique
+  lagen?: boolean // Individual medley swimming
+  schwierigkeitsgrad?:
+    | 'Nichtschwimmer'
+    | 'Anfaenger'
+    | 'Fortgeschritten'
+    | 'Leistungsschwimmer'
+    | 'Top-Athlet'
+  trainingstyp?:
+    | 'Techniktraining'
+    | 'Leistungstest'
+    | 'Grundlagenausdauer'
+    | 'Recovery'
+    | 'Kurzstrecken'
+    | 'Langstrecken'
+    | 'Atemmangel'
+    | 'Wettkampfvorbereitung'
+}
+
+// Helper type for difficulty options
+export const DIFFICULTY_OPTIONS = [
+  { value: 'Nichtschwimmer', label: 'Non-swimmer' },
+  { value: 'Anfaenger', label: 'Beginner' },
+  { value: 'Fortgeschritten', label: 'Intermediate' },
+  { value: 'Leistungsschwimmer', label: 'Competitive Swimmer' },
+  { value: 'Top-Athlet', label: 'Elite Athlete' },
+] as const
+
+// Helper type for training type options
+export const TRAINING_TYPE_OPTIONS = [
+  { value: 'Techniktraining', label: 'Technique Training' },
+  { value: 'Leistungstest', label: 'Performance Test' },
+  { value: 'Grundlagenausdauer', label: 'Base Endurance' },
+  { value: 'Recovery', label: 'Recovery' },
+  { value: 'Kurzstrecken', label: 'Sprint' },
+  { value: 'Langstrecken', label: 'Distance' },
+  { value: 'Atemmangel', label: 'Breath Control' },
+  { value: 'Wettkampfvorbereitung', label: 'Race Preparation' },
+] as const

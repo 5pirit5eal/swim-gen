@@ -11,7 +11,11 @@ export type {
   PlanToPDFRequest,
   PlanToPDFResponse,
   DonatePlanRequest,
+  Filter,
 } from './training'
+
+// Export filter option constants
+export { DIFFICULTY_OPTIONS, TRAINING_TYPE_OPTIONS } from './training'
 
 // Export all API-related types
 export type {

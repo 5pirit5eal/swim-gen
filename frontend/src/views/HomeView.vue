@@ -79,7 +79,7 @@ import TrainingPlanForm from '@/components/forms/TrainingPlanForm.vue'
   }
 
   .main-content {
-    padding: 0;
+    padding: 1.5rem;
   }
 }
 </style>
