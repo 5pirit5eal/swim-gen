@@ -77,20 +77,6 @@ npm run preview      # Preview production build locally
   - Save draft functionality (local storage)
   - Reset/regenerate options
 
-### 📄 PDF Export System
-
-- [ ] **Research PDF generation libraries for Vue.js**
-  - Evaluate options (jsPDF, Puppeteer, html2pdf, etc.)
-  - Consider server-side vs client-side generation
-- [ ] **Implement PDF export functionality**
-  - Format training plans for print
-  - Include proper headers, footers, and branding
-  - Handle different paper sizes and orientations
-- [ ] **Add export options and preview**
-  - PDF preview before download
-  - Custom filename generation
-  - Multiple export formats consideration for future
-
 ### 🔌 Backend Integration
 
 - [x] ~~**Set up API client with proper TypeScript types**~~
@@ -180,26 +166,59 @@ npm run preview      # Preview production build locally
 
 #### User Experience
 
+#### User Experience Features
+
 - Sliding loading animation for plan generation
 - Proper loading state prioritization (replaces old plan during generation)
 - Error handling with user-friendly messages
 - Responsive form with three-state filter logic
 
-### 🚧 Currently Working On
+#### PDF Export System
 
-- PDF export functionality integration
+- Server-side PDF generation using backend `/export-pdf` endpoint
+- Export button integrated into training plan display
+- Loading states and error handling for export process
+- Type-safe request/response handling with proper TypeScript integration### 🚧 Currently Working On
+
+- Final polish and user experience improvements
 
 ### 📋 Next Priority Items
 
-- PDF export UI integration with existing stores
-- Privacy settings controls implementation
-- Final end-to-end testing and polish
+#### V1 Polish & Enhancements
+
+1. **Layout Improvements**: Header and footer should fill full page width
+   - Change base layout to full width design
+   - Add container elements for content width control
+   - Maintain responsive design principles
+
+2. **Settings UX Enhancement**: Replace help text with hoverable question mark icons
+   - Add detailed tooltips for all filter settings
+   - Explain difficulty levels, training types, and swimming techniques
+   - Improve user understanding of advanced options
+
+3. **Creative Assistance**: Add "I'm feeling lucky" sample prompt button
+   - Integrate with backend endpoint for sample prompts
+   - Help users who need inspiration for training requests
+   - Backend endpoint needs implementation
+
+4. **Pool Length Integration**: Include pool length in training plan requests
+   - Add pool length field to the form
+   - Integrate into prompt generation for more accurate plans
+   - Consider common pool sizes (25m, 50m, yards)
+
+5. **Intensity Legend**: Add hoverable help for intensity abbreviations
+   - Question mark icon next to intensity column header
+   - Tooltip explaining common swimming intensity abbreviations
+   - Improve plan readability for new users
+
+#### Core Features (Remaining)
+
+- **Privacy Settings Controls**: Data donation opt-out checkbox and consent management
 
 ### 🔄 Remaining V1 Tasks
 
 #### Core Features
 
-- **PDF Export System**: Server-side PDF generation using existing `/plan-to-pdf` endpoint
 - **Privacy Settings Controls**: Data donation opt-out checkbox and consent management
 
 #### Future Enhancements (V2 Scope)
