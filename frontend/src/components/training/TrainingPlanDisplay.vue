@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
+import { useExportStore } from '@/stores/export'
+import type { PlanToPDFRequest } from '@/types'
 
 const trainingStore = useTrainingPlanStore()
+
+const exportStore = useExportStore()
 
 // Computed for separating exercise rows from total row
 const exerciseRows = computed(() => {
@@ -22,6 +26,16 @@ const totalRow = computed(() => {
 const totalExercises = computed(() => {
   return exerciseRows.value.length
 })
+
+async function handleExport() {
+  if (!trainingStore.currentPlan) return
+
+  const pdfUri = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
+  if (pdfUri) {
+    // Trigger download
+    window.open(pdfUri, '_blank')
+  }
+}
 </script>
 
 <template>
@@ -84,6 +98,13 @@ const totalExercises = computed(() => {
           <div class="summary-value">{{ totalExercises }}</div>
           <div class="summary-label">Exercise Sets</div>
         </div>
+      </div>
+
+      <!-- Export Action -->
+      <div class="export-section">
+        <button @click="handleExport" class="export-btn" :disabled="exportStore.isExporting">
+          {{ exportStore.isExporting ? 'Exporting...' : 'Export PDF' }}
+        </button>
       </div>
     </div>
 
@@ -198,7 +219,7 @@ const totalExercises = computed(() => {
   justify-content: space-around;
   padding: 1.5rem;
   background: var(--color-background-soft);
-  gap: 1rem;
+  gap: 3rem;
 }
 
 .summary-item {
@@ -274,5 +295,34 @@ const totalExercises = computed(() => {
     right: 80px;
     left: 2px;
   }
+}
+
+.export-section {
+  padding: 1.5rem;
+  background: var(--color-background-soft);
+  text-align: center;
+}
+
+.export-btn {
+  background: var(--color-primary, #3b82f6);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-width: 160px;
+}
+
+.export-btn:hover:not(:disabled) {
+  background: var(--color-primary-hover, #2563eb);
+}
+
+.export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--color-text-light);
 }
 </style>
