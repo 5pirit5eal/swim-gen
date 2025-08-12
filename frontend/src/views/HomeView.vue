@@ -1,6 +1,5 @@
 <script setup lang="ts">
-// Main page for the Swim Training Plan Generator
-// This will contain the form and plan display components
+import TrainingPlanForm from '@/components/forms/TrainingPlanForm.vue'
 </script>
 
 <template>
@@ -14,15 +13,9 @@
         </p>
       </section>
 
-      <!-- Main content will go here -->
+      <!-- Main content -->
       <section class="main-content">
-        <div class="placeholder">
-          <p>🏊‍♀️ Training plan form and display components will be added here</p>
-          <p>📝 Form for training plan requests</p>
-          <p>⚙️ Advanced settings panel</p>
-          <p>📊 Generated plan display</p>
-          <p>📄 PDF export functionality</p>
-        </div>
+        <TrainingPlanForm />
       </section>
     </div>
   </div>
@@ -86,7 +79,7 @@
   }
 
   .main-content {
-    padding: 1.5rem;
+    padding: 0;
   }
 }
 </style>
