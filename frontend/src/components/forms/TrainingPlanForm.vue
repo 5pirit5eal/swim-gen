@@ -408,6 +408,7 @@ function toggleAdvancedSettings() {
 
 .submit-btn.loading {
   background: var(--color-text-light);
+  border-color: var(--color-border);
 }
 
 .error-message {

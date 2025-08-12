@@ -15,7 +15,7 @@ import type {
 class ApiClient {
   private baseUrl: string
 
-  constructor(baseUrl = 'http://localhost:8080') {
+  constructor(baseUrl = '/api') {
     this.baseUrl = baseUrl
   }
 

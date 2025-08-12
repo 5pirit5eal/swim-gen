@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import TrainingPlanForm from '@/components/forms/TrainingPlanForm.vue'
+import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 </script>
 
 <template>
@@ -14,8 +15,9 @@ import TrainingPlanForm from '@/components/forms/TrainingPlanForm.vue'
       </section>
 
       <!-- Main content -->
-      <section class="main-content">
+      <section>
         <TrainingPlanForm />
+        <TrainingPlanDisplay />
       </section>
     </div>
   </div>
@@ -52,13 +54,6 @@ import TrainingPlanForm from '@/components/forms/TrainingPlanForm.vue'
   line-height: 1.6;
 }
 
-.main-content {
-  background: var(--color-background-soft);
-  border-radius: 0.5rem;
-  padding: 2rem;
-  border: 1px solid var(--color-border);
-}
-
 .placeholder {
   text-align: center;
   color: var(--color-text-light);
@@ -76,10 +71,6 @@ import TrainingPlanForm from '@/components/forms/TrainingPlanForm.vue'
 
   .hero-description {
     font-size: 1rem;
-  }
-
-  .main-content {
-    padding: 1.5rem;
   }
 }
 </style>

@@ -26,7 +26,11 @@ const totalExercises = computed(() => {
 
 <template>
   <div class="training-plan-display">
-    <div v-if="trainingStore.hasPlan && trainingStore.currentPlan" class="plan-container">
+    <div v-if="trainingStore.isGenerating" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Generating your training plan...</p>
+    </div>
+    <div v-else-if="trainingStore.hasPlan && trainingStore.currentPlan" class="plan-container">
       <!-- Header -->
       <header class="plan-header">
         <h2 class="plan-title">{{ trainingStore.currentPlan.title }}</h2>
@@ -83,10 +87,6 @@ const totalExercises = computed(() => {
       </div>
     </div>
 
-    <div v-else-if="trainingStore.isGenerating" class="loading-state">
-      <p>Generating your training plan...</p>
-    </div>
-
     <div v-else class="no-plan">
       <p>No training plan generated yet. Use the form above to create one!</p>
     </div>
@@ -95,8 +95,10 @@ const totalExercises = computed(() => {
 
 <style scoped>
 .training-plan-display {
-  max-width: 800px;
   margin: 2rem auto;
+  background: var(--color-background-soft);
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
 }
 
 .plan-container {
@@ -107,7 +109,7 @@ const totalExercises = computed(() => {
 }
 
 .plan-header {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: var(--color-primary, #3b82f6);
   color: white;
   padding: 2rem;
   text-align: center;
@@ -128,6 +130,7 @@ const totalExercises = computed(() => {
 .table-container {
   overflow-x: auto;
   padding: 1.5rem;
+  background: var(--color-background-soft);
 }
 
 .exercise-table {
@@ -141,10 +144,11 @@ const totalExercises = computed(() => {
   border: 1px solid var(--color-border);
   padding: 0.75rem 0.5rem;
   text-align: center;
+  color: var(--color-text-light);
 }
 
 .exercise-table th {
-  background: linear-gradient(135deg, #374151, #1f2937);
+  background: var(--color-border);
   color: white;
   font-weight: 600;
   text-transform: uppercase;
@@ -153,6 +157,10 @@ const totalExercises = computed(() => {
 }
 
 .exercise-row:nth-child(even) {
+  background-color: var(--color-background);
+}
+
+.exercise-row:nth-child(odd) {
   background-color: var(--color-background-soft);
 }
 
@@ -175,14 +183,14 @@ const totalExercises = computed(() => {
 }
 
 .total-row {
-  background: linear-gradient(135deg, #1f2937, #374151) !important;
+  background: var(--color-border) !important;
   color: white;
   font-weight: 700;
   font-size: 1rem;
 }
 
 .total-row td {
-  border-color: #374151;
+  border-color: var(--color-border);
 }
 
 .summary-section {
@@ -224,32 +232,47 @@ const totalExercises = computed(() => {
   font-style: italic;
 }
 
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-  .plan-header {
-    padding: 1.5rem 1rem;
-  }
+.loading-spinner {
+  width: 120px;
+  height: 40px;
+  background-color: var(--color-background-soft);
+  position: relative;
+  border-radius: 50px;
+  box-shadow: inset 0 0 0 2px var(--color-border);
+  margin: 0 auto 1rem auto;
+}
 
-  .plan-title {
-    font-size: 1.25rem;
-  }
+.loading-spinner:after {
+  border-radius: 50px;
+  content: '';
+  position: absolute;
+  background-color: var(--color-primary, #3b82f6);
+  left: 2px;
+  top: 2px;
+  bottom: 2px;
+  right: 80px;
+  animation: slide 2s linear infinite;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
 
-  .table-container {
-    padding: 1rem;
+@keyframes slide {
+  0% {
+    right: 80px;
+    left: 2px;
   }
-
-  .exercise-table {
-    font-size: 0.8rem;
+  5% {
+    left: 2px;
   }
-
-  .exercise-table th,
-  .exercise-table td {
-    padding: 0.5rem 0.25rem;
+  50% {
+    right: 2px;
+    left: 80px;
   }
-
-  .summary-section {
-    flex-direction: column;
-    padding: 1rem;
+  55% {
+    right: 2px;
+  }
+  100% {
+    right: 80px;
+    left: 2px;
   }
 }
 </style>

@@ -7,7 +7,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   // State
   const currentPlan = ref<RAGResponse | null>(null)
   const isLoading = ref(false)
-  const isExporting = ref(false)
   const error = ref<string | null>(null)
 
   // Computed
@@ -41,44 +40,10 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     error.value = null
   }
 
-  async function exportToPDF(): Promise<boolean> {
-    if (!currentPlan.value) {
-      error.value = 'No training plan to export'
-      return false
-    }
-
-    isExporting.value = true
-    error.value = null
-
-    try {
-      // Import the export store when needed
-      const { useExportStore } = await import('@/stores/export')
-      const exportStore = useExportStore()
-      
-      const success = await exportStore.exportToPDF(currentPlan.value)
-      
-      if (!success && exportStore.exportError) {
-        error.value = exportStore.exportError
-      }
-      
-      isExporting.value = false
-      return !!success
-    } catch (err) {
-      error.value = 'Export failed: ' + (err instanceof Error ? err.message : 'Unknown error')
-      isExporting.value = false
-      return false
-    }
-  }
-
-  function clearTrainingPlan() {
-    clearPlan()
-  }
-
   return {
     // State
     currentPlan,
     isLoading,
-    isExporting,
     error,
     // Computed
     hasPlan,
@@ -87,7 +52,5 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     generatePlan,
     clearPlan,
     clearError,
-    exportToPDF,
-    clearTrainingPlan,
   }
 })
