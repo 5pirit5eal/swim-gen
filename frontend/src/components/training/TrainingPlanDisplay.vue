@@ -33,8 +33,9 @@ const totalExercises = computed(() => {
 
 // Start editing a specific cell
 function startEditing(rowIndex: number, field: keyof Row) {
-  isEditing.value = true
-  editingCell.value = { rowIndex, field }
+  if (isEditing.value) {
+    editingCell.value = { rowIndex, field }
+  }
 }
 
 // Stop editing the current cell and save the changes
@@ -42,12 +43,12 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
   const target = event.target as HTMLInputElement | HTMLTextAreaElement
   let newValue: string | number = target.value
 
-  if (['Amount', 'Distance', 'Sum'].includes(field as string)) {
+  if (['Amount', 'Distance'].includes(field as string)) {
     // Convert numeric fields to numbers
     newValue = parseFloat(newValue) || 0 // Default to 0 if conversion fails
   }
   trainingStore.updatePlanRow(rowIndex, field, newValue)
-  editingCell.value = null
+  // editingCell.value = null
 }
 
 async function handleExport() {
@@ -82,6 +83,7 @@ async function handleExport() {
           <thead>
             <tr>
               <th>Amount</th>
+              <th></th>
               <th>Distance (m)</th>
               <th>Break</th>
               <th>Content</th>
@@ -91,16 +93,75 @@ async function handleExport() {
           </thead>
           <tbody>
             <tr v-for="(row, index) in exerciseRows" :key="index" class="exercise-row">
-              <td>{{ row.Amount }}{{ row.Multiplier }}</td>
-              <td>{{ row.Distance }}</td>
+              <!-- Amount Cell -->
+              <td @click="startEditing(index, 'Amount')">
+                <input
+                  type="number"
+                  min="0"
+                  v-if="
+                    isEditing && editingCell?.rowIndex === index && editingCell?.field === 'Amount'
+                  "
+                  v-model="row.Amount"
+                  @blur="stopEditing($event, index, 'Amount')"
+                  @keyup.enter="stopEditing($event, index, 'Amount')"
+                  class="editable-input"
+                />
+                <span v-else>{{ row.Amount }}</span>
+              </td>
+              <td>{{ row.Multiplier }}</td>
+              <!-- Distance Cell -->
+              <td @click="startEditing(index, 'Distance')">
+                <input
+                  type="number"
+                  min="0"
+                  max="100000"
+                  step="25"
+                  v-if="
+                    isEditing &&
+                    editingCell?.rowIndex === index &&
+                    editingCell?.field === 'Distance'
+                  "
+                  v-model="row.Distance"
+                  @blur="stopEditing($event, index, 'Distance')"
+                  @keyup.enter="stopEditing($event, index, 'Distance')"
+                  class="editable-input"
+                />
+                <span v-else>{{ row.Distance }}</span>
+              </td>
               <td>{{ row.Break }}</td>
-              <td class="content-cell">{{ row.Content }}</td>
-              <td class="intensity-cell">{{ row.Intensity }}</td>
+              <!-- Content Cell -->
+              <td class="content-cell" @click="startEditing(index, 'Content')">
+                <textarea
+                  v-if="
+                    isEditing && editingCell?.rowIndex === index && editingCell?.field === 'Content'
+                  "
+                  v-model="row.Content"
+                  @blur="stopEditing($event, index, 'Content')"
+                  @keyup.enter="stopEditing($event, index, 'Content')"
+                  class="editable-input"
+                ></textarea>
+                <span v-else>{{ row.Content }}</span>
+              </td>
+              <!-- Intensity Cell -->
+              <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
+                <textarea
+                  v-if="
+                    isEditing &&
+                    editingCell?.rowIndex === index &&
+                    editingCell?.field === 'Intensity'
+                  "
+                  v-model="row.Intensity"
+                  @blur="stopEditing($event, index, 'Intensity')"
+                  @keyup.enter="stopEditing($event, index, 'Intensity')"
+                  class="editable-input"
+                ></textarea>
+                <span v-else>{{ row.Intensity }}</span>
+              </td>
               <td class="total-cell">{{ row.Sum }}</td>
             </tr>
             <!-- Total row from backend -->
             <tr v-if="totalRow" class="total-row">
-              <td colspan="5">
+              <td colspan="6">
                 <strong>{{ totalRow.Content }}</strong>
               </td>
               <td>
@@ -203,6 +264,11 @@ async function handleExport() {
   font-size: 0.8rem;
 }
 
+.exercise-table td > span,
+.exercise-table td > textarea {
+  display: block;
+}
+
 .exercise-row:nth-child(even) {
   background-color: var(--color-background);
 }
@@ -223,6 +289,18 @@ async function handleExport() {
 .intensity-cell {
   font-weight: 600;
   color: var(--color-primary);
+}
+
+.editable-input {
+  width: 100%;
+  padding: 0.25rem;
+  border: 1px solid var(--color-primary);
+  border-radius: 0.25rem;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: inherit;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 .total-cell {
