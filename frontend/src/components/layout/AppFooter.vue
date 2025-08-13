@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import BaseModal from '@/components/ui/BaseModal.vue'
 import PrivacyPolicy from '../legal/PrivacyPolicy.vue'
+import TermsOfService from '../legal/TermsOfService.vue'
 import { ref } from 'vue'
 // Footer component with privacy links and legal information
 // Handlers for modal dialogs will be implemented when needed
 
 const showPrivacyPolicyModal = ref(false)
+const showTermsOfServiceModal = ref(false)
 
 const showTerms = () => {
-  // TODO: Implement terms modal/page
-  console.log('Terms clicked')
+  showTermsOfServiceModal.value = true
 }
 
 const showImpressum = () => {
@@ -67,6 +68,13 @@ const showContact = () => {
     <template #header><h1>Privacy Policy</h1></template>
     <template #body>
       <PrivacyPolicy />
+    </template>
+  </BaseModal>
+
+  <BaseModal :show="showTermsOfServiceModal" @close="showTermsOfServiceModal = false">
+    <template #header><h1>Terms of Service</h1></template>
+    <template #body>
+      <TermsOfService />
     </template>
   </BaseModal>
 </template>
