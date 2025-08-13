@@ -45,10 +45,11 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
 
   if (['Amount', 'Distance'].includes(field as string)) {
     // Convert numeric fields to numbers
-    newValue = parseFloat(newValue) || 0 // Default to 0 if conversion fails
+    const numValue = parseFloat(newValue as string)
+    newValue = isNaN(numValue) ? 0 : Math.max(0, numValue)
   }
   trainingStore.updatePlanRow(rowIndex, field, newValue)
-  // editingCell.value = null
+  editingCell.value = null
 }
 
 async function handleExport() {
@@ -98,13 +99,11 @@ async function handleExport() {
                 <input
                   type="number"
                   min="0"
-                  v-if="
-                    isEditing && editingCell?.rowIndex === index && editingCell?.field === 'Amount'
-                  "
+                  v-if="isEditing"
                   v-model="row.Amount"
                   @blur="stopEditing($event, index, 'Amount')"
                   @keyup.enter="stopEditing($event, index, 'Amount')"
-                  class="editable-input"
+                  class="editable-small"
                 />
                 <span v-else>{{ row.Amount }}</span>
               </td>
@@ -116,45 +115,47 @@ async function handleExport() {
                   min="0"
                   max="100000"
                   step="25"
-                  v-if="
-                    isEditing &&
-                    editingCell?.rowIndex === index &&
-                    editingCell?.field === 'Distance'
-                  "
+                  v-if="isEditing"
                   v-model="row.Distance"
                   @blur="stopEditing($event, index, 'Distance')"
                   @keyup.enter="stopEditing($event, index, 'Distance')"
-                  class="editable-input"
+                  class="editable-small"
                 />
                 <span v-else>{{ row.Distance }}</span>
               </td>
-              <td>{{ row.Break }}</td>
+              <!-- Intensity Cell -->
+              <td @click="startEditing(index, 'Break')">
+                <input
+                  type="text"
+                  v-if="isEditing"
+                  v-model="row.Break"
+                  @blur="stopEditing($event, index, 'Break')"
+                  @keyup.enter="stopEditing($event, index, 'Break')"
+                  class="editable-small"
+                />
+                <span v-else>{{ row.Break }}</span>
+              </td>
               <!-- Content Cell -->
               <td class="content-cell" @click="startEditing(index, 'Content')">
                 <textarea
-                  v-if="
-                    isEditing && editingCell?.rowIndex === index && editingCell?.field === 'Content'
-                  "
+                  v-if="isEditing"
                   v-model="row.Content"
                   @blur="stopEditing($event, index, 'Content')"
                   @keyup.enter="stopEditing($event, index, 'Content')"
-                  class="editable-input"
+                  class="editable-area"
                 ></textarea>
                 <span v-else>{{ row.Content }}</span>
               </td>
               <!-- Intensity Cell -->
               <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                <textarea
-                  v-if="
-                    isEditing &&
-                    editingCell?.rowIndex === index &&
-                    editingCell?.field === 'Intensity'
-                  "
+                <input
+                  type="text"
+                  v-if="isEditing"
                   v-model="row.Intensity"
                   @blur="stopEditing($event, index, 'Intensity')"
                   @keyup.enter="stopEditing($event, index, 'Intensity')"
-                  class="editable-input"
-                ></textarea>
+                  class="editable-small"
+                />
                 <span v-else>{{ row.Intensity }}</span>
               </td>
               <td class="total-cell">{{ row.Sum }}</td>
@@ -192,7 +193,7 @@ async function handleExport() {
   <div v-if="trainingStore.hasPlan && trainingStore.currentPlan" class="export-section">
     <!-- Edit Action -->
     <button @click="isEditing = !isEditing" class="export-btn">
-      {{ isEditing ? 'Done Editing' : 'Edit Plan' }}
+      {{ isEditing ? 'Done Editing' : 'Refine Plan' }}
     </button>
     <!-- Export Action -->
     <button @click="handleExport" class="export-btn" :disabled="exportStore.isExporting">
@@ -291,7 +292,7 @@ async function handleExport() {
   color: var(--color-primary);
 }
 
-.editable-input {
+.editable-area {
   width: 100%;
   padding: 0.25rem;
   border: 1px solid var(--color-primary);
@@ -301,6 +302,18 @@ async function handleExport() {
   font-family: inherit;
   font-size: inherit;
   box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.editable-small {
+  width: 70px;
+  text-align: center;
+  border: 1px solid var(--color-primary);
+  border-radius: 0.25rem;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: inherit;
+  box-sizing: border-box;
 }
 
 .total-cell {

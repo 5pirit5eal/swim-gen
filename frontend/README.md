@@ -121,6 +121,11 @@ npm run preview      # Preview production build locally
   - Docker configuration
   - Static file serving
   - Health check endpoints
+- [ ] **Production-Ready Content & Configuration**
+  - **Update privacy policy contact email** (currently `privacy@swim-rag.com`)
+  - **Create full contact page/modal** (currently placeholder in footer)
+  - **Legal review of privacy policy and terms of service**
+  - **Configure real domain and SSL certificates**
 
 ### 📚 Documentation & Learning
 
