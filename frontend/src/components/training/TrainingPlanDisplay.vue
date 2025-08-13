@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useExportStore } from '@/stores/export'
-import type { PlanToPDFRequest } from '@/types'
+import type { PlanToPDFRequest, Row } from '@/types'
 
 const trainingStore = useTrainingPlanStore()
 
 const exportStore = useExportStore()
+
+// Ref to track editing state
+const isEditing = ref(false)
+const editingCell = ref<{ rowIndex: number; field: keyof Row } | null>(null)
 
 // Computed for separating exercise rows from total row
 const exerciseRows = computed(() => {
@@ -26,6 +30,25 @@ const totalRow = computed(() => {
 const totalExercises = computed(() => {
   return exerciseRows.value.length
 })
+
+// Start editing a specific cell
+function startEditing(rowIndex: number, field: keyof Row) {
+  isEditing.value = true
+  editingCell.value = { rowIndex, field }
+}
+
+// Stop editing the current cell and save the changes
+function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
+  const target = event.target as HTMLInputElement | HTMLTextAreaElement
+  let newValue: string | number = target.value
+
+  if (['Amount', 'Distance', 'Sum'].includes(field as string)) {
+    // Convert numeric fields to numbers
+    newValue = parseFloat(newValue) || 0 // Default to 0 if conversion fails
+  }
+  trainingStore.updatePlanRow(rowIndex, field, newValue)
+  editingCell.value = null
+}
 
 async function handleExport() {
   if (!trainingStore.currentPlan) return
@@ -99,18 +122,21 @@ async function handleExport() {
           <div class="summary-label">Exercise Sets</div>
         </div>
       </div>
-
-      <!-- Export Action -->
-      <div class="export-section">
-        <button @click="handleExport" class="export-btn" :disabled="exportStore.isExporting">
-          {{ exportStore.isExporting ? 'Exporting...' : 'Export PDF' }}
-        </button>
-      </div>
     </div>
 
     <div v-else class="no-plan">
       <p>No training plan generated yet. Use the form above to create one!</p>
     </div>
+  </div>
+  <div v-if="trainingStore.hasPlan && trainingStore.currentPlan" class="export-section">
+    <!-- Edit Action -->
+    <button @click="isEditing = !isEditing" class="export-btn">
+      {{ isEditing ? 'Done Editing' : 'Edit Plan' }}
+    </button>
+    <!-- Export Action -->
+    <button @click="handleExport" class="export-btn" :disabled="exportStore.isExporting">
+      {{ exportStore.isExporting ? 'Exporting...' : 'Export PDF' }}
+    </button>
   </div>
 </template>
 
@@ -298,6 +324,11 @@ async function handleExport() {
 }
 
 .export-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
   padding: 1.5rem;
   background: var(--color-background-soft);
   text-align: center;

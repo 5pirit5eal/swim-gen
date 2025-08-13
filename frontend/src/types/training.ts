@@ -74,11 +74,9 @@ export interface Filter {
 
 // Helper type for difficulty options
 export const DIFFICULTY_OPTIONS = [
-  { value: 'Nichtschwimmer', label: 'Non-swimmer' },
   { value: 'Anfaenger', label: 'Beginner' },
   { value: 'Fortgeschritten', label: 'Intermediate' },
   { value: 'Leistungsschwimmer', label: 'Competitive Swimmer' },
-  { value: 'Top-Athlet', label: 'Elite Athlete' },
 ] as const
 
 // Helper type for training type options

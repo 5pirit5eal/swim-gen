@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { apiClient } from '@/api/client'
-import type { RAGResponse, QueryRequest } from '@/types'
+import type { RAGResponse, QueryRequest, Row } from '@/types'
 
 export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   // State
@@ -31,6 +31,13 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     }
   }
 
+  function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
+    if (currentPlan.value && currentPlan.value.table[rowIndex]) {
+      const row = currentPlan.value.table[rowIndex]
+      ;(row[field] as string | number) = value
+    }
+  }
+
   function clearPlan() {
     currentPlan.value = null
     error.value = null
@@ -50,6 +57,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     isGenerating,
     // Actions
     generatePlan,
+    updatePlanRow,
     clearPlan,
     clearError,
   }
