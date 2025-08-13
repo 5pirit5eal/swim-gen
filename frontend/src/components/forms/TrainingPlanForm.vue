@@ -246,7 +246,7 @@ function toggleAdvancedSettings() {
           </div>
 
           <!-- Data Donation -->
-          <div class="setting-group">
+          <!-- <div class="setting-group">
             <label class="setting-label">Privacy Settings</label>
             <label class="checkbox-option">
               <input
@@ -259,7 +259,7 @@ function toggleAdvancedSettings() {
             <p class="setting-help">
               When enabled, your training requests won't be used to improve the system
             </p>
-          </div>
+          </div> -->
 
           <!-- Clear Filters -->
           <div class="setting-group">
