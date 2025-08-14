@@ -100,7 +100,7 @@ async function handleExport() {
                   type="number"
                   min="0"
                   v-if="isEditing"
-                  v-model="row.Amount"
+                  :value="row.Amount"
                   @blur="stopEditing($event, index, 'Amount')"
                   @keyup.enter="stopEditing($event, index, 'Amount')"
                   class="editable-small"
@@ -116,7 +116,7 @@ async function handleExport() {
                   max="100000"
                   step="25"
                   v-if="isEditing"
-                  v-model="row.Distance"
+                  :value="row.Distance"
                   @blur="stopEditing($event, index, 'Distance')"
                   @keyup.enter="stopEditing($event, index, 'Distance')"
                   class="editable-small"
@@ -128,7 +128,7 @@ async function handleExport() {
                 <input
                   type="text"
                   v-if="isEditing"
-                  v-model="row.Break"
+                  :value="row.Break"
                   @blur="stopEditing($event, index, 'Break')"
                   @keyup.enter="stopEditing($event, index, 'Break')"
                   class="editable-small"
@@ -139,7 +139,7 @@ async function handleExport() {
               <td class="content-cell" @click="startEditing(index, 'Content')">
                 <textarea
                   v-if="isEditing"
-                  v-model="row.Content"
+                  :value="row.Content"
                   @blur="stopEditing($event, index, 'Content')"
                   @keyup.enter="stopEditing($event, index, 'Content')"
                   class="editable-area"
@@ -151,7 +151,7 @@ async function handleExport() {
                 <input
                   type="text"
                   v-if="isEditing"
-                  v-model="row.Intensity"
+                  :value="row.Intensity"
                   @blur="stopEditing($event, index, 'Intensity')"
                   @keyup.enter="stopEditing($event, index, 'Intensity')"
                   class="editable-small"
