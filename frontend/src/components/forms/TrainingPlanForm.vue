@@ -70,10 +70,8 @@ function toggleAdvancedSettings() {
 
       <!-- Advanced settings panel -->
       <div v-if="showAdvancedSettings" class="advanced-settings">
-        <h3>Advanced Settings</h3>
-
         <div class="settings-grid">
-          <!-- Generation Method -->
+          <!-- NOTE: this is for v2 Generation Method
           <div class="setting-group">
             <label class="setting-label">Generation Method</label>
             <div class="radio-group">
@@ -101,7 +99,7 @@ function toggleAdvancedSettings() {
             </p>
           </div>
 
-          <!-- Pool Length -->
+           Pool Length
           <div class="setting-group">
             <label class="setting-label">Pool Length</label>
             <div class="radio-group">
@@ -125,7 +123,7 @@ function toggleAdvancedSettings() {
               </label>
             </div>
             <p class="setting-help">Specify your pool length for accurate distance calculations</p>
-          </div>
+          </div> -->
 
           <!-- Swimming Strokes Filter -->
           <div class="setting-group">
@@ -205,44 +203,46 @@ function toggleAdvancedSettings() {
             <p class="setting-help">Select specific swimming strokes to focus on</p>
           </div>
 
-          <!-- Difficulty Level -->
-          <div class="setting-group">
-            <label class="setting-label">Difficulty Level</label>
-            <select
-              v-model="settingsStore.filters.schwierigkeitsgrad"
-              :disabled="trainingStore.isGenerating"
-              class="select-input"
-            >
-              <option :value="undefined">Any difficulty</option>
-              <option
-                v-for="option in DIFFICULTY_OPTIONS"
-                :key="option.value"
-                :value="option.value"
+          <div class="settings-grid">
+            <!-- Difficulty Level -->
+            <div class="setting-group">
+              <label class="setting-label">Difficulty Level</label>
+              <select
+                v-model="settingsStore.filters.schwierigkeitsgrad"
+                :disabled="trainingStore.isGenerating"
+                class="select-input"
               >
-                {{ option.label }}
-              </option>
-            </select>
-            <p class="setting-help">Filter plans by swimmer experience level</p>
-          </div>
+                <option :value="undefined">Any difficulty</option>
+                <option
+                  v-for="option in DIFFICULTY_OPTIONS"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+              <p class="setting-help">Filter plans by swimmer experience level</p>
+            </div>
 
-          <!-- Training Type -->
-          <div class="setting-group">
-            <label class="setting-label">Training Type</label>
-            <select
-              v-model="settingsStore.filters.trainingstyp"
-              :disabled="trainingStore.isGenerating"
-              class="select-input"
-            >
-              <option :value="undefined">Any training type</option>
-              <option
-                v-for="option in TRAINING_TYPE_OPTIONS"
-                :key="option.value"
-                :value="option.value"
+            <!-- Training Type -->
+            <div class="setting-group">
+              <label class="setting-label">Training Type</label>
+              <select
+                v-model="settingsStore.filters.trainingstyp"
+                :disabled="trainingStore.isGenerating"
+                class="select-input"
               >
-                {{ option.label }}
-              </option>
-            </select>
-            <p class="setting-help">Filter plans by training focus and goals</p>
+                <option :value="undefined">Any training type</option>
+                <option
+                  v-for="option in TRAINING_TYPE_OPTIONS"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+              <p class="setting-help">Filter plans by training focus and goals</p>
+            </div>
           </div>
 
           <!-- Data Donation -->
@@ -333,6 +333,8 @@ function toggleAdvancedSettings() {
   font-size: 1rem;
   resize: vertical;
   min-height: 100px;
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
 .form-textarea:focus {
@@ -352,35 +354,6 @@ function toggleAdvancedSettings() {
   color: var(--color-text-light);
 }
 
-.toggle-settings-btn {
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-  color: var(--color-heading);
-}
-
-.toggle-settings-btn:hover {
-  background: var(--color-background-soft);
-}
-
-.advanced-settings {
-  background: var(--color-background);
-  padding: 1.5rem;
-  border-radius: 0.25rem;
-  border: 1px solid var(--color-border);
-  margin-bottom: 1.5rem;
-}
-
-.advanced-settings h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
 .form-actions {
   display: flex;
   flex-direction: column;
@@ -388,7 +361,7 @@ function toggleAdvancedSettings() {
 }
 
 .submit-btn {
-  background: var(--color-primary, #3b82f6);
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -400,7 +373,7 @@ function toggleAdvancedSettings() {
 }
 
 .submit-btn:hover:not(:disabled) .submit-btn.loading {
-  background: var(--color-primary-hover, #2563eb);
+  background: var(--color-primary-hover);
 }
 
 .submit-btn:disabled {
@@ -426,6 +399,28 @@ function toggleAdvancedSettings() {
   cursor: pointer;
   font-size: 1.25rem;
   line-height: 1;
+}
+
+.toggle-settings-btn {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  color: var(--color-heading);
+}
+
+.toggle-settings-btn:hover {
+  background: var(--color-background-soft);
+}
+
+.advanced-settings {
+  background: var(--color-background);
+  padding: 1.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-border);
+  margin-bottom: 1.5rem;
 }
 
 .settings-grid {
@@ -492,6 +487,7 @@ function toggleAdvancedSettings() {
   font-size: 0.9rem;
   background: var(--color-background);
   color: var(--color-text-light);
+  width: max-content;
 }
 
 .select-input:focus {

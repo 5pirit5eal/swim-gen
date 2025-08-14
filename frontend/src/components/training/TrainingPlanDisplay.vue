@@ -218,7 +218,7 @@ async function handleExport() {
 }
 
 .plan-header {
-  background: var(--color-primary, #3b82f6);
+  background: var(--color-primary);
   color: white;
   padding: 2rem;
   text-align: center;
@@ -387,7 +387,7 @@ async function handleExport() {
   border-radius: 50px;
   content: '';
   position: absolute;
-  background-color: var(--color-primary, #3b82f6);
+  background-color: var(--color-primary);
   left: 2px;
   top: 2px;
   bottom: 2px;
@@ -429,7 +429,7 @@ async function handleExport() {
 }
 
 .export-btn {
-  background: var(--color-primary, #3b82f6);
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 0.75rem 2rem;
@@ -442,7 +442,7 @@ async function handleExport() {
 }
 
 .export-btn:hover:not(:disabled) {
-  background: var(--color-primary-hover, #2563eb);
+  background: var(--color-primary-hover);
 }
 
 .export-btn:disabled {

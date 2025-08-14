@@ -4,7 +4,7 @@ import type { Filter } from '@/types'
 
 export const useSettingsStore = defineStore('settings', () => {
   // Existing settings
-  const dataDonationOptOut = ref(false)
+  const dataDonationOptOut = ref(true)
   const poolLength = ref<25 | 50>(25)
   const preferredMethod = ref<'choose' | 'generate'>('generate')
 
