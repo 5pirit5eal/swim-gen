@@ -41,7 +41,7 @@ import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
   backdrop-filter: blur(2px);
   border-radius: 8px;
   padding: 1rem;
-  /* margin: 1rem; */
+  margin: 2rem auto;
 }
 
 .hero h1 {
