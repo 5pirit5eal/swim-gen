@@ -40,7 +40,7 @@ function toggleAdvancedSettings() {
 </script>
 
 <template>
-  <div class="training-plan-form content-container">
+  <div class="training-plan-form">
     <form @submit.prevent="handleSubmit" class="form-container">
       <!-- Main text input -->
       <div class="form-group">
@@ -353,7 +353,7 @@ function toggleAdvancedSettings() {
 }
 
 .toggle-settings-btn {
-  background: none;
+  background: var(--color-background);
   border: 1px solid var(--color-border);
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
@@ -377,6 +377,8 @@ function toggleAdvancedSettings() {
 .advanced-settings h3 {
   margin: 0 0 1rem 0;
   font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .form-actions {
@@ -397,18 +399,13 @@ function toggleAdvancedSettings() {
   transition: background-color 0.2s;
 }
 
-.submit-btn:hover:not(:disabled) {
+.submit-btn:hover:not(:disabled) .submit-btn.loading {
   background: var(--color-primary-hover, #2563eb);
 }
 
 .submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.submit-btn.loading {
-  background: var(--color-text-light);
-  border-color: var(--color-border);
 }
 
 .error-message {
@@ -519,6 +516,7 @@ function toggleAdvancedSettings() {
 
 .clear-filters-btn:hover:not(:disabled) {
   background: var(--color-background);
+  color: var(--color-text-light);
 }
 
 .clear-filters-btn:disabled {

@@ -258,7 +258,7 @@ async function handleExport() {
 
 .exercise-table th {
   background: var(--color-border);
-  color: white;
+  color: var(--color-text);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -322,7 +322,7 @@ async function handleExport() {
 
 .total-row {
   background: var(--color-border) !important;
-  color: white;
+  color: var(--color-text) !important;
   font-weight: 700;
   font-size: 1rem;
 }
@@ -334,7 +334,10 @@ async function handleExport() {
 .summary-section {
   display: flex;
   justify-content: space-around;
-  padding: 1.5rem;
+  padding-bottom: 1rem;
+  padding-top: 0rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
   background: var(--color-background-soft);
   gap: 3rem;
 }
