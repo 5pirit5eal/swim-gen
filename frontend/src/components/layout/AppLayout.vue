@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import AppHeader from './AppHeader.vue'
+import AppHeader from './AppHeader.vue' // Necessary for v2
 import AppFooter from './AppFooter.vue'
 </script>
 
 <template>
   <div class="app-layout">
-    <AppHeader />
     <main class="main-content">
       <router-view />
     </main>
