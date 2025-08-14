@@ -57,10 +57,10 @@ npm run preview      # Preview production build locally
   - [x] ~~Configuration options for training parameters~~
   - [x] ~~Collapsible/expandable design~~
   - [x] ~~Form validation and default values~~
-- [ ] **Implement privacy settings controls**
-  - Data donation opt-out checkbox
-  - Clear privacy policy links
-  - User consent management
+- [x] ~~**Implement privacy settings controls**~~
+  - [x] ~~Data donation opt-out checkbox~~
+  - [x] ~~Clear privacy policy links~~
+  - [x] ~~User consent management~~
 
 ### 🏊 Training Plan Features
 
@@ -72,10 +72,10 @@ npm run preview      # Preview production build locally
   - [x] ~~Loading states during API calls~~
   - [x] ~~Error handling for failed requests~~
   - [x] ~~Success feedback and plan preview~~
-- [ ] **Add plan customization options**
-  - Edit generated plans before export
-  - Save draft functionality (local storage)
-  - Reset/regenerate options
+- [x] ~~**Add plan customization options**~~
+  - [x] ~~Edit generated plans before export~~
+  - [ ] Save draft functionality (local storage)
+  - [ ] Reset/regenerate options
 
 ### 🔌 Backend Integration
 
@@ -218,7 +218,7 @@ npm run preview      # Preview production build locally
 
 #### Core Features (Remaining)
 
-- **Privacy Settings Controls**: Data donation opt-out checkbox and consent management
+- None! All core V1 features have been implemented ✅
 
 ### 🔄 Remaining V1 Tasks
 
