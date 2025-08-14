@@ -8,7 +8,7 @@
     <div class="header-container">
       <div class="logo">
         <h1>Swim RAG</h1>
-        <span class="subtitle">Training Plan Generator</span>
+        <!-- <span class="subtitle">Training Plan Generator</span> -->
       </div>
 
       <!-- Navigation for future use (V2) -->

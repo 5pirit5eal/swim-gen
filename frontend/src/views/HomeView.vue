@@ -36,7 +36,12 @@ import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 
 .hero {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
+  background-color: var(--color-transparent);
+  backdrop-filter: blur(2px);
+  border-radius: 8px;
+  padding: 1rem;
+  /* margin: 1rem; */
 }
 
 .hero h1 {
@@ -47,7 +52,7 @@ import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 }
 
 .hero-description {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   color: var(--color-text-light);
   max-width: 600px;
   margin: 0 auto;
