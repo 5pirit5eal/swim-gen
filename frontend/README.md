@@ -222,10 +222,6 @@ npm run preview      # Preview production build locally
 
 ### 🔄 Remaining V1 Tasks
 
-#### Core Features
-
-- **Privacy Settings Controls**: Data donation opt-out checkbox and consent management
-
 #### Future Enhancements (V2 Scope)
 
 - **Plan Customization**: Edit generated plans before export, save drafts locally

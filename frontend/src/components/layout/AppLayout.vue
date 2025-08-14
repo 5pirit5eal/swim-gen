@@ -5,7 +5,7 @@ import AppFooter from './AppFooter.vue'
 
 <template>
   <div class="app-layout">
-    <AppHeader />
+    <!-- <AppHeader /> -->
     <main class="main-content">
       <router-view />
     </main>
@@ -22,6 +22,13 @@ import AppFooter from './AppFooter.vue'
 
 .main-content {
   flex: 1;
-  container-type: inline-size;
+  container-type: inherit;
+  padding: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding: 2rem;
+  }
 }
 </style>

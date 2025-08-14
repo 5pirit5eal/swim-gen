@@ -88,7 +88,7 @@ const showContact = () => {
 }
 
 .footer-container {
-  max-width: 1200px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 0 1rem;
 }
