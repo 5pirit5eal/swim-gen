@@ -98,15 +98,12 @@ npm run preview      # Preview production build locally
   - Store/state management tests
 - [ ] **Implement integration tests**
   - End-to-end user workflows
-  - API integration testing
-  - PDF export functionality tests
-- [ ] **Add accessibility testing and improvements**
-  - Screen reader compatibility
-  - Keyboard navigation support
-  - Color contrast and visual accessibility
 
 ### 🚀 Deployment & Production
 
+- [ ] **Production-Ready Content & Configuration**
+  - **Add icon and page name**
+  - **Translate page texts to german**
 - [ ] **Configure production build optimization**
   - Bundle size analysis and optimization
   - Asset optimization (images, fonts)
@@ -119,11 +116,7 @@ npm run preview      # Preview production build locally
   - Docker configuration
   - Static file serving
   - Health check endpoints
-- [ ] **Production-Ready Content & Configuration**
-  - **Update privacy policy contact email** (currently `privacy@swim-rag.com`)
-  - **Create full contact page/modal** (currently placeholder in footer)
-  - **Legal review of privacy policy and terms of service**
-  - **Configure real domain and SSL certificates**
+  - Cloud build files for pr-merge to main and release
 
 ### 📚 Documentation & Learning
 
