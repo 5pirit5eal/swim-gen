@@ -34,3 +34,7 @@ cloud-sql-proxy
 
 # third-party dependencies
 third-party/*
+
+# LLM files
+.clinerules
+.github/copilot-instructions*
