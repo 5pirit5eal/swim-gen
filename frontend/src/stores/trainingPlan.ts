@@ -11,7 +11,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Computed
   const hasPlan = computed(() => currentPlan.value !== null)
-  const isGenerating = computed(() => isLoading.value)
 
   // Actions
   async function generatePlan(request: QueryRequest): Promise<boolean> {
@@ -35,7 +34,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     console.log(`Updating row ${rowIndex}, field ${field} with value:`, value)
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       // Recalculate Sum if Amount or Distance changed
       if (field === 'Amount' || field === 'Distance') {
@@ -69,7 +68,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     error,
     // Computed
     hasPlan,
-    isGenerating,
     // Actions
     generatePlan,
     updatePlanRow,

@@ -14,8 +14,12 @@ const requestText = ref('')
 const showAdvancedSettings = ref(false)
 
 // Computed
-const isFormValid = computed(() => requestText.value.trim().length > 0)
-const canSubmit = computed(() => isFormValid.value && !trainingStore.isGenerating)
+const isFormValid = computed(() => {
+  const content = requestText.value.trim()
+  return content.length > 0 && content.length <= 3000
+})
+const tooMuchText = computed(() =>  requestText.value.trim().length > 3000)
+const canSubmit = computed(() => isFormValid.value && !trainingStore.isLoading)
 
 // Actions
 async function handleSubmit() {
@@ -51,7 +55,7 @@ function toggleAdvancedSettings() {
           class="form-textarea"
           placeholder="Example: I need a 45-minute freestyle endurance workout for an intermediate swimmer..."
           rows="4"
-          :disabled="trainingStore.isGenerating"
+          :disabled="trainingStore.isLoading"
         />
         <p class="form-hint">
           Be specific about your goals, experience level, time constraints, and preferences.
@@ -63,7 +67,7 @@ function toggleAdvancedSettings() {
         type="button"
         @click="toggleAdvancedSettings"
         class="toggle-settings-btn"
-        :disabled="trainingStore.isGenerating"
+        :disabled="trainingStore.isLoading"
       >
         {{ showAdvancedSettings ? 'Hide' : 'Show' }} Advanced Settings
       </button>
@@ -80,7 +84,7 @@ function toggleAdvancedSettings() {
                   type="radio"
                   value="generate"
                   v-model="settingsStore.preferredMethod"
-                  :disabled="trainingStore.isGenerating"
+                  :disabled="trainingStore.isLoading"
                 />
                 Generate new plan
               </label>
@@ -89,7 +93,7 @@ function toggleAdvancedSettings() {
                   type="radio"
                   value="choose"
                   v-model="settingsStore.preferredMethod"
-                  :disabled="trainingStore.isGenerating"
+                  :disabled="trainingStore.isLoading"
                 />
                 Choose existing plan
               </label>
@@ -108,7 +112,7 @@ function toggleAdvancedSettings() {
                   type="radio"
                   :value="25"
                   v-model.number="settingsStore.poolLength"
-                  :disabled="trainingStore.isGenerating"
+                  :disabled="trainingStore.isLoading"
                 />
                 25 meters
               </label>
@@ -117,7 +121,7 @@ function toggleAdvancedSettings() {
                   type="radio"
                   :value="50"
                   v-model.number="settingsStore.poolLength"
-                  :disabled="trainingStore.isGenerating"
+                  :disabled="trainingStore.isLoading"
                 />
                 50 meters
               </label>
@@ -139,7 +143,7 @@ function toggleAdvancedSettings() {
                       ($event.target as HTMLInputElement).checked ? true : undefined,
                     )
                   "
-                  :disabled="trainingStore.isGenerating"
+                  :disabled="trainingStore.isLoading"
                 />
                 Freestyle
               </label>
@@ -153,7 +157,7 @@ function toggleAdvancedSettings() {
                       ($event.target as HTMLInputElement).checked ? true : undefined,
                     )
                   "
-                  :disabled="trainingStore.isGenerating"
+                  :disabled="trainingStore.isLoading"
                 />
                 Breaststroke
               </label>
@@ -167,7 +171,7 @@ function toggleAdvancedSettings() {
                       ($event.target as HTMLInputElement).checked ? true : undefined,
                     )
                   "
-                  :disabled="trainingStore.isGenerating"
+                  :disabled="trainingStore.isLoading"
                 />
                 Backstroke
               </label>
@@ -181,7 +185,7 @@ function toggleAdvancedSettings() {
                       ($event.target as HTMLInputElement).checked ? true : undefined,
                     )
                   "
-                  :disabled="trainingStore.isGenerating"
+                  :disabled="trainingStore.isLoading"
                 />
                 Butterfly
               </label>
@@ -195,7 +199,7 @@ function toggleAdvancedSettings() {
                       ($event.target as HTMLInputElement).checked ? true : undefined,
                     )
                   "
-                  :disabled="trainingStore.isGenerating"
+                  :disabled="trainingStore.isLoading"
                 />
                 Individual Medley
               </label>
@@ -209,7 +213,7 @@ function toggleAdvancedSettings() {
               <label class="setting-label">Difficulty Level</label>
               <select
                 v-model="settingsStore.filters.schwierigkeitsgrad"
-                :disabled="trainingStore.isGenerating"
+                :disabled="trainingStore.isLoading"
                 class="select-input"
               >
                 <option :value="undefined">Any difficulty</option>
@@ -229,7 +233,7 @@ function toggleAdvancedSettings() {
               <label class="setting-label">Training Type</label>
               <select
                 v-model="settingsStore.filters.trainingstyp"
-                :disabled="trainingStore.isGenerating"
+                :disabled="trainingStore.isLoading"
                 class="select-input"
               >
                 <option :value="undefined">Any training type</option>
@@ -252,7 +256,7 @@ function toggleAdvancedSettings() {
               <input
                 type="checkbox"
                 v-model="settingsStore.dataDonationOptOut"
-                :disabled="trainingStore.isGenerating"
+                :disabled="trainingStore.isLoading"
               />
               Opt out of data donation
             </label>
@@ -266,7 +270,7 @@ function toggleAdvancedSettings() {
             <button
               type="button"
               @click="settingsStore.clearFilters"
-              :disabled="trainingStore.isGenerating"
+              :disabled="trainingStore.isLoading"
               class="clear-filters-btn"
             >
               Clear All Filters
@@ -282,10 +286,15 @@ function toggleAdvancedSettings() {
           type="submit"
           class="submit-btn"
           :disabled="!canSubmit"
-          :class="{ loading: trainingStore.isGenerating }"
+          :class="{ loading: trainingStore.isLoading }"
         >
-          {{ trainingStore.isGenerating ? 'Generating...' : 'Generate Training Plan' }}
+          {{ trainingStore.isLoading ? 'Generating...' : 'Generate Training Plan' }}
         </button>
+
+        <!-- Too much text error -->
+        <div v-if="tooMuchText" class="form-hint text-warning">
+          Your request is too long! Please limit it to 3000 characters.
+        </div>
 
         <!-- Error display -->
         <div v-if="trainingStore.error" class="error-message">
@@ -352,6 +361,11 @@ function toggleAdvancedSettings() {
   margin-top: 0.5rem;
   font-size: 0.875rem;
   color: var(--color-text-light);
+}
+
+.text-warning {
+  color: #dc2626;
+  font-weight: 600;
 }
 
 .form-actions {

@@ -65,7 +65,7 @@ async function handleExport() {
 
 <template>
   <div class="training-plan-display">
-    <div v-if="trainingStore.isGenerating" class="loading-state">
+    <div v-if="trainingStore.isLoading" class="loading-state">
       <div class="loading-spinner"></div>
       <p>Generating your training plan...</p>
     </div>
@@ -190,7 +190,7 @@ async function handleExport() {
       <p>No training plan generated yet. Use the form above to create one!</p>
     </div>
   </div>
-  <div v-if="trainingStore.hasPlan && trainingStore.currentPlan" class="export-section">
+  <div v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading" class="export-section">
     <!-- Edit Action -->
     <button @click="isEditing = !isEditing" class="export-btn">
       {{ isEditing ? 'Done Editing' : 'Refine Plan' }}
