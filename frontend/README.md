@@ -74,8 +74,6 @@ npm run preview      # Preview production build locally
   - [x] ~~Success feedback and plan preview~~
 - [x] ~~**Add plan customization options**~~
   - [x] ~~Edit generated plans before export~~
-  - [ ] Save draft functionality (local storage)
-  - [ ] Reset/regenerate options
 
 ### 🔌 Backend Integration
 
