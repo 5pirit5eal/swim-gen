@@ -1,0 +1,369 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "A REST API for swim training plan management with RAG capabilities",
+        "title": "Swim RAG API",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/add": {
+            "post": {
+                "description": "Upload and store a new swim training plan in the RAG system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Add a new training plan",
+                "parameters": [
+                    {
+                        "description": "Training plan data",
+                        "name": "plan",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DonatePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plan added successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/export-pdf": {
+            "post": {
+                "description": "Generate and download a PDF version of a training plan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "export"
+                ],
+                "summary": "Export training plan to PDF",
+                "parameters": [
+                    {
+                        "description": "Training plan data to export",
+                        "name": "plan",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PlanToPDFRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PDF export response with URI",
+                        "schema": {
+                            "$ref": "#/definitions/models.PlanToPDFResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Returns the health status of the API",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/query": {
+            "post": {
+                "description": "Query the RAG system for relevant training plans based on input",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "query"
+                ],
+                "summary": "Query training plans",
+                "parameters": [
+                    {
+                        "description": "Query parameters",
+                        "name": "query",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.QueryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Query results",
+                        "schema": {
+                            "$ref": "#/definitions/models.RAGResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/scrape": {
+            "get": {
+                "description": "Scrape and import training plans from external websites",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "scraping"
+                ],
+                "summary": "Scrape training plans from web",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "URL to scrape training plans from",
+                        "name": "url",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Scraping completed successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Missing url parameter",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.DonatePlanRequest": {
+            "description": "Request payload for donating a swim training plan to the system",
+            "type": "object",
+            "required": [
+                "table",
+                "user_id"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Advanced Freestyle Training"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "user123"
+                }
+            }
+        },
+        "models.PlanToPDFRequest": {
+            "description": "Request payload for exporting a training plan to PDF format",
+            "type": "object",
+            "required": [
+                "description",
+                "table",
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Advanced Freestyle Training"
+                }
+            }
+        },
+        "models.PlanToPDFResponse": {
+            "description": "Response containing the URI to the generated PDF file",
+            "type": "object",
+            "properties": {
+                "uri": {
+                    "type": "string",
+                    "example": "https://storage.googleapis.com/bucket/plans/plan_123.pdf"
+                }
+            }
+        },
+        "models.QueryRequest": {
+            "description": "Request payload for querying swim training plans from the RAG system",
+            "type": "object",
+            "required": [
+                "content"
+            ],
+            "properties": {
+                "content": {
+                    "description": "Content describes what kind of training plan is needed",
+                    "type": "string",
+                    "example": "I need a training plan for improving my freestyle technique"
+                },
+                "filter": {
+                    "description": "Filter allows filtering plans by metadata like difficulty or stroke type",
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "method": {
+                    "description": "Method can be either 'choose' (select existing plan) or 'generate' (create new plan)",
+                    "type": "string",
+                    "enum": [
+                        "choose",
+                        "generate"
+                    ],
+                    "example": "generate"
+                }
+            }
+        },
+        "models.RAGResponse": {
+            "description": "Response containing a generated or selected swim training plan",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Advanced Freestyle Training"
+                }
+            }
+        },
+        "models.Row": {
+            "description": "A single exercise entry with amount, distance, breaks, content, intensity and total volume",
+            "type": "object",
+            "properties": {
+                "Amount": {
+                    "type": "integer",
+                    "example": 4
+                },
+                "Break": {
+                    "type": "string",
+                    "example": "20"
+                },
+                "Content": {
+                    "type": "string",
+                    "example": "Freestyle swim"
+                },
+                "Distance": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "Intensity": {
+                    "type": "string",
+                    "example": "Easy"
+                },
+                "Multiplier": {
+                    "type": "string",
+                    "example": "x"
+                },
+                "Sum": {
+                    "type": "integer",
+                    "example": 400
+                }
+            }
+        }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
+    }
+}

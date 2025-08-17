@@ -28,8 +28,6 @@ go.work.sum
 .terraform.lock.hcl
 
 # Data files and other artifacts
-*.json
-*.html
 cloud-sql-proxy
 
 # third-party dependencies
