@@ -5,6 +5,8 @@
 
 // Export all training-related types (backend API structures)
 export type {
+  PromptGenerationRequest,
+  PromptGenerationResponse,
   Row,
   QueryRequest,
   RAGResponse,

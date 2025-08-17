@@ -74,4 +74,19 @@ describe('TrainingPlanForm.vue', () => {
     expect(submitButton.attributes('disabled')).toBeDefined()
     expect(textarea.attributes('disabled')).toBeDefined()
   })
+  it('disables the prompt generation button when generating', async () => {
+    const wrapper = mount(TrainingPlanForm)
+    const store = useTrainingPlanStore()
+
+    const promptButton = wrapper.find('.toggle-settings-btn')
+
+    // Initially, the button should be enabled
+    expect(promptButton.attributes('disabled')).toBeUndefined()
+
+    // Set isLoading to true to disable the button
+    store.isLoading = true
+    await wrapper.vm.$nextTick()
+
+    expect(promptButton.attributes('disabled')).toBeDefined()
+  })
 })

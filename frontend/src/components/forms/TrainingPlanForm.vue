@@ -2,7 +2,8 @@
 import { ref, computed } from 'vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useSettingsStore } from '@/stores/settings'
-import type { QueryRequest } from '@/types'
+import { apiClient } from '@/api/client'
+import type { QueryRequest, PromptGenerationRequest } from '@/types'
 import { DIFFICULTY_OPTIONS, TRAINING_TYPE_OPTIONS } from '@/types'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
 
@@ -14,13 +15,16 @@ const settingsStore = useSettingsStore()
 const requestText = ref('')
 const showAdvancedSettings = ref(false)
 
+// Loading state for prompt generation
+const generatingPrompt = ref(false)
+
 // Computed
 const isFormValid = computed(() => {
   const content = requestText.value.trim()
   return content.length > 0 && content.length <= 3000
 })
 const tooMuchText = computed(() => requestText.value.trim().length > 3000)
-const canSubmit = computed(() => isFormValid.value && !trainingStore.isLoading)
+const canSubmit = computed(() => isFormValid.value && !trainingStore.isLoading && !generatingPrompt.value)
 
 // Actions
 async function handleSubmit() {
@@ -41,6 +45,25 @@ async function handleSubmit() {
 
 function toggleAdvancedSettings() {
   showAdvancedSettings.value = !showAdvancedSettings.value
+}
+
+async function handlePromptGeneration() {
+  generatingPrompt.value = true
+  const promptRequest: PromptGenerationRequest = {
+    language: 'deutsch',
+  }
+
+  try {
+    const response = await apiClient.generatePrompt(promptRequest)
+    if (response.success) {
+      requestText.value = response.data?.prompt || ''
+    } else {
+      trainingStore.error = response.error?.message + (": " + (response.error?.details || "Unknown")) || 'Failed to generate prompt'
+    }
+  } catch (error) {
+    trainingStore.error = 'Failed to generate prompt with error: ' + (error instanceof Error ? error.message : 'Unknown error')
+  }
+  generatingPrompt.value = false
 }
 </script>
 
@@ -63,10 +86,19 @@ function toggleAdvancedSettings() {
       </div>
 
       <!-- Advanced settings toggle -->
-      <button type="button" @click="toggleAdvancedSettings" class="toggle-settings-btn"
-        :disabled="trainingStore.isLoading">
-        {{ showAdvancedSettings ? 'Hide' : 'Show' }} Advanced Settings
-      </button>
+      <div class="form-middle">
+        <button type="button" @click="toggleAdvancedSettings" class="toggle-settings-btn"
+          :disabled="trainingStore.isLoading">
+          {{ showAdvancedSettings ? 'Hide' : 'Show' }} Advanced Settings
+        </button>
+
+        <!-- Prompt generation button -->
+        <button type="button" @click="handlePromptGeneration" class="toggle-settings-btn"
+          :disabled="trainingStore.isLoading || generatingPrompt">
+          <div v-if="!generatingPrompt">I feel lucky</div>
+          <div v-else>Generating...</div>
+        </button>
+      </div>
 
       <!-- Advanced settings panel -->
       <div v-if="showAdvancedSettings" class="advanced-settings">
@@ -282,7 +314,7 @@ function toggleAdvancedSettings() {
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .form-label {
@@ -325,6 +357,12 @@ function toggleAdvancedSettings() {
 .text-warning {
   color: #dc2626;
   font-weight: 600;
+}
+
+.form-middle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .form-actions {
@@ -386,6 +424,11 @@ function toggleAdvancedSettings() {
 
 .toggle-settings-btn:hover {
   background: var(--color-background-soft);
+}
+
+.toggle-settings-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .advanced-settings {

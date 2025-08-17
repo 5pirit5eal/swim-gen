@@ -49,6 +49,9 @@ func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any,
 	if method == "generate" {
 		answer, err = db.Client.GeneratePlan(ctx, query, docs)
 	} else if method == "choose" {
+		if len(docs) == 0 {
+			return nil, fmt.Errorf("no documents in database matching query and filters")
+		}
 		planID, err := db.Client.ChoosePlan(ctx, query, docs)
 		if err != nil {
 			logger.Error("Error choosing plan", httplog.ErrAttr(err))

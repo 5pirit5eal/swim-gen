@@ -24,7 +24,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       isLoading.value = false
       return true
     } else {
-      error.value = result.error?.message || 'Failed to generate plan'
+      error.value = result.error?.message + (": " + (result.error?.details || "Unknown")) || 'Failed to generate plan'
       isLoading.value = false
       return false
     }

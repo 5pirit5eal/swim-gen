@@ -258,6 +258,8 @@ async function handleExport() {
   color: white;
   padding: 2rem;
   text-align: center;
+  border-top-right-radius: 0.5rem;
+  border-top-left-radius: 0.5rem;
 }
 
 .plan-title {
@@ -381,6 +383,8 @@ async function handleExport() {
   padding-right: 1rem;
   background: var(--color-background-soft);
   gap: 3rem;
+  border-bottom-right-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
 }
 
 .summary-item {

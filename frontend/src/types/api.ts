@@ -27,11 +27,12 @@ export type HealthCheckResponse = string
 
 // API endpoints enum for type safety
 export enum ApiEndpoints {
-  HEALTH = '/health',
-  QUERY = '/query',
-  EXPORT_PDF = '/export-pdf',
-  ADD_PLAN = '/add',
-  SCRAPE = '/scrape',
+  HEALTH = 'health',
+  PROMPT = 'prompt',
+  QUERY = 'query',
+  EXPORT_PDF = 'export-pdf',
+  ADD_PLAN = 'add',
+  SCRAPE = 'scrape',
 }
 
 // Form validation types

@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils'
 import App from '@/App.vue'
 import { apiClient } from '@/api/client'
 import type { Mock } from 'vitest'
-import type { QueryRequest, RAGResponse, ApiResult } from '@/types'
+import type { RAGResponse, ApiResult } from '@/types'
 import router from '@/router' // Import the router instance
 
 // Mock the apiClient module for integration tests

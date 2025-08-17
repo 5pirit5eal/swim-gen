@@ -54,6 +54,13 @@ variable "model" {
   description = "The model name"
   type        = string
 }
+
+variable "small_model" {
+  description = "The small model name"
+  type        = string
+  default     = "gemini-2.5-flash-lite"
+}
+
 variable "embedding_name" {
   description = "The embedding name"
   type        = string

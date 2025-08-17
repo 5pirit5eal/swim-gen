@@ -10,7 +10,7 @@ steps:
   # Run tests
   - name: golang:1.24
     entrypoint: /bin/bash
-    args: 
+    args:
       - -c
       - |
         go install github.com/jstemmer/go-junit-report/v2@latest
@@ -27,6 +27,7 @@ options:
     - "PROJECT_ID=${_PROJECT_ID}"
     - "REGION=${_REGION}"
     - "MODEL=${_MODEL}"
+    - "SMALL_MODEL=${_SMALL_MODEL}"
     - "EMBEDDING_NAME=${_EMBEDDING_NAME}"
     - "EMBEDDING_MODEL=${_EMBEDDING_MODEL}"
     - "EMBEDDING_SIZE=${_EMBEDDING_SIZE}"

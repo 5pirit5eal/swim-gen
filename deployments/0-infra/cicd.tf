@@ -3,6 +3,7 @@ locals {
     _PROJECT_ID       = var.project_id
     _REGION           = var.region
     _MODEL            = var.model
+    _SMALL_MODEL      = var.small_model
     _EMBEDDING_NAME   = var.embedding_name
     _EMBEDDING_MODEL  = var.embedding_model
     _EMBEDDING_SIZE   = var.embedding_size
@@ -22,6 +23,18 @@ locals {
     _SERVICE_TIMEOUT  = var.service_timeout
     _LOG_LEVEL        = var.log_level
     _SWIM_RAG_API_URL = var.backend_url
+  }
+  frontend_env_variables = {
+    _PROJECT_ID      = var.project_id
+    _REGION          = var.region
+    _MODEL           = var.model
+    _SMALL_MODEL     = var.small_model
+    _EMBEDDING_NAME  = var.embedding_name
+    _EMBEDDING_MODEL = var.embedding_model
+    _EMBEDDING_SIZE  = var.embedding_size
+    _PORT            = var.port
+    _LOG_LEVEL       = var.log_level
+    _BUCKET_NAME     = google_storage_bucket.exported_pdfs.name
   }
 }
 
@@ -180,4 +193,54 @@ resource "google_cloudbuild_trigger" "swim_rag_backend_release" {
   tags = ["backend", "PR", "swim-rag", "main"]
 
   filename = "backend/release.cloudbuild.yaml"
+}
+
+# cloud build triggers for frontend server
+# cloud build triggers for backend server
+resource "google_cloudbuild_trigger" "swim_rag_frontend_pr_main" {
+  name               = "swim-rag-frontend-pr-main"
+  description        = "Trigger for swim-rag PR to main branch"
+  service_account    = google_service_account.cloud_build_sa.id
+  location           = "europe-west1"
+  include_build_logs = "INCLUDE_BUILD_LOGS_WITH_STATUS"
+
+  repository_event_config {
+    repository = google_cloudbuildv2_repository.swim_rag.id
+    pull_request {
+      branch = "main"
+    }
+  }
+
+  included_files = ["frontend/**"]
+
+  substitutions = local.frontend_env_variables
+  tags          = ["frontend", "PR", "swim-rag", "main"]
+
+  filename = "frontend/main-pr.cloudbuild.yaml"
+}
+
+resource "google_cloudbuild_trigger" "swim_rag_frontend_release" {
+  name               = "swim-rag-frontend-release"
+  description        = "Trigger for swim-rag release from main branch"
+  service_account    = google_service_account.cloud_build_sa.id
+  location           = "europe-west1"
+  include_build_logs = "INCLUDE_BUILD_LOGS_WITH_STATUS"
+
+  repository_event_config {
+    repository = google_cloudbuildv2_repository.swim_rag.id
+    push {
+      branch = "main"
+    }
+  }
+
+  included_files = ["frontend/**"]
+
+  substitutions = merge(local.frontend_env_variables, {
+    _AR_REPO_NAME    = google_artifact_registry_repository.docker.name
+    _SERVICE_ACCOUNT = google_service_account.cloud_run_sa.email
+  })
+
+  tags = ["frontend", "PR", "swim-rag", "main"]
+
+  filename = "frontend/release.cloudbuild.yaml"
 }

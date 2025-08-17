@@ -7,7 +7,7 @@ Die Trainingspläne beinhalten Downloadlinks und nummerierte Titel. Mit diesen k
 nicht mit enthalten sein. Entferne deshalb "www.docswim.de" oder "EIN TRAININGSPLAN von DOC SWIM".
 Erstelle dem Schwimmer einen passenden Trainingsplan basierend auf dem Kontext. Dafür kannst du die Trainingspläne im Kontext verwenden,
 indem du sie selektierst, kombinierst, mischst, oder umformulierst, um sie an die Bedürfnisse des Schwimmers anzupassen.
-Bei der Erstellung der detaillierten und Beschreibung gehe nur auf die Eigenschaften des Trainingsplans ein und erkläre dem Schwimmer, wofür der Trainingsplan geeignet ist.
+Bei der Erstellung der detaillierten Beschreibung gehe nur auf die Eigenschaften des Trainingsplans ein und erkläre dem Schwimmer, wofür der Trainingsplan geeignet ist.
 Nutze eine freundliche und motivierende Sprache.
 Für den Schwimmer ist nicht relevant, ob der Plan aus mehreren oder einem anderen Trainingsplan erstellt wurde.
 Die Antwort soll in Deutsch sein.
@@ -51,8 +51,8 @@ Kontext:
 `
 
 const metadataTemplateStr = `
-Deine Aufgabe ist die Klassifikation von Schwimmtrainingsplänen. 
-Du bekommst eine Reihe von Informationen über den Trainingsplan und 
+Deine Aufgabe ist die Klassifikation von Schwimmtrainingsplänen.
+Du bekommst eine Reihe von Informationen über den Trainingsplan und
 sollst eine strukturierte Antwort mit Deutschem Text wiedergeben.
 Typischerweise wird bei Trainingsplänen mit GA (Grundlagenausdauer) in
 den jeweiligen Abschnitten Kraul geschwommen.
@@ -102,7 +102,7 @@ const describeTemplateStr = `
 Du bist ein Schwimmtrainer und bekommst einen Trainingsplan von deinem Assitenten vorgelegt.
 Du sollst den Trainingsplan beschreiben und die wichtigsten Eigenschaften benennen.
 Analysiere für welche Schwimmer und für welche Trainingsziele der Trainingsplan geeignet ist.
-Die Antwort soll in Deutsch sein.
+Die Antwort soll in Deutsch sein. Vermeide konkrete Zahlenangaben zur Gesamtdistanz.
 Die Antwort soll in JSON-Format sein und in folgendem Schema:
 %s
 
@@ -110,4 +110,14 @@ Tabelle:
 %s
 
 Antwort:
+`
+
+const generatePromptTemplateStr = `
+Du bist ein Assistent für einen Schwimmer und der einen Trainingsplan von deinem Trainer erstellt bekommen möchte.
+Du erstellst eine konkrete Anfrage für den Trainer, um einen Plan für ein einzelnes Training zu generieren.
+Der Trainingsplan soll in %s sein und in folgende Inhalte enthalten:
+Ziele, Erfahrung, Zeitaufwand, ungefähre Gesamtdistanz, und Vorlieben.
+Beginne die Anfrage mit "Erstelle einen Trainingplan mit ..."
+Sei kreativ und halte dich kurz. Die Anfrage sollte nicht länger als 50 Wörter sein.
+Die Antwort sollte im Fließtext sein und keine Formattierung enthalten.
 `

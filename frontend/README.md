@@ -46,10 +46,10 @@ npm run preview      # Preview production build locally
 - [x] ~~Implement footer with privacy/legal links~~
 - [x] ~~Set up CSS design system (colors, typography, spacing)~~
 - [x] ~~Create loading states and error handling UI patterns~~
-- [ ] Implement tooltips as hoverabel question mark icon
-- [ ] Add "i feel lucky" button right of the advanced settings button
+- [x] ~~~Implement tooltips as hoverabel question mark icon~~
+- [x] ~~Add "i feel lucky" button right of the advanced settings button~~
 - [ ] Add icon and page name
-- [ ] Translate page texts to germa and implement multi-language in prep for v2**
+- [ ] Translate page texts to german and implement multi-language in prep for v2**
 
 ### 📝 Core Input Components
 
@@ -96,12 +96,12 @@ npm run preview      # Preview production build locally
 
 ### 🧪 Testing & Quality Assurance
 
-- [ ] **Write unit tests for core components**
-  - Input form validation tests
-  - Plan display component tests
-  - Store/state management tests
-- [ ] **Implement integration tests**
-  - End-to-end user workflows
+- [x] ~~Write unit tests for core components~~
+  - [x] ~~Input form validation tests~~
+  - [x] ~~Plan display component tests~~
+  - [x] ~~Store/state management tests~~
+- [x] ~~Implement integration tests~~
+  - [x] ~~End-to-end user workflows~~
 
 ### 🚀 Deployment & Production
 
