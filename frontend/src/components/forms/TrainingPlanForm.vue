@@ -4,7 +4,7 @@ import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useSettingsStore } from '@/stores/settings'
 import type { QueryRequest } from '@/types'
 import { DIFFICULTY_OPTIONS, TRAINING_TYPE_OPTIONS } from '@/types'
-import TooltipIcon from '@/components/icons/TooltipIcon.vue'
+import BaseTooltip from '@/components/ui/BaseTooltip.vue'
 
 // Store access
 const trainingStore = useTrainingPlanStore()
@@ -51,11 +51,11 @@ function toggleAdvancedSettings() {
       <div class="form-group">
         <label for="request-text" class="form-label">
           Describe your training needs
-          <TooltipIcon>
+          <BaseTooltip>
             <template #tooltip>
               Be specific about your goals, experience level, time constraints, and preferences.
             </template>
-          </TooltipIcon>
+          </BaseTooltip>
         </label>
         <textarea id="request-text" v-model="requestText" class="form-textarea"
           placeholder="Example: I need a 45-minute freestyle endurance workout for an intermediate swimmer..." rows="4"
@@ -129,9 +129,9 @@ function toggleAdvancedSettings() {
           <div class="setting-group">
             <label class="setting-label">
               Swimming Strokes
-              <TooltipIcon>
+              <BaseTooltip>
                 <template #tooltip>Select specific swimming strokes to focus on</template>
-              </TooltipIcon>
+              </BaseTooltip>
             </label>
             <div class="checkbox-group">
               <label class="checkbox-option">
@@ -187,9 +187,9 @@ function toggleAdvancedSettings() {
             <div class="setting-group">
               <label class="setting-label">
                 Difficulty Level
-                <TooltipIcon>
+                <BaseTooltip>
                   <template #tooltip>Filter plans by swimmer experience level</template>
-                </TooltipIcon>
+                </BaseTooltip>
               </label>
               <select v-model="settingsStore.filters.schwierigkeitsgrad" :disabled="trainingStore.isLoading"
                 class="select-input">
@@ -204,9 +204,9 @@ function toggleAdvancedSettings() {
             <div class="setting-group">
               <label class="setting-label">
                 Training Type
-                <TooltipIcon>
+                <BaseTooltip>
                   <template #tooltip>Filter plans by training focus and goals</template>
-                </TooltipIcon>
+                </BaseTooltip>
               </label>
               <select v-model="settingsStore.filters.trainingstyp" :disabled="trainingStore.isLoading"
                 class="select-input">

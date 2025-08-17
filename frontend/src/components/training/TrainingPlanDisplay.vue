@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useExportStore } from '@/stores/export'
 import type { PlanToPDFRequest, Row } from '@/types'
-import TooltipIcon from '@/components/icons/TooltipIcon.vue'
+import BaseTooltip from '@/components/ui/BaseTooltip.vue'
 
 const trainingStore = useTrainingPlanStore()
 
@@ -86,32 +86,32 @@ async function handleExport() {
             <tr>
               <th>
                 Amount
-                <TooltipIcon>
+                <BaseTooltip>
                   <template #tooltip>
                     Number of repetitions for the exercise.
                   </template>
-                </TooltipIcon>
+                </BaseTooltip>
               </th>
               <th></th>
               <th>
                 Distance (m)
-                <TooltipIcon>
+                <BaseTooltip>
                   <template #tooltip>
                     Distance in meters for each repetition.
                   </template>
-                </TooltipIcon>
+                </BaseTooltip>
               </th>
               <th>
                 Break
-                <TooltipIcon>
+                <BaseTooltip>
                   <template #tooltip>
                     Rest period between repetitions or sets.
                   </template>
-                </TooltipIcon>
+                </BaseTooltip>
               </th>
               <th>
                 Content
-                <TooltipIcon>
+                <BaseTooltip>
                   <template #tooltip>
                     <p>Common abbreviations for swimming strokes and techniques:</p>
                     <ul>
@@ -123,11 +123,11 @@ async function handleExport() {
                       <li><strong>Lagen:</strong> Lagenstaffel (Individual Medley)</li>
                     </ul>
                   </template>
-                </TooltipIcon>
+                </BaseTooltip>
               </th>
               <th>
                 Intensity
-                <TooltipIcon>
+                <BaseTooltip>
                   <template #tooltip>
                     <p>Common swimming intensity abbreviations:</p>
                     <ul>
@@ -146,15 +146,15 @@ async function handleExport() {
                       <li><strong>ReKom:</strong> Recovery</li>
                     </ul>
                   </template>
-                </TooltipIcon>
+                </BaseTooltip>
               </th>
               <th>
                 Total (m)
-                <TooltipIcon>
+                <BaseTooltip>
                   <template #tooltip>
                     Total distance in meters for the exercise set.
                   </template>
-                </TooltipIcon>
+                </BaseTooltip>
               </th>
             </tr>
           </thead>
@@ -250,7 +250,7 @@ async function handleExport() {
   background: var(--color-background);
   border-radius: 0.5rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .plan-header {
@@ -273,7 +273,6 @@ async function handleExport() {
 }
 
 .table-container {
-  overflow-x: auto;
   padding: 1.5rem;
   background: var(--color-background-soft);
 }
@@ -295,10 +294,15 @@ async function handleExport() {
 .exercise-table th {
   background: var(--color-border);
   color: var(--color-text);
+  /* Use flexbox for alignment */
+  align-items: center;
+  /* Horizontally center items */
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-size: 0.8rem;
+  white-space: nowrap;
+  /* Prevent text from wrapping */
 }
 
 .exercise-table td>span,
