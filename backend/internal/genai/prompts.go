@@ -8,7 +8,7 @@ nicht mit enthalten sein. Entferne deshalb "www.docswim.de" oder "EIN TRAININGSP
 Erstelle dem Schwimmer einen passenden Trainingsplan basierend auf dem Kontext. Dafür kannst du die Trainingspläne im Kontext verwenden,
 indem du sie selektierst, kombinierst, mischst, oder umformulierst, um sie an die Bedürfnisse des Schwimmers anzupassen.
 Bei der Erstellung der detaillierten Beschreibung gehe nur auf die Eigenschaften des Trainingsplans ein und erkläre dem Schwimmer, wofür der Trainingsplan geeignet ist.
-Nutze eine freundliche und motivierende Sprache.
+Nutze eine freundliche und motivierende Sprache. Grüße nicht den Schwimmer.
 Für den Schwimmer ist nicht relevant, ob der Plan aus mehreren oder einem anderen Trainingsplan erstellt wurde.
 Die Antwort soll in Deutsch sein.
 Die Antwort soll in JSON-Format sein.
@@ -43,6 +43,7 @@ Die Antwort soll in JSON-Format sein.
 }
 
 Die Antwort soll keine Fragen enthalten und auch nicht die Anweisung wiederholen.
+Grüße nicht den Schwimmer, sondern beschreibe einfach den Trainingplan.
 
 Frage:
 %s
