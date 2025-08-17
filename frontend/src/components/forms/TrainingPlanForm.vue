@@ -6,10 +6,14 @@ import { apiClient } from '@/api/client'
 import type { QueryRequest, PromptGenerationRequest } from '@/types'
 import { DIFFICULTY_OPTIONS, TRAINING_TYPE_OPTIONS } from '@/types'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
+import { useI18n } from 'vue-i18n'
 
 // Store access
 const trainingStore = useTrainingPlanStore()
 const settingsStore = useSettingsStore()
+
+// i18n
+const { t, locale } = useI18n()
 
 // Form data
 const requestText = ref('')
@@ -50,7 +54,7 @@ function toggleAdvancedSettings() {
 async function handlePromptGeneration() {
   generatingPrompt.value = true
   const promptRequest: PromptGenerationRequest = {
-    language: 'deutsch',
+    language: locale.value, // Use current locale
   }
 
   try {
@@ -58,10 +62,10 @@ async function handlePromptGeneration() {
     if (response.success) {
       requestText.value = response.data?.prompt || ''
     } else {
-      trainingStore.error = response.error?.message + (": " + (response.error?.details || "Unknown")) || 'Failed to generate prompt'
+      trainingStore.error = response.error?.message + (": " + (response.error?.details || "Unknown")) || t('form.failed_to_generate_prompt')
     }
   } catch (error) {
-    trainingStore.error = 'Failed to generate prompt with error: ' + (error instanceof Error ? error.message : 'Unknown error')
+    trainingStore.error = t('form.failed_to_generate_prompt_with_error') + (error instanceof Error ? error.message : 'Unknown error')
   }
   generatingPrompt.value = false
 }
@@ -73,30 +77,29 @@ async function handlePromptGeneration() {
       <!-- Main text input -->
       <div class="form-group">
         <label for="request-text" class="form-label">
-          Describe your training needs
+          {{ t('form.describe_training_needs') }}
           <BaseTooltip>
             <template #tooltip>
-              Be specific about your goals, experience level, time constraints, and preferences.
+              {{ t('form.describe_training_needs_tooltip') }}
             </template>
           </BaseTooltip>
         </label>
         <textarea id="request-text" v-model="requestText" class="form-textarea"
-          placeholder="Example: I need a 45-minute freestyle endurance workout for an intermediate swimmer..." rows="4"
-          :disabled="trainingStore.isLoading" />
+          :placeholder="t('form.example_placeholder')" rows="4" :disabled="trainingStore.isLoading" />
       </div>
 
       <!-- Advanced settings toggle -->
       <div class="form-middle">
         <button type="button" @click="toggleAdvancedSettings" class="toggle-settings-btn"
           :disabled="trainingStore.isLoading">
-          {{ showAdvancedSettings ? 'Hide' : 'Show' }} Advanced Settings
+          {{ showAdvancedSettings ? t('form.hide_advanced_settings') : t('form.show_advanced_settings') }}
         </button>
 
         <!-- Prompt generation button -->
         <button type="button" @click="handlePromptGeneration" class="toggle-settings-btn"
           :disabled="trainingStore.isLoading || generatingPrompt">
-          <div v-if="!generatingPrompt">I feel lucky</div>
-          <div v-else>Generating...</div>
+          <div v-if="!generatingPrompt">{{ t('form.i_feel_lucky') }}</div>
+          <div v-else>{{ t('form.generating') }}</div>
         </button>
       </div>
 
@@ -160,9 +163,11 @@ async function handlePromptGeneration() {
           <!-- Swimming Strokes Filter -->
           <div class="setting-group">
             <label class="setting-label">
-              Swimming Strokes
+              {{ t('form.swimming_strokes') }}
               <BaseTooltip>
-                <template #tooltip>Select specific swimming strokes to focus on</template>
+                <template #tooltip>
+                  {{ t('form.swimming_strokes_tooltip') }}
+                </template>
               </BaseTooltip>
             </label>
             <div class="checkbox-group">
@@ -173,7 +178,7 @@ async function handlePromptGeneration() {
                     ($event.target as HTMLInputElement).checked ? true : undefined,
                   )
                   " :disabled="trainingStore.isLoading" />
-                Freestyle
+                {{ t('form.freestyle') }}
               </label>
               <label class="checkbox-option">
                 <input type="checkbox" :checked="settingsStore.filters.brust === true" @change="
@@ -182,7 +187,7 @@ async function handlePromptGeneration() {
                     ($event.target as HTMLInputElement).checked ? true : undefined,
                   )
                   " :disabled="trainingStore.isLoading" />
-                Breaststroke
+                {{ t('form.breaststroke') }}
               </label>
               <label class="checkbox-option">
                 <input type="checkbox" :checked="settingsStore.filters.ruecken === true" @change="
@@ -191,7 +196,7 @@ async function handlePromptGeneration() {
                     ($event.target as HTMLInputElement).checked ? true : undefined,
                   )
                   " :disabled="trainingStore.isLoading" />
-                Backstroke
+                {{ t('form.backstroke') }}
               </label>
               <label class="checkbox-option">
                 <input type="checkbox" :checked="settingsStore.filters.delfin === true" @change="
@@ -200,7 +205,7 @@ async function handlePromptGeneration() {
                     ($event.target as HTMLInputElement).checked ? true : undefined,
                   )
                   " :disabled="trainingStore.isLoading" />
-                Butterfly
+                {{ t('form.butterfly') }}
               </label>
               <label class="checkbox-option">
                 <input type="checkbox" :checked="settingsStore.filters.lagen === true" @change="
@@ -209,7 +214,7 @@ async function handlePromptGeneration() {
                     ($event.target as HTMLInputElement).checked ? true : undefined,
                   )
                   " :disabled="trainingStore.isLoading" />
-                Individual Medley
+                {{ t('form.individual_medley') }}
               </label>
             </div>
           </div>
@@ -218,16 +223,18 @@ async function handlePromptGeneration() {
             <!-- Difficulty Level -->
             <div class="setting-group">
               <label class="setting-label">
-                Difficulty Level
+                {{ t('form.difficulty_level') }}
                 <BaseTooltip>
-                  <template #tooltip>Filter plans by swimmer experience level</template>
+                  <template #tooltip>
+                    {{ t('form.difficulty_level_tooltip') }}
+                  </template>
                 </BaseTooltip>
               </label>
               <select v-model="settingsStore.filters.schwierigkeitsgrad" :disabled="trainingStore.isLoading"
                 class="select-input">
-                <option :value="undefined">Any difficulty</option>
+                <option :value="undefined">{{ t('form.any_difficulty') }}</option>
                 <option v-for="option in DIFFICULTY_OPTIONS" :key="option.value" :value="option.value">
-                  {{ option.label }}
+                  {{ t(option.label) }}
                 </option>
               </select>
             </div>
@@ -235,16 +242,18 @@ async function handlePromptGeneration() {
             <!-- Training Type -->
             <div class="setting-group">
               <label class="setting-label">
-                Training Type
+                {{ t('form.training_type') }}
                 <BaseTooltip>
-                  <template #tooltip>Filter plans by training focus and goals</template>
+                  <template #tooltip>
+                    {{ t('form.training_type_tooltip') }}
+                  </template>
                 </BaseTooltip>
               </label>
               <select v-model="settingsStore.filters.trainingstyp" :disabled="trainingStore.isLoading"
                 class="select-input">
-                <option :value="undefined">Any training type</option>
+                <option :value="undefined">{{ t('form.any_training_type') }}</option>
                 <option v-for="option in TRAINING_TYPE_OPTIONS" :key="option.value" :value="option.value">
-                  {{ option.label }}
+                  {{ t(option.label) }}
                 </option>
               </select>
             </div>
@@ -270,7 +279,7 @@ async function handlePromptGeneration() {
           <div class="setting-group">
             <button type="button" @click="settingsStore.clearFilters" :disabled="trainingStore.isLoading"
               class="clear-filters-btn">
-              Clear All Filters
+              {{ t('form.clear_all_filters') }}
             </button>
           </div>
         </div>
@@ -279,12 +288,12 @@ async function handlePromptGeneration() {
       <!-- Submit button and status -->
       <div class="form-actions">
         <button type="submit" class="submit-btn" :disabled="!canSubmit" :class="{ loading: trainingStore.isLoading }">
-          {{ trainingStore.isLoading ? 'Generating...' : 'Generate Training Plan' }}
+          {{ trainingStore.isLoading ? t('form.generating_plan') : t('form.generate_training_plan') }}
         </button>
 
         <!-- Too much text error -->
         <div v-if="tooMuchText" class="form-hint text-warning">
-          Your request is too long! Please limit it to 3000 characters.
+          {{ t('form.request_too_long') }}
         </div>
 
         <!-- Error display -->

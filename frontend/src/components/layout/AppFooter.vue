@@ -3,11 +3,15 @@ import BaseModal from '@/components/ui/BaseModal.vue'
 import PrivacyPolicy from '../legal/PrivacyPolicy.vue'
 import TermsOfService from '../legal/TermsOfService.vue'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
 // Footer component with privacy links and legal information
 // Handlers for modal dialogs will be implemented when needed
 
 const showPrivacyPolicyModal = ref(false)
 const showTermsOfServiceModal = ref(false)
+
+const { t } = useI18n()
 
 const showTerms = () => {
   showTermsOfServiceModal.value = true
@@ -29,50 +33,52 @@ const showContact = () => {
     <div class="footer-container">
       <div class="footer-content">
         <div class="footer-section">
-          <h3>Swim RAG</h3>
-          <p>AI-powered training plan generator for swimmers and triathletes.</p>
+          <h3>{{ t('app.name') }}</h3>
+          <p>{{ t('app.slogan') }}</p>
         </div>
 
         <div class="footer-section">
-          <h4>Privacy & Legal</h4>
+          <h4>{{ t('footer.privacy_legal') }}</h4>
           <ul class="footer-links">
             <li>
-              <a href="#privacy" id="privacy-policy" @click="showPrivacyPolicyModal = true"
-                >Privacy Policy</a
-              >
+              <a href="#privacy" id="privacy-policy" @click="showPrivacyPolicyModal = true">{{
+                t('footer.privacy_policy') }}</a>
             </li>
-            <li><a href="#terms" @click.prevent="showTerms">Terms of Service</a></li>
-            <li><a href="#impressum" @click.prevent="showImpressum">Impressum</a></li>
+            <li><a href="#terms" @click.prevent="showTerms">{{ t('footer.terms_of_service') }}</a></li>
+            <li><a href="#impressum" @click.prevent="showImpressum">{{ t('footer.impressum') }}</a></li>
           </ul>
         </div>
 
         <div class="footer-section">
-          <h4>About</h4>
+          <h4>{{ t('footer.about') }}</h4>
           <ul class="footer-links">
-            <li><a href="#contact" @click.prevent="showContact">Contact</a></li>
+            <li><a href="#contact" @click.prevent="showContact">{{ t('footer.contact') }}</a></li>
             <li>
-              <a href="https://github.com/5pirit5eal/swim-rag" target="_blank" rel="noopener"
-                >GitHub</a
-              >
+              <a href="https://github.com/5pirit5eal/swim-rag" target="_blank" rel="noopener">{{ t('footer.github')
+                }}</a>
             </li>
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <p>&copy; 2025 Swim RAG. Built with Vue.js and TypeScript.</p>
+        <p>{{ t('footer.copyright') }}</p>
       </div>
     </div>
   </footer>
   <BaseModal :show="showPrivacyPolicyModal" @close="showPrivacyPolicyModal = false">
-    <template #header><h1>Privacy Policy</h1></template>
+    <template #header>
+      <h1>{{ t('footer.privacy_policy') }}</h1>
+    </template>
     <template #body>
       <PrivacyPolicy />
     </template>
   </BaseModal>
 
   <BaseModal :show="showTermsOfServiceModal" @close="showTermsOfServiceModal = false">
-    <template #header><h1>Terms of Service</h1></template>
+    <template #header>
+      <h1>{{ t('footer.terms_of_service') }}</h1>
+    </template>
     <template #body>
       <TermsOfService />
     </template>

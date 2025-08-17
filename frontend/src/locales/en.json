@@ -1,0 +1,92 @@
+{
+  "app": {
+    "name": "Swim RAG",
+    "slogan": "AI-powered training plan generator for swimmers and triathletes.",
+    "hero_title": "AI-Powered Swimming Training Plans",
+    "hero_description": "Generate personalized training plans for swimmers, triathletes, and coaches. Just describe what you're looking for, and our AI will create a custom plan for you."
+  },
+  "header": {
+    "home": "Home",
+    "about": "About"
+  },
+  "footer": {
+    "privacy_legal": "Privacy & Legal",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Terms of Service",
+    "impressum": "Impressum",
+    "about": "About",
+    "contact": "Contact",
+    "github": "GitHub",
+    "copyright": "© 2025 Swim RAG. Built with Vue.js and TypeScript."
+  },
+  "form": {
+    "describe_training_needs": "Describe your training needs",
+    "describe_training_needs_tooltip": "Be specific about your goals, experience level, time constraints, and preferences.",
+    "example_placeholder": "Example: I need a 45-minute freestyle endurance workout for an intermediate swimmer...",
+    "show_advanced_settings": "Show Advanced Settings",
+    "hide_advanced_settings": "Hide Advanced Settings",
+    "i_feel_lucky": "I feel lucky",
+    "generating": "Generating...",
+    "swimming_strokes": "Swimming Strokes",
+    "swimming_strokes_tooltip": "Select specific swimming strokes to focus on",
+    "freestyle": "Freestyle",
+    "breaststroke": "Breaststroke",
+    "backstroke": "Backstroke",
+    "butterfly": "Butterfly",
+    "individual_medley": "Individual Medley",
+    "difficulty_level": "Difficulty Level",
+    "difficulty_level_tooltip": "Filter plans by swimmer experience level",
+    "any_difficulty": "Any difficulty",
+    "training_type": "Training Type",
+    "training_type_tooltip": "Filter plans by training focus and goals",
+    "any_training_type": "Any training type",
+    "clear_all_filters": "Clear All Filters",
+    "generate_training_plan": "Generate Training Plan",
+    "generating_plan": "Generating...",
+    "request_too_long": "Your request is too long! Please limit it to 3000 characters.",
+    "failed_to_generate_prompt": "Failed to generate prompt",
+    "failed_to_generate_prompt_with_error": "Failed to generate prompt with error: "
+  },
+  "display": {
+    "generating_plan_message": "Generating your training plan...",
+    "amount": "Amount",
+    "amount_tooltip": "Number of repetitions for the exercise.",
+    "distance": "Distance (m)",
+    "distance_tooltip": "Distance in meters for each repetition.",
+    "break": "Break",
+    "break_tooltip": "Rest period between repetitions or sets.",
+    "content": "Content",
+    "content_tooltip": {
+      "title": "Common abbreviations for swimming strokes and techniques:",
+      "freestyle": "K, Kr, Freistil, F, Fr: Kraulschwimmen (Freestyle)",
+      "backstroke": "R: Rückenschwimmen (Backstroke)",
+      "breaststroke": "B, Br: Brustschwimmen (Breaststroke)",
+      "leg_work": "Be: Beinarbeit (Leg work)",
+      "butterfly": "S, D: Schmetterling/Delfinschwimmen (Butterfly)",
+      "individual_medley": "Lagen: Lagenstaffel (Individual Medley)"
+    },
+    "intensity": "Intensity",
+    "intensity_tooltip": {
+      "title": "Common swimming intensity abbreviations:",
+      "ga": "GA: Grundlagenausdauer (Basic Endurance) - categorized as:",
+      "ga1": "GA1: Normal intensity",
+      "ga1_2": "GA1-2: Slightly increased intensity",
+      "ga2": "GA2: Brisk intensity",
+      "sa": "SA: Schnelligkeitsausdauer (Speed Endurance)",
+      "ta": "TA: Technikausdauer (Technique Endurance)",
+      "tue": "TÜ: Technische Übung (Technical Drill)",
+      "ts": "TS: Technisch Sauber (Technically Clean)",
+      "sprint": "S: Sprint",
+      "recovery": "ReKom: Recovery"
+    },
+    "total": "Total (m)",
+    "total_tooltip": "Total distance in meters for the exercise set.",
+    "meters_total": "Meters Total",
+    "exercise_sets": "Exercise Sets",
+    "no_plan_yet": "No training plan generated yet. Use the form above to create one!",
+    "done_editing": "Done Editing",
+    "refine_plan": "Refine Plan",
+    "export_pdf": "Export PDF",
+    "exporting": "Exporting..."
+  }
+}

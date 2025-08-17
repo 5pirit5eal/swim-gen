@@ -84,19 +84,19 @@ export interface Filter {
 
 // Helper type for difficulty options
 export const DIFFICULTY_OPTIONS = [
-  { value: 'Anfaenger', label: 'Beginner' },
-  { value: 'Fortgeschritten', label: 'Intermediate' },
-  { value: 'Leistungsschwimmer', label: 'Competitive Swimmer' },
+  { value: 'Anfaenger', label: 'form.difficulty_beginner' },
+  { value: 'Fortgeschritten', label: 'form.difficulty_advanced' },
+  { value: 'Leistungsschwimmer', label: 'form.difficulty_competitive_swimmer' },
 ] as const
 
 // Helper type for training type options
 export const TRAINING_TYPE_OPTIONS = [
-  { value: 'Techniktraining', label: 'Technique Training' },
-  { value: 'Leistungstest', label: 'Performance Test' },
-  { value: 'Grundlagenausdauer', label: 'Base Endurance' },
-  { value: 'Recovery', label: 'Recovery' },
-  { value: 'Kurzstrecken', label: 'Sprint' },
-  { value: 'Langstrecken', label: 'Distance' },
-  { value: 'Atemmangel', label: 'Breath Control' },
-  { value: 'Wettkampfvorbereitung', label: 'Race Preparation' },
+  { value: 'Techniktraining', label: 'form.training_type_technique_training' },
+  { value: 'Leistungstest', label: 'form.training_type_performance_test' },
+  { value: 'Grundlagenausdauer', label: 'form.training_type_base_endurance' },
+  { value: 'Recovery', label: 'form.training_type_recovery' },
+  { value: 'Kurzstrecken', label: 'form.training_type_sprint' },
+  { value: 'Langstrecken', label: 'form.training_type_distance' },
+  { value: 'Atemmangel', label: 'form.training_type_breath_control' },
+  { value: 'Wettkampfvorbereitung', label: 'form.training_type_race_preparation' },
 ] as const

@@ -48,8 +48,8 @@ npm run preview      # Preview production build locally
 - [x] ~~Create loading states and error handling UI patterns~~
 - [x] ~~~Implement tooltips as hoverabel question mark icon~~
 - [x] ~~Add "i feel lucky" button right of the advanced settings button~~
-- [x] Add icon and page name
-- [ ] Translate page texts to german and implement multi-language in prep for v2**
+- [x] ~~Add icon and page name~~
+- [x] Translate page texts to german and implement multi-language in prep for v2**
 
 ### 📝 Core Input Components
 

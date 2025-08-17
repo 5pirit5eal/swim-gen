@@ -4,10 +4,11 @@ import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useExportStore } from '@/stores/export'
 import type { PlanToPDFRequest, Row } from '@/types'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
+import { useI18n } from 'vue-i18n'
 
 const trainingStore = useTrainingPlanStore()
-
 const exportStore = useExportStore()
+const { t } = useI18n()
 
 // Ref to track editing state
 const isEditing = ref(false)
@@ -68,7 +69,7 @@ async function handleExport() {
   <div class="training-plan-display">
     <div v-if="trainingStore.isLoading" class="loading-state">
       <div class="loading-spinner"></div>
-      <p>Generating your training plan...</p>
+      <p>{{ t('display.generating_plan_message') }}</p>
     </div>
     <div v-else-if="trainingStore.hasPlan && trainingStore.currentPlan" class="plan-container">
       <!-- Header -->
@@ -85,74 +86,74 @@ async function handleExport() {
           <thead>
             <tr>
               <th>
-                Amount
+                {{ t('display.amount') }}
                 <BaseTooltip>
                   <template #tooltip>
-                    Number of repetitions for the exercise.
+                    {{ t('display.amount_tooltip') }}
                   </template>
                 </BaseTooltip>
               </th>
               <th></th>
               <th>
-                Distance (m)
+                {{ t('display.distance') }}
                 <BaseTooltip>
                   <template #tooltip>
-                    Distance in meters for each repetition.
+                    {{ t('display.distance_tooltip') }}
                   </template>
                 </BaseTooltip>
               </th>
               <th>
-                Break
+                {{ t('display.break') }}
                 <BaseTooltip>
                   <template #tooltip>
-                    Rest period between repetitions or sets.
+                    {{ t('display.break_tooltip') }}
                   </template>
                 </BaseTooltip>
               </th>
               <th>
-                Content
+                {{ t('display.content') }}
                 <BaseTooltip>
                   <template #tooltip>
-                    <p>Common abbreviations for swimming strokes and techniques:</p>
+                    <p>{{ t('display.content_tooltip.title') }}</p>
                     <ul>
-                      <li><strong>K, Kr, Freistil, F, Fr:</strong> Kraulschwimmen (Freestyle)</li>
-                      <li><strong>R:</strong> Rückenschwimmen (Backstroke)</li>
-                      <li><strong>B, Br:</strong> Brustschwimmen (Breaststroke)</li>
-                      <li><strong>Be:</strong> Beinarbeit (Leg work)</li>
-                      <li><strong>S, D:</strong> Schmetterling/Delfinschwimmen (Butterfly)</li>
-                      <li><strong>Lagen:</strong> Lagenstaffel (Individual Medley)</li>
+                      <li><strong>{{ t('display.content_tooltip.freestyle') }}</strong></li>
+                      <li><strong>{{ t('display.content_tooltip.backstroke') }}</strong></li>
+                      <li><strong>{{ t('display.content_tooltip.breaststroke') }}</strong></li>
+                      <li><strong>{{ t('display.content_tooltip.leg_work') }}</strong></li>
+                      <li><strong>{{ t('display.content_tooltip.butterfly') }}</strong></li>
+                      <li><strong>{{ t('display.content_tooltip.individual_medley') }}</strong></li>
                     </ul>
                   </template>
                 </BaseTooltip>
               </th>
               <th>
-                Intensity
+                {{ t('display.intensity') }}
                 <BaseTooltip>
                   <template #tooltip>
-                    <p>Common swimming intensity abbreviations:</p>
+                    <p>{{ t('display.intensity_tooltip.title') }}</p>
                     <ul>
-                      <li><strong>GA:</strong> Grundlagenausdauer (Basic Endurance) - categorized as:
+                      <li><strong>{{ t('display.intensity_tooltip.ga') }}</strong>
                         <ul>
-                          <li><strong>GA1:</strong> Normal intensity</li>
-                          <li><strong>GA1-2:</strong> Slightly increased intensity</li>
-                          <li><strong>GA2:</strong> Brisk intensity</li>
+                          <li><strong>{{ t('display.intensity_tooltip.ga1') }}</strong></li>
+                          <li><strong>{{ t('display.intensity_tooltip.ga1_2') }}</strong></li>
+                          <li><strong>{{ t('display.intensity_tooltip.ga2') }}</strong></li>
                         </ul>
                       </li>
-                      <li><strong>SA:</strong> Schnelligkeitsausdauer (Speed Endurance)</li>
-                      <li><strong>TA:</strong> Technikausdauer (Technique Endurance)</li>
-                      <li><strong>TÜ:</strong> Technische Übung (Technical Drill)</li>
-                      <li><strong>TS:</strong> Technisch Sauber (Technically Clean)</li>
-                      <li><strong>S:</strong> Sprint</li>
-                      <li><strong>ReKom:</strong> Recovery</li>
+                      <li><strong>{{ t('display.intensity_tooltip.sa') }}</strong></li>
+                      <li><strong>{{ t('display.intensity_tooltip.ta') }}</strong></li>
+                      <li><strong>{{ t('display.intensity_tooltip.tue') }}</strong></li>
+                      <li><strong>{{ t('display.intensity_tooltip.ts') }}</strong></li>
+                      <li><strong>{{ t('display.intensity_tooltip.sprint') }}</strong></li>
+                      <li><strong>{{ t('display.intensity_tooltip.recovery') }}</strong></li>
                     </ul>
                   </template>
                 </BaseTooltip>
               </th>
               <th>
-                Total (m)
+                {{ t('display.total') }}
                 <BaseTooltip>
                   <template #tooltip>
-                    Total distance in meters for the exercise set.
+                    {{ t('display.total_tooltip') }}
                   </template>
                 </BaseTooltip>
               </th>
@@ -213,27 +214,27 @@ async function handleExport() {
       <div class="summary-section">
         <div class="summary-item">
           <div class="summary-value">{{ totalRow?.Sum || 0 }}</div>
-          <div class="summary-label">Meters Total</div>
+          <div class="summary-label">{{ t('display.meters_total') }}</div>
         </div>
         <div class="summary-item">
           <div class="summary-value">{{ totalExercises }}</div>
-          <div class="summary-label">Exercise Sets</div>
+          <div class="summary-label">{{ t('display.exercise_sets') }}</div>
         </div>
       </div>
     </div>
 
     <div v-else class="no-plan">
-      <p>No training plan generated yet. Use the form above to create one!</p>
+      <p>{{ t('display.no_plan_yet') }}</p>
     </div>
   </div>
   <div v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading" class="export-section">
     <!-- Edit Action -->
     <button @click="isEditing = !isEditing" class="export-btn">
-      {{ isEditing ? 'Done Editing' : 'Refine Plan' }}
+      {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
     </button>
     <!-- Export Action -->
     <button @click="handleExport" class="export-btn" :disabled="exportStore.isExporting">
-      {{ exportStore.isExporting ? 'Exporting...' : 'Export PDF' }}
+      {{ exportStore.isExporting ? t('display.exporting') : t('display.export_pdf') }}
     </button>
   </div>
 </template>

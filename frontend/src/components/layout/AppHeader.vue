@@ -1,20 +1,23 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 // Header component for the swim training plan generator
 // Currently minimal for V1 (single page), expandable for V2
+
+const { t } = useI18n()
 </script>
 
 <template>
   <header class="app-header">
     <div class="header-container">
       <div class="logo">
-        <h1>Swim RAG</h1>
+        <h1>{{ t('app.name') }}</h1>
         <!-- <span class="subtitle">Training Plan Generator</span> -->
       </div>
 
       <!-- Navigation for future use (V2) -->
       <nav class="navigation" v-if="false">
-        <router-link to="/" class="nav-link">Home</router-link>
-        <router-link to="/about" class="nav-link">About</router-link>
+        <router-link to="/" class="nav-link">{{ t('header.home') }}</router-link>
+        <router-link to="/about" class="nav-link">{{ t('header.about') }}</router-link>
       </nav>
     </div>
   </header>

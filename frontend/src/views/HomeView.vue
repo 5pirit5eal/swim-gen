@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import TrainingPlanForm from '@/components/forms/TrainingPlanForm.vue'
 import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
+import { useI18n } from 'vue-i18n'
+// Header component for the swim training plan generator
+// Currently minimal for V1 (single page), expandable for V2
+
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="home-view">
     <div class="container">
       <section class="hero">
-        <h1>AI-Powered Swimming Training Plans</h1>
+        <h1>{{ t('app.hero_title') }}</h1>
         <p class="hero-description">
-          Generate personalized training plans for swimmers, triathletes, and coaches. Just describe
-          what you're looking for, and our AI will create a custom plan for you.
+          {{ t('app.hero_description') }}
         </p>
       </section>
 
