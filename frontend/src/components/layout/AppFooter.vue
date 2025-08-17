@@ -13,10 +13,6 @@ const showTermsOfServiceModal = ref(false)
 
 const { t } = useI18n()
 
-const showTerms = () => {
-  showTermsOfServiceModal.value = true
-}
-
 const showImpressum = () => {
   // TODO: Implement impressum modal/page (required for German/EU law)
   console.log('Impressum clicked')
@@ -44,7 +40,7 @@ const showContact = () => {
               <a href="#privacy" id="privacy-policy" @click="showPrivacyPolicyModal = true">{{
                 t('footer.privacy_policy') }}</a>
             </li>
-            <li><a href="#terms" @click.prevent="showTerms">{{ t('footer.terms_of_service') }}</a></li>
+            <li><a href="#terms" @click="showTermsOfServiceModal = true">{{ t('footer.terms_of_service') }}</a></li>
             <li><a href="#impressum" @click.prevent="showImpressum">{{ t('footer.impressum') }}</a></li>
           </ul>
         </div>

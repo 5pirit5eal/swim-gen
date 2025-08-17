@@ -1,215 +1,73 @@
 <template>
   <div class="privacy-policy">
     <section class="intro">
-      <p class="last-updated"><strong>Last Updated:</strong> August 13, 2025</p>
-      <p>
-        This Privacy Policy explains how Swim RAG ("we," "our," or "us") handles your personal
-        information when you use our AI-powered training plan generator. We are committed to
-        protecting your privacy and have designed our application with privacy-by-design principles.
-      </p>
+      <p class="last-updated"><strong>{{ $t('privacy_policy.last_updated') }}</strong></p>
+      <p>{{ $t('privacy_policy.intro') }}</p>
     </section>
 
     <section>
-      <h3>1. Privacy-by-Design Approach</h3>
-      <p>
-        <strong>Swim RAG is designed to protect your privacy from the ground up.</strong> Currently,
-        our application operates anonymously and does not collect, store, or process any personal
-        data. You can use our service without creating an account, providing personal information,
-        or being tracked.
-      </p>
+      <h3>{{ $t('privacy_policy.privacy_by_design_title') }}</h3>
+      <p>{{ $t('privacy_policy.privacy_by_design') }}</p>
     </section>
 
     <section>
-      <h3>2. Information We Currently Collect</h3>
-      <p>
-        <strong>Personal Data:</strong> None. We do not collect names, email addresses, or any
-        personally identifiable information.
-      </p>
-      <p><strong>Account Data:</strong> None. No user accounts or authentication is required.</p>
-      <p>
-        <strong>Training Data:</strong> Your training plan requests and generated plans are
-        processed temporarily to provide the service but are not stored or associated with you
-        personally.
-      </p>
+      <h3>{{ $t('privacy_policy.info_we_collect_title') }}</h3>
+      <p>{{ $t('privacy_policy.info_we_collect') }}</p>
     </section>
 
     <section>
-      <h3>3. Technical Information</h3>
-      <p>To provide our service, we may temporarily process:</p>
-      <ul>
-        <li>
-          <strong>Training Requests:</strong> The text you submit to generate training plans
-          (processed and discarded)
-        </li>
-        <li>
-          <strong>Session Data:</strong> Temporary browser session information required for
-          functionality
-        </li>
-        <li>
-          <strong>Server Logs:</strong> Basic technical logs for system maintenance (no personal
-          identification)
-        </li>
-      </ul>
-      <p>
-        This technical data is not linked to your identity and cannot be used to identify you
-        personally.
-      </p>
+      <h3>{{ $t('privacy_policy.technical_info_title') }}</h3>
+      <p>{{ $t('privacy_policy.technical_info') }}</p>
     </section>
 
     <section>
-      <h3>4. Cookies and Tracking</h3>
-      <p>
-        <strong>No Tracking:</strong> We do not use tracking cookies, analytics cookies, or
-        marketing cookies.
-      </p>
-      <p>
-        <strong>Essential Cookies Only:</strong> We may use strictly necessary technical cookies for
-        basic functionality (such as maintaining your session), but these do not track or identify
-        you.
-      </p>
+      <h3>{{ $t('privacy_policy.cookies_title') }}</h3>
+      <p>{{ $t('privacy_policy.cookies') }}</p>
     </section>
 
     <section>
-      <h3>5. Future Data Donation (Optional)</h3>
-      <p>
-        In future versions, we may offer an <strong>optional data donation feature</strong> to help
-        improve our application. This will be:
-      </p>
-      <ul>
-        <li><strong>Completely voluntary</strong> - Opt-in only, never enabled by default</li>
-        <li><strong>Transparent</strong> - Clear explanation of what data would be shared</li>
-        <li><strong>Revocable</strong> - You can withdraw consent at any time</li>
-        <li>
-          <strong>Anonymized</strong> - Data will be anonymized before being used for improvements
-        </li>
-      </ul>
-      <p>Until such a feature is implemented, no data donation occurs.</p>
+      <h3>{{ $t('privacy_policy.future_data_donation_title') }}</h3>
+      <p>{{ $t('privacy_policy.future_data_donation') }}</p>
     </section>
 
     <section>
-      <h3>6. Third-Party Services</h3>
-      <p>
-        <strong>Backend API:</strong> We use our own backend service to process training plan
-        generation. This service operates under the same privacy-by-design principles.
-      </p>
-      <p>
-        <strong>No External Analytics:</strong> We do not use Google Analytics, Facebook Pixel, or
-        similar tracking services.
-      </p>
-      <p>
-        <strong>No Social Media Integration:</strong> We do not integrate with social media
-        platforms that could track you.
-      </p>
+      <h3>{{ $t('privacy_policy.third_party_title') }}</h3>
+      <p>{{ $t('privacy_policy.third_party') }}</p>
     </section>
 
     <section>
-      <h3>7. Your Rights Under GDPR</h3>
-      <p>Even though we collect minimal data, you have the following rights:</p>
-      <ul>
-        <li>
-          <strong>Right to Access:</strong> Request information about any personal data we hold
-        </li>
-        <li><strong>Right to Rectification:</strong> Correct any inaccurate personal data</li>
-        <li><strong>Right to Erasure:</strong> Request deletion of your personal data</li>
-        <li><strong>Right to Restriction:</strong> Limit how your personal data is processed</li>
-        <li>
-          <strong>Right to Data Portability:</strong> Receive your personal data in a portable
-          format
-        </li>
-        <li><strong>Right to Object:</strong> Object to processing of your personal data</li>
-        <li>
-          <strong>Right to Withdraw Consent:</strong> Withdraw consent for any future data
-          processing
-        </li>
-      </ul>
-      <p>
-        Since we currently collect no personal data, most of these rights are not applicable, but
-        they will apply if you choose to use future optional features.
-      </p>
+      <h3>{{ $t('privacy_policy.gdpr_rights_title') }}</h3>
+      <p>{{ $t('privacy_policy.gdpr_rights') }}</p>
     </section>
 
     <section>
-      <h3>8. Data Security</h3>
-      <p>
-        We implement appropriate technical and organizational security measures to protect any data
-        we process:
-      </p>
-      <ul>
-        <li><strong>Encryption:</strong> All data transmission is encrypted using HTTPS</li>
-        <li>
-          <strong>No Data Storage:</strong> Personal data is not stored, eliminating most security
-          risks
-        </li>
-        <li><strong>Secure Infrastructure:</strong> Our systems follow security best practices</li>
-        <li><strong>Regular Updates:</strong> We keep our systems updated with security patches</li>
-      </ul>
+      <h3>{{ $t('privacy_policy.data_security_title') }}</h3>
+      <p>{{ $t('privacy_policy.data_security') }}</p>
     </section>
 
     <section>
-      <h3>9. International Data Transfers</h3>
-      <p>
-        Since we do not collect personal data, there are currently no international data transfers
-        of personal information. If this changes in the future, we will ensure appropriate
-        safeguards are in place and update this policy accordingly. Data is processed within the
-        European Union (EU) to comply with GDPR requirements.
-      </p>
+      <h3>{{ $t('privacy_policy.intl_data_transfers_title') }}</h3>
+      <p>{{ $t('privacy_policy.intl_data_transfers') }}</p>
     </section>
 
     <section>
-      <h3>10. Children's Privacy</h3>
-      <p>
-        Our service is not specifically directed at children under 16. Since we do not collect
-        personal data, we do not knowingly collect information from children.
-      </p>
+      <h3>{{ $t('privacy_policy.children_title') }}</h3>
+      <p>{{ $t('privacy_policy.children') }}</p>
     </section>
 
     <section>
-      <h3>11. Changes to This Privacy Policy</h3>
-      <p>
-        We may update this Privacy Policy to reflect changes in our practices or for legal
-        compliance. When we make changes:
-      </p>
-      <ul>
-        <li>We will update the "Last Updated" date at the top of this policy</li>
-        <li>Significant changes will be prominently displayed in the application</li>
-        <li>For major changes affecting your rights, we may provide additional notice</li>
-      </ul>
-      <p>
-        We encourage you to review this policy periodically to stay informed about how we protect
-        your privacy.
-      </p>
+      <h3>{{ $t('privacy_policy.changes_title') }}</h3>
+      <p>{{ $t('privacy_policy.changes') }}</p>
     </section>
 
     <section class="contact">
-      <h3>12. Contact Information</h3>
-      <p>
-        If you have any questions about this Privacy Policy or our privacy practices, please contact
-        us:
-      </p>
-      <ul>
-        <li><strong>Email:</strong> privacy@swim-rag.com</li>
-        <li>
-          <strong>GitHub:</strong>
-          <a href="https://github.com/5pirit5eal/swim-rag" target="_blank" rel="noopener"
-            >https://github.com/5pirit5eal/swim-rag</a
-          >
-        </li>
-      </ul>
-      <p>
-        <strong>Data Protection Inquiries:</strong> For specific data protection questions or to
-        exercise your rights under GDPR, please use the email address above with the subject line
-        "Data Protection Inquiry."
-      </p>
+      <h3>{{ $t('privacy_policy.contact_title') }}</h3>
+      <p>{{ $t('privacy_policy.contact') }}</p>
     </section>
 
     <section class="commitment">
-      <h3>13. Our Privacy Commitment</h3>
-      <p>
-        Swim RAG is committed to being a privacy-respecting application. We believe that powerful AI
-        tools for swimmers and triathletes can be provided without compromising your privacy. Our
-        goal is to prove that useful applications can operate with minimal data collection while
-        still providing excellent user experiences.
-      </p>
+      <h3>{{ $t('privacy_policy.commitment_title') }}</h3>
+      <p>{{ $t('privacy_policy.commitment') }}</p>
     </section>
   </div>
 </template>
@@ -233,7 +91,7 @@
   margin-bottom: 1.5rem;
 }
 
-.privacy-policy section + section {
+.privacy-policy section+section {
   margin-top: 1.5rem;
 }
 
@@ -274,11 +132,9 @@
 }
 
 .privacy-policy .commitment {
-  background: linear-gradient(
-    135deg,
-    var(--color-background-soft, #f8f9fa) 0%,
-    var(--color-background, #ffffff) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--color-background-soft, #f8f9fa) 0%,
+      var(--color-background, #ffffff) 100%);
   padding: 1.5rem;
   border-radius: 0.5rem;
   margin-top: 2rem;

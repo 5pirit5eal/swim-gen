@@ -1,5 +1,5 @@
 /**
- * API Client for Swim RAG Backend
+ * API Client for Swim Gen/RAG Backend
  * Handles HTTP requests with proper TypeScript typing
  */
 
