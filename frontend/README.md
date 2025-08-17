@@ -44,8 +44,12 @@ npm run preview      # Preview production build locally
 - [x] ~~Create main application layout component~~
 - [x] ~~Design responsive header with navigation~~
 - [x] ~~Implement footer with privacy/legal links~~
-- [x] ~~**Set up CSS design system (colors, typography, spacing)**~~
-- [x] ~~**Create loading states and error handling UI patterns**~~
+- [x] ~~Set up CSS design system (colors, typography, spacing)~~
+- [x] ~~Create loading states and error handling UI patterns~~
+- [ ] Implement tooltips as hoverabel question mark icon
+- [ ] Add "i feel lucky" button right of the advanced settings button
+- [ ] Add icon and page name
+- [ ] Translate page texts to germa and implement multi-language in prep for v2**
 
 ### 📝 Core Input Components
 
@@ -101,9 +105,6 @@ npm run preview      # Preview production build locally
 
 ### 🚀 Deployment & Production
 
-- [ ] **Production-Ready Content & Configuration**
-  - **Add icon and page name**
-  - **Translate page texts to german**
 - [ ] **Configure production build optimization**
   - Bundle size analysis and optimization
   - Asset optimization (images, fonts)
