@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useExportStore } from '@/stores/export'
 import type { PlanToPDFRequest, Row } from '@/types'
+import TooltipIcon from '@/components/icons/TooltipIcon.vue'
 
 const trainingStore = useTrainingPlanStore()
 
@@ -83,79 +84,114 @@ async function handleExport() {
         <table class="exercise-table">
           <thead>
             <tr>
-              <th>Amount</th>
+              <th>
+                Amount
+                <TooltipIcon>
+                  <template #tooltip>
+                    Number of repetitions for the exercise.
+                  </template>
+                </TooltipIcon>
+              </th>
               <th></th>
-              <th>Distance (m)</th>
-              <th>Break</th>
-              <th>Content</th>
-              <th>Intensity</th>
-              <th>Total (m)</th>
+              <th>
+                Distance (m)
+                <TooltipIcon>
+                  <template #tooltip>
+                    Distance in meters for each repetition.
+                  </template>
+                </TooltipIcon>
+              </th>
+              <th>
+                Break
+                <TooltipIcon>
+                  <template #tooltip>
+                    Rest period between repetitions or sets.
+                  </template>
+                </TooltipIcon>
+              </th>
+              <th>
+                Content
+                <TooltipIcon>
+                  <template #tooltip>
+                    <p>Common abbreviations for swimming strokes and techniques:</p>
+                    <ul>
+                      <li><strong>K, Kr, Freistil, F, Fr:</strong> Kraulschwimmen (Freestyle)</li>
+                      <li><strong>R:</strong> Rückenschwimmen (Backstroke)</li>
+                      <li><strong>B, Br:</strong> Brustschwimmen (Breaststroke)</li>
+                      <li><strong>Be:</strong> Beinarbeit (Leg work)</li>
+                      <li><strong>S, D:</strong> Schmetterling/Delfinschwimmen (Butterfly)</li>
+                      <li><strong>Lagen:</strong> Lagenstaffel (Individual Medley)</li>
+                    </ul>
+                  </template>
+                </TooltipIcon>
+              </th>
+              <th>
+                Intensity
+                <TooltipIcon>
+                  <template #tooltip>
+                    <p>Common swimming intensity abbreviations:</p>
+                    <ul>
+                      <li><strong>GA:</strong> Grundlagenausdauer (Basic Endurance) - categorized as:
+                        <ul>
+                          <li><strong>GA1:</strong> Normal intensity</li>
+                          <li><strong>GA1-2:</strong> Slightly increased intensity</li>
+                          <li><strong>GA2:</strong> Brisk intensity</li>
+                        </ul>
+                      </li>
+                      <li><strong>SA:</strong> Schnelligkeitsausdauer (Speed Endurance)</li>
+                      <li><strong>TA:</strong> Technikausdauer (Technique Endurance)</li>
+                      <li><strong>TÜ:</strong> Technische Übung (Technical Drill)</li>
+                      <li><strong>TS:</strong> Technisch Sauber (Technically Clean)</li>
+                      <li><strong>S:</strong> Sprint</li>
+                      <li><strong>ReKom:</strong> Recovery</li>
+                    </ul>
+                  </template>
+                </TooltipIcon>
+              </th>
+              <th>
+                Total (m)
+                <TooltipIcon>
+                  <template #tooltip>
+                    Total distance in meters for the exercise set.
+                  </template>
+                </TooltipIcon>
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(row, index) in exerciseRows" :key="index" class="exercise-row">
               <!-- Amount Cell -->
               <td @click="startEditing(index, 'Amount')">
-                <input
-                  type="number"
-                  min="0"
-                  v-if="isEditing"
-                  :value="row.Amount"
-                  @blur="stopEditing($event, index, 'Amount')"
-                  @keyup.enter="stopEditing($event, index, 'Amount')"
-                  class="editable-small"
-                />
+                <input type="number" min="0" v-if="isEditing" :value="row.Amount"
+                  @blur="stopEditing($event, index, 'Amount')" @keyup.enter="stopEditing($event, index, 'Amount')"
+                  class="editable-small" />
                 <span v-else>{{ row.Amount }}</span>
               </td>
               <td>{{ row.Multiplier }}</td>
               <!-- Distance Cell -->
               <td @click="startEditing(index, 'Distance')">
-                <input
-                  type="number"
-                  min="0"
-                  max="100000"
-                  step="25"
-                  v-if="isEditing"
-                  :value="row.Distance"
-                  @blur="stopEditing($event, index, 'Distance')"
-                  @keyup.enter="stopEditing($event, index, 'Distance')"
-                  class="editable-small"
-                />
+                <input type="number" min="0" max="100000" step="25" v-if="isEditing" :value="row.Distance"
+                  @blur="stopEditing($event, index, 'Distance')" @keyup.enter="stopEditing($event, index, 'Distance')"
+                  class="editable-small" />
                 <span v-else>{{ row.Distance }}</span>
               </td>
               <!-- Intensity Cell -->
               <td @click="startEditing(index, 'Break')">
-                <input
-                  type="text"
-                  v-if="isEditing"
-                  :value="row.Break"
-                  @blur="stopEditing($event, index, 'Break')"
-                  @keyup.enter="stopEditing($event, index, 'Break')"
-                  class="editable-small"
-                />
+                <input type="text" v-if="isEditing" :value="row.Break" @blur="stopEditing($event, index, 'Break')"
+                  @keyup.enter="stopEditing($event, index, 'Break')" class="editable-small" />
                 <span v-else>{{ row.Break }}</span>
               </td>
               <!-- Content Cell -->
               <td class="content-cell" @click="startEditing(index, 'Content')">
-                <textarea
-                  v-if="isEditing"
-                  :value="row.Content"
-                  @blur="stopEditing($event, index, 'Content')"
-                  @keyup.enter="stopEditing($event, index, 'Content')"
-                  class="editable-area"
-                ></textarea>
+                <textarea v-if="isEditing" :value="row.Content" @blur="stopEditing($event, index, 'Content')"
+                  @keyup.enter="stopEditing($event, index, 'Content')" class="editable-area"></textarea>
                 <span v-else>{{ row.Content }}</span>
               </td>
               <!-- Intensity Cell -->
               <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                <input
-                  type="text"
-                  v-if="isEditing"
-                  :value="row.Intensity"
-                  @blur="stopEditing($event, index, 'Intensity')"
-                  @keyup.enter="stopEditing($event, index, 'Intensity')"
-                  class="editable-small"
-                />
+                <input type="text" v-if="isEditing" :value="row.Intensity"
+                  @blur="stopEditing($event, index, 'Intensity')" @keyup.enter="stopEditing($event, index, 'Intensity')"
+                  class="editable-small" />
                 <span v-else>{{ row.Intensity }}</span>
               </td>
               <td class="total-cell">{{ row.Sum }}</td>
@@ -265,8 +301,8 @@ async function handleExport() {
   font-size: 0.8rem;
 }
 
-.exercise-table td > span,
-.exercise-table td > textarea {
+.exercise-table td>span,
+.exercise-table td>textarea {
   display: block;
 }
 
@@ -301,7 +337,8 @@ async function handleExport() {
   color: var(--color-text);
   font-family: inherit;
   font-size: inherit;
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  box-sizing: border-box;
+  /* Include padding and border in the element's total width and height */
 }
 
 .editable-small {
@@ -401,16 +438,20 @@ async function handleExport() {
     right: 80px;
     left: 2px;
   }
+
   5% {
     left: 2px;
   }
+
   50% {
     right: 2px;
     left: 80px;
   }
+
   55% {
     right: 2px;
   }
+
   100% {
     right: 80px;
     left: 2px;

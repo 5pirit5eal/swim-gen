@@ -4,6 +4,7 @@ import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useSettingsStore } from '@/stores/settings'
 import type { QueryRequest } from '@/types'
 import { DIFFICULTY_OPTIONS, TRAINING_TYPE_OPTIONS } from '@/types'
+import TooltipIcon from '@/components/icons/TooltipIcon.vue'
 
 // Store access
 const trainingStore = useTrainingPlanStore()
@@ -18,7 +19,7 @@ const isFormValid = computed(() => {
   const content = requestText.value.trim()
   return content.length > 0 && content.length <= 3000
 })
-const tooMuchText = computed(() =>  requestText.value.trim().length > 3000)
+const tooMuchText = computed(() => requestText.value.trim().length > 3000)
 const canSubmit = computed(() => isFormValid.value && !trainingStore.isLoading)
 
 // Actions
@@ -48,27 +49,22 @@ function toggleAdvancedSettings() {
     <form @submit.prevent="handleSubmit" class="form-container">
       <!-- Main text input -->
       <div class="form-group">
-        <label for="request-text" class="form-label"> Describe your training needs </label>
-        <textarea
-          id="request-text"
-          v-model="requestText"
-          class="form-textarea"
-          placeholder="Example: I need a 45-minute freestyle endurance workout for an intermediate swimmer..."
-          rows="4"
-          :disabled="trainingStore.isLoading"
-        />
-        <p class="form-hint">
-          Be specific about your goals, experience level, time constraints, and preferences.
-        </p>
+        <label for="request-text" class="form-label">
+          Describe your training needs
+          <TooltipIcon>
+            <template #tooltip>
+              Be specific about your goals, experience level, time constraints, and preferences.
+            </template>
+          </TooltipIcon>
+        </label>
+        <textarea id="request-text" v-model="requestText" class="form-textarea"
+          placeholder="Example: I need a 45-minute freestyle endurance workout for an intermediate swimmer..." rows="4"
+          :disabled="trainingStore.isLoading" />
       </div>
 
       <!-- Advanced settings toggle -->
-      <button
-        type="button"
-        @click="toggleAdvancedSettings"
-        class="toggle-settings-btn"
-        :disabled="trainingStore.isLoading"
-      >
+      <button type="button" @click="toggleAdvancedSettings" class="toggle-settings-btn"
+        :disabled="trainingStore.isLoading">
         {{ showAdvancedSettings ? 'Hide' : 'Show' }} Advanced Settings
       </button>
 
@@ -131,121 +127,94 @@ function toggleAdvancedSettings() {
 
           <!-- Swimming Strokes Filter -->
           <div class="setting-group">
-            <label class="setting-label">Swimming Strokes</label>
+            <label class="setting-label">
+              Swimming Strokes
+              <TooltipIcon>
+                <template #tooltip>Select specific swimming strokes to focus on</template>
+              </TooltipIcon>
+            </label>
             <div class="checkbox-group">
               <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.freistil === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'freistil',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="checkbox" :checked="settingsStore.filters.freistil === true" @change="
+                  settingsStore.updateStrokeFilter(
+                    'freistil',
+                    ($event.target as HTMLInputElement).checked ? true : undefined,
+                  )
+                  " :disabled="trainingStore.isLoading" />
                 Freestyle
               </label>
               <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.brust === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'brust',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="checkbox" :checked="settingsStore.filters.brust === true" @change="
+                  settingsStore.updateStrokeFilter(
+                    'brust',
+                    ($event.target as HTMLInputElement).checked ? true : undefined,
+                  )
+                  " :disabled="trainingStore.isLoading" />
                 Breaststroke
               </label>
               <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.ruecken === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'ruecken',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="checkbox" :checked="settingsStore.filters.ruecken === true" @change="
+                  settingsStore.updateStrokeFilter(
+                    'ruecken',
+                    ($event.target as HTMLInputElement).checked ? true : undefined,
+                  )
+                  " :disabled="trainingStore.isLoading" />
                 Backstroke
               </label>
               <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.delfin === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'delfin',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="checkbox" :checked="settingsStore.filters.delfin === true" @change="
+                  settingsStore.updateStrokeFilter(
+                    'delfin',
+                    ($event.target as HTMLInputElement).checked ? true : undefined,
+                  )
+                  " :disabled="trainingStore.isLoading" />
                 Butterfly
               </label>
               <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.lagen === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'lagen',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="checkbox" :checked="settingsStore.filters.lagen === true" @change="
+                  settingsStore.updateStrokeFilter(
+                    'lagen',
+                    ($event.target as HTMLInputElement).checked ? true : undefined,
+                  )
+                  " :disabled="trainingStore.isLoading" />
                 Individual Medley
               </label>
             </div>
-            <p class="setting-help">Select specific swimming strokes to focus on</p>
           </div>
 
           <div class="settings-grid">
             <!-- Difficulty Level -->
             <div class="setting-group">
-              <label class="setting-label">Difficulty Level</label>
-              <select
-                v-model="settingsStore.filters.schwierigkeitsgrad"
-                :disabled="trainingStore.isLoading"
-                class="select-input"
-              >
+              <label class="setting-label">
+                Difficulty Level
+                <TooltipIcon>
+                  <template #tooltip>Filter plans by swimmer experience level</template>
+                </TooltipIcon>
+              </label>
+              <select v-model="settingsStore.filters.schwierigkeitsgrad" :disabled="trainingStore.isLoading"
+                class="select-input">
                 <option :value="undefined">Any difficulty</option>
-                <option
-                  v-for="option in DIFFICULTY_OPTIONS"
-                  :key="option.value"
-                  :value="option.value"
-                >
+                <option v-for="option in DIFFICULTY_OPTIONS" :key="option.value" :value="option.value">
                   {{ option.label }}
                 </option>
               </select>
-              <p class="setting-help">Filter plans by swimmer experience level</p>
             </div>
 
             <!-- Training Type -->
             <div class="setting-group">
-              <label class="setting-label">Training Type</label>
-              <select
-                v-model="settingsStore.filters.trainingstyp"
-                :disabled="trainingStore.isLoading"
-                class="select-input"
-              >
+              <label class="setting-label">
+                Training Type
+                <TooltipIcon>
+                  <template #tooltip>Filter plans by training focus and goals</template>
+                </TooltipIcon>
+              </label>
+              <select v-model="settingsStore.filters.trainingstyp" :disabled="trainingStore.isLoading"
+                class="select-input">
                 <option :value="undefined">Any training type</option>
-                <option
-                  v-for="option in TRAINING_TYPE_OPTIONS"
-                  :key="option.value"
-                  :value="option.value"
-                >
+                <option v-for="option in TRAINING_TYPE_OPTIONS" :key="option.value" :value="option.value">
                   {{ option.label }}
                 </option>
               </select>
-              <p class="setting-help">Filter plans by training focus and goals</p>
             </div>
           </div>
 
@@ -267,27 +236,17 @@ function toggleAdvancedSettings() {
 
           <!-- Clear Filters -->
           <div class="setting-group">
-            <button
-              type="button"
-              @click="settingsStore.clearFilters"
-              :disabled="trainingStore.isLoading"
-              class="clear-filters-btn"
-            >
+            <button type="button" @click="settingsStore.clearFilters" :disabled="trainingStore.isLoading"
+              class="clear-filters-btn">
               Clear All Filters
             </button>
-            <p class="setting-help">Reset all filter options to default values</p>
           </div>
         </div>
       </div>
 
       <!-- Submit button and status -->
       <div class="form-actions">
-        <button
-          type="submit"
-          class="submit-btn"
-          :disabled="!canSubmit"
-          :class="{ loading: trainingStore.isLoading }"
-        >
+        <button type="submit" class="submit-btn" :disabled="!canSubmit" :class="{ loading: trainingStore.isLoading }">
           {{ trainingStore.isLoading ? 'Generating...' : 'Generate Training Plan' }}
         </button>
 
@@ -500,7 +459,7 @@ function toggleAdvancedSettings() {
   font-family: inherit;
   font-size: 0.9rem;
   background: var(--color-background);
-  color: var(--color-text-light);
+  color: var(--color-text);
   width: max-content;
 }
 
