@@ -1,7 +1,9 @@
 <template>
   <div class="privacy-policy">
     <section class="intro">
-      <p class="last-updated"><strong>{{ $t('privacy_policy.last_updated') }}</strong></p>
+      <p class="last-updated">
+        <strong>{{ $t('privacy_policy.last_updated') }}</strong>
+      </p>
       <p>{{ $t('privacy_policy.intro') }}</p>
     </section>
 
@@ -91,7 +93,7 @@
   margin-bottom: 1.5rem;
 }
 
-.privacy-policy section+section {
+.privacy-policy section + section {
   margin-top: 1.5rem;
 }
 
@@ -132,9 +134,11 @@
 }
 
 .privacy-policy .commitment {
-  background: linear-gradient(135deg,
-      var(--color-background-soft, #f8f9fa) 0%,
-      var(--color-background, #ffffff) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-background-soft, #f8f9fa) 0%,
+    var(--color-background, #ffffff) 100%
+  );
   padding: 1.5rem;
   border-radius: 0.5rem;
   margin-top: 2rem;

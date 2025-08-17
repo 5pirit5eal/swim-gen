@@ -20,7 +20,8 @@ vi.mock('@/api/client', () => ({
 const mockedApiQuery = apiClient.query as Mock<typeof apiClient.query>
 
 describe('Plan Generation End-to-End Workflow', () => {
-  beforeEach(async () => { // Make beforeEach async
+  beforeEach(async () => {
+    // Make beforeEach async
     vi.clearAllMocks()
     // Reset Pinia stores if necessary (Pinia setup in vitest.setup.ts handles activation)
     // For integration tests, we often want a fresh store state
@@ -39,9 +40,33 @@ describe('Plan Generation End-to-End Workflow', () => {
         title: 'My Awesome Test Plan',
         description: 'This plan was generated during an integration test.',
         table: [
-          { Amount: 1, Multiplier: 'x', Distance: 100, Break: '1min', Content: 'Warm-up', Intensity: 'Easy', Sum: 100 },
-          { Amount: 2, Multiplier: 'x', Distance: 50, Break: '30s', Content: 'Drill', Intensity: 'Moderate', Sum: 100 },
-          { Amount: 1, Multiplier: '', Distance: 0, Break: '', Content: 'Total', Intensity: '', Sum: 200 }
+          {
+            Amount: 1,
+            Multiplier: 'x',
+            Distance: 100,
+            Break: '1min',
+            Content: 'Warm-up',
+            Intensity: 'Easy',
+            Sum: 100,
+          },
+          {
+            Amount: 2,
+            Multiplier: 'x',
+            Distance: 50,
+            Break: '30s',
+            Content: 'Drill',
+            Intensity: 'Moderate',
+            Sum: 100,
+          },
+          {
+            Amount: 1,
+            Multiplier: '',
+            Distance: 0,
+            Break: '',
+            Content: 'Total',
+            Intensity: '',
+            Sum: 200,
+          },
         ],
       },
     }

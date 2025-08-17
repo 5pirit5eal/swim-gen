@@ -28,10 +28,7 @@ describe('ApiClient', () => {
 
       const result = await apiClient.checkHealth()
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        `/api/${ApiEndpoints.HEALTH}`,
-        expect.any(Object)
-      )
+      expect(mockFetch).toHaveBeenCalledWith(`/api/${ApiEndpoints.HEALTH}`, expect.any(Object))
       expect(result).toEqual({ success: true, data: 'API is healthy' })
     })
 
@@ -70,18 +67,18 @@ describe('ApiClient', () => {
     })
 
     it('should abort the request if it times out', async () => {
-      const error = new Error('The user aborted a request.');
-      error.name = 'AbortError';
+      const error = new Error('The user aborted a request.')
+      error.name = 'AbortError'
       mockFetch.mockImplementationOnce(async (url, options) => {
         return new Promise((resolve, reject) => {
           options.signal.addEventListener('abort', () => {
-            reject(error);
-          });
-        });
-      });
+            reject(error)
+          })
+        })
+      })
 
-      const promise = apiClient.checkHealth();
-      vi.advanceTimersByTime(5000);
+      const promise = apiClient.checkHealth()
+      vi.advanceTimersByTime(5000)
 
       await expect(promise).resolves.toEqual({
         success: false,
@@ -90,8 +87,8 @@ describe('ApiClient', () => {
           status: 0,
           details: 'Failed to connect to server',
         },
-      });
-    });
+      })
+    })
   })
 
   describe('generatePrompt', () => {
@@ -115,7 +112,7 @@ describe('ApiClient', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(mockRequest),
-        })
+        }),
       )
       expect(result).toEqual({ success: true, data: mockResponseData })
     })
@@ -155,18 +152,18 @@ describe('ApiClient', () => {
     })
 
     it('should return timeout error if request takes longer than 10 seconds', async () => {
-      const error = new Error('The user aborted a request.');
-      error.name = 'AbortError';
+      const error = new Error('The user aborted a request.')
+      error.name = 'AbortError'
       mockFetch.mockImplementationOnce(async (url, options) => {
         return new Promise((resolve, reject) => {
           options.signal.addEventListener('abort', () => {
-            reject(error);
-          });
-        });
-      });
+            reject(error)
+          })
+        })
+      })
 
-      const promise = apiClient.generatePrompt(mockRequest);
-      vi.advanceTimersByTime(10000);
+      const promise = apiClient.generatePrompt(mockRequest)
+      vi.advanceTimersByTime(10000)
 
       await expect(promise).resolves.toEqual({
         success: false,
@@ -175,8 +172,8 @@ describe('ApiClient', () => {
           status: 0,
           details: 'Request timed out after 10 seconds',
         },
-      });
-    });
+      })
+    })
   })
 
   describe('query', () => {
@@ -206,7 +203,7 @@ describe('ApiClient', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(mockRequest),
-        })
+        }),
       )
       expect(result).toEqual({ success: true, data: mockResponseData })
     })
@@ -246,18 +243,18 @@ describe('ApiClient', () => {
     })
 
     it('should return timeout error if request takes longer than 60 seconds', async () => {
-      const error = new Error('The user aborted a request.');
-      error.name = 'AbortError';
+      const error = new Error('The user aborted a request.')
+      error.name = 'AbortError'
       mockFetch.mockImplementationOnce(async (url, options) => {
         return new Promise((resolve, reject) => {
           options.signal.addEventListener('abort', () => {
-            reject(error);
-          });
-        });
-      });
+            reject(error)
+          })
+        })
+      })
 
-      const promise = apiClient.query(mockRequest);
-      vi.advanceTimersByTime(60000);
+      const promise = apiClient.query(mockRequest)
+      vi.advanceTimersByTime(60000)
 
       await expect(promise).resolves.toEqual({
         success: false,
@@ -266,8 +263,8 @@ describe('ApiClient', () => {
           status: 0,
           details: 'Request timed out after 60 seconds',
         },
-      });
-    });
+      })
+    })
   })
 
   describe('exportPDF', () => {
@@ -295,7 +292,7 @@ describe('ApiClient', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(mockRequest),
-        })
+        }),
       )
       expect(result).toEqual({ success: true, data: mockResponseData })
     })

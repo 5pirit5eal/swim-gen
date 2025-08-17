@@ -27,9 +27,25 @@ describe('TrainingPlanDisplay.vue', () => {
       title: 'Mock Training Plan',
       description: 'This is a mock training plan for testing.',
       table: [
-        { Amount: 1, Multiplier: 'x', Distance: 100, Break: '30s', Content: 'Warm-up', Intensity: 'Easy', Sum: 100 },
-        { Amount: 1, Multiplier: '', Distance: 0, Break: '', Content: 'Total', Intensity: '', Sum: 100 }
-      ]
+        {
+          Amount: 1,
+          Multiplier: 'x',
+          Distance: 100,
+          Break: '30s',
+          Content: 'Warm-up',
+          Intensity: 'Easy',
+          Sum: 100,
+        },
+        {
+          Amount: 1,
+          Multiplier: '',
+          Distance: 0,
+          Break: '',
+          Content: 'Total',
+          Intensity: '',
+          Sum: 100,
+        },
+      ],
     }
 
     store.currentPlan = mockPlan

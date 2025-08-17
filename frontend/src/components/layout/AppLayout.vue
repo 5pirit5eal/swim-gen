@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppHeader from './AppHeader.vue' // Necessary for v2
+// import AppHeader from './AppHeader.vue' // Necessary for v2
 import AppFooter from './AppFooter.vue'
 </script>
 
@@ -59,7 +59,8 @@ import AppFooter from './AppFooter.vue'
 /* Responsive background adjustments */
 @media (max-width: 768px) {
   .app-layout {
-    background-attachment: scroll; /* Better performance on mobile */
+    background-attachment: scroll;
+    /* Better performance on mobile */
     background-size: cover;
   }
 }

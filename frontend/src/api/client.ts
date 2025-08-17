@@ -68,9 +68,8 @@ class ApiClient {
    * Generate a random prompt for generating training plans
    */
   async generatePrompt(
-    request: PromptGenerationRequest
+    request: PromptGenerationRequest,
   ): Promise<ApiResult<PromptGenerationResponse>> {
-
     try {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 10000)
@@ -113,7 +112,6 @@ class ApiClient {
         },
       }
     }
-
   }
 
   /**

@@ -96,5 +96,4 @@ describe('export Store', () => {
     expect(mockedApiExportPDF).toHaveBeenCalledTimes(1)
     expect(mockedApiExportPDF).toHaveBeenCalledWith(requestPayload)
   })
-
 })

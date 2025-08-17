@@ -1,25 +1,26 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
-import { computed } from 'vue';
+import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 
-const { tm } = useI18n();
+const { tm } = useI18n()
 
 const acceptableUseList = computed(() => {
   // Use tm (translate message) to get the array directly
-  return tm('terms_of_service.acceptable_use_list') as string[];
-});
+  return tm('terms_of_service.acceptable_use_list') as string[]
+})
 
 const requirementsList = computed(() => {
   // Use tm (translate message) to get the array directly
-  return tm('terms_of_service.requirements_list') as string[];
-});
-
+  return tm('terms_of_service.requirements_list') as string[]
+})
 </script>
 
 <template>
   <div class="terms-of-service">
     <section class="intro">
-      <p class="last-updated"><strong>{{ $t('terms_of_service.last_updated') }}</strong></p>
+      <p class="last-updated">
+        <strong>{{ $t('terms_of_service.last_updated') }}</strong>
+      </p>
       <h3>{{ $t('terms_of_service.title') }}</h3>
       <p>{{ $t('terms_of_service.intro') }}</p>
       <p>{{ $t('terms_of_service.read_carefully') }}</p>
@@ -137,8 +138,6 @@ const requirementsList = computed(() => {
   </div>
 </template>
 
-
-
 <style scoped>
 .terms-of-service {
   margin-right: 0.5rem;
@@ -158,7 +157,7 @@ const requirementsList = computed(() => {
   margin-bottom: 1.5rem;
 }
 
-.terms-of-service section+section {
+.terms-of-service section + section {
   margin-top: 1.5rem;
 }
 

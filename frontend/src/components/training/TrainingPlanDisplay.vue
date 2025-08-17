@@ -116,12 +116,24 @@ async function handleExport() {
                   <template #tooltip>
                     <p>{{ t('display.content_tooltip.title') }}</p>
                     <ul>
-                      <li><strong>{{ t('display.content_tooltip.freestyle') }}</strong></li>
-                      <li><strong>{{ t('display.content_tooltip.backstroke') }}</strong></li>
-                      <li><strong>{{ t('display.content_tooltip.breaststroke') }}</strong></li>
-                      <li><strong>{{ t('display.content_tooltip.leg_work') }}</strong></li>
-                      <li><strong>{{ t('display.content_tooltip.butterfly') }}</strong></li>
-                      <li><strong>{{ t('display.content_tooltip.individual_medley') }}</strong></li>
+                      <li>
+                        <strong>{{ t('display.content_tooltip.freestyle') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.content_tooltip.backstroke') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.content_tooltip.breaststroke') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.content_tooltip.leg_work') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.content_tooltip.butterfly') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.content_tooltip.individual_medley') }}</strong>
+                      </li>
                     </ul>
                   </template>
                 </BaseTooltip>
@@ -132,19 +144,38 @@ async function handleExport() {
                   <template #tooltip>
                     <p>{{ t('display.intensity_tooltip.title') }}</p>
                     <ul>
-                      <li><strong>{{ t('display.intensity_tooltip.ga') }}</strong>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.ga') }}</strong>
                         <ul>
-                          <li><strong>{{ t('display.intensity_tooltip.ga1') }}</strong></li>
-                          <li><strong>{{ t('display.intensity_tooltip.ga1_2') }}</strong></li>
-                          <li><strong>{{ t('display.intensity_tooltip.ga2') }}</strong></li>
+                          <li>
+                            <strong>{{ t('display.intensity_tooltip.ga1') }}</strong>
+                          </li>
+                          <li>
+                            <strong>{{ t('display.intensity_tooltip.ga1_2') }}</strong>
+                          </li>
+                          <li>
+                            <strong>{{ t('display.intensity_tooltip.ga2') }}</strong>
+                          </li>
                         </ul>
                       </li>
-                      <li><strong>{{ t('display.intensity_tooltip.sa') }}</strong></li>
-                      <li><strong>{{ t('display.intensity_tooltip.ta') }}</strong></li>
-                      <li><strong>{{ t('display.intensity_tooltip.tue') }}</strong></li>
-                      <li><strong>{{ t('display.intensity_tooltip.ts') }}</strong></li>
-                      <li><strong>{{ t('display.intensity_tooltip.sprint') }}</strong></li>
-                      <li><strong>{{ t('display.intensity_tooltip.recovery') }}</strong></li>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.sa') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.ta') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.tue') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.ts') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.sprint') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.recovery') }}</strong>
+                      </li>
                     </ul>
                   </template>
                 </BaseTooltip>
@@ -163,36 +194,66 @@ async function handleExport() {
             <tr v-for="(row, index) in exerciseRows" :key="index" class="exercise-row">
               <!-- Amount Cell -->
               <td @click="startEditing(index, 'Amount')">
-                <input type="number" min="0" v-if="isEditing" :value="row.Amount"
-                  @blur="stopEditing($event, index, 'Amount')" @keyup.enter="stopEditing($event, index, 'Amount')"
-                  class="editable-small" />
+                <input
+                  type="number"
+                  min="0"
+                  v-if="isEditing"
+                  :value="row.Amount"
+                  @blur="stopEditing($event, index, 'Amount')"
+                  @keyup.enter="stopEditing($event, index, 'Amount')"
+                  class="editable-small"
+                />
                 <span v-else>{{ row.Amount }}</span>
               </td>
               <td>{{ row.Multiplier }}</td>
               <!-- Distance Cell -->
               <td @click="startEditing(index, 'Distance')">
-                <input type="number" min="0" max="100000" step="25" v-if="isEditing" :value="row.Distance"
-                  @blur="stopEditing($event, index, 'Distance')" @keyup.enter="stopEditing($event, index, 'Distance')"
-                  class="editable-small" />
+                <input
+                  type="number"
+                  min="0"
+                  max="100000"
+                  step="25"
+                  v-if="isEditing"
+                  :value="row.Distance"
+                  @blur="stopEditing($event, index, 'Distance')"
+                  @keyup.enter="stopEditing($event, index, 'Distance')"
+                  class="editable-small"
+                />
                 <span v-else>{{ row.Distance }}</span>
               </td>
               <!-- Intensity Cell -->
               <td @click="startEditing(index, 'Break')">
-                <input type="text" v-if="isEditing" :value="row.Break" @blur="stopEditing($event, index, 'Break')"
-                  @keyup.enter="stopEditing($event, index, 'Break')" class="editable-small" />
+                <input
+                  type="text"
+                  v-if="isEditing"
+                  :value="row.Break"
+                  @blur="stopEditing($event, index, 'Break')"
+                  @keyup.enter="stopEditing($event, index, 'Break')"
+                  class="editable-small"
+                />
                 <span v-else>{{ row.Break }}</span>
               </td>
               <!-- Content Cell -->
               <td class="content-cell" @click="startEditing(index, 'Content')">
-                <textarea v-if="isEditing" :value="row.Content" @blur="stopEditing($event, index, 'Content')"
-                  @keyup.enter="stopEditing($event, index, 'Content')" class="editable-area"></textarea>
+                <textarea
+                  v-if="isEditing"
+                  :value="row.Content"
+                  @blur="stopEditing($event, index, 'Content')"
+                  @keyup.enter="stopEditing($event, index, 'Content')"
+                  class="editable-area"
+                ></textarea>
                 <span v-else>{{ row.Content }}</span>
               </td>
               <!-- Intensity Cell -->
               <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                <input type="text" v-if="isEditing" :value="row.Intensity"
-                  @blur="stopEditing($event, index, 'Intensity')" @keyup.enter="stopEditing($event, index, 'Intensity')"
-                  class="editable-small" />
+                <input
+                  type="text"
+                  v-if="isEditing"
+                  :value="row.Intensity"
+                  @blur="stopEditing($event, index, 'Intensity')"
+                  @keyup.enter="stopEditing($event, index, 'Intensity')"
+                  class="editable-small"
+                />
                 <span v-else>{{ row.Intensity }}</span>
               </td>
               <td class="total-cell">{{ row.Sum }}</td>
@@ -227,7 +288,10 @@ async function handleExport() {
       <p>{{ t('trainingPlanDisplay.noPlanPlaceholder') }}</p>
     </div>
   </div>
-  <div v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading" class="export-section">
+  <div
+    v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading"
+    class="export-section"
+  >
     <!-- Edit Action -->
     <button @click="isEditing = !isEditing" class="export-btn">
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
@@ -308,8 +372,8 @@ async function handleExport() {
   /* Prevent text from wrapping */
 }
 
-.exercise-table td>span,
-.exercise-table td>textarea {
+.exercise-table td > span,
+.exercise-table td > textarea {
   display: block;
 }
 

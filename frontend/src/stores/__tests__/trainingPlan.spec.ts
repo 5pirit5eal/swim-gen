@@ -1,6 +1,6 @@
 // frontend/src/stores/__tests__/trainingPlan.spec.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { useTrainingPlanStore } from "@/stores/trainingPlan"
+import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import type { QueryRequest, RAGResponse, ApiResult } from '@/types'
 import { apiClient } from '@/api/client'
 import type { Mock } from 'vitest' // Import Mock type
@@ -11,13 +11,12 @@ import type { Mock } from 'vitest' // Import Mock type
 vi.mock('@/api/client', () => ({
   apiClient: {
     query: vi.fn(),
-  }
+  },
 }))
 
 // Cast apiClient.query to a Mock type for TypeScript to recognize mock methods
 // Cast apiClient.query to a Mock type for TypeScript to recognize mock methods
 const mockedApiQuery = apiClient.query as Mock<typeof apiClient.query>
-
 
 describe('trainingPlan Store', () => {
   beforeEach(() => {
@@ -93,12 +92,12 @@ describe('trainingPlan Store', () => {
     expect(store.isLoading).toBe(false) // Should no longer be loading
     expect(store.currentPlan).toBeNull() // Plan should remain null
     expect(store.hasPlan).toBe(false) // hasPlan should be false
-    expect(store.error).toBe(`${mockErrorResponse.error?.message}: ${mockErrorResponse.error?.details}`) // Error message should be set
+    expect(store.error).toBe(
+      `${mockErrorResponse.error?.message}: ${mockErrorResponse.error?.details}`,
+    ) // Error message should be set
 
     // Verify that apiClient.query was called
     expect(mockedApiQuery).toHaveBeenCalledTimes(1)
     expect(mockedApiQuery).toHaveBeenCalledWith(requestPayload)
   })
-
-
 })

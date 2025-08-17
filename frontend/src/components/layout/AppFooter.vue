@@ -38,20 +38,30 @@ const showContact = () => {
           <ul class="footer-links">
             <li>
               <a href="#privacy" id="privacy-policy" @click="showPrivacyPolicyModal = true">{{
-                t('footer.privacy_policy') }}</a>
+                t('footer.privacy_policy')
+              }}</a>
             </li>
-            <li><a href="#terms" @click="showTermsOfServiceModal = true">{{ t('footer.terms_of_service') }}</a></li>
-            <li><a href="#impressum" @click.prevent="showImpressum">{{ t('footer.impressum') }}</a></li>
+            <li>
+              <a href="#terms" @click="showTermsOfServiceModal = true">{{
+                t('footer.terms_of_service')
+              }}</a>
+            </li>
+            <li>
+              <a href="#impressum" @click.prevent="showImpressum">{{ t('footer.impressum') }}</a>
+            </li>
           </ul>
         </div>
 
         <div class="footer-section">
           <h4>{{ t('footer.about') }}</h4>
           <ul class="footer-links">
-            <li><a href="#contact" @click.prevent="showContact">{{ t('footer.contact') }}</a></li>
             <li>
-              <a href="https://github.com/5pirit5eal/swim-rag" target="_blank" rel="noopener">{{ t('footer.github')
-                }}</a>
+              <a href="#contact" @click.prevent="showContact">{{ t('footer.contact') }}</a>
+            </li>
+            <li>
+              <a href="https://github.com/5pirit5eal/swim-rag" target="_blank" rel="noopener">{{
+                t('footer.github')
+              }}</a>
             </li>
           </ul>
         </div>
