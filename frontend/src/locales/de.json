@@ -96,7 +96,9 @@
     "total_tooltip": "Gesamtdistanz in Metern für den Übungssatz.",
     "meters_total": "Gesamtdistanz",
     "exercise_sets": "Übungssätze",
-    "no_plan_yet": "Noch kein Trainingsplan generiert. Verwende das obige Formular, um einen zu erstellen!",
+    "trainingPlanDisplay": {
+      "noPlanPlaceholder": "Noch kein Trainingsplan generiert. Verwende das obige Formular, um einen zu erstellen!"
+    },
     "done_editing": "Bearbeitung beenden",
     "refine_plan": "Plan verfeinern",
     "export_pdf": "PDF exportieren",

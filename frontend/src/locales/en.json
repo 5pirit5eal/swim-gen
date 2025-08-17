@@ -96,7 +96,9 @@
     "total_tooltip": "Total distance in meters for the exercise set.",
     "meters_total": "Meters Total",
     "exercise_sets": "Exercise Sets",
-    "no_plan_yet": "No training plan generated yet. Use the form above to create one!",
+    "trainingPlanDisplay": {
+      "noPlanPlaceholder": "No training plan generated yet. Use the form above to create one!"
+    },
     "done_editing": "Done Editing",
     "refine_plan": "Refine Plan",
     "export_pdf": "Export PDF",

@@ -6,6 +6,7 @@ import { apiClient } from '@/api/client'
 import type { Mock } from 'vitest'
 import type { RAGResponse, ApiResult } from '@/types'
 import router from '@/router' // Import the router instance
+import i18n from '@/plugins/i18n' // Import the i18n instance
 
 // Mock the apiClient module for integration tests
 vi.mock('@/api/client', () => ({
@@ -50,7 +51,7 @@ describe('Plan Generation End-to-End Workflow', () => {
     // Mount the entire App component and provide the router
     const wrapper = mount(App, {
       global: {
-        plugins: [router], // Provide the router instance
+        plugins: [router, i18n], // Provide the router and i18n instances
       },
     })
 

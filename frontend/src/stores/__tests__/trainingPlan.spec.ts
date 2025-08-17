@@ -93,7 +93,7 @@ describe('trainingPlan Store', () => {
     expect(store.isLoading).toBe(false) // Should no longer be loading
     expect(store.currentPlan).toBeNull() // Plan should remain null
     expect(store.hasPlan).toBe(false) // hasPlan should be false
-    expect(store.error).toBe(mockErrorResponse.error?.message) // Error message should be set
+    expect(store.error).toBe(`${mockErrorResponse.error?.message}: ${mockErrorResponse.error?.details}`) // Error message should be set
 
     // Verify that apiClient.query was called
     expect(mockedApiQuery).toHaveBeenCalledTimes(1)

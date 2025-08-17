@@ -224,7 +224,7 @@ async function handleExport() {
     </div>
 
     <div v-else class="no-plan">
-      <p>{{ t('display.no_plan_yet') }}</p>
+      <p>{{ t('trainingPlanDisplay.noPlanPlaceholder') }}</p>
     </div>
   </div>
   <div v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading" class="export-section">

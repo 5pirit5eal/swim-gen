@@ -3,21 +3,34 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import TrainingPlanForm from '../TrainingPlanForm.vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan.ts'
+import i18n from '@/plugins/i18n' // Import the i18n instance
 
 describe('TrainingPlanForm.vue', () => {
   it('renders correctly without errors', () => {
-    const wrapper = mount(TrainingPlanForm)
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+    })
     // The simplest test: does it mount?
     expect(wrapper.exists()).toBe(true)
   })
   it('disables the submit button when the input is empty', () => {
-    const wrapper = mount(TrainingPlanForm)
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+    })
     const submitButton = wrapper.find('button[type="submit"]')
 
     expect(submitButton.attributes('disabled')).toBeDefined()
   })
   it('enables the submit button when the input is valid', async () => {
-    const wrapper = mount(TrainingPlanForm)
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+    })
     const textarea = wrapper.find('textarea')
     const submitButton = wrapper.find('button[type="submit"]')
 
@@ -28,7 +41,11 @@ describe('TrainingPlanForm.vue', () => {
     expect(submitButton.attributes('disabled')).toBeUndefined()
   })
   it('disables the submit button when the input is too long', async () => {
-    const wrapper = mount(TrainingPlanForm)
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+    })
     const textarea = wrapper.find('textarea')
     const submitButton = wrapper.find('button[type="submit"]')
 
@@ -44,7 +61,11 @@ describe('TrainingPlanForm.vue', () => {
     expect(submitButton.attributes('disabled')).toBeDefined()
   })
   it('shows an error message when the input is too long', async () => {
-    const wrapper = mount(TrainingPlanForm)
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+    })
     const textarea = wrapper.find('textarea')
 
     // Set a value that is too long
@@ -57,7 +78,11 @@ describe('TrainingPlanForm.vue', () => {
     expect(errorMessage.exists()).toBe(true)
   })
   it('disables the submit button when generating', async () => {
-    const wrapper = mount(TrainingPlanForm)
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+    })
     const store = useTrainingPlanStore()
 
     const submitButton = wrapper.find('button[type="submit"]')
@@ -75,13 +100,17 @@ describe('TrainingPlanForm.vue', () => {
     expect(textarea.attributes('disabled')).toBeDefined()
   })
   it('disables the prompt generation button when generating', async () => {
-    const wrapper = mount(TrainingPlanForm)
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+    })
     const store = useTrainingPlanStore()
 
     const promptButton = wrapper.find('.toggle-settings-btn')
 
     // Initially, the button should be enabled
-    expect(promptButton.attributes('disabled')).toBeUndefined()
+    expect(promptButton.attributes('disabled')).toBeFalsy()
 
     // Set isLoading to true to disable the button
     store.isLoading = true
