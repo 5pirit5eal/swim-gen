@@ -229,3 +229,40 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 	logger.Info("Answer generated successfully")
 	models.WriteResponseJSON(w, http.StatusOK, answer)
 }
+
+// GeneratePromptHandler handles the request to generate a prompt for the LLM.
+// It uses the GoogleGenAIClient to generate a prompt based on the provided language.
+// @Summary Generate a prompt for the LLM
+// @Description Generate a prompt for the LLM based on the provided language
+// @Tags prompt
+// @Accept json
+// @Produce json
+// @Param request body models.GeneratedPromptRequest true "Request to generate a prompt"
+// @Success 200 {object} models.GeneratedPromptResponse "Generated prompt response"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Router /generate-prompt [post]
+func (rs *RAGService) GeneratePromptHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Generating prompt...")
+
+	// Parse HTTP request from JSON.
+	gpr := &models.GeneratedPromptRequest{}
+	err := models.GetRequestJSON(req, gpr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Generate the prompt using the GoogleGenAIClient
+	prompt, err := rs.db.Client.GeneratePrompt(req.Context(), *gpr)
+	if err != nil {
+		logger.Error("Error generating prompt", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := &models.GeneratedPromptResponse{Prompt: prompt}
+	logger.Info("Prompt generated successfully")
+	models.WriteResponseJSON(w, http.StatusOK, response)
+}

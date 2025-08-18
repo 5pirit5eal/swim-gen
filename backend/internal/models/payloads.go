@@ -48,3 +48,11 @@ type PlanToPDFRequest struct {
 type PlanToPDFResponse struct {
 	URI string `json:"uri" example:"https://storage.googleapis.com/bucket/plans/plan_123.pdf"`
 }
+
+type GeneratedPromptRequest struct {
+	Language string `json:"language" example:"en" binding:"required"`
+}
+
+type GeneratedPromptResponse struct {
+	Prompt string `json:"prompt" example:"Generate a swim training plan for improving freestyle technique"`
+}

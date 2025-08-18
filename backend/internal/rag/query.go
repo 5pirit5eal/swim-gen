@@ -33,11 +33,11 @@ func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any,
 	case query == "" && filter == nil:
 		return nil, fmt.Errorf("either a query or a filter must be provided")
 	case query == "" && filter != nil:
-		docs, err = db.Store.Search(ctx, 10, vectorstores.WithFilters(filter))
+		docs, err = db.Store.Search(ctx, 5, vectorstores.WithFilters(filter))
 	case query != "" && filter == nil:
-		docs, err = db.Store.SimilaritySearch(ctx, query, 10)
+		docs, err = db.Store.SimilaritySearch(ctx, query, 5)
 	case query != "" && filter != nil:
-		docs, err = db.Store.SimilaritySearch(ctx, query, 10, vectorstores.WithFilters(filter))
+		docs, err = db.Store.SimilaritySearch(ctx, query, 5, vectorstores.WithFilters(filter))
 	}
 	if err != nil {
 		logger.Error("Error searching for documents", httplog.ErrAttr(err))
@@ -49,6 +49,9 @@ func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any,
 	if method == "generate" {
 		answer, err = db.Client.GeneratePlan(ctx, query, docs)
 	} else if method == "choose" {
+		if len(docs) == 0 {
+			return nil, fmt.Errorf("no documents in database matching query and filters")
+		}
 		planID, err := db.Client.ChoosePlan(ctx, query, docs)
 		if err != nil {
 			logger.Error("Error choosing plan", httplog.ErrAttr(err))

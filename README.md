@@ -7,23 +7,30 @@ A web application for generating, recommeding and sharing training plans for swi
 The web application is hosted in Google Cloud. The following components are involved:
 
 1. Identity-Aware Proxy (IAP) to authenticate and identify users
-2. Single-Page Frontend hosted in Cloud Run implemented in React
-3. Backend hosted in Cloud Run implemented in Go and Langchaingo
-4. PostgreSQL database (managed) with pgvector
+2. Single-Page Frontend hosted in Cloud Run implemented in **Vue.js**
+3. Backend hosted in Cloud Run implemented in **Go** and **Langchaingo**
+4. PostgreSQL database (managed) with **pgvector**
+5. An **MCP Server** implemented in **Python** to expose backend functionality to other clients.
 
 ```plaintext
-+---------------------+                                   gRPC/HTTPS                                +---------------------+
-| User's Browser      |<--------------------------------------------------------------------------->| Cloud Run Backend   | <--> PostgreSQL
-| (React)             |                                                                             | (Go)                |
-|                     |     HTTPS (with IAP)      +---------------------+                           +---------------------+
-+---------------------+<------------------------> | Cloud Run Frontend  |                                       |
-          ^                                       | (with IAP)          |                                       | (Verifies ID Token)
-          | <gcp-api>                             +---------------------+                                       |
-          | web-component                                    |                                                  |
-          |                                                  | (Passes ID Token in                              |
-          |                                                  |  Authorization Header)                           |
-          |                                                  |                                                  |
-          +--------------------------------------------------+--------------------------------------------------+
++----------------+      HTTPS     +----------------+      HTTPS     +-----------------+      +------------+
+| User's Browser | -------------> | Frontend       | -------------> | Backend (Go)    | <--> | PostgreSQL |
+| (Vue.js)       |                | (Cloud Run)    |                | (Cloud Run)     |      | (pgvector) |
++----------------+                +----------------+                +-----------------+      +------------+
+                                                                            ^
+                                                                            | HTTP
+                                                                            |
+                                                                    +-----------------+
+                                                                    | MCP Server (Py) |
+                                                                    | (Cloud Run)     |
+                                                                    +-----------------+
+                                                                            ^
+                                                                            | MCP
+                                                                            |
+                                                                    +----------------+
+                                                                    | MCP Client     |
+                                                                    | (e.g. Chatbot) |
+                                                                    +----------------+
 ```
 
 ## Roadmap
@@ -100,4 +107,3 @@ The next version takes lessons learned in v1 into consideration and adds user au
 
 - **MCP-Server**:
   - Connecting other chat interfaces to the functionality of the Go Backend
-  - 

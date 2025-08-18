@@ -34,7 +34,7 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q string, docs []
 
 	if err != nil {
 		logger.Error("Error when generating answer with LLM", httplog.ErrAttr(err))
-		return nil, fmt.Errorf("error generating answer: %w", err)
+		return nil, fmt.Errorf("error when generating answer with LLM: %w", err)
 	}
 
 	// read description and table from the LLM response
