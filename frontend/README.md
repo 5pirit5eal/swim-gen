@@ -105,19 +105,31 @@ npm run preview      # Preview production build locally
 
 ### 🚀 Deployment & Production
 
-- [ ] **Configure production build optimization**
-  - Bundle size analysis and optimization
-  - Asset optimization (images, fonts)
-  - Performance monitoring setup
-- [ ] **Set up environment-specific configurations**
-  - Development vs production API URLs
-  - Feature flags for testing
-  - Error reporting integration
-- [ ] **Prepare for Cloud Run deployment**
-  - Docker configuration
-  - Static file serving
-  - Health check endpoints
-  - Cloud build files for pr-merge to main and release
+- [x] **Configure production build optimization**
+  - [x] Bundle size analysis and optimization
+  - [x] Asset optimization (images, fonts)
+  - [x] Performance monitoring setup
+- [x] **Set up environment-specific configurations**
+  - [x] Development vs production API URLs
+  - [x] Feature flags for testing
+  - [x] Error reporting integration
+- [x] **Prepare for Cloud Run deployment**
+  - [x] Docker configuration
+  - [x] Static file serving
+  - [x] Health check endpoints
+  - [x] Cloud build files for pr-merge to main and release based/inspired on/by configuration in deployments and backend
+
+### ☁️ Deployment
+
+The frontend application is containerized using Docker and served by Nginx. It is deployed to Google Cloud Run.
+
+**Build and Deploy Process:**
+
+1. **Containerization**: A multi-stage `Dockerfile` builds the Vue.js application and packages it with Nginx.
+2. **Cloud Build Triggers**:
+    - `main-pr.cloudbuild.yaml`: Runs linting, type-checking, and unit tests on pull requests to the `main` branch.
+    - `release.cloudbuild.yaml`: Builds the Docker image, pushes it to Google Artifact Registry, and deploys the service to Cloud Run on merges to the `main` branch.
+3. **Terraform**: Infrastructure as Code (IaC) is used to define and manage the Cloud Run service and Cloud Build triggers.
 
 ### 📚 Documentation & Learning
 
@@ -132,6 +144,7 @@ npm run preview      # Preview production build locally
 - [ ] **Plan for user session management**
 - [ ] **Consider chat/history features in component design**
 - [ ] **Prepare for multi-page application structure**
+- [ ] **Implement client-side logging and error reporting**
 
 ## 🎉 V1 Implementation Progress
 
@@ -220,6 +233,7 @@ npm run preview      # Preview production build locally
 - **Testing Suite**: Unit tests, integration tests, accessibility improvements
 - **Production Optimization**: Bundle analysis, asset optimization, deployment configuration
 - **Advanced Features**: Custom filename generation, multiple export formats
+- **Client-side Logging and Error Reporting**: Implement client-side error reporting and performance metrics collection to a custom backend endpoint for forwarding to Google Cloud Logging and Cloud Monitoring.
 
 ### 🎯 Implementation Notes
 

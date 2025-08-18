@@ -1,0 +1,54 @@
+steps:
+  # Build the image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "--platform",
+        "linux/amd64",
+        "-t",
+        "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-frontend:$SHORT_SHA",
+        ".",
+      ]
+    dir: "frontend"
+  # Push the image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-frontend:$SHORT_SHA",
+      ]
+  # Tag the image
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      - "artifacts"
+      - "docker"
+      - "tags"
+      - "add"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-frontend:$SHORT_SHA"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-frontend:latest"
+  # Tag the image with the version
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      - "artifacts"
+      - "docker"
+      - "tags"
+      - "add"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-frontend:$SHORT_SHA"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-frontend:v1"
+  # Deploy to Cloud Run
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "swim-rag-frontend"
+      - "--image"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-frontend:$SHORT_SHA"
+      - "--region"
+      - "${_REGION}"
+      - "--platform=managed"
+      - "--allow-unauthenticated"
+      - "--set-env-vars=VITE_APP_API_URL=${_BACKEND_API_URL}" # Pass backend API URL
+    dir: "frontend"
+options:
+  logging: CLOUD_LOGGING_ONLY

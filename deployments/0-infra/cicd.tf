@@ -25,16 +25,7 @@ locals {
     _SWIM_RAG_API_URL = var.backend_url
   }
   frontend_env_variables = {
-    _PROJECT_ID      = var.project_id
-    _REGION          = var.region
-    _MODEL           = var.model
-    _SMALL_MODEL     = var.small_model
-    _EMBEDDING_NAME  = var.embedding_name
-    _EMBEDDING_MODEL = var.embedding_model
-    _EMBEDDING_SIZE  = var.embedding_size
-    _PORT            = var.port
-    _LOG_LEVEL       = var.log_level
-    _BUCKET_NAME     = google_storage_bucket.exported_pdfs.name
+    _SWIM_RAG_API_URL = var.backend_url
   }
 }
 

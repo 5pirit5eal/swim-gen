@@ -1,0 +1,20 @@
+steps:
+  # Install dependencies
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["install"]
+    dir: "frontend"
+  # Run lint
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["run", "lint"]
+    dir: "frontend"
+  # Run type-check
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["run", "type-check"]
+    dir: "frontend"
+  # Run tests
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["run", "test:unit"]
+    dir: "frontend"
+options:
+  logging: CLOUD_LOGGING_ONLY
+  automapSubstitutions: true

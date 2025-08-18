@@ -62,3 +62,38 @@ resource "google_cloud_run_v2_service" "default" {
   client     = "terraform"
   depends_on = [google_service_account.cloud_run_sa]
 }
+
+resource "google_cloud_run_v2_service" "frontend" {
+  name     = "swim-rag-frontend"
+  location = var.region
+
+  deletion_protection = false
+
+  template {
+    service_account = google_service_account.cloud_run_sa.email
+    containers {
+      image = "${google_artifact_registry_repository.docker.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker.repository_id}/swim-rag-frontend:latest"
+      liveness_probe {
+        http_get {
+          path = "/health"
+          port = 80 # Nginx serves on port 80
+        }
+        initial_delay_seconds = 5
+        period_seconds        = 10
+        timeout_seconds       = 2
+        failure_threshold     = 3
+      }
+      env {
+        name  = "VITE_APP_API_URL"
+        value = google_cloud_run_v2_service.default.uri # Use the backend service URI
+      }
+    }
+  }
+
+  traffic {
+    type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
+    percent = 100
+  }
+
+  depends_on = [google_cloud_run_v2_service.default] # Ensure backend is deployed first
+}
