@@ -54,6 +54,7 @@ steps:
       - "${_REGION}"
       - "--platform=managed"
       - "--allow-unauthenticated"
+      - "--service-account=${_SERVICE_ACCOUNT}"
     dir: "frontend"
 options:
   logging: CLOUD_LOGGING_ONLY
