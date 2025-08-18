@@ -1,4 +1,10 @@
 steps:
+  - name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        sed -i "s|__VITE_APP_API_URL__|${_BACKEND_API_URL}|g" frontend/.env.production
   # Build the image
   - name: "gcr.io/cloud-builders/docker"
     args:
@@ -48,7 +54,6 @@ steps:
       - "${_REGION}"
       - "--platform=managed"
       - "--allow-unauthenticated"
-      - "--set-env-vars=VITE_APP_API_URL=${_BACKEND_API_URL}" # Pass backend API URL
     dir: "frontend"
 options:
   logging: CLOUD_LOGGING_ONLY
