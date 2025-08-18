@@ -10,10 +10,6 @@ import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
-  if (!env.VITE_APP_API_URL) {
-    throw new Error('VITE_APP_API_URL is not defined in your environment files.')
-  }
-
   return {
     plugins: [
       vue(),
@@ -57,7 +53,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': {
-          target: env.VITE_APP_API_URL,
+          target: env.VITE_APP_API_URL || 'http://localhost:8080',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
