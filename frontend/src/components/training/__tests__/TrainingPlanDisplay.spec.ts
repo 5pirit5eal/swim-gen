@@ -13,7 +13,7 @@ describe('TrainingPlanDisplay.vue', () => {
     })
 
     // Check for the placeholder text
-    expect(wrapper.text()).toContain(i18n.global.t('trainingPlanDisplay.noPlanPlaceholder'))
+    expect(wrapper.text()).toContain(i18n.global.t('display.no_plan_placeholder'))
   })
   it('renders the training plan when it exists', async () => {
     const wrapper = mount(TrainingPlanDisplay, {
@@ -55,6 +55,6 @@ describe('TrainingPlanDisplay.vue', () => {
     expect(wrapper.text()).toContain(mockPlan.title)
     expect(wrapper.text()).toContain(mockPlan.description)
 
-    expect(wrapper.text()).not.toContain(i18n.global.t('trainingPlanDisplay.noPlanPlaceholder'))
+    expect(wrapper.text()).not.toContain(i18n.global.t('display.no_plan_placeholder'))
   })
 })

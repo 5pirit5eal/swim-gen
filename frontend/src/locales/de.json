@@ -96,9 +96,7 @@
     "total_tooltip": "Gesamtdistanz in Metern für den Übungssatz.",
     "meters_total": "Gesamtdistanz",
     "exercise_sets": "Übungssätze",
-    "trainingPlanDisplay": {
-      "noPlanPlaceholder": "Noch kein Trainingsplan generiert. Verwende das obige Formular, um einen zu erstellen!"
-    },
+    "no_plan_placeholder": "Noch kein Trainingsplan generiert. Verwende das obige Formular, um einen zu erstellen!",
     "done_editing": "Bearbeitung beenden",
     "refine_plan": "Plan verfeinern",
     "export_pdf": "PDF exportieren",
@@ -131,7 +129,7 @@
     "changes_title": "11. Änderungen dieser Datenschutzerklärung",
     "changes": "Wir können diese Datenschutzerklärung anpassen, um Änderungen unserer Praktiken oder rechtliche Anforderungen zu berücksichtigen. Bei Änderungen: Wird das Datum \"Zuletzt aktualisiert\" oben angepasst. Wesentliche Änderungen werden in der Anwendung deutlich hervorgehoben. Bei gravierenden Änderungen, die Ihre Rechte betreffen, informieren wir Sie zusätzlich. Wir empfehlen, diese Erklärung regelmäßig zu lesen, um zu erfahren, wie wir Ihre Privatsphäre schützen.",
     "contact_title": "12. Kontaktinformationen",
-    "contact": "Wenn Sie Fragen zu dieser Datenschutzerklärung oder unseren Datenschutzpraktiken haben, kontaktieren Sie uns bitte: E-Mail: privacy@swim-rag.com. GitHub: https://github.com/5pirit5eal/swim-rag. Datenschutzanfragen: Für spezielle Fragen oder zur Ausübung Ihrer Rechte nach DSGVO nutzen Sie bitte die oben genannte E-Mail-Adresse mit dem Betreff 'Datenschutzanfrage'.",
+    "contact": "Wenn Sie Fragen zu dieser Datenschutzerklärung oder unseren Datenschutzpraktiken haben, kontaktieren Sie uns bitte: E-Mail: {'privacy@swim-rag.com'}. GitHub: 'https://github.com/5pirit5eal/swim-rag'. Datenschutzanfragen: Für spezielle Fragen oder zur Ausübung Ihrer Rechte nach DSGVO nutzen Sie bitte die oben genannte E-Mail-Adresse mit dem Betreff 'Datenschutzanfrage'.",
     "commitment_title": "13. Unser Datenschutz-Versprechen",
     "commitment": "Swim Gen ist eine datenschutzfreundliche Anwendung. Wir sind überzeugt, dass leistungsstarke KI-Tools für Schwimmer und Triathleten auch ohne umfangreiche Datenerhebung möglich sind. Unser Ziel ist es, zu zeigen, dass nützliche Anwendungen mit minimaler Datenerfassung und gleichzeitig exzellenter Nutzererfahrung realisierbar sind."
   },
@@ -142,7 +140,7 @@
     "read_carefully": "Bitte lesen Sie dieses Dokument sorgfältig.",
     "provided_by": "Diese Anwendung wird bereitgestellt von:",
     "owner": "Swim Gen",
-    "owner_contact": "Kontakt E-Mail des Betreibers: privacy@swim-rag.com",
+    "owner_contact": "Kontakt E-Mail des Betreibers: {'privacy@swim-rag.com'}",
     "at_a_glance_title": "Wichtige Hinweise auf einen Blick",
     "at_a_glance": "Bitte beachten Sie, dass einige Bestimmungen dieser Bedingungen nur für bestimmte Nutzergruppen gelten. Insbesondere können einzelne Klauseln nur für Verbraucher oder für Nutzer gelten, die nicht als Verbraucher eingestuft werden. Solche Einschränkungen werden immer ausdrücklich in der jeweiligen Klausel erwähnt. Fehlt ein solcher Hinweis, gelten die Klauseln für alle Nutzer.",
     "terms_of_use_title": "NUTZUNGSREGELN",
