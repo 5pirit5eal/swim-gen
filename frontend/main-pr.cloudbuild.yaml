@@ -18,3 +18,5 @@ steps:
 options:
   logging: CLOUD_LOGGING_ONLY
   automapSubstitutions: true
+  env:
+    - "VITE_APP_API_URL=${_BACKEND_API_URL}"
