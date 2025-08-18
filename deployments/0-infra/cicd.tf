@@ -25,7 +25,10 @@ locals {
     _SWIM_RAG_API_URL = var.backend_url
   }
   frontend_env_variables = {
+    _PROJECT_ID       = var.project_id
+    _REGION           = var.region
     _SWIM_RAG_API_URL = var.backend_url
+    _PORT             = var.port
   }
 }
 
