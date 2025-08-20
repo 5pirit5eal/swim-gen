@@ -19,7 +19,6 @@ COPY --from=build-stage /app/dist /usr/share/nginx/html
 # Copy custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-ENV PORT=8080
 ENV HOST=0.0.0.0
 EXPOSE ${PORT}
 

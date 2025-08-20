@@ -34,6 +34,20 @@ To run the frontend with the BFF locally, you need to have both the backend and 
 
     The `vite.config.ts` is configured to proxy requests from `/api` to the BFF service running on `http://localhost:8081`.
 
+### Running with Docker Compose
+
+To run the entire application stack (frontend, BFF, and backend) using Docker, you can use the `docker-compose.yml` file located in the root of the project.
+
+1. **Ensure you have Docker and Docker Compose installed.**
+2. **Navigate to the root of the `swim-rag` project.**
+3. **Run the following command:**
+
+    ```sh
+    docker-compose up --build
+    ```
+
+    This will build the Docker images for the frontend, BFF, and backend services and start them. The frontend will be available at `http://localhost:5173`.
+
 ## V1 Development Todo List
 
 ### 🏗️ Project Setup & Architecture
