@@ -6,7 +6,7 @@ import * as authModule from './auth';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8081;
 
 // Middleware to handle JSON bodies
 app.use(express.json());
