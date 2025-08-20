@@ -18,7 +18,7 @@ import {
 class ApiClient {
   private baseUrl: string
 
-  constructor(baseUrl = '/api') {
+  constructor(baseUrl = '/bff') {
     this.baseUrl = baseUrl
   }
 

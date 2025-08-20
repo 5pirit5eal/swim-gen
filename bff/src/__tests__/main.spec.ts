@@ -1,12 +1,16 @@
-import { describe, it, expect, vi, Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
-import { app } from '../main'; // Assuming app is exported from main.ts
 import axios from 'axios';
-import { GoogleAuth } from 'google-auth-library';
+import { app } from '../main';
+import * as authModule from '../auth';
 
-// Mock the external dependencies
 vi.mock('axios');
-vi.mock('google-auth-library');
+
+// Reset mocks between tests
+beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.BACKEND_URL = 'http://backend.test';
+});
 
 describe('BFF Server', () => {
     describe('GET /health', () => {
@@ -19,64 +23,73 @@ describe('BFF Server', () => {
 
     describe('API Proxy', () => {
         it('should proxy POST requests to the backend with auth headers', async () => {
-            // Mock Google Auth
-            const mockGetIdTokenClient = vi.fn().mockResolvedValue({
-                getRequestHeaders: vi.fn().mockResolvedValue({
-                    Authorization: 'Bearer mocked-token',
-                }),
+            process.env.NODE_ENV = 'test'
+            // Mock getAuthHeaders to provide Authorization header
+            vi.spyOn(authModule, 'getAuthHeaders').mockResolvedValue({
+                Authorization: 'Bearer mocked-token',
             });
-            (GoogleAuth as Mock).mockImplementation(() => ({
-                getIdTokenClient: mockGetIdTokenClient,
-            }));
 
             // Mock Axios
-            (axios as any).mockResolvedValue({
+            vi.mocked(axios).mockResolvedValue({
                 status: 200,
                 data: { success: true, message: 'Backend response' },
             });
 
             const requestBody = { query: 'test' };
-            const response = await request(app)
-                .post('/api/query')
-                .send(requestBody);
+            const response = await request(app).post('/api/query').send(requestBody);
 
             expect(response.status).toBe(200);
             expect(response.body).toEqual({ success: true, message: 'Backend response' });
 
-            // Verify Axios was called correctly
             expect(axios).toHaveBeenCalledWith({
                 method: 'POST',
                 url: `${process.env.BACKEND_URL}/query`,
                 data: requestBody,
                 headers: {
-                    'Authorization': 'Bearer mocked-token',
+                    Authorization: 'Bearer mocked-token',
                     'Content-Type': 'application/json',
                 },
             });
         });
 
-        it('should handle errors from the backend', async () => {
-            // Mock Google Auth (can be simpler for this test)
-            const mockGetIdTokenClient = vi.fn().mockResolvedValue({
-                getRequestHeaders: vi.fn().mockResolvedValue({
-                    Authorization: 'Bearer mocked-token',
-                }),
-            });
-            (GoogleAuth as Mock).mockImplementation(() => ({
-                getIdTokenClient: mockGetIdTokenClient,
-            }));
+        it('should proxy without auth headers in development mode', async () => {
+            process.env.NODE_ENV = 'development'
+            // getAuthHeaders returns empty in development; ensure spy returns empty
+            vi.spyOn(authModule, 'getAuthHeaders').mockResolvedValue({});
 
-            // Mock Axios to simulate a backend error
-            (axios as any).mockRejectedValue({
+            vi.mocked(axios).mockResolvedValue({
+                status: 200,
+                data: { ok: true },
+            });
+
+            const response = await request(app).post('/api/ping').send({ a: 1 })
+            expect(response.status).toBe(200)
+            expect(response.body).toEqual({ ok: true })
+
+            expect(axios).toHaveBeenCalledWith({
+                method: 'POST',
+                url: `${process.env.BACKEND_URL}/ping`,
+                data: { a: 1 },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+        })
+
+        it('should handle errors from the backend', async () => {
+            process.env.NODE_ENV = 'test'
+            vi.spyOn(authModule, 'getAuthHeaders').mockResolvedValue({
+                Authorization: 'Bearer mocked-token',
+            });
+
+            vi.mocked(axios).mockRejectedValue({
                 response: {
                     status: 500,
                     data: { message: 'Internal Server Error' },
                 },
             });
 
-            const response = await request(app)
-                .post('/api/some-endpoint')
-                .send({});
+            const response = await request(app).post('/api/some-endpoint').send({});
 
             expect(response.status).toBe(500);
             expect(response.body).toEqual({ message: 'Internal Server Error' });

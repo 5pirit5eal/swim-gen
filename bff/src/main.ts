@@ -1,42 +1,17 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import axios from 'axios';
-import { GoogleAuth } from 'google-auth-library';
+import * as authModule from './auth';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 8080;
-const backendUrl = process.env.BACKEND_URL;
 
 // Middleware to handle JSON bodies
 app.use(express.json());
 
-// Google Auth setup
-const auth = new GoogleAuth();
-
-async function getAuthHeaders() {
-    // For local development against a local backend, we might not have a token.
-    // The NODE_ENV check allows skipping auth.
-    if (!backendUrl || process.env.NODE_ENV === 'development') {
-        console.log('Skipping auth for local development.');
-        return {};
-    }
-
-    console.log(`Fetching token for backend: ${backendUrl}`);
-    try {
-        const client = await auth.getIdTokenClient(backendUrl);
-        const headers = await client.getRequestHeaders();
-        const authorizationHeader = headers.get('Authorization');
-        if (!authorizationHeader) {
-            throw new Error('Authorization header not found in response from Google Auth.');
-        }
-        return { Authorization: authorizationHeader };
-    } catch (error) {
-        console.error('Failed to get auth token:', error);
-        throw new Error('Failed to authenticate with backend service.');
-    }
-}
+// getAuthHeaders is imported from './auth'
 
 // Generic proxy handler for all API requests
 async function proxyRequest(req: express.Request, res: express.Response) {
@@ -44,12 +19,12 @@ async function proxyRequest(req: express.Request, res: express.Response) {
 
     // The frontend will call paths like /api/query. We strip /api before forwarding.
     const backendPath = originalUrl.replace(/^\/api/, '');
-    const targetUrl = `${backendUrl}${backendPath}`;
+    const targetUrl = `${process.env.BACKEND_URL}${backendPath}`;
 
-    console.log(`Proxying request: ${method} ${originalUrl} -> ${targetUrl}`);
+    console.log(`Proxying request: ${method} ${originalUrl} -> ${targetUrl}`)
 
     try {
-        const authHeaders = await getAuthHeaders();
+        const authHeaders = await authModule.getAuthHeaders()
 
         const response = await axios({
             method,
@@ -62,10 +37,11 @@ async function proxyRequest(req: express.Request, res: express.Response) {
         });
 
         res.status(response.status).json(response.data);
-    } catch (error: any) {
-        console.error(`Error proxying request to ${targetUrl}:`, error.message);
-        if (error.response) {
-            res.status(error.response.status).json(error.response.data);
+    } catch (error) {
+        console.error(`Error proxying request to ${targetUrl}:`, error);
+        if (error && typeof error === 'object' && 'response' in error && error.response) {
+            const axiosError = error as { response: { status: number; data: unknown } };
+            res.status(axiosError.response.status).json(axiosError.response.data);
         } else {
             res.status(500).json({ message: 'Error proxying request to backend' });
         }
@@ -73,14 +49,18 @@ async function proxyRequest(req: express.Request, res: express.Response) {
 }
 
 app.get('/health', (req, res) => {
-    res.status(200).send('OK');
+    res.status(200).send('OK')
 });
 
 // All API routes from the frontend are prefixed with /api
 app.use('/api', proxyRequest);
 
-app.listen(port, () => {
-    console.log(`BFF server listening on port ${port}`);
-});
+// Avoid binding a port during tests
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(port, () => {
+        console.log(`BFF server listening on port ${port}`)
+    });
+}
 
-export { app };
+// Exported for testing/mocking in unit tests
+export { app }

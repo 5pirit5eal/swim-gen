@@ -38,15 +38,15 @@ resource "google_secret_manager_secret_iam_member" "cloud_build_sa_secret_access
   member    = "serviceAccount:${google_service_account.cloud_build_sa.email}"
 }
 
-# Cloud Run Service Account
-resource "google_service_account" "cloud_run_sa" {
-  account_id                   = "cloud-run-sa"
-  display_name                 = "Cloud Run Service Account"
+# Backend Service Account
+resource "google_service_account" "swim_gen_backend_sa" {
+  account_id                   = "swim-gen-backend-sa"
+  display_name                 = "Swim Gen Backend Service Account"
   project                      = var.project_id
   create_ignore_already_exists = true
 }
 
-resource "google_project_iam_member" "cloud_run_iam" {
+resource "google_project_iam_member" "swim_gen_backend_iam" {
   for_each = toset([
     "roles/secretmanager.secretAccessor",
     "roles/cloudsql.client",
@@ -57,20 +57,45 @@ resource "google_project_iam_member" "cloud_run_iam" {
   ])
   project = var.project_id
   role    = each.key
-  member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+  member  = "serviceAccount:${google_service_account.swim_gen_backend_sa.email}"
 }
 
-resource "google_secret_manager_secret_iam_member" "cloud_run_sa_secret_access" {
+resource "google_secret_manager_secret_iam_member" "swim_gen_backend_sa_secret_access" {
   for_each  = local.secret_ids
   secret_id = each.value
   project   = var.project_id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+  member    = "serviceAccount:${google_service_account.swim_gen_backend_sa.email}"
 }
 
-# Make the Cloud Build service account a user of the Cloud Run service account
-resource "google_service_account_iam_member" "cloud_build_sa_user" {
-  service_account_id = google_service_account.cloud_run_sa.name
+# Frontend Service Account
+resource "google_service_account" "swim_gen_frontend_sa" {
+  account_id                   = "swim-gen-frontend-sa"
+  display_name                 = "Swim Gen Frontend Service Account"
+  project                      = var.project_id
+  create_ignore_already_exists = true
+}
+
+resource "google_project_iam_member" "swim_gen_frontend_iam" {
+  for_each = toset([
+    "roles/iam.serviceAccountTokenCreator",
+    "roles/run.invoker",
+  ])
+  project = var.project_id
+  role    = each.key
+  member  = "serviceAccount:${google_service_account.swim_gen_frontend_sa.email}"
+}
+
+
+# Make the Cloud Build service account a user of the Cloud Run service accounts
+resource "google_service_account_iam_member" "cloud_build_sa_user_backend" {
+  service_account_id = google_service_account.swim_gen_backend_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.cloud_build_sa.email}"
+}
+
+resource "google_service_account_iam_member" "cloud_build_sa_user_frontend" {
+  service_account_id = google_service_account.swim_gen_frontend_sa.name
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:${google_service_account.cloud_build_sa.email}"
 }
@@ -92,11 +117,11 @@ resource "google_service_account" "pdf_export_sa" {
 }
 
 
-# Allow the Cloud Run service account to impersonate the PDF export service account
+# Allow the Backend service account to impersonate the PDF export service account
 resource "google_service_account_iam_member" "pdf_export_sa_user" {
   service_account_id = google_service_account.pdf_export_sa.name
   role               = "roles/iam.serviceAccountUser"
-  member             = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+  member             = "serviceAccount:${google_service_account.swim_gen_backend_sa.email}"
 }
 
 # Give the PDF export service account access to the storage bucket

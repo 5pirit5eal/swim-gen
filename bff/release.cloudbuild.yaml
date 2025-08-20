@@ -1,0 +1,33 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "build"
+      - "-t"
+      - "${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+      - "."
+    id: "Build"
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+    id: "Push"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    args:
+      - "gcloud"
+      - "run"
+      - "deploy"
+      - "swim-rag-bff"
+      - "--image"
+      - "${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+      - "--region"
+      - "${_LOCATION}"
+      - "--quiet"
+    id: "Deploy"
+
+images:
+  - "${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+
+options:
+  logging: CLOUD_LOGGING_ONLY

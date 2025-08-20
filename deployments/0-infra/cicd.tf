@@ -30,6 +30,13 @@ locals {
     _SWIM_RAG_API_URL = var.backend_url
     _PORT             = var.port
   }
+  bff_env_variables = {
+    _PROJECT_ID  = var.project_id
+    _REGION      = var.region
+    _BACKEND_URL = var.backend_url
+    _PORT        = var.port
+    _LOG_LEVEL   = var.log_level
+  }
 }
 
 
@@ -130,7 +137,7 @@ resource "google_cloudbuild_trigger" "swim_rag_mcp_server_release" {
 
   substitutions = merge(local.mcp_env_variables, {
     _AR_REPO_NAME    = google_artifact_registry_repository.docker.name
-    _SERVICE_ACCOUNT = google_service_account.cloud_run_sa.email
+    _SERVICE_ACCOUNT = google_service_account.swim_gen_backend_sa.email
   })
 
   included_files = ["mcp-server/**"]
@@ -181,7 +188,7 @@ resource "google_cloudbuild_trigger" "swim_rag_backend_release" {
 
   substitutions = merge(local.backend_env_variables, {
     _AR_REPO_NAME    = google_artifact_registry_repository.docker.name
-    _SERVICE_ACCOUNT = google_service_account.cloud_run_sa.email
+    _SERVICE_ACCOUNT = google_service_account.swim_gen_backend_sa.email
   })
 
   tags = ["backend", "PR", "swim-rag", "main"]
@@ -190,7 +197,6 @@ resource "google_cloudbuild_trigger" "swim_rag_backend_release" {
 }
 
 # cloud build triggers for frontend server
-# cloud build triggers for backend server
 resource "google_cloudbuild_trigger" "swim_rag_frontend_pr_main" {
   name               = "swim-rag-frontend-pr-main"
   description        = "Trigger for swim-rag PR to main branch"
@@ -231,10 +237,59 @@ resource "google_cloudbuild_trigger" "swim_rag_frontend_release" {
 
   substitutions = merge(local.frontend_env_variables, {
     _AR_REPO_NAME    = google_artifact_registry_repository.docker.name
-    _SERVICE_ACCOUNT = google_service_account.cloud_run_sa.email
+    _SERVICE_ACCOUNT = google_service_account.swim_gen_frontend_sa.email
   })
 
   tags = ["frontend", "PR", "swim-rag", "main"]
 
   filename = "frontend/release.cloudbuild.yaml"
+}
+
+# cloud build triggers for bff server
+resource "google_cloudbuild_trigger" "swim_rag_bff_pr_main" {
+  name               = "swim-rag-bff-pr-main"
+  description        = "Trigger for swim-rag PR to main branch"
+  service_account    = google_service_account.cloud_build_sa.id
+  location           = "europe-west1"
+  include_build_logs = "INCLUDE_BUILD_LOGS_WITH_STATUS"
+
+  repository_event_config {
+    repository = google_cloudbuildv2_repository.swim_rag.id
+    pull_request {
+      branch = "main"
+    }
+  }
+
+  included_files = ["bff/**"]
+
+  substitutions = local.bff_env_variables
+  tags          = ["bff", "PR", "swim-rag", "main"]
+
+  filename = "bff/main-pr.cloudbuild.yaml"
+}
+
+resource "google_cloudbuild_trigger" "swim_rag_bff_release" {
+  name               = "swim-rag-bff-release"
+  description        = "Trigger for swim-rag release from main branch"
+  service_account    = google_service_account.cloud_build_sa.id
+  location           = "europe-west1"
+  include_build_logs = "INCLUDE_BUILD_LOGS_WITH_STATUS"
+
+  repository_event_config {
+    repository = google_cloudbuildv2_repository.swim_rag.id
+    push {
+      branch = "main"
+    }
+  }
+
+  included_files = ["bff/**"]
+
+  substitutions = merge(local.bff_env_variables, {
+    _AR_REPO_NAME    = google_artifact_registry_repository.docker.name
+    _SERVICE_ACCOUNT = google_service_account.swim_gen_frontend_sa.email
+  })
+
+  tags = ["bff", "PR", "swim-rag", "main"]
+
+  filename = "bff/release.cloudbuild.yaml"
 }
