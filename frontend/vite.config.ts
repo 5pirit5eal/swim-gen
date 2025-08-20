@@ -52,10 +52,10 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
-        '/bff': {
+        '/api': {
           target: env.VITE_APP_API_URL || 'http://localhost:8081',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/bff/, ''),
+          rewrite: (path) => path.replace(/^\/api/, ''),
         },
       },
     },

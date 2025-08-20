@@ -20,6 +20,20 @@ npm run format       # Prettier formatting
 npm run preview      # Preview production build locally
 ```
 
+### Running with the BFF
+
+To run the frontend with the BFF locally, you need to have both the backend and the BFF services running.
+
+1. **Start the backend service** by following the instructions in the `backend/README.md` file. By default, it runs on port `8080`.
+2. **Start the BFF service** by following the instructions in the `bff/README.md` file. By default, it runs on port `8081`.
+3. **Start the frontend development server**:
+
+    ```sh
+    npm run dev
+    ```
+
+    The `vite.config.ts` is configured to proxy requests from `/api` to the BFF service running on `http://localhost:8081`.
+
 ## V1 Development Todo List
 
 ### 🏗️ Project Setup & Architecture

@@ -1,5 +1,5 @@
-# Use the official Node.js 24 image as a parent image
-FROM node:24-slim
+# Use the official Node.js 22 image as a parent image
+FROM node:22-slim
 
 # Set the working directory in the container
 WORKDIR /usr/src/app

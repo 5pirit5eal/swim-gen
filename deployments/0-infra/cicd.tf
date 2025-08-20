@@ -31,11 +31,11 @@ locals {
     _PORT             = var.port
   }
   bff_env_variables = {
-    _PROJECT_ID  = var.project_id
-    _REGION      = var.region
-    _BACKEND_URL = var.backend_url
-    _PORT        = var.port
-    _LOG_LEVEL   = var.log_level
+    _PROJECT_ID      = var.project_id
+    _REGION          = var.region
+    _BACKEND_API_URL = var.backend_url
+    _PORT            = var.port
+    _LOG_LEVEL       = var.log_level
   }
 }
 
