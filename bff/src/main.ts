@@ -82,3 +82,5 @@ app.use('/api', proxyRequest);
 app.listen(port, () => {
     console.log(`BFF server listening on port ${port}`);
 });
+
+export { app };
