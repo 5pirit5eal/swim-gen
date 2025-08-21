@@ -36,3 +36,4 @@ third-party/*
 # LLM files
 .clinerules
 .github/copilot-instructions*
+.vscode

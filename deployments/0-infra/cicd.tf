@@ -14,6 +14,7 @@ locals {
     _PORT             = var.port
     _LOG_LEVEL        = var.log_level
     _BUCKET_NAME      = google_storage_bucket.exported_pdfs.name
+    _SIGNING_SA       = google_service_account.pdf_export_sa.email
   }
   mcp_env_variables = {
     _PROJECT_ID       = var.project_id

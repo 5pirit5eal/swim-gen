@@ -14,10 +14,12 @@ locals {
       "public_ip"       = try(google_sql_database_instance.main.public_ip_address, null)
       "private_ip"      = try(google_sql_database_instance.main.private_ip_address, null)
     }
-    secret_ids       = local.secret_ids
-    bucket_name      = google_storage_bucket.exported_pdfs.name
-    backend_env_vars = local.backend_env_variables
-    mcp_env_vars     = local.mcp_env_variables
+    secret_ids        = local.secret_ids
+    bucket_name       = google_storage_bucket.exported_pdfs.name
+    backend_env_vars  = local.backend_env_variables
+    mcp_env_vars      = local.mcp_env_variables
+    frontend_env_vars = local.frontend_env_variables
+    bff_env_vars      = local.bff_env_variables
     artifactregistry = {
       "repository" = google_artifact_registry_repository.docker.name
       "location"   = google_artifact_registry_repository.docker.location
@@ -34,6 +36,10 @@ locals {
       "swim_gen_frontend" = {
         "email" = google_service_account.swim_gen_frontend_sa.email,
         "id"    = google_service_account.swim_gen_frontend_sa.id,
+      }
+      "pdf_export" = {
+        "email" = google_service_account.pdf_export_sa.email
+        "id"    = google_service_account.pdf_export_sa.id
       }
     }
   }
