@@ -27,9 +27,13 @@ locals {
         "email" = try(google_service_account.cloud_build_sa.email, null)
         "id"    = try(google_service_account.cloud_build_sa.id, null)
       }
-      "cloud_run" = {
-        "email" = try(google_service_account.cloud_run_sa.email, null)
-        "id"    = try(google_service_account.cloud_run_sa.id, null)
+      "swim_gen_backend" = {
+        "email" = google_service_account.swim_gen_backend_sa.email,
+        "id"    = google_service_account.swim_gen_backend_sa.id,
+      }
+      "swim_gen_frontend" = {
+        "email" = google_service_account.swim_gen_frontend_sa.email,
+        "id"    = google_service_account.swim_gen_frontend_sa.id,
       }
     }
   }
