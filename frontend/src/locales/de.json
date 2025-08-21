@@ -56,9 +56,7 @@
     "clear_all_filters": "Alle Filter löschen",
     "generate_training_plan": "Trainingsplan generieren",
     "generating_plan": "Generiere...",
-    "request_too_long": "Ihre Anfrage ist zu lang! Bitte beschränken Sie sie auf 3000 Zeichen.",
-    "failed_to_generate_prompt": "Fehler beim Generieren der Eingabeaufforderung",
-    "failed_to_generate_prompt_with_error": "Fehler beim Generieren der Eingabeaufforderung mit Fehler: "
+    "request_too_long": "Ihre Anfrage ist zu lang! Bitte beschränken Sie sie auf 3000 Zeichen."
   },
   "display": {
     "generating_plan_message": "Ihr Trainingsplan wird generiert...",
@@ -203,5 +201,15 @@
     "amicable_right": "Das Recht der Nutzer, gerichtliche Schritte einzuleiten, bleibt stets unberührt. Bei Streitigkeiten im Zusammenhang mit der Nutzung dieser Anwendung oder des Dienstes werden Nutzer gebeten, den Betreiber über die angegebenen Kontaktdaten zu kontaktieren.",
     "amicable_complaint": "Nutzer können Beschwerden mit einer kurzen Beschreibung und ggf. Angaben zur Bestellung, zum Kauf oder zum Konto an die im Dokument angegebene E-Mail-Adresse des Betreibers senden.",
     "amicable_process": "Der Betreiber bearbeitet Beschwerden unverzüglich und innerhalb von 21 Tagen nach Eingang."
+  },
+  "errors": {
+    "unknown_error": "Ein unbekannter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
+    "health_check_failed": "Der Systemcheck ist fehlgeschlagen. Bitte versuchen Sie es später erneut.",
+    "training_plan_failed": "Der Trainingsplan konnte nicht generiert werden. Bitte überprüfen Sie Ihre Eingaben und versuchen Sie es erneut.",
+    "failed_to_generate_prompt": "Prompt konnte nicht generiert werden",
+    "failed_to_generate_plan": "Plan konnte nicht generiert werden",
+    "failed_to_export_plan": "Trainingsplan konnte nicht als PDF exportiert werden.",
+    "timeout": "Die Anfrage wurde nach {time} Sekunden abgebrochen. Bitte versuchen Sie es erneut.",
+    "connection_failed": "Verbindung zum Server fehlgeschlagen. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut."
   }
 }

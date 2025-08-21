@@ -1,7 +1,8 @@
-import { ref, computed } from 'vue'
+import { apiClient, formatError } from '@/api/client'
+import i18n from '@/plugins/i18n'
+import type { QueryRequest, RAGResponse, Row } from '@/types'
 import { defineStore } from 'pinia'
-import { apiClient } from '@/api/client'
-import type { RAGResponse, QueryRequest, Row } from '@/types'
+import { computed, ref } from 'vue'
 
 export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   // State
@@ -24,9 +25,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       isLoading.value = false
       return true
     } else {
-      error.value =
-        result.error?.message + (': ' + (result.error?.details || 'Unknown')) ||
-        'Failed to generate plan'
+      error.value = result.error ? formatError(result.error) : i18n.global.t('errors.training_plan_failed')
       isLoading.value = false
       return false
     }
@@ -36,7 +35,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     console.log(`Updating row ${rowIndex}, field ${field} with value:`, value)
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       // Recalculate Sum if Amount or Distance changed
       if (field === 'Amount' || field === 'Distance') {
