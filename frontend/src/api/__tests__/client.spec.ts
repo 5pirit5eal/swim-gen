@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { apiClient } from '../client'
 import { ApiEndpoints } from '@/types'
+import i18n from '@/plugins/i18n'
 
 // Mock global fetch
 const mockFetch = vi.fn()
@@ -44,7 +45,7 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: 'Health check failed',
+          message: i18n.global.t('errors.health_check_failed'),
           status: 500,
           details: 'Internal Server Error',
         },
@@ -61,7 +62,7 @@ describe('ApiClient', () => {
         error: {
           message: 'Network down',
           status: 0,
-          details: 'Failed to connect to server',
+          details: i18n.global.t('errors.connection_failed'),
         },
       })
     })
@@ -85,7 +86,7 @@ describe('ApiClient', () => {
         error: {
           message: 'The user aborted a request.',
           status: 0,
-          details: 'Failed to connect to server',
+          details: i18n.global.t('errors.connection_failed'),
         },
       })
     })
@@ -129,7 +130,7 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: 'Prompt generation failed',
+          message: i18n.global.t('errors.failed_to_generate_prompt'),
           status: 400,
           details: 'Bad Request',
         },
@@ -146,7 +147,7 @@ describe('ApiClient', () => {
         error: {
           message: 'Network error',
           status: 0,
-          details: 'Failed to connect to server',
+          details: i18n.global.t('errors.connection_failed'),
         },
       })
     })
@@ -170,7 +171,7 @@ describe('ApiClient', () => {
         error: {
           message: 'The user aborted a request.',
           status: 0,
-          details: 'Request timed out after 10 seconds',
+          details: i18n.global.t('errors.timeout', { time: 10 }),
         },
       })
     })
@@ -220,7 +221,7 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: 'Query of training plan failed',
+          message: i18n.global.t('errors.training_plan_failed'),
           status: 500,
           details: 'Internal Server Error',
         },
@@ -237,7 +238,7 @@ describe('ApiClient', () => {
         error: {
           message: 'Network error',
           status: 0,
-          details: 'Failed to connect to server',
+          details: i18n.global.t('errors.connection_failed'),
         },
       })
     })
@@ -250,6 +251,7 @@ describe('ApiClient', () => {
           options.signal.addEventListener('abort', () => {
             reject(error)
           })
+          // Simulate a delay that exceeds the timeout
         })
       })
 
@@ -261,7 +263,7 @@ describe('ApiClient', () => {
         error: {
           message: 'The user aborted a request.',
           status: 0,
-          details: 'Request timed out after 60 seconds',
+          details: i18n.global.t('errors.timeout', { time: 60 }),
         },
       })
     })
@@ -309,7 +311,7 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: 'Converting plan to PDF failed',
+          message: i18n.global.t('errors.failed_to_export_plan'),
           status: 400,
           details: 'Bad Request',
         },
@@ -326,7 +328,7 @@ describe('ApiClient', () => {
         error: {
           message: 'Network error',
           status: 0,
-          details: 'Failed to connect to server',
+          details: i18n.global.t('errors.connection_failed'),
         },
       })
     })

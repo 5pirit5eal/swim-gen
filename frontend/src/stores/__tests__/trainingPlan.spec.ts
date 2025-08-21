@@ -8,11 +8,16 @@ import type { Mock } from 'vitest' // Import Mock type
 // --- This is the mock ---
 // We are telling Vitest: "Whenever someone imports from '@/api/client',
 // don't give them the real module. Instead, give them this fake object."
-vi.mock('@/api/client', () => ({
-  apiClient: {
-    query: vi.fn(),
-  },
-}))
+vi.mock('@/api/client', async (importOriginal) => {
+  const actual = await importOriginal() as typeof import('@/api/client')
+  return {
+    ...actual,
+    apiClient: {
+      query: vi.fn(),
+    },
+    formatError: vi.fn((error) => `${error.message}: ${error.details}`), // Mock formatError
+  }
+})
 
 // Cast apiClient.query to a Mock type for TypeScript to recognize mock methods
 // Cast apiClient.query to a Mock type for TypeScript to recognize mock methods
