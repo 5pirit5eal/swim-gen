@@ -1,6 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import axios from 'axios';
+import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import { MemoryStore } from './memory-store';
 import * as authModule from './auth';
 
 dotenv.config();
@@ -11,7 +14,25 @@ const port = process.env.PORT || 8081;
 // Middleware to handle JSON bodies
 app.use(express.json());
 
-// getAuthHeaders is imported from './auth'
+// Enable CORS
+const corsOptions = {
+    origin: process.env.FRONTEND_URL,
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+app.use(cors(corsOptions));
+
+// Rate limiting
+export const store = new MemoryStore();
+export const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: true,
+    store,
+});
+
+// Apply the rate limiting middleware to API calls only
+app.use('/api', apiLimiter);
 
 // Generic proxy handler for all API requests
 async function proxyRequest(req: express.Request, res: express.Response) {
@@ -52,6 +73,11 @@ app.get('/health', (req, res) => {
     res.status(200).send('OK')
 });
 
+// Block the /api/scrape endpoint
+app.use('/api/scrape', (req, res) => {
+    res.status(403).send('This endpoint is not available.');
+});
+
 // All API routes from the frontend are prefixed with /api
 app.use('/api', proxyRequest);
 
@@ -63,4 +89,4 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Exported for testing/mocking in unit tests
-export { app }
+export { app, store as testingStore }
