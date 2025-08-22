@@ -204,7 +204,7 @@ class ApiClient {
           status: 0,
           details:
             error instanceof Error && error.name === 'AbortError'
-              ? i18n.global.t('errors.timeout', { time: this.DEFAUTL_TIMEOUT_MS / 1000 })
+              ? i18n.global.t('errors.timeout', { time: this.DEFAULT_TIMEOUT_MS / 1000 })
               : i18n.global.t('errors.connection_failed'),
         },
       }
