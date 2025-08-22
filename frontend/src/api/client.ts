@@ -21,6 +21,9 @@ export function formatError(error: { message?: string; details?: string }): stri
 
 class ApiClient {
   private baseUrl: string
+  public readonly DEFAUTL_TIMEOUT_MS: number = 5000 // 5 seconds
+  public readonly QUERY_TIMEOUT_MS: number = 60000 // 60 seconds
+  public readonly PROMPT_TIMEOUT_MS: number = 10000 // 10 seconds
 
   constructor(baseUrl = '/api') {
     this.baseUrl = baseUrl
@@ -32,7 +35,7 @@ class ApiClient {
   async checkHealth(): Promise<ApiResult<HealthCheckResponse>> {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 5000)
+      const timeoutId = setTimeout(() => controller.abort(), this.DEFAUTL_TIMEOUT_MS)
 
       const response = await fetch(`${this.baseUrl}/${ApiEndpoints.HEALTH}`, {
         signal: controller.signal,
@@ -76,7 +79,7 @@ class ApiClient {
   ): Promise<ApiResult<PromptGenerationResponse>> {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 10000)
+      const timeoutId = setTimeout(() => controller.abort(), this.PROMPT_TIMEOUT_MS)
 
       const response = await fetch(`${this.baseUrl}/${ApiEndpoints.PROMPT}`, {
         method: 'POST',
@@ -111,7 +114,7 @@ class ApiClient {
           status: 0,
           details:
             error instanceof Error && error.name === 'AbortError'
-              ? i18n.global.t('errors.timeout', { time: 10 })
+              ? i18n.global.t('errors.timeout', { time: this.PROMPT_TIMEOUT_MS / 1000 })
               : i18n.global.t('errors.connection_failed'),
         },
       }
@@ -124,7 +127,7 @@ class ApiClient {
   async query(request: QueryRequest): Promise<ApiResult<RAGResponse>> {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 60000)
+      const timeoutId = setTimeout(() => controller.abort(), this.QUERY_TIMEOUT_MS)
 
       const response = await fetch(`${this.baseUrl}/${ApiEndpoints.QUERY}`, {
         method: 'POST',
@@ -159,7 +162,7 @@ class ApiClient {
           status: 0,
           details:
             error instanceof Error && error.name === 'AbortError'
-              ? i18n.global.t('errors.timeout', { time: 60 })
+              ? i18n.global.t('errors.timeout', { time: this.QUERY_TIMEOUT_MS / 1000 })
               : i18n.global.t('errors.connection_failed'),
         },
       }
@@ -201,7 +204,7 @@ class ApiClient {
           status: 0,
           details:
             error instanceof Error && error.name === 'AbortError'
-              ? i18n.global.t('errors.timeout', { time: 5 })
+              ? i18n.global.t('errors.timeout', { time: this.DEFAUTL_TIMEOUT_MS / 1000 })
               : i18n.global.t('errors.connection_failed'),
         },
       }

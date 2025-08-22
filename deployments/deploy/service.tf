@@ -1,5 +1,5 @@
 resource "google_cloud_run_v2_service" "backend" {
-  name     = "swim-rag-backend-go"
+  name     = "swim-rag-backend"
   location = var.region
   ingress  = "INGRESS_TRAFFIC_INTERNAL_ONLY"
 
@@ -94,6 +94,10 @@ resource "google_cloud_run_v2_service" "bff" {
       env {
         name  = "BACKEND_URL"
         value = google_cloud_run_v2_service.backend.uri
+      }
+      env {
+        name  = "FRONTEND_URL"
+        value = google_cloud_run_v2_service.frontend.uri
       }
     }
   }
