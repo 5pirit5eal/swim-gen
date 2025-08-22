@@ -21,7 +21,7 @@ export function formatError(error: { message?: string; details?: string }): stri
 
 class ApiClient {
   private baseUrl: string
-  public readonly DEFAUTL_TIMEOUT_MS: number = 5000 // 5 seconds
+  public readonly DEFAULT_TIMEOUT_MS: number = 5000 // 5 seconds
   public readonly QUERY_TIMEOUT_MS: number = 60000 // 60 seconds
   public readonly PROMPT_TIMEOUT_MS: number = 10000 // 10 seconds
 
