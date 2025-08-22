@@ -18,7 +18,22 @@ steps:
   - name: "node:22"
     entrypoint: "npm"
     args: ["run", "test"]
-    dir: "frontend"
+    dir: "bff"
+  # Run lint
+  - name: "node:22"
+    entrypoint: "npm"
+    args: ["run", "lint"]
+    dir: "bff"
+  # Run type-check
+  - name: "node:22"
+    entrypoint: "npm"
+    args: ["run", "type-check"]
+    dir: "bff"
+  # Run tests
+  - name: "node:22"
+    entrypoint: "npm"
+    args: ["run", "test"]
+    dir: "bff"
 options:
   logging: CLOUD_LOGGING_ONLY
   automapSubstitutions: true
