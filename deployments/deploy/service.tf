@@ -1,12 +1,12 @@
-resource "google_cloud_run_v2_service" "default" {
-  name     = "swim-rag-backend-go"
+resource "google_cloud_run_v2_service" "backend" {
+  name     = "swim-rag-backend"
   location = var.region
-
+  ingress  = "INGRESS_TRAFFIC_INTERNAL_ONLY"
 
   deletion_protection = false # set to "true" in production
 
   template {
-    service_account = google_service_account.cloud_run_sa.email
+    service_account = google_service_account.swim_gen_backend_sa.email
     containers {
       image = "${google_artifact_registry_repository.docker.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker.repository_id}/swim-rag-backend:latest"
       liveness_probe {
@@ -60,7 +60,58 @@ resource "google_cloud_run_v2_service" "default" {
     }
   }
   client     = "terraform"
-  depends_on = [google_service_account.cloud_run_sa]
+  depends_on = [google_service_account.swim_gen_backend_sa]
+}
+
+resource "google_cloud_run_v2_service_iam_member" "bff_invoker" {
+  project  = var.project_id
+  location = var.region
+  name     = google_cloud_run_v2_service.backend.name
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${google_service_account.swim_gen_frontend_sa.email}"
+}
+
+resource "google_cloud_run_v2_service" "bff" {
+  name     = "swim-rag-bff"
+  location = var.region
+
+  deletion_protection = false
+
+  template {
+    service_account = google_service_account.swim_gen_frontend_sa.email
+    containers {
+      image = "${google_artifact_registry_repository.docker.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker.repository_id}/swim-rag-bff:latest"
+      liveness_probe {
+        http_get {
+          path = "/health"
+          port = 8080
+        }
+        initial_delay_seconds = 5
+        period_seconds        = 10
+        timeout_seconds       = 2
+        failure_threshold     = 3
+      }
+      env {
+        name  = "BACKEND_URL"
+        value = google_cloud_run_v2_service.backend.uri
+      }
+      env {
+        name  = "FRONTEND_URL"
+        value = google_cloud_run_v2_service.frontend.uri
+      }
+    }
+  }
+
+  traffic {
+    type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
+    percent = 100
+  }
+
+  depends_on = [
+    google_cloud_run_v2_service.backend,
+    google_service_account.swim_gen_frontend_sa,
+    google_cloud_run_v2_service_iam_member.bff_invoker
+  ]
 }
 
 resource "google_cloud_run_v2_service" "frontend" {
@@ -70,7 +121,7 @@ resource "google_cloud_run_v2_service" "frontend" {
   deletion_protection = false
 
   template {
-    service_account = google_service_account.cloud_run_sa.email
+    service_account = google_service_account.swim_gen_frontend_sa.email
     containers {
       image = "${google_artifact_registry_repository.docker.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker.repository_id}/swim-rag-frontend:latest"
       liveness_probe {
@@ -85,7 +136,7 @@ resource "google_cloud_run_v2_service" "frontend" {
       }
       env {
         name  = "VITE_APP_API_URL"
-        value = google_cloud_run_v2_service.default.uri # Use the backend service URI
+        value = google_cloud_run_v2_service.bff.uri # Use the bff service URI
       }
     }
   }
@@ -95,5 +146,5 @@ resource "google_cloud_run_v2_service" "frontend" {
     percent = 100
   }
 
-  depends_on = [google_cloud_run_v2_service.default] # Ensure backend is deployed first
+  depends_on = [google_cloud_run_v2_service.bff] # Ensure bff is deployed first
 }

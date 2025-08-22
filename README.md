@@ -8,22 +8,23 @@ The web application is hosted in Google Cloud. The following components are invo
 
 1. Identity-Aware Proxy (IAP) to authenticate and identify users
 2. Single-Page Frontend hosted in Cloud Run implemented in **Vue.js**
-3. Backend hosted in Cloud Run implemented in **Go** and **Langchaingo**
-4. PostgreSQL database (managed) with **pgvector**
-5. An **MCP Server** implemented in **Python** to expose backend functionality to other clients.
+3. Backend-for-Frontend (BFF) hosted in Cloud Run implemented in **Node.js**
+4. Backend hosted in Cloud Run implemented in **Go** and **Langchaingo**
+5. PostgreSQL database (managed) with **pgvector**
+6. An **MCP Server** implemented in **Python** to expose backend functionality to other clients.
 
 ```plaintext
-+----------------+      HTTPS     +----------------+      HTTPS     +-----------------+      +------------+
-| User's Browser | -------------> | Frontend       | -------------> | Backend (Go)    | <--> | PostgreSQL |
-| (Vue.js)       |                | (Cloud Run)    |                | (Cloud Run)     |      | (pgvector) |
-+----------------+                +----------------+                +-----------------+      +------------+
-                                                                            ^
-                                                                            | HTTP
-                                                                            |
-                                                                    +-----------------+
-                                                                    | MCP Server (Py) |
-                                                                    | (Cloud Run)     |
-                                                                    +-----------------+
++----------------+      HTTPS     +----------------+      HTTPS     +-----------------+      HTTPS      +-----------------+      +------------+
+| User's Browser | -------------> | Frontend       | -------------> | BFF (Node.js)   | -------------> | Backend (Go)    | <--> | PostgreSQL |
+| (Vue.js)       |                | (Cloud Run)    |                | (Cloud Run)     |                | (Cloud Run)     |      | (pgvector) |
++----------------+                +----------------+                +-----------------+                +-----------------+      +------------+
+                                                                                                               ^
+                                                                                                               | HTTP
+                                                                                                               |
+                                                                                                       +-----------------+
+                                                                                                       | MCP Server (Py) |
+                                                                                                       | (Cloud Run)     |
+                                                                                                       +-----------------+
                                                                             ^
                                                                             | MCP
                                                                             |

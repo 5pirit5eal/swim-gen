@@ -102,3 +102,15 @@ variable "backend_url" {
   type        = string
   default     = "http://localhost:8080"
 }
+
+variable "bff_url" {
+  description = "The BFF URL for the frontend"
+  type        = string
+  default     = "http://localhost:8081"
+}
+
+variable "domain_url" {
+  description = "The domain URL for the frontend"
+  type        = string
+  default     = "http://localhost:5173"
+}

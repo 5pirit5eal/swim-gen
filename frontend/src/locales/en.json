@@ -56,9 +56,7 @@
     "clear_all_filters": "Clear All Filters",
     "generate_training_plan": "Generate Training Plan",
     "generating_plan": "Generating...",
-    "request_too_long": "Your request is too long! Please limit it to 3000 characters.",
-    "failed_to_generate_prompt": "Failed to generate prompt",
-    "failed_to_generate_prompt_with_error": "Failed to generate prompt with error: "
+    "request_too_long": "Your request is too long! Please limit it to 3000 characters."
   },
   "display": {
     "generating_plan_message": "Generating your training plan...",
@@ -203,5 +201,15 @@
     "amicable_right": "While Users' right to take legal action shall always remain unaffected, in the event of any controversy regarding the use of this Application or the Service, Users are kindly asked to contact the Owner at the contact details provided in this document.",
     "amicable_complaint": "The User may submit the complaint including a brief description and if applicable, the details of the related order, purchase, or account, to the Owner's email address specified in this document.",
     "amicable_process": "The Owner will process the complaint without undue delay and within 21 days of receiving it."
+  },
+  "errors": {
+    "unknown_error": "An unknown error occurred. Please try again later.",
+    "health_check_failed": "Health check failed. Please try again later.",
+    "training_plan_failed": "Failed to generate training plan. Please check your input and try again.",
+    "failed_to_generate_prompt": "Failed to generate prompt",
+    "failed_to_generate_plan": "Failed to generate plan",
+    "failed_to_export_plan": "Failed to export training plan to PDF.",
+    "timeout": "Request timed out after {time} seconds. Please try again.",
+    "connection_failed": "Failed to connect to the server. Please check your internet connection and try again."
   }
 }

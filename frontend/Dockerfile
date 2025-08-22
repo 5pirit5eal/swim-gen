@@ -16,11 +16,7 @@ COPY nginx.conf /etc/nginx/conf.d/configfile.template
 
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-# Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-ENV PORT=8080
 ENV HOST=0.0.0.0
 EXPOSE ${PORT}
 
-CMD sh -c "envsubst '\$PORT' < /etc/nginx/conf.d/configfile.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+CMD sh -c "envsubst '\$PORT,\$VITE_APP_API_URL' < /etc/nginx/conf.d/configfile.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"

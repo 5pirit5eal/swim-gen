@@ -20,6 +20,34 @@ npm run format       # Prettier formatting
 npm run preview      # Preview production build locally
 ```
 
+### Running with the BFF
+
+To run the frontend with the BFF locally, you need to have both the backend and the BFF services running.
+
+1. **Start the backend service** by following the instructions in the `backend/README.md` file. By default, it runs on port `8080`.
+2. **Start the BFF service** by following the instructions in the `bff/README.md` file. By default, it runs on port `8081`.
+3. **Start the frontend development server**:
+
+    ```sh
+    npm run dev
+    ```
+
+    The `vite.config.ts` is configured to proxy requests from `/api` to the BFF service running on `http://localhost:8081`.
+
+### Running with Docker Compose
+
+To run the entire application stack (frontend, BFF, and backend) using Docker, you can use the `docker-compose.yml` file located in the root of the project.
+
+1. **Ensure you have Docker and Docker Compose installed.**
+2. **Navigate to the root of the `swim-rag` project.**
+3. **Run the following command:**
+
+    ```sh
+    docker-compose up --build
+    ```
+
+    This will build the Docker images for the frontend, BFF, and backend services and start them. The frontend will be available at `http://localhost:5173`.
+
 ## V1 Development Todo List
 
 ### 🏗️ Project Setup & Architecture

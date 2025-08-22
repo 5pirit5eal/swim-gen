@@ -33,7 +33,8 @@ type Config struct {
 	}
 
 	Bucket struct {
-		Name string `env:"BUCKET_NAME"`
+		Name           string `env:"BUCKET_NAME"`
+		ServiceAccount string `env:"SIGNING_SA"`
 	}
 }
 

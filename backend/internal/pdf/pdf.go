@@ -58,7 +58,7 @@ func PlanToPDF(plan *models.Plan) ([]byte, error) {
 }
 
 // Uploads the given pdf to cloud storage and returns the URI of the uploaded file.
-func UploadPDF(ctx context.Context, bucketName, objectName string, pdfData []byte) (string, error) {
+func UploadPDF(ctx context.Context, serviceAccount, bucketName, objectName string, pdfData []byte) (string, error) {
 	// Creates a client.
 	client, err := storage.NewClient(ctx)
 	if err != nil {
@@ -89,7 +89,7 @@ func UploadPDF(ctx context.Context, bucketName, objectName string, pdfData []byt
 
 	// Generate signed url (V4 Signing)
 	opts := storage.SignedURLOptions{
-		GoogleAccessID: "pdf-export-sa@rubenschulze-sandbox.iam.gserviceaccount.com",
+		GoogleAccessID: serviceAccount,
 		Scheme:         storage.SigningSchemeV4,
 		Method:         "GET",
 		Expires:        time.Now().Add(15 * time.Minute),

@@ -2,21 +2,28 @@
  * API Client for Swim Gen/RAG Backend
  * Handles HTTP requests with proper TypeScript typing
  */
-
 import {
+  type ApiResult,
+  type HealthCheckResponse,
+  type PlanToPDFRequest,
+  type PlanToPDFResponse,
   type PromptGenerationRequest,
   type PromptGenerationResponse,
   type QueryRequest,
   type RAGResponse,
-  type PlanToPDFRequest,
-  type PlanToPDFResponse,
-  type HealthCheckResponse,
-  type ApiResult,
   ApiEndpoints,
-} from '@/types'
+} from '@/types';
+import i18n from '@/plugins/i18n';
+
+export function formatError(error: { message?: string; details?: string }): string {
+  return `${error.message}: ${error.details ?? i18n.global.t('errors.unknown_error')}`
+}
 
 class ApiClient {
   private baseUrl: string
+  public readonly DEFAULT_TIMEOUT_MS: number = 5000 // 5 seconds
+  public readonly QUERY_TIMEOUT_MS: number = 60000 // 60 seconds
+  public readonly PROMPT_TIMEOUT_MS: number = 10000 // 10 seconds
 
   constructor(baseUrl = '/api') {
     this.baseUrl = baseUrl
@@ -28,7 +35,7 @@ class ApiClient {
   async checkHealth(): Promise<ApiResult<HealthCheckResponse>> {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 5000)
+      const timeoutId = setTimeout(() => controller.abort(), this.DEFAULT_TIMEOUT_MS)
 
       const response = await fetch(`${this.baseUrl}/${ApiEndpoints.HEALTH}`, {
         signal: controller.signal,
@@ -40,7 +47,7 @@ class ApiClient {
         return {
           success: false,
           error: {
-            message: 'Health check failed',
+            message: i18n.global.t('errors.health_check_failed'),
             status: response.status,
             details: response.statusText,
           },
@@ -56,9 +63,9 @@ class ApiClient {
       return {
         success: false,
         error: {
-          message: error instanceof Error ? error.message : 'Network error',
+          message: error instanceof Error ? error.message : i18n.global.t('errors.unknown_error'),
           status: 0,
-          details: 'Failed to connect to server',
+          details: i18n.global.t('errors.connection_failed'),
         },
       }
     }
@@ -72,7 +79,7 @@ class ApiClient {
   ): Promise<ApiResult<PromptGenerationResponse>> {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 10000)
+      const timeoutId = setTimeout(() => controller.abort(), this.PROMPT_TIMEOUT_MS)
 
       const response = await fetch(`${this.baseUrl}/${ApiEndpoints.PROMPT}`, {
         method: 'POST',
@@ -87,7 +94,7 @@ class ApiClient {
         return {
           success: false,
           error: {
-            message: 'Prompt generation failed',
+            message: i18n.global.t('errors.failed_to_generate_prompt'),
             status: response.status,
             details: response.statusText,
           },
@@ -103,12 +110,12 @@ class ApiClient {
       return {
         success: false,
         error: {
-          message: error instanceof Error ? error.message : 'Network error',
+          message: error instanceof Error ? error.message : i18n.global.t('errors.unknown_error'),
           status: 0,
           details:
             error instanceof Error && error.name === 'AbortError'
-              ? 'Request timed out after 10 seconds'
-              : 'Failed to connect to server',
+              ? i18n.global.t('errors.timeout', { time: this.PROMPT_TIMEOUT_MS / 1000 })
+              : i18n.global.t('errors.connection_failed'),
         },
       }
     }
@@ -120,7 +127,7 @@ class ApiClient {
   async query(request: QueryRequest): Promise<ApiResult<RAGResponse>> {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 60000)
+      const timeoutId = setTimeout(() => controller.abort(), this.QUERY_TIMEOUT_MS)
 
       const response = await fetch(`${this.baseUrl}/${ApiEndpoints.QUERY}`, {
         method: 'POST',
@@ -135,7 +142,7 @@ class ApiClient {
         return {
           success: false,
           error: {
-            message: 'Query of training plan failed',
+            message: i18n.global.t('errors.training_plan_failed'),
             status: response.status,
             details: response.statusText,
           },
@@ -151,12 +158,12 @@ class ApiClient {
       return {
         success: false,
         error: {
-          message: error instanceof Error ? error.message : 'Network error',
+          message: error instanceof Error ? error.message : i18n.global.t('errors.unknown_error'),
           status: 0,
           details:
             error instanceof Error && error.name === 'AbortError'
-              ? 'Request timed out after 60 seconds'
-              : 'Failed to connect to server',
+              ? i18n.global.t('errors.timeout', { time: this.QUERY_TIMEOUT_MS / 1000 })
+              : i18n.global.t('errors.connection_failed'),
         },
       }
     }
@@ -177,7 +184,7 @@ class ApiClient {
         return {
           success: false,
           error: {
-            message: 'Converting plan to PDF failed',
+            message: i18n.global.t('errors.failed_to_export_plan'),
             status: response.status,
             details: response.statusText,
           },
@@ -197,8 +204,8 @@ class ApiClient {
           status: 0,
           details:
             error instanceof Error && error.name === 'AbortError'
-              ? 'Request timed out after 60 seconds'
-              : 'Failed to connect to server',
+              ? i18n.global.t('errors.timeout', { time: this.DEFAULT_TIMEOUT_MS / 1000 })
+              : i18n.global.t('errors.connection_failed'),
         },
       }
     }

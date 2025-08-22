@@ -217,7 +217,7 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 	}
 
 	// Upload the PDF to cloud storage
-	uri, err := pdf.UploadPDF(req.Context(), rs.cfg.Bucket.Name, pdf.GenerateFilename(), planPDF)
+	uri, err := pdf.UploadPDF(req.Context(), rs.cfg.Bucket.ServiceAccount, rs.cfg.Bucket.Name, pdf.GenerateFilename(), planPDF)
 	if err != nil {
 		logger.Error("PDF upload failed", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
