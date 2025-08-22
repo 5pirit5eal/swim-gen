@@ -35,7 +35,7 @@ class ApiClient {
   async checkHealth(): Promise<ApiResult<HealthCheckResponse>> {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), this.DEFAUTL_TIMEOUT_MS)
+      const timeoutId = setTimeout(() => controller.abort(), this.DEFAULT_TIMEOUT_MS)
 
       const response = await fetch(`${this.baseUrl}/${ApiEndpoints.HEALTH}`, {
         signal: controller.signal,
