@@ -10,7 +10,7 @@ dotenv.config();
 
 const app = express();
 app.set('trust proxy', 1);
-const port = process.env.PORT || 8081;
+const port = process.env.PORT || 8080;
 
 // Middleware to handle JSON bodies
 app.use(express.json());
