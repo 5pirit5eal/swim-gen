@@ -6,7 +6,7 @@ steps:
       - "${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
       - "."
     id: "Build"
-
+    dir: "bff"
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
