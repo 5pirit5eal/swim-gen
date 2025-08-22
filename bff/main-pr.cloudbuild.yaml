@@ -21,7 +21,3 @@ steps:
     dir: "bff"
 options:
   logging: CLOUD_LOGGING_ONLY
-  automapSubstitutions: true
-  env:
-    - "BACKEND_URL=${_BACKEND_URL}"
-    - "FRONTEND_URL=${_FRONTEND_URL}"
