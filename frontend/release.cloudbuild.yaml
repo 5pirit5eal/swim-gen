@@ -8,22 +8,18 @@ steps:
   # Build the image
   - name: "gcr.io/cloud-builders/docker"
     args:
-      [
-        "build",
-        "--platform",
-        "linux/amd64",
-        "-t",
-        "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-frontend:$SHORT_SHA",
-        ".",
-      ]
+      - "build"
+      - "--platform"
+      - "linux/amd64"
+      - "-t"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-frontend:$SHORT_SHA"
+      - "."
     dir: "frontend"
   # Push the image
   - name: "gcr.io/cloud-builders/docker"
     args:
-      [
-        "push",
-        "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-frontend:$SHORT_SHA",
-      ]
+      - "push"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-frontend:$SHORT_SHA"
   # Tag the image
   - name: "gcr.io/cloud-builders/gcloud"
     args:

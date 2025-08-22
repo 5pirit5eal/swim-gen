@@ -2,35 +2,44 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "build"
+      - "--platform"
+      - "linux/amd64"
       - "-t"
-      - "${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
       - "."
     id: "Build"
     dir: "bff"
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
     id: "Push"
-
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+  - name: "gcr.io/cloud-builders/gcloud"
     args:
-      - "gcloud"
+      - "artifacts"
+      - "docker"
+      - "tags"
+      - "add"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-bff:$SHORT_SHA"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-bff:latest"
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
       - "run"
       - "deploy"
       - "swim-rag-bff"
       - "--image"
-      - "${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
       - "--region"
-      - "${_LOCATION}"
-      - "--quiet"
+      - "${_REGION}"
+      - "--platform=managed"
+      - "--allow-unauthenticated"
       - "--service-account=${_SERVICE_ACCOUNT}"
       - "--set-env-vars=BACKEND_URL=${_BACKEND_URL}"
       - "--set-env-vars=FRONTEND_URL=${_FRONTEND_URL}"
     id: "Deploy"
-
+    dir: "bff"
 images:
-  - "${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
 
 options:
   logging: CLOUD_LOGGING_ONLY
