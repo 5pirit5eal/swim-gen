@@ -5,14 +5,14 @@ steps:
       - "--platform"
       - "linux/amd64"
       - "-t"
-      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-bff:$COMMIT_SHA"
       - "."
     id: "Build"
     dir: "bff"
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-bff:$COMMIT_SHA"
     id: "Push"
   - name: "gcr.io/cloud-builders/gcloud"
     args:
@@ -28,7 +28,7 @@ steps:
       - "deploy"
       - "swim-rag-bff"
       - "--image"
-      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-bff:$COMMIT_SHA"
       - "--region"
       - "${_REGION}"
       - "--platform=managed"
@@ -39,7 +39,7 @@ steps:
     id: "Deploy"
     dir: "bff"
 images:
-  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/swim-rag-bff:$COMMIT_SHA"
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/swim-rag-bff:$COMMIT_SHA"
 
 options:
   logging: CLOUD_LOGGING_ONLY

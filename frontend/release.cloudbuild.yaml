@@ -51,7 +51,7 @@ steps:
       - "--platform=managed"
       - "--allow-unauthenticated"
       - "--service-account=${_SERVICE_ACCOUNT}"
-      - "--set-env-vars=VITE_APP_API_URL=${_BACKEND_API_URL}"
+      - "--set-env-vars=VITE_APP_API_URL=${_BFF_URL}"
     dir: "frontend"
 options:
   logging: CLOUD_LOGGING_ONLY
