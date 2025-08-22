@@ -9,6 +9,7 @@ import * as authModule from './auth';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1);
 const port = process.env.PORT || 8081;
 
 // Middleware to handle JSON bodies
