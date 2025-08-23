@@ -29,3 +29,4 @@ coverage
 
 *.tsbuildinfo
 .github/copilot-instructions.md
+.env*

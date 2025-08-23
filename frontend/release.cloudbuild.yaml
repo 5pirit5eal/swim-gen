@@ -1,10 +1,4 @@
 steps:
-  - name: "gcr.io/cloud-builders/gcloud"
-    entrypoint: "bash"
-    args:
-      - "-c"
-      - |
-        sed -i "s|__VITE_APP_API_URL__|${_BACKEND_API_URL}|g" frontend/.env.production
   # Build the image
   - name: "gcr.io/cloud-builders/docker"
     args:
