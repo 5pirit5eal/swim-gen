@@ -14,7 +14,7 @@ The web application is hosted in Google Cloud. The following components are invo
 6. An **MCP Server** implemented in **Python** to expose backend functionality to other clients.
 
 ```plaintext
-+----------------+      HTTPS     +----------------+      HTTPS     +-----------------+      HTTPS      +-----------------+      +------------+
++----------------+      HTTPS     +----------------+      HTTPS     +-----------------+      HTTPS     +-----------------+      +------------+
 | User's Browser | -------------> | Frontend       | -------------> | BFF (Node.js)   | -------------> | Backend (Go)    | <--> | PostgreSQL |
 | (Vue.js)       |                | (Cloud Run)    |                | (Cloud Run)     |                | (Cloud Run)     |      | (pgvector) |
 +----------------+                +----------------+                +-----------------+                +-----------------+      +------------+
@@ -25,13 +25,13 @@ The web application is hosted in Google Cloud. The following components are invo
                                                                                                        | MCP Server (Py) |
                                                                                                        | (Cloud Run)     |
                                                                                                        +-----------------+
-                                                                            ^
-                                                                            | MCP
-                                                                            |
-                                                                    +----------------+
-                                                                    | MCP Client     |
-                                                                    | (e.g. Chatbot) |
-                                                                    +----------------+
+                                                                                                                ^
+                                                                                                                | MCP
+                                                                                                                |
+                                                                                                        +----------------+
+                                                                                                        | MCP Client     |
+                                                                                                        | (e.g. Chatbot) |
+                                                                                                        +----------------+
 ```
 
 ## Roadmap
