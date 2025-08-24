@@ -1,6 +1,6 @@
 module github.com/5pirit5eal/swim-rag
 
-go 1.24.1
+go 1.25.0
 
 require (
 	cloud.google.com/go/cloudsqlconn v1.18.0
