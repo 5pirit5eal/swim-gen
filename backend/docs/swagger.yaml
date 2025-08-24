@@ -21,6 +21,20 @@ definitions:
     - table
     - user_id
     type: object
+  models.GeneratedPromptRequest:
+    properties:
+      language:
+        example: en
+        type: string
+    required:
+    - language
+    type: object
+  models.GeneratedPromptResponse:
+    properties:
+      prompt:
+        example: Generate a swim training plan for improving freestyle technique
+        type: string
+    type: object
   models.PlanToPDFRequest:
     description: Request payload for exporting a training plan to PDF format
     properties:
@@ -183,6 +197,36 @@ paths:
       summary: Export training plan to PDF
       tags:
       - export
+  /generate-prompt:
+    post:
+      consumes:
+      - application/json
+      description: Generate a prompt for the LLM based on the provided language
+      parameters:
+      - description: Request to generate a prompt
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.GeneratedPromptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Generated prompt response
+          schema:
+            $ref: '#/definitions/models.GeneratedPromptResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Generate a prompt for the LLM
+      tags:
+      - prompt
   /health:
     get:
       description: Returns the health status of the API
