@@ -14,6 +14,10 @@ resource "google_sql_database_instance" "main" {
     disk_size         = 10
     edition           = "ENTERPRISE"
     activation_policy = "ALWAYS"
+    database_flags {
+      name  = "max_connections"
+      value = "200"
+    }
     # enable_google_ml_integration = true
     password_validation_policy {
       min_length                  = 6
