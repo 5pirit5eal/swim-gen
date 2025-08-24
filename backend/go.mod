@@ -7,7 +7,7 @@ require (
 	cloud.google.com/go/secretmanager v1.14.5
 	cloud.google.com/go/storage v1.50.0
 	github.com/georgysavva/scany/v2 v2.1.4
-	github.com/go-chi/chi/v5 v5.0.10
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/httplog/v2 v2.1.1
 	github.com/go-chi/render v1.0.3
 	github.com/gocolly/colly v1.2.0
