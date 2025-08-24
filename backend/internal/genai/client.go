@@ -35,7 +35,8 @@ func NewGoogleGenAIClient(ctx context.Context, cfg config.Config) (*GoogleGenAIC
 	}
 	embedCfg := &genai.EmbedContentConfig{
 		// Default embedding task type
-		TaskType: "RETRIEVAL_DOCUMENT",
+		TaskType:             "RETRIEVAL_DOCUMENT",
+		OutputDimensionality: genai.Ptr(int32(cfg.Embedding.Size)),
 	}
 	return &GoogleGenAIClient{
 		gc:       gc,
