@@ -32,6 +32,10 @@ func NewGoogleGenAIClient(ctx context.Context, cfg config.Config) (*GoogleGenAIC
 			{Category: genai.HarmCategoryHarassment, Threshold: genai.HarmBlockThresholdBlockLowAndAbove},
 			{Category: genai.HarmCategoryDangerousContent, Threshold: genai.HarmBlockThresholdBlockLowAndAbove},
 		},
+		ThinkingConfig: &genai.ThinkingConfig{
+			IncludeThoughts: false,
+			ThinkingBudget:  genai.Ptr[int32](0),
+		},
 	}
 	embedCfg := &genai.EmbedContentConfig{
 		// Default embedding task type

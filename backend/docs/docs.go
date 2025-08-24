@@ -111,6 +111,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/generate-prompt": {
+            "post": {
+                "description": "Generate a prompt for the LLM based on the provided language",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "prompt"
+                ],
+                "summary": "Generate a prompt for the LLM",
+                "parameters": [
+                    {
+                        "description": "Request to generate a prompt",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.GeneratedPromptRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Generated prompt response",
+                        "schema": {
+                            "$ref": "#/definitions/models.GeneratedPromptResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "Returns the health status of the API",
@@ -246,6 +292,27 @@ const docTemplate = `{
                 "user_id": {
                     "type": "string",
                     "example": "user123"
+                }
+            }
+        },
+        "models.GeneratedPromptRequest": {
+            "type": "object",
+            "required": [
+                "language"
+            ],
+            "properties": {
+                "language": {
+                    "type": "string",
+                    "example": "en"
+                }
+            }
+        },
+        "models.GeneratedPromptResponse": {
+            "type": "object",
+            "properties": {
+                "prompt": {
+                    "type": "string",
+                    "example": "Generate a swim training plan for improving freestyle technique"
                 }
             }
         },
