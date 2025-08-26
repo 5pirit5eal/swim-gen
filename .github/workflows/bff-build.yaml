@@ -1,0 +1,49 @@
+name: 🚀  Reusables Google Cloud Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      runName:
+        description: "Cloud Run name"
+        required: true
+        default: "main-deploy"
+      env:
+        description: "Environment to deploy to"
+        required: true
+        default: "dev"
+  workflow_call:
+    inputs:
+      env:
+        required: true
+        type: string
+        description: "Environment to deploy to"
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+jobs:
+  deploy:
+    name: ${{ inputs.env }} environment
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔐 Load ENV variables
+        uses: ./.github/actions/load-tfvars-into-env
+        with:
+          env-file: './deployments/${{ inputs.env }}/terraform.tfvars'
+
+
+      - name: 📦 Setup Project Environment
+        uses: ./.github/actions/setup
+        with:
+          wif_provider: ${{ env.PROVIDER }}
+          wif_sa: ${{ env.TF_SA_EMAIL }}
+
+      - name: 🚀 Build, Push and Deploy to Google Cloud
+        run: ./Taskfile.sh build ${{ vars.PROJECT_ID }} ${{ vars.REGION }} ${{ vars.SERVICE_ACCOUNT }}

@@ -1,0 +1,52 @@
+name: "📦🔧 Set up Google Cloud"
+description: "Set up google cloud auth and gcloud"
+inputs:
+  wif_provider:
+    required: true
+    description: "Workload identity federation provider"
+  wif_sa:
+    required: true
+    description: "Workload identity federation service account"
+  env-file:
+    description: "Path to a .env file"
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: 🔑 Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ vars.wif_provider }}
+        service_account: ${{ vars.wif_sa }}
+
+    - name: 🕹 Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: 📥 Import environment variables
+      shell: bash
+      run: |
+        echo "Importing environment variables (avoiding overwrites)."
+        if [ -f "${{ inputs.env-file }}" ]; then
+          while IFS= read -r line || [[ -n "$line" ]]; do
+            if [[ ! "$line" =~ ^[[:space:]]*# && -n "$line" ]]; then
+              # Split the line into key and value
+              IFS='=' read -r key value <<< "$line"
+
+              # Remove leading/trailing whitespace from key
+              key=$(echo "$key" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+              # Check if the key is already set in the environment
+              if [[ -z "${!key+x}" ]]; then
+                 # If not set, export it
+                 echo "$key=$value" >> $GITHUB_ENV
+                 echo "Loaded $key from ${{ inputs.env-file }}"
+              else
+                 echo "Skipping $key, already defined in environment."
+              fi
+            fi
+          done < "${{ inputs.env-file }}"
+          echo "Environment variables loaded successfully from ${{ inputs.env-file }}"
+        else
+          echo "Warning: ${{ inputs.env-file }} not found. No environment variables loaded."
+        fi
