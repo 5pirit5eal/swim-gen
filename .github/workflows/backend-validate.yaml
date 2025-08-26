@@ -1,44 +1,74 @@
-
-name: 🚦Reusable Validate (Format, Lint, Test)
+name: 🚦Validate Backend (Format, Lint, Test)
 
 on:
   workflow_call:
       inputs:
         env:
-          required: true
+          required: false
           type: string
           description: "Environment to setup for"
           default: dev
-        language:
-          required: true
-          type: string
-          description: "Programming language to validate"
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-build.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-build.yaml"
+  workflow_dispatch:
 
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read  # This is required for actions/checkout
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
-    name: ${{ inputs.env }} environment
+    # TODO: use inputs.env if provided, otherwise use github branch-name to autoselect prod/dev
+    name: ${{ inputs.env || github.branch.name }} backend environment
     runs-on: ubuntu-latest
-    environment: ${{ inputs.env }}
+    environment: ${{ inputs.env || github.branch.name }}
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 🔐 Load ENV variables
-        uses: ./.github/actions/load-tfvars-into-env
-        with:
-          env-file: './deployments/${{ inputs.env }}/terraform.tfvars'
-
       - name: 📦 Setup Workflow
         uses: ./.github/actions/setup
         with:
-          wif_provider: ${{ env.PROVIDER }}
-          wif_sa: ${{ env.TF_SA_EMAIL }}
+          wif_provider: ${{ vars.wif_provider }}
+          wif_sa: ${{ vars.wif_sa }}
 
-      - name: 🚦 Validate Code
-        uses: ./.github/actions/${{ inputs.language }}-validate.yaml
+      - name: 🐹 Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+
+      - name: 🚦 Vet Code
+        shell: bash
+        run: "go vet backend/..."
+
+      - name: 🚦 Format Code
+        shell: bash
+        run: "go fmt backend/..."
+
+      - name: 🚦 Lint Code
+        uses: golangci/golangci-lint-action@v6
+        with:
+          working-directory: backend
+
+      - name: 🚦 Run Tests
+        shell: bash
+        run: |
+          go install github.com/jstemmer/go-junit-report/v2@latest
+          2>&1 go test -timeout 1m -v ./... | /go/bin/go-junit-report -set-exit-code -iocopy -out ${{ github.ref }}_test_log.xml
+        working-directory: backend
+
+
