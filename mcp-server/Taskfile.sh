@@ -6,12 +6,12 @@ source .config.env
 # START tasks
 
 run() {
-  uv run fastmcp run src/swim_rag_mcp/main.py \
-    --transport http 
+  uv run fastmcp run src/swim_gen_mcp/main.py \
+    --transport http
 }
 
 dev() {
-  uv run fastmcp dev --server-spec src/swim_rag_mcp/main.py
+  uv run fastmcp dev --server-spec src/swim_gen_mcp/main.py
 }
 
 docker-run() {
@@ -47,7 +47,7 @@ validate() {
   mkdir -p "$mypy_cache"
   echo "Running mypy..."
   uv run mypy "$files" --cache-dir "$mypy_cache"
-  
+
   echo "Security check with bandit..."
   uv run bandit -c pyproject.toml -ll -x ./.venv/ -r "$files"
 }

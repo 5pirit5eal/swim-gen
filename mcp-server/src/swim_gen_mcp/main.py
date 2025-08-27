@@ -14,13 +14,13 @@ from fastmcp.server.middleware.rate_limiting import (
     SlidingWindowRateLimitingMiddleware,
 )
 
-from swim_rag_mcp.auth import IdTokenManager
-from swim_rag_mcp.schemas import ExportResponse, QueryRequest, QueryResponse
+from swim_gen_mcp.auth import IdTokenManager
+from swim_gen_mcp.schemas import ExportResponse, QueryRequest, QueryResponse
 
 load_dotenv(".config.env")
 
-URL = os.getenv("SWIM_RAG_API_URL", "http://localhost:8080")
-MCP_URL = os.getenv("SWIM_RAG_MCP_URL", "http://localhost:5000")
+URL = os.getenv("BACKEND_URL", "http://localhost:8080")
+MCP_URL = os.getenv("SWIM_gen_MCP_URL", "http://localhost:5000")
 print(f"Using Swim Gen API URL: {URL}")
 
 # Instantiate the manager once at application startup

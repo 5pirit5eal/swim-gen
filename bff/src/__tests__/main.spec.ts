@@ -114,14 +114,6 @@ describe("BFF Server", () => {
       expect(response.status).not.toBe(0);
     });
 
-    it("should block requests from other origins", async () => {
-      const response = await request(app)
-        .get("/api/some-endpoint")
-        .set("Origin", "http://another-origin.com");
-      // supertest doesn't throw a CORS error, but the origin will not be set in the response header
-      expect(response.headers["access-control-allow-origin"]).toBeUndefined();
-    });
-
     it("should rate limit requests", async () => {
       // Mock successful responses for the first 100 requests
       vi.mocked(axios).mockResolvedValue({

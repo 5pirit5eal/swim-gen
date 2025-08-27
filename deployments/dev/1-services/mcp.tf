@@ -1,9 +1,9 @@
 locals {
   mcp_env_variables = {
-    PROJECT_ID       = var.project_id
-    REGION           = var.region
-    LOG_LEVEL        = var.log_level
-    SWIM_RAG_API_URL = google_cloud_run_v2_service.backend.uri
+    PROJECT_ID  = var.project_id
+    REGION      = var.region
+    LOG_LEVEL   = var.log_level
+    BACKEND_URL = google_cloud_run_v2_service.backend.uri
   }
 }
 
