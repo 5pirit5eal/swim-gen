@@ -1,4 +1,4 @@
-name: 🚦Validate Backend (Format, Lint, Test)
+name: 🚦Validate Frontend (Format, Lint, Test)
 
 on:
   workflow_call:
@@ -6,17 +6,17 @@ on:
         env:
           required: false
           type: string
-          description: Environment to setup for
+          description: "Environment to setup for"
           default: dev
   pull_request:
     branches: [dev, main]
     paths:
-      - backend/**
-      - .github/workflows/backend-build.yaml
+      - "frontend/**"
+      - ".github/workflows/frontend-validate.yaml"
   workflow_dispatch:
     inputs:
       env:
-        description: Environment override (prod|dev)
+        description: "Environment override (prod|dev)"
         required: false
         type: choice
         options:
@@ -33,7 +33,7 @@ concurrency:
 
 jobs:
   validate:
-    name: Validate backend for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
+    name: Validate BFF for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     runs-on: ubuntu-latest
     environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     steps:
@@ -47,37 +47,36 @@ jobs:
         with:
           wif_provider: ${{ vars.wif_provider }}
           wif_sa: ${{ vars.wif_sa }}
-          env-file: backend/.env.development
+          env-file: frontend/.env.development
 
-      - name: 🐹 Setup Go
-        uses: actions/setup-go@v5
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          go-version: 1.25
+          node-version: 22.x
 
-      - name: 🔎 Vet Code
-        shell: bash
-        run: go vet backend/...
+      - name: 📦 Install dependencies
+        run: npm install
+        working-directory: frontend
 
-      - name: 🚦 Format Code
+      - name: 🎨 Format Code
         shell: bash
-        run: go fmt backend/...
+        run: npm run format
+        working-directory: frontend
 
       - name: 🔄 Auto-commit formatting
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore(fmt): apply go fmt"
-          file_pattern: backend/**
+          commit_message: "chore(fmt): apply prettier formatting"
+          file_pattern: frontend/**
 
-      - name: 🔎 Lint Code
-        uses: golangci/golangci-lint-action@v6
-        with:
-          working-directory: backend
+      - name: 🚦 Lint Code
+        run: npm run lint
+        working-directory: frontend
+
+      - name: 🔎 Type Check
+        run: npm run type-check
+        working-directory: frontend
 
       - name: 🧪 Run Tests
-        shell: bash
-        run: |
-          go install github.com/jstemmer/go-junit-report/v2@latest
-          2>&1 go test -timeout 1m -v ./... | /go/bin/go-junit-report -set-exit-code -iocopy -out ${{ github.ref }}_test_log.xml
-        working-directory: backend
-
-
+        run: npm run test
+        working-directory: frontend

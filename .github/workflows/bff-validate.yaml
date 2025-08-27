@@ -58,6 +58,17 @@ jobs:
         run: npm install
         working-directory: bff
 
+      - name: 🎨 Format Code
+        shell: bash
+        run: npm run format
+        working-directory: bff
+
+      - name: 🔄 Auto-commit formatting
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(fmt): apply prettier formatting"
+          file_pattern: bff/**
+
       - name: 🚦 Lint Code
         run: npm run lint
         working-directory: bff

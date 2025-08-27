@@ -1,5 +1,5 @@
 
-name: 📦 Build Backend
+name: 📦 Build BFF and Push to Google Cloud
 
 on:
   workflow_call:

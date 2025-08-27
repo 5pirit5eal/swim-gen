@@ -1,49 +1,77 @@
-name: 🚀  Reusables Google Cloud Build
+
+name: 📦 Build MCP Server and Push to Google Cloud
 
 on:
+  workflow_call:
+      inputs:
+        env:
+          required: false
+          type: string
+          description: "Environment to setup for"
+          default: dev
+        version:
+          required: true
+          type: string
+          description: "The semantic version to be released"
+  push:
+    branches: [dev]
+    paths:
+      - "mcp-server/**"
+      - ".github/workflows/mcp-build.yaml"
   workflow_dispatch:
     inputs:
-      runName:
-        description: "Cloud Run name"
-        required: true
-        default: "main-deploy"
       env:
-        description: "Environment to deploy to"
-        required: true
-        default: "dev"
-  workflow_call:
-    inputs:
-      env:
-        required: true
-        type: string
-        description: "Environment to deploy to"
+        description: "Environment override (prod|dev)"
+        required: false
+        type: choice
+        options:
+          - dev
+          - prod
 
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read  # This is required for actions/checkout
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  deploy:
-    name: ${{ inputs.env }} environment
+  build:
+    name: Build mcp-server for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     runs-on: ubuntu-latest
-    environment: ${{ inputs.env }}
+    environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 🔐 Load ENV variables
-        uses: ./.github/actions/load-tfvars-into-env
-        with:
-          env-file: './deployments/${{ inputs.env }}/terraform.tfvars'
-
-
-      - name: 📦 Setup Project Environment
+      - name: 📦 Setup Workflow
         uses: ./.github/actions/setup
         with:
-          wif_provider: ${{ env.PROVIDER }}
-          wif_sa: ${{ env.TF_SA_EMAIL }}
+          wif_provider: ${{ vars.wif_provider }}
+          wif_sa: ${{ vars.wif_sa }}
+          env-file: mcp-server/.env.development
 
-      - name: 🚀 Build, Push and Deploy to Google Cloud
-        run: ./Taskfile.sh build ${{ vars.PROJECT_ID }} ${{ vars.REGION }} ${{ vars.SERVICE_ACCOUNT }}
+      - name: Build Docker Image
+        shell: bash
+        run: docker build --platform ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-mcp-server:${{ github.sha }} .
+        working-directory: mcp-server
+      - name: Push Docker Image to Registry
+        shell: bash
+        run: docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-mcp-server:${{ github.sha }}
+
+      - name: Tag Image as latest
+        shell: bash
+        run: |
+          gcloud artifacts docker tags add
+          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-mcp-server:latest
+
+      - name: Tag with main version
+        if: inputs.version
+        shell: bash
+        run: |
+          gcloud artifacts docker tags add
+          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-mcp-server:${{ inputs.version }}
+

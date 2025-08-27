@@ -12,8 +12,8 @@ import {
   type QueryRequest,
   type RAGResponse,
   ApiEndpoints,
-} from '@/types';
-import i18n from '@/plugins/i18n';
+} from '@/types'
+import i18n from '@/plugins/i18n'
 
 export function formatError(error: { message?: string; details?: string }): string {
   return `${error.message}: ${error.details ?? i18n.global.t('errors.unknown_error')}`

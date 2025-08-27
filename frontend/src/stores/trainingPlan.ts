@@ -25,7 +25,9 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       isLoading.value = false
       return true
     } else {
-      error.value = result.error ? formatError(result.error) : i18n.global.t('errors.training_plan_failed')
+      error.value = result.error
+        ? formatError(result.error)
+        : i18n.global.t('errors.training_plan_failed')
       isLoading.value = false
       return false
     }
@@ -35,7 +37,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     console.log(`Updating row ${rowIndex}, field ${field} with value:`, value)
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-        ; (row[field] as string | number) = value
+      ;(row[field] as string | number) = value
 
       // Recalculate Sum if Amount or Distance changed
       if (field === 'Amount' || field === 'Distance') {
