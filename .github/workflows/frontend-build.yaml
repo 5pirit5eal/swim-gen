@@ -1,4 +1,3 @@
-
 name: 📦 Build Frontend and Push to Google Cloud
 
 on:
@@ -13,11 +12,6 @@ on:
           required: true
           type: string
           description: "The semantic version to be released"
-  push:
-    branches: [dev]
-    paths:
-      - "frontend/**"
-      - ".github/workflows/frontend-build.yaml"
   workflow_dispatch:
     inputs:
       env:
@@ -37,10 +31,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  validate:
+    name: Validate frontend for ${{ inputs.env }}
+    uses: ./.github/workflows/frontend-validate.yaml
+    with:
+      env: ${{ inputs.env }}
   build:
-    name: Build frontend for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
+    name: Build frontend for ${{ inputs.env }}
+    needs:
+      - validate
     runs-on: ubuntu-latest
-    environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
+    environment: ${{ inputs.env }}
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4

@@ -1,0 +1,70 @@
+
+name: 📦 Reusable Terraform Plan and Apply
+
+on:
+  workflow_call:
+      inputs:
+        env:
+          required: true
+          description: "Environment to setup for"
+          type: string
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment override (prod|dev)"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  terraform-plan-apply:
+    name: 🧱 Terraform (${{ inputs.env }})
+    # Still run if some builds were skipped (only depends on those that existed).
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    steps:
+    - name: ⬇️ Checkout
+      uses: actions/checkout@v4
+      with: { fetch-depth: 0 }
+
+    - name: 🔐 GCP Setup
+      uses: ./.github/actions/setup
+      with:
+        wif_provider: ${{ vars.wif_provider }}
+        wif_sa: ${{ vars.wif_sa }}
+
+    - name: 🧩 Install Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_wrapper: false
+
+    - name: 📁 Init
+      working-directory: deployments/${{ inputs.env }}/0-infra
+      run: terraform init -input=false
+
+    - name: 📝 Validate
+      working-directory: deployments/${{ inputs.env }}/0-infra
+      run: terraform validate
+
+    - name: 🔍 Plan
+      id: plan
+      working-directory: deployments/${{ inputs.env }}/0-infra
+      run: terraform plan -no-color -out=tfplan
+
+    - name: 📤 Plan summary
+      if: success()
+      run: terraform show -no-color deployments/${{ inputs.env }}/0-infra/tfplan | sed -e 's/^/    /'
+
+    - name: 🚀 Apply
+      working-directory: deployments/${{ inputs.env }}/0-infra
+      run: terraform apply -auto-approve tfplan

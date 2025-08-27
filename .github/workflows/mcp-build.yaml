@@ -13,11 +13,6 @@ on:
           required: true
           type: string
           description: "The semantic version to be released"
-  push:
-    branches: [dev]
-    paths:
-      - "mcp-server/**"
-      - ".github/workflows/mcp-build.yaml"
   workflow_dispatch:
     inputs:
       env:
@@ -37,10 +32,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  validate:
+    name: Validate mcp-server for ${{ inputs.env }}
+    uses: ./.github/workflows/mcp-validate.yaml
+    with:
+      env: ${{ inputs.env }}
+
   build:
-    name: Build mcp-server for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
+    name: Build mcp-server for ${{ inputs.env }}
+    needs:
+      - validate
     runs-on: ubuntu-latest
-    environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
+    environment: ${{ inputs.env }}
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
