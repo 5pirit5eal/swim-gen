@@ -83,7 +83,7 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 	if err := createScrapedTableIfNotExists(ctx, tx); err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func GetSecret(ctx context.Context, location string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 	secret, err := c.AccessSecretVersion(ctx, &secretmanagerpb.AccessSecretVersionRequest{
 		Name: location,
 	})

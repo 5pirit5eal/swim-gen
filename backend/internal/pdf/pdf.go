@@ -43,7 +43,7 @@ func TableToPDF(table models.Table) ([]byte, error) {
 func PlanToPDF(plan *models.Plan) ([]byte, error) {
 	m := getMaroto()
 
-	m.RegisterHeader(text.NewAutoRow(plan.Title, props.Text{Size: 18, Style: fontstyle.Bold, Align: align.Center}))
+	_ = m.RegisterHeader(text.NewAutoRow(plan.Title, props.Text{Size: 18, Style: fontstyle.Bold, Align: align.Center}))
 
 	m.AddAutoRow(col.New().Add(text.New(plan.Description, props.Text{Size: 10, Top: 10, Bottom: 10})))
 
@@ -64,7 +64,7 @@ func UploadPDF(ctx context.Context, serviceAccount, bucketName, objectName strin
 	if err != nil {
 		return "", fmt.Errorf("storage.NewClient: %w", err)
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	// Creates a Bucket instance.
 	bucket := client.Bucket(bucketName)
@@ -130,11 +130,12 @@ func getRows(table models.Table) []core.Row {
 	lightGray := &props.Color{Red: 240, Green: 240, Blue: 240}
 
 	for i, title := range table.Header() {
-		if i == 1 {
+		switch i {
+		case 1:
 			headerRow.Add(text.NewCol(1, title, headerProps))
-		} else if i == 4 {
+		case 4:
 			headerRow.Add(text.NewCol(9, title, headerProps))
-		} else {
+		default:
 			headerRow.Add(text.NewCol(3, title, headerProps))
 		}
 	}

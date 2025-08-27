@@ -41,5 +41,7 @@ func (rs *RAGService) ScrapeHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Respond with a success message
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Scraping completed successfully"))
+	if _, err := w.Write([]byte("Scraping completed successfully")); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
 }

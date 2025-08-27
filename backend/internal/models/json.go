@@ -21,7 +21,7 @@ func GetRequestJSON(r *http.Request, v any) error {
 		return fmt.Errorf("unsupported content type: %s", mediaType)
 	}
 	decoder := json.NewDecoder(r.Body)
-	defer r.Body.Close()
+	defer func() { _ = r.Body.Close() }()
 	decoder.DisallowUnknownFields()
 
 	return decoder.Decode(v)
@@ -39,7 +39,12 @@ func WriteResponseJSON(w http.ResponseWriter, statusCode int, v any) error {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	w.Write(json)
+	_, err = w.Write(json)
+	if err != nil {
+		// If writing the response fails, we can't send a different error response.
+		// The best we can do is log the error and return it.
+		return err
+	}
 	return nil
 }
 

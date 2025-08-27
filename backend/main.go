@@ -112,7 +112,9 @@ func setupLogger(cfg config.Config) (*httplog.Logger, error) {
 // @Success 200 {string} string "OK"
 // @Router /health [get]
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("OK"))
+	if _, err := w.Write([]byte("OK")); err != nil {
+		httplog.LogEntry(r.Context()).Error("Failed to write health check response", httplog.ErrAttr(err))
+	}
 }
 
 // Setup of routes for the RAG service

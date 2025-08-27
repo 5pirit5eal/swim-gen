@@ -63,7 +63,7 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 		colly.MaxDepth(3),
 		colly.Async(true),
 	)
-	scraper.Limit(&colly.LimitRule{
+	_ = scraper.Limit(&colly.LimitRule{
 		DomainGlob:  "*docswim.de*",
 		Parallelism: 10,
 		// Delay:       2 * time.Second,
