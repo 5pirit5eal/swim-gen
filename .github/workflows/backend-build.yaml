@@ -19,6 +19,14 @@ on:
       - "backend/**"
       - ".github/workflows/backend-build.yaml"
   workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment override (prod|dev)"
+        required: false
+        type: choice
+        options:
+          - dev
+          - prod
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -30,10 +38,9 @@ concurrency:
 
 jobs:
   build:
-    # TODO: use inputs.env if provided, otherwise use github branch-name to autoselect prod/dev
-    name: ${{ inputs.env || github.branch.name }} backend environment
+    name: Build backend for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     runs-on: ubuntu-latest
-    environment: ${{ inputs.env || github.branch.name }}
+    environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
@@ -49,22 +56,22 @@ jobs:
 
       - name: Build Docker Image
         shell: bash
-        run: docker build --platform ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-rag-backend:${{ github.ref }} .
+        run: docker build --platform ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-backend:${{ github.sha }} .
         working-directory: backend
       - name: Push Docker Image to Registry
         shell: bash
-        run: docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-rag-backend:${{ github.ref }}
+        run: docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-backend:${{ github.sha }}
 
       - name: Tag Image as latest
         shell: bash
         run: |
           gcloud artifacts docker tags add
-          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-rag-backend:latest
+          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-backend:latest
 
       - name: Tag with main version
-        if: startsWith(github.ref, 'refs/tags/main-')
+        if: inputs.version
         shell: bash
         run: |
           gcloud artifacts docker tags add
-          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-rag-backend:${{ inputs.version }}
+          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-backend:${{ inputs.version }}
 

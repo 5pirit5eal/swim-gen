@@ -13,12 +13,15 @@ on:
     paths:
       - "backend/**"
       - ".github/workflows/backend-build.yaml"
-  push:
-    branches: [main]
-    paths:
-      - "backend/**"
-      - ".github/workflows/backend-build.yaml"
   workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment override (prod|dev)"
+        required: false
+        type: choice
+        options:
+          - dev
+          - prod
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -30,10 +33,9 @@ concurrency:
 
 jobs:
   validate:
-    # TODO: use inputs.env if provided, otherwise use github branch-name to autoselect prod/dev
-    name: ${{ inputs.env || github.branch.name }} backend environment
+    name: Validate backend for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     runs-on: ubuntu-latest
-    environment: ${{ inputs.env || github.branch.name }}
+    environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
@@ -45,6 +47,7 @@ jobs:
         with:
           wif_provider: ${{ vars.wif_provider }}
           wif_sa: ${{ vars.wif_sa }}
+          env-file: backend/.env.development
 
       - name: 🐹 Setup Go
         uses: actions/setup-go@v5

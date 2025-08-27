@@ -1,44 +1,71 @@
-
-name: 🚦Reusable Validate (Format, Lint, Test)
+name: 🚦Validate BFF (Format, Lint, Test)
 
 on:
   workflow_call:
       inputs:
         env:
-          required: true
+          required: false
           type: string
           description: "Environment to setup for"
           default: dev
-        language:
-          required: true
-          type: string
-          description: "Programming language to validate"
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - "bff/**"
+      - ".github/workflows/bff-build.yaml"
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment override (prod|dev)"
+        required: false
+        type: choice
+        options:
+          - dev
+          - prod
 
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read  # This is required for actions/checkout
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
-    name: ${{ inputs.env }} environment
+    name: Validate BFF for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     runs-on: ubuntu-latest
-    environment: ${{ inputs.env }}
+    environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 🔐 Load ENV variables
-        uses: ./.github/actions/load-tfvars-into-env
-        with:
-          env-file: './deployments/${{ inputs.env }}/terraform.tfvars'
-
       - name: 📦 Setup Workflow
         uses: ./.github/actions/setup
         with:
-          wif_provider: ${{ env.PROVIDER }}
-          wif_sa: ${{ env.TF_SA_EMAIL }}
+          wif_provider: ${{ vars.wif_provider }}
+          wif_sa: ${{ vars.wif_sa }}
+          env-file: bff/.env.development
 
-      - name: 🚦 Validate Code
-        uses: ./.github/actions/${{ inputs.language }}-validate.yaml
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: 📦 Install dependencies
+        run: npm install
+        working-directory: bff
+
+      - name: 🚦 Lint Code
+        run: npm run lint
+        working-directory: bff
+
+      - name: 🔎 Type Check
+        run: npm run type-check
+        working-directory: bff
+
+      - name: 🧪 Run Tests
+        run: npm run test
+        working-directory: bff

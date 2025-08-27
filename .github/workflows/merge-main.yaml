@@ -1,0 +1,87 @@
+name: 🔔 Release and Build to Prod
+
+on:
+  push:
+    branches:
+      - "main"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout and release
+
+jobs:
+  validate_backend:
+    name: 🔍 Validating Backend
+    uses: ./.github/workflows/backend-validate.yaml
+    with:
+      ENVIRONMENT: dev
+    secrets: inherit
+  validate_bff:
+    name: 🔍 Validating BFF
+    uses: ./.github/workflows/bff-validate.yaml
+    with:
+      ENVIRONMENT: dev
+    secrets: inherit
+  validate_frontend:
+    name: 🔍 Validating Frontend
+    uses: ./.github/workflows/frontend-validate.yaml
+    with:
+      ENVIRONMENT: dev
+    secrets: inherit
+  validate_mcp:
+    name: 🔍 Validating MCP Server
+    uses: ./.github/workflows/mcp-validate.yaml
+    with:
+      ENVIRONMENT: dev
+    secrets: inherit
+
+  wait_for_validation:
+    name: 🔍 Valid services
+    needs:
+      - validate_backend
+      - validate_frontend
+      - validate_bff
+      - validate_mcp
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 🔐 Load ENV variables
+        uses: ./.github/actions/load-env-variables
+        with:
+          env-file: "./.config.env"
+
+      - name: 📦 Setup Workflow
+        uses: ./.github/actions/setup
+        with:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: 🚀 Installing Semantic-Release and Releasing
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./Taskfile.sh release
+
+  deploy:
+    name: 🚀 Deploy
+    needs:
+      - validate
+      - release
+    uses: ./.github/workflows/_deploy.yaml
+    with:
+      ENVIRONMENT: dev
+    secrets: inherit
