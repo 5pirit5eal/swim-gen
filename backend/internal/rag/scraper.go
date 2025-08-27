@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
 	"github.com/gocolly/colly"
@@ -63,7 +63,7 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 		colly.MaxDepth(3),
 		colly.Async(true),
 	)
-	scraper.Limit(&colly.LimitRule{
+	_ = scraper.Limit(&colly.LimitRule{
 		DomainGlob:  "*docswim.de*",
 		Parallelism: 10,
 		// Delay:       2 * time.Second,
@@ -360,17 +360,17 @@ func (db *RAGDB) AddScrapedPlans(ctx context.Context, collectionUUID string, doc
 		// If a URL already exists, delete the old entry and insert the new one
 		_, err = pseudoTx.Exec(ctx, fmt.Sprintf(`
 			WITH deleted AS (
-				DELETE FROM %s 
+				DELETE FROM %s
 				WHERE uuid = (
-					SELECT plan_id 
-					FROM %s 
+					SELECT plan_id
+					FROM %s
 					WHERE url = $1 AND collection_id = $3
 				)
 				RETURNING uuid
 			)
-			INSERT INTO %s (url, plan_id, collection_id) 
-			VALUES ($1, $2, $3) 
-			ON CONFLICT (url, collection_id) 
+			INSERT INTO %s (url, plan_id, collection_id)
+			VALUES ($1, $2, $3)
+			ON CONFLICT (url, collection_id)
 			DO UPDATE SET plan_id = EXCLUDED.plan_id`, db.cfg.Embedding.Name, ScrapedTableName, ScrapedTableName),
 			url, plan.PlanID, collectionUUID)
 

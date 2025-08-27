@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-source .env
+if [ -f .env ]; then
+  source .env
+fi
 
 run() {
   go run ./main.go

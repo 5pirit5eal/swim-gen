@@ -3,7 +3,7 @@ package genai
 import (
 	"context"
 
-	"github.com/5pirit5eal/swim-rag/internal/config"
+	"github.com/5pirit5eal/swim-gen/internal/config"
 	"google.golang.org/genai"
 )
 

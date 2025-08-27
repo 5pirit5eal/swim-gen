@@ -1,0 +1,94 @@
+
+name: 📦 Reusable OpenTofu Plan (and Apply)
+
+on:
+  workflow_call:
+      inputs:
+        env:
+          required: true
+          description: "Environment to setup for"
+          type: string
+        apply:
+          required: false
+          description: "Whether to apply the plan (true|false)"
+          type: boolean
+          default: true
+        cwd:
+          description: "The working directory to run in"
+          required: true
+          type: string
+
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment override (prod|dev)"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+      apply:
+        description: "Whether to apply the plan (true|false)"
+        required: true
+        type: boolean
+        default: true
+      cwd:
+        description: "The working directory to run in"
+        required: true
+        type: string
+
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write  # This is required for actions/checkout
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tofu-plan-apply:
+    name: 🧱 OpenTofu (${{ inputs.env }})
+    # Still run if some builds were skipped (only depends on those that existed).
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+
+    steps:
+    - name: ⬇️ Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 🔐 GCP Setup
+      uses: ./.github/actions/setup
+      with:
+        WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+        WIF_SA: ${{ vars.WIF_SA }}
+
+    - name: 🧩 Install OpenTofu
+      uses: opentofu/setup-opentofu@v1
+      with:
+        tofu_wrapper: false
+
+    - name: 📁 Init
+      working-directory: ${{ inputs.cwd}}
+      run: tofu init -input=false
+      continue-on-error: true
+
+    - name: 📝 Validate
+      working-directory: ${{ inputs.cwd}}
+      run: tofu validate -no-color
+
+    - name: 🔍 Plan
+      id: plan
+      working-directory: ${{ inputs.cwd}}
+      run: tofu plan -no-color -out=tfplan
+
+    - name: 📤 Plan summary
+      if: success()
+      run: tofu show -no-color deployments/${{ inputs.env }}/0-infra/tfplan | sed -e 's/^/    /'
+
+    - name: 🚀 Apply
+      if: ${{ inputs.apply == true && success() }}
+      working-directory: ${{ inputs.cwd}}
+      run: tofu apply -auto-approve tfplan

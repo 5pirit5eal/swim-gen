@@ -1,0 +1,82 @@
+name: 🚦Validate Frontend (Format, Lint, Test)
+
+on:
+  workflow_call:
+      inputs:
+        env:
+          required: false
+          type: string
+          description: "Environment to setup for"
+          default: dev
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-validate.yaml"
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment override (prod|dev)"
+        required: false
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write  # This is required for actions/checkout
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate frontend for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
+    runs-on: ubuntu-latest
+    environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup Workflow
+        uses: ./.github/actions/setup
+        with:
+          WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+          WIF_SA: ${{ vars.WIF_SA }}
+          env-file: frontend/.env.development
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: 📦 Install dependencies
+        run: npm install
+        working-directory: frontend
+
+      - name: 🎨 Format Code
+        shell: bash
+        run: npm run format
+        working-directory: frontend
+
+      - name: 🔄 Auto-commit formatting
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(fmt): apply prettier formatting"
+          file_pattern: frontend/**
+
+      - name: 🚦 Lint Code
+        run: npm run lint
+        working-directory: frontend
+
+      - name: 🔎 Type Check
+        run: npm run type-check
+        working-directory: frontend
+
+      - name: 🧪 Run Tests
+        run: npm run test:unit
+        working-directory: frontend

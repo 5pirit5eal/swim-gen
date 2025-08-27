@@ -1,0 +1,79 @@
+
+name: 📦 Build BFF and Push to Google Cloud
+
+on:
+  workflow_call:
+      inputs:
+        env:
+          required: false
+          type: string
+          description: "Environment to setup for"
+          default: dev
+        version:
+          required: false
+          type: string
+          description: "The semantic version to be released"
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment override (prod|dev)"
+        required: false
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate bff for ${{ inputs.env }}
+    uses: ./.github/workflows/bff-validate.yaml
+    with:
+      env: ${{ inputs.env }}
+  build:
+    name: Build bff for ${{ inputs.env }}
+    needs:
+      - validate
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup Workflow
+        uses: ./.github/actions/setup
+        with:
+          WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+          WIF_SA: ${{ vars.WIF_SA }}
+          env-file: bff/.env.development
+
+      - name: Build Docker Image
+        shell: bash
+        run: docker build --platform ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ github.sha }} .
+        working-directory: bff
+      - name: Push Docker Image to Registry
+        shell: bash
+        run: docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ github.sha }}
+
+      - name: Tag Image as latest
+        shell: bash
+        run: |
+          gcloud artifacts docker tags add
+          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:latest
+
+      - name: Tag with main version
+        if: inputs.version
+        shell: bash
+        run: |
+          gcloud artifacts docker tags add
+          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ inputs.version }}
+

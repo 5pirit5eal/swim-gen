@@ -15,8 +15,6 @@ vi.mock('@/api/client', () => ({
   },
 }))
 
-
-
 describe('TrainingPlanForm.vue', () => {
   // Set the locale to 'en' before all tests in this describe block
   beforeAll(() => {

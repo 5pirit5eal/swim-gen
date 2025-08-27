@@ -3,7 +3,7 @@ import asyncio
 from fastmcp import Client
 from fastmcp.client.transports import StreamableHttpTransport
 
-from swim_rag_mcp.schemas import QueryRequest
+from swim_gen_mcp.schemas import QueryRequest
 
 transport = StreamableHttpTransport(url="http://localhost:8000/mcp")
 client = Client(transport)

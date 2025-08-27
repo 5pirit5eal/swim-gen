@@ -3,7 +3,7 @@ package models_test
 import (
 	"testing"
 
-	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/stretchr/testify/assert"
 )
 

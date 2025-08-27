@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/5pirit5eal/swim-rag/internal/config"
-	"github.com/5pirit5eal/swim-rag/internal/models"
-	"github.com/5pirit5eal/swim-rag/internal/pdf"
-	"github.com/5pirit5eal/swim-rag/internal/rag"
+	"github.com/5pirit5eal/swim-gen/internal/config"
+	"github.com/5pirit5eal/swim-gen/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/pdf"
+	"github.com/5pirit5eal/swim-gen/internal/rag"
 	"github.com/go-chi/httplog/v2"
 	"github.com/google/uuid"
 )
@@ -136,7 +136,9 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 
 	// Respond with a success message
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Scraping completed successfully"))
+	if _, err := w.Write([]byte("Scraping completed successfully")); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
 }
 
 // QueryHandler handles the RAG query request.
@@ -178,7 +180,9 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	logger.Debug("Updated the table sums...", "sum", answer.Table[len(answer.Table)-1].Sum)
 
 	logger.Info("Answer generated successfully")
-	models.WriteResponseJSON(w, http.StatusOK, answer)
+	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
 }
 
 // PlanToPDFHandler handles the Plan to PDF export request.
@@ -227,7 +231,9 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 	answer := &models.PlanToPDFResponse{URI: uri}
 
 	logger.Info("Answer generated successfully")
-	models.WriteResponseJSON(w, http.StatusOK, answer)
+	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
 }
 
 // GeneratePromptHandler handles the request to generate a prompt for the LLM.
@@ -264,5 +270,7 @@ func (rs *RAGService) GeneratePromptHandler(w http.ResponseWriter, req *http.Req
 
 	response := &models.GeneratedPromptResponse{Prompt: prompt}
 	logger.Info("Prompt generated successfully")
-	models.WriteResponseJSON(w, http.StatusOK, response)
+	if err := models.WriteResponseJSON(w, http.StatusOK, response); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
 }

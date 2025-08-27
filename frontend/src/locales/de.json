@@ -17,7 +17,7 @@
     "about": "Über uns",
     "contact": "Kontakt",
     "github": "GitHub",
-    "copyright": "© 2025 Swim RAG. Erstellt mit Vue.js und TypeScript."
+    "copyright": "© 2025 Swim Gen. Erstellt mit Vue.js und TypeScript."
   },
   "form": {
     "describe_training_needs": "Beschreibe hier deine Trainingsbedürfnisse",
@@ -127,7 +127,7 @@
     "changes_title": "11. Änderungen dieser Datenschutzerklärung",
     "changes": "Wir können diese Datenschutzerklärung anpassen, um Änderungen unserer Praktiken oder rechtliche Anforderungen zu berücksichtigen. Bei Änderungen: Wird das Datum \"Zuletzt aktualisiert\" oben angepasst. Wesentliche Änderungen werden in der Anwendung deutlich hervorgehoben. Bei gravierenden Änderungen, die Ihre Rechte betreffen, informieren wir Sie zusätzlich. Wir empfehlen, diese Erklärung regelmäßig zu lesen, um zu erfahren, wie wir Ihre Privatsphäre schützen.",
     "contact_title": "12. Kontaktinformationen",
-    "contact": "Wenn Sie Fragen zu dieser Datenschutzerklärung oder unseren Datenschutzpraktiken haben, kontaktieren Sie uns bitte: E-Mail: {'info.swim.gen@gmail.com'}. GitHub: 'https://github.com/5pirit5eal/swim-rag'. Datenschutzanfragen: Für spezielle Fragen oder zur Ausübung Ihrer Rechte nach DSGVO nutzen Sie bitte die oben genannte E-Mail-Adresse mit dem Betreff 'Datenschutzanfrage'.",
+    "contact": "Wenn Sie Fragen zu dieser Datenschutzerklärung oder unseren Datenschutzpraktiken haben, kontaktieren Sie uns bitte: E-Mail: {'info.swim.gen@gmail.com'}. GitHub: 'https://github.com/5pirit5eal/swim-gen'. Datenschutzanfragen: Für spezielle Fragen oder zur Ausübung Ihrer Rechte nach DSGVO nutzen Sie bitte die oben genannte E-Mail-Adresse mit dem Betreff 'Datenschutzanfrage'.",
     "commitment_title": "13. Unser Datenschutz-Versprechen",
     "commitment": "Swim Gen ist eine datenschutzfreundliche Anwendung. Wir sind überzeugt, dass leistungsstarke KI-Tools für Schwimmer und Triathleten auch ohne umfangreiche Datenerhebung möglich sind. Unser Ziel ist es, zu zeigen, dass nützliche Anwendungen mit minimaler Datenerfassung und gleichzeitig exzellenter Nutzererfahrung realisierbar sind."
   },

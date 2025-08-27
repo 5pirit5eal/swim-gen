@@ -39,7 +39,7 @@ To run the frontend with the BFF locally, you need to have both the backend and 
 To run the entire application stack (frontend, BFF, and backend) using Docker, you can use the `docker-compose.yml` file located in the root of the project.
 
 1. **Ensure you have Docker and Docker Compose installed.**
-2. **Navigate to the root of the `swim-rag` project.**
+2. **Navigate to the root of the `swim-gen` project.**
 3. **Run the following command:**
 
     ```sh
