@@ -33,7 +33,7 @@ concurrency:
 
 jobs:
   validate:
-    name: Validate BFF for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
+    name: Validate frontend for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     runs-on: ubuntu-latest
     environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     steps:
@@ -78,5 +78,5 @@ jobs:
         working-directory: frontend
 
       - name: 🧪 Run Tests
-        run: npm run test
+        run: npm run test:unit
         working-directory: frontend
