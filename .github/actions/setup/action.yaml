@@ -17,8 +17,8 @@ runs:
     - name: 🔑 Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:
-        workload_identity_provider: ${{ vars.WIF_PROVIDER }}
-        service_account: ${{ vars.WIF_SA }}
+        workload_identity_provider: ${{ inputs.WIF_PROVIDER }}
+        service_account: ${{ inputs.WIF_SA }}
 
     - name: 🕹 Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
