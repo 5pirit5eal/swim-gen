@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/5pirit5eal/swim-rag/internal/models"
-	"github.com/5pirit5eal/swim-rag/internal/pdf"
+	"github.com/5pirit5eal/swim-gen/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/pdf"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -278,9 +278,9 @@ func TestPlantoPDF(t *testing.T) {
 	// Create a sample plan
 	plan := &models.Plan{
 		Title: "Kraul-Sprint Training für Höchstgeschwindigkeit",
-		Description: `Dieser Trainingsplan ist ein Super-Sprint-Plan, inspiriert von einem Olympiasieger. 
-Er konzentriert sich auf die Entwicklung deiner absoluten Höchstgeschwindigkeit im Kraulschwimmen durch kurze, 
-intensive Sprint-Abschnitte und spezifische Technikübungen. Achte auf die Einhaltung der Pausen, 
+		Description: `Dieser Trainingsplan ist ein Super-Sprint-Plan, inspiriert von einem Olympiasieger.
+Er konzentriert sich auf die Entwicklung deiner absoluten Höchstgeschwindigkeit im Kraulschwimmen durch kurze,
+intensive Sprint-Abschnitte und spezifische Technikübungen. Achte auf die Einhaltung der Pausen,
 um dich optimal auf die Sprints vorzubereiten.`,
 		Table: table,
 	}

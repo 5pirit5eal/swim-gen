@@ -1,0 +1,82 @@
+name: 🚦Validate Backend (Format, Lint, Test)
+
+on:
+  workflow_call:
+      inputs:
+        env:
+          required: false
+          type: string
+          description: Environment to setup for
+          default: dev
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - backend/**
+      - .github/workflows/backend-build.yaml
+  workflow_dispatch:
+    inputs:
+      env:
+        description: Environment override (prod|dev)
+        required: false
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write  # This is required for actions/checkout
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate backend for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
+    runs-on: ubuntu-latest
+    environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup Workflow
+        uses: ./.github/actions/setup
+        with:
+          WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+          WIF_SA: ${{ vars.WIF_SA }}
+
+      - name: 🐹 Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.25
+
+      - name: 🔎 Vet Code
+        shell: bash
+        run: go vet ./...
+        working-directory: backend
+
+      - name: 🚦 Format Code
+        shell: bash
+        run: go fmt ./...
+        working-directory: backend
+
+      - name: 🔄 Auto-commit formatting
+        if: github.event_name == 'pull_request'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(fmt): apply go fmt"
+          file_pattern: backend/**
+
+      - name: 🔎 Lint Code
+        uses: golangci/golangci-lint-action@v8
+        with:
+          install-mode: goinstall
+          working-directory: backend
+
+      - name: 🧪 Run Tests
+        shell: bash
+        run: go test -v ./...
+        working-directory: backend

@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from swim_rag_mcp import auth
+from swim_gen_mcp import auth
 
 
 @pytest.mark.asyncio
@@ -32,7 +32,7 @@ async def test_id_token_manager_get_id_token_fetch(monkeypatch):
     monkeypatch.setattr(auth, "get_context", lambda: ctx)
     # Patch fetch_id_token
     with patch(
-        "src.swim_rag_mcp.auth.token.fetch_id_token", return_value="newtoken"
+        "src.swim_gen_mcp.auth.token.fetch_id_token", return_value="newtoken"
     ) as mock_fetch:
         token = await manager.get_id_token("audience")
         assert token == "newtoken"
@@ -53,7 +53,7 @@ async def test_id_token_manager_get_id_token_error(monkeypatch):
     monkeypatch.setattr(auth, "get_context", lambda: ctx)
     # Patch fetch_id_token to raise
     with patch(
-        "src.swim_rag_mcp.auth.token.fetch_id_token",
+        "src.swim_gen_mcp.auth.token.fetch_id_token",
         side_effect=Exception("fail"),
     ):
         with pytest.raises(Exception):

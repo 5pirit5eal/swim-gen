@@ -9,8 +9,8 @@ import (
 	"cloud.google.com/go/cloudsqlconn"
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
-	"github.com/5pirit5eal/swim-rag/internal/config"
-	"github.com/5pirit5eal/swim-rag/internal/genai"
+	"github.com/5pirit5eal/swim-gen/internal/config"
+	"github.com/5pirit5eal/swim-gen/internal/genai"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tmc/langchaingo/embeddings"
@@ -83,7 +83,7 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 	if err := createScrapedTableIfNotExists(ctx, tx); err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func GetSecret(ctx context.Context, location string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 	secret, err := c.AccessSecretVersion(ctx, &secretmanagerpb.AccessSecretVersionRequest{
 		Name: location,
 	})

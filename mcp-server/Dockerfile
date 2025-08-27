@@ -31,4 +31,4 @@ ENTRYPOINT []
 # Run the FastAPI application by default
 # Uses `fastapi dev` to enable hot-reloading when the `watch` sync occurs
 # Uses `--host 0.0.0.0` to allow access from outside the container
-CMD ["fastmcp", "run", "--transport", "http", "--no-banner", "--host", "0.0.0.0", "--port", "8080", "src/swim_rag_mcp/main.py"]
+CMD ["fastmcp", "run", "--transport", "http", "--no-banner", "--host", "0.0.0.0", "--port", "8080", "src/swim_gen_mcp/main.py"]

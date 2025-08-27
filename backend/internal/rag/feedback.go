@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
 )

@@ -11,20 +11,20 @@ import (
 	"path/filepath"
 	"time"
 
-	_ "github.com/5pirit5eal/swim-rag/docs"
+	_ "github.com/5pirit5eal/swim-gen/docs"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog/v2"
 	"github.com/go-chi/render"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
-	"github.com/5pirit5eal/swim-rag/internal/config"
-	"github.com/5pirit5eal/swim-rag/internal/server"
+	"github.com/5pirit5eal/swim-gen/internal/config"
+	"github.com/5pirit5eal/swim-gen/internal/server"
 )
 
-// Package main provides the swim-rag API server
+// Package main provides the swim-gen API server
 //
-//	@title			Swim RAG API
+//	@title			Swim Gen API
 //	@version		1.0
 //	@description	A REST API for swim training plan management with RAG capabilities
 //
@@ -81,7 +81,7 @@ func setupLogger(cfg config.Config) (*httplog.Logger, error) {
 		"WARN":  slog.LevelWarn,
 		"ERROR": slog.LevelError,
 	}
-	logger := httplog.NewLogger("swim-rag", httplog.Options{
+	logger := httplog.NewLogger("swim-gen", httplog.Options{
 		LogLevel: levelMap[cfg.LogLevel],
 		JSON:     j,
 		Concise:  true,
@@ -112,7 +112,9 @@ func setupLogger(cfg config.Config) (*httplog.Logger, error) {
 // @Success 200 {string} string "OK"
 // @Router /health [get]
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("OK"))
+	if _, err := w.Write([]byte("OK")); err != nil {
+		httplog.LogEntry(r.Context()).Error("Failed to write health check response", httplog.ErrAttr(err))
+	}
 }
 
 // Setup of routes for the RAG service

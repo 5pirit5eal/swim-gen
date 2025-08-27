@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "A REST API for swim training plan management with RAG capabilities",
-        "title": "Swim RAG API",
+        "title": "Swim Gen API",
         "contact": {},
         "license": {
             "name": "Apache 2.0",

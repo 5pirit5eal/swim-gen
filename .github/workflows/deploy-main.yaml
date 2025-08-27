@@ -1,0 +1,46 @@
+name: 🪄 Manual OpenTofu Plan & Apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: Target environment (main or dev)
+        required: true
+        type: choice
+        options:
+          - main
+          - dev
+        default: main
+      apply:
+        description: Set true to run apply after plan
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: write
+
+concurrency:
+  group: manual-tofu-${{ inputs.env }}
+  cancel-in-progress: false
+
+jobs:
+  tofu-infra:
+    name: 0-infra (${{ inputs.env }})
+    uses: ./.github/workflows/tf-plan-apply.yaml
+    with:
+      env: ${{ inputs.env }}
+      apply: ${{ inputs.apply }}
+      cwd: deployments/${{ inputs.env }}/0-infra
+    secrets: inherit
+
+  tofu-services:
+    name: 1-services (${{ inputs.env }})
+    needs: tofu-infra
+    uses: ./.github/workflows/tf-plan-apply.yaml
+    with:
+      env: ${{ inputs.env }}
+      apply: ${{ inputs.apply }}
+      cwd: deployments/${{ inputs.env }}/1-services
+    secrets: inherit

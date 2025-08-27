@@ -18,7 +18,7 @@ describe('TrainingPlanDisplay.vue', () => {
         Break: '30s',
         Content: 'Warm-up',
         Intensity: 'Easy',
-        Sum: 100
+        Sum: 100,
       },
       {
         Amount: 1,
@@ -27,16 +27,16 @@ describe('TrainingPlanDisplay.vue', () => {
         Break: '',
         Content: 'Total',
         Intensity: '',
-        Sum: 100
-      }
-    ]
+        Sum: 100,
+      },
+    ],
   }
 
   it('renders a placeholder when there is no plan', () => {
     const wrapper = mount(TrainingPlanDisplay, {
       global: {
-        plugins: [i18n, createTestingPinia({ createSpy: vi.fn })]
-      }
+        plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+      },
     })
 
     // Check for the placeholder text
@@ -46,8 +46,8 @@ describe('TrainingPlanDisplay.vue', () => {
   it('renders the training plan when it exists', async () => {
     const wrapper = mount(TrainingPlanDisplay, {
       global: {
-        plugins: [i18n, createTestingPinia({ createSpy: vi.fn })]
-      }
+        plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+      },
     })
     const store = useTrainingPlanStore()
     store.currentPlan = mockPlan
@@ -63,8 +63,8 @@ describe('TrainingPlanDisplay.vue', () => {
     it('allows editing the Amount field with a valid number', async () => {
       const wrapper = mount(TrainingPlanDisplay, {
         global: {
-          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })]
-        }
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
       })
       const store = useTrainingPlanStore()
       store.currentPlan = JSON.parse(JSON.stringify(mockPlan)) // Deep copy
@@ -91,8 +91,8 @@ describe('TrainingPlanDisplay.vue', () => {
     it('reverts to original value when editing Amount with invalid input', async () => {
       const wrapper = mount(TrainingPlanDisplay, {
         global: {
-          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })]
-        }
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
       })
       const store = useTrainingPlanStore()
       store.currentPlan = JSON.parse(JSON.stringify(mockPlan)) // Deep copy

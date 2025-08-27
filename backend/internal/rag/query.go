@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
 	"github.com/tmc/langchaingo/schema"
@@ -46,18 +46,21 @@ func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any,
 	logger.Info("Documents found", "count", len(docs))
 	logger.Debug("Documents:", "docs", docs)
 	answer := &models.RAGResponse{}
-	if method == "generate" {
+	switch method {
+	case "generate":
 		answer, err = db.Client.GeneratePlan(ctx, query, docs)
-	} else if method == "choose" {
+	case "choose":
 		if len(docs) == 0 {
 			return nil, fmt.Errorf("no documents in database matching query and filters")
 		}
-		planID, err := db.Client.ChoosePlan(ctx, query, docs)
+		var planID string
+		planID, err = db.Client.ChoosePlan(ctx, query, docs)
 		if err != nil {
 			logger.Error("Error choosing plan", httplog.ErrAttr(err))
 			return nil, fmt.Errorf("error choosing plan: %w", err)
 		}
-		plan, err := db.GetPlan(ctx, planID, SourceOptionPlan)
+		var plan models.Planable
+		plan, err = db.GetPlan(ctx, planID, SourceOptionPlan)
 		if err != nil {
 			logger.Error("Error getting plan", httplog.ErrAttr(err))
 			return nil, fmt.Errorf("error getting plan: %w", err)
@@ -66,7 +69,7 @@ func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any,
 		answer.Title = genericPlan.Title
 		answer.Description = genericPlan.Description
 		answer.Table = genericPlan.Table
-	} else {
+	default:
 		return nil, fmt.Errorf("unsupported method: %s", method)
 	}
 	if err != nil {

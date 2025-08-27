@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-source .env
+if [ -f .env ]; then
+  source .env
+fi
 
 run() {
   go run ./main.go
@@ -9,6 +11,7 @@ run() {
 
 validate() {
   go vet ./...
+  golangci-lint run --path-mode=abs
 }
 
 format() {
