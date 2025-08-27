@@ -51,8 +51,8 @@ jobs:
       - name: 📦 Setup Workflow
         uses: ./.github/actions/setup
         with:
-          wif_provider: ${{ vars.wif_provider }}
-          wif_sa: ${{ vars.wif_sa }}
+          WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+          WIF_SA: ${{ vars.WIF_SA }}
           env-file: frontend/.env.development
 
       - name: Build Docker Image

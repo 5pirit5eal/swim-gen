@@ -2,12 +2,9 @@ locals {
   secret_ids = {
     dbname          = google_secret_manager_secret.dbname.id
     dbuser          = google_secret_manager_secret.dbuser.id
-    github_token    = google_secret_manager_secret.github_token_secret.id
-    dbpassword_root = data.google_secret_manager_secret.dbpassword_root.id
-    dbpassword_user = data.google_secret_manager_secret.dbpassword_user.id
+    dbpassword_root = data.google_secret_manager_secret_version_access.dbpassword_root.id
+    dbpassword_user = data.google_secret_manager_secret_version_access.dbpassword_user.id
   }
-
-
 }
 
 data "google_secret_manager_secret" "dbpassword_root" {
@@ -61,20 +58,4 @@ resource "google_secret_manager_secret" "dbname" {
 resource "google_secret_manager_secret_version" "dbname" {
   secret      = google_secret_manager_secret.dbname.id
   secret_data = var.dbname
-}
-
-# Github access token secret
-resource "google_secret_manager_secret" "github_token_secret" {
-  secret_id = "github-token-secret"
-
-  replication {
-    auto {}
-  }
-  depends_on = [google_project_service.apis]
-}
-
-resource "google_secret_manager_secret_version" "github_token_secret_version" {
-  secret      = google_secret_manager_secret.github_token_secret.id
-  secret_data = var.github_token
-  depends_on  = [google_project_service.apis]
 }

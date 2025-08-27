@@ -1,10 +1,10 @@
 name: "📦🔧 Set up Google Cloud"
 description: "Set up google cloud auth and gcloud"
 inputs:
-  wif_provider:
+  WIF_PROVIDER:
     required: true
     description: "Workload identity federation provider"
-  wif_sa:
+  WIF_SA:
     required: true
     description: "Workload identity federation service account"
   env-file:
@@ -17,8 +17,8 @@ runs:
     - name: 🔑 Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:
-        workload_identity_provider: ${{ vars.wif_provider }}
-        service_account: ${{ vars.wif_sa }}
+        workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+        service_account: ${{ vars.WIF_SA }}
 
     - name: 🕹 Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2

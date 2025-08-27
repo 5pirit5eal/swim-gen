@@ -70,7 +70,7 @@ resource "google_sql_user" "dbuser" {
 
 # Storage bucket for the exported pdfs from the backend
 resource "google_storage_bucket" "exported_pdfs" {
-  name     = "${var.project_id}-exported-pdfs"
+  name     = "${var.project_id}-swim-gen-exported-pdfs"
   location = var.region
   project  = var.project_id
 

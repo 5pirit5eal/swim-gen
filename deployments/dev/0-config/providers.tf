@@ -1,7 +1,7 @@
 terraform {
   backend "gcs" {
-    bucket = "rubenschulze-sandbox-state"
-    prefix = "tofu/swim-rag"
+    bucket = "swim-gen-state-dev"
+    prefix = "tofu/swim-gen"
   }
 }
 
@@ -13,6 +13,11 @@ provider "google" {
 provider "google-beta" {
   project = var.project_id
   region  = var.region
+}
+
+provider "github" {
+  token = var.github_token
+  owner = var.github_owner
 }
 
 data "google_project" "project" {

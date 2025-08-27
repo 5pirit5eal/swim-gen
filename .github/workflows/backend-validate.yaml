@@ -45,9 +45,8 @@ jobs:
       - name: 📦 Setup Workflow
         uses: ./.github/actions/setup
         with:
-          wif_provider: ${{ vars.wif_provider }}
-          wif_sa: ${{ vars.wif_sa }}
-          env-file: backend/.env.development
+          WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+          WIF_SA: ${{ vars.WIF_SA }}
 
       - name: 🐹 Setup Go
         uses: actions/setup-go@v5

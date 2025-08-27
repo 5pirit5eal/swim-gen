@@ -5,17 +5,17 @@ resource "google_project_service" "apis" {
   service  = each.key
 }
 
-# Cloud Build Service Account
-resource "google_service_account" "cloud_build_sa" {
-  account_id                   = "cloud-build-sa"
-  display_name                 = "Cloud Build Service Account"
+# Github Actions Service Account
+resource "google_service_account" "github_actions_sa" {
+  account_id                   = "github-actions-sa"
+  display_name                 = "Github Actions Service Account"
   project                      = var.project_id
   create_ignore_already_exists = true
 }
 
-resource "google_project_iam_member" "cloud_build_iam" {
+resource "google_project_iam_member" "github_actions_iam" {
   for_each = toset([
-    "roles/cloudbuild.builds.editor",
+    "roles/iam.workloadIdentityUser",
     "roles/storage.admin",
     "roles/run.developer",
     "roles/logging.logWriter",
@@ -27,15 +27,15 @@ resource "google_project_iam_member" "cloud_build_iam" {
   ])
   project = var.project_id
   role    = each.key
-  member  = "serviceAccount:${google_service_account.cloud_build_sa.email}"
+  member  = "serviceAccount:${google_service_account.github_actions_sa.email}"
 }
 
-resource "google_secret_manager_secret_iam_member" "cloud_build_sa_secret_access" {
+resource "google_secret_manager_secret_iam_member" "github_actions_sa_secret_access" {
   for_each  = local.secret_ids
   secret_id = each.value
   project   = var.project_id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.cloud_build_sa.email}"
+  member    = "serviceAccount:${google_service_account.github_actions_sa.email}"
 }
 
 # Backend Service Account
@@ -76,36 +76,23 @@ resource "google_service_account" "swim_gen_frontend_sa" {
   create_ignore_already_exists = true
 }
 
-resource "google_project_iam_member" "swim_gen_frontend_iam" {
-  for_each = toset([
-    "roles/iam.serviceAccountTokenCreator",
-    "roles/run.invoker",
-  ])
-  project = var.project_id
-  role    = each.key
-  member  = "serviceAccount:${google_service_account.swim_gen_frontend_sa.email}"
+resource "google_service_account_iam_member" "swim_gen_frontend_token_creator_self" {
+  service_account_id = google_service_account.swim_gen_frontend_sa.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:${google_service_account.swim_gen_frontend_sa.email}"
 }
 
-
-# Make the Cloud Build service account a user of the Cloud Run service accounts
-resource "google_service_account_iam_member" "cloud_build_sa_user_backend" {
+# Make the Github Actions service account a user of the Cloud Run service accounts
+resource "google_service_account_iam_member" "github_actions_sa_user_backend" {
   service_account_id = google_service_account.swim_gen_backend_sa.name
   role               = "roles/iam.serviceAccountUser"
-  member             = "serviceAccount:${google_service_account.cloud_build_sa.email}"
+  member             = "serviceAccount:${google_service_account.github_actions_sa.email}"
 }
 
-resource "google_service_account_iam_member" "cloud_build_sa_user_frontend" {
+resource "google_service_account_iam_member" "github_actions_sa_user_frontend" {
   service_account_id = google_service_account.swim_gen_frontend_sa.name
   role               = "roles/iam.serviceAccountUser"
-  member             = "serviceAccount:${google_service_account.cloud_build_sa.email}"
-}
-
-# Make the default cloud build service account accessor of the github token secret
-resource "google_secret_manager_secret_iam_member" "cloud_build_sa_github_token_access" {
-  secret_id = google_secret_manager_secret.github_token_secret.id
-  project   = var.project_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+  member             = "serviceAccount:${google_service_account.github_actions_sa.email}"
 }
 
 # Sign PDF Service Account
