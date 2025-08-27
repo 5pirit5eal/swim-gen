@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   detect-changes:
+    if: github.event_name == 'push'
     name: 🔎 Detect service changes
     runs-on: ubuntu-latest
     outputs:
@@ -34,7 +35,7 @@ jobs:
           echo "mcp=$(changed mcp-server)" >> $GITHUB_OUTPUT
 
   build-backend:
-    if: ${{ needs.detect-changes.outputs.backend == 'true' }}
+    if: ${{ needs.detect-changes.outputs.backend == 'true' || github.event_name != 'push' }}
     needs: detect-changes
     uses: ./.github/workflows/backend-build.yaml
     with:
@@ -43,7 +44,7 @@ jobs:
     permissions: write-all
 
   build-frontend:
-    if: ${{ needs.detect-changes.outputs.frontend == 'true' }}
+    if: ${{ needs.detect-changes.outputs.frontend == 'true' || github.event_name != 'push'}}
     needs: detect-changes
     uses: ./.github/workflows/frontend-build.yaml
     with:
@@ -52,7 +53,7 @@ jobs:
     permissions: write-all
 
   build-bff:
-    if: ${{ needs.detect-changes.outputs.bff == 'true' }}
+    if: ${{ needs.detect-changes.outputs.bff == 'true' || github.event_name != 'push'}}
     needs: detect-changes
     uses: ./.github/workflows/bff-build.yaml
     with:
@@ -61,7 +62,7 @@ jobs:
     permissions: write-all
 
   build-mcp:
-    if: ${{ needs.detect-changes.outputs.mcp == 'true' }}
+    if: ${{ needs.detect-changes.outputs.mcp == 'true' || github.event_name != 'push'}}
     needs: detect-changes
     uses: ./.github/workflows/mcp-build.yaml
     with:
