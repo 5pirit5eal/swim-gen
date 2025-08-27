@@ -448,7 +448,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Swim RAG API",
+	Title:            "Swim Gen API",
 	Description:      "A REST API for swim training plan management with RAG capabilities",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

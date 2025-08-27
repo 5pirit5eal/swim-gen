@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/go-chi/httplog/v2"
 	"github.com/tmc/langchaingo/schema"
 	"google.golang.org/genai"

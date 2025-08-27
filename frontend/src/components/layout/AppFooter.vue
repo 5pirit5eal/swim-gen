@@ -59,7 +59,7 @@ const showContact = () => {
               <a href="#contact" @click.prevent="showContact">{{ t('footer.contact') }}</a>
             </li>
             <li>
-              <a href="https://github.com/5pirit5eal/swim-rag" target="_blank" rel="noopener">{{
+              <a href="https://github.com/5pirit5eal/swim-gen" target="_blank" rel="noopener">{{
                 t('footer.github')
               }}</a>
             </li>

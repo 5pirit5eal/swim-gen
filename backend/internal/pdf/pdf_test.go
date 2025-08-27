@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/5pirit5eal/swim-rag/internal/models"
-	"github.com/5pirit5eal/swim-rag/internal/pdf"
+	"github.com/5pirit5eal/swim-gen/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/pdf"
 	"github.com/stretchr/testify/assert"
 )
 

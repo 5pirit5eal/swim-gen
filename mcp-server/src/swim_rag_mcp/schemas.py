@@ -45,10 +45,10 @@ class Filter(BaseModel):
 
 
 class QueryRequest(BaseModel):
-    """Represents a request to query the Swim RAG backend."""
+    """Represents a request to query the Swim Gen backend."""
 
     content: str = Field(
-        ..., description="The query string to be processed by the Swim RAG MCP."
+        ..., description="The query string to be processed by the Swim Gen MCP."
     )
     filter: Optional[Filter] = Field(
         None,
@@ -83,18 +83,18 @@ class Row(BaseModel):
 
 
 class QueryResponse(BaseModel):
-    """Represents the response from the Swim RAG backend after processing a query."""
+    """Represents the response from the Swim Gen backend after processing a query."""
 
     title: str = Field(
         ...,
         description="The status of the query response, e.g., 'success' or 'error'.",
     )
     description: str = Field(
-        ..., description="The data returned from the Swim RAG backend."
+        ..., description="The data returned from the Swim Gen backend."
     )
     table: list[Row] = Field(
         ...,
-        description="Training plan data returned from the Swim RAG backend.",
+        description="Training plan data returned from the Swim Gen backend.",
     )
 
 

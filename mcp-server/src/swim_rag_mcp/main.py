@@ -21,7 +21,7 @@ load_dotenv(".config.env")
 
 URL = os.getenv("SWIM_RAG_API_URL", "http://localhost:8080")
 MCP_URL = os.getenv("SWIM_RAG_MCP_URL", "http://localhost:5000")
-print(f"Using Swim RAG API URL: {URL}")
+print(f"Using Swim Gen API URL: {URL}")
 
 # Instantiate the manager once at application startup
 token_manager = IdTokenManager()
@@ -32,7 +32,7 @@ async def make_authenticated_request(
     method: str = "GET",
     json_data: dict = None,  # type: ignore[assignment]
 ) -> httpx.Response:
-    """Make an authenticated request to the Swim RAG API with retries on 401 Unauthorized."""
+    """Make an authenticated request to the Swim Gen API with retries on 401 Unauthorized."""
     ctx = get_context()
 
     if not json_data:
@@ -72,11 +72,11 @@ async def make_authenticated_request(
 
 
 mcp: FastMCP = FastMCP(
-    name="swim-rag-mcp",
+    name="swim-gen-mcp",
     instructions="""
-        This is the MCP Server connected to the Swim RAG backend, an application meant for generating and
+        This is the MCP Server connected to the Swim Gen backend, an application meant for generating and
         exporting german training plans for swimming. It allows the user to query for a personalized training plan,
-        edit it and send the edited plan to the Swim RAG backend for export to a PDF file.
+        edit it and send the edited plan to the Swim Gen backend for export to a PDF file.
     """,
     exclude_tags={"internal"},
     include_tags={"public"},
@@ -99,12 +99,12 @@ mcp: FastMCP = FastMCP(
 
 @mcp.tool(tags={"public"})
 async def generate_or_choose_plan(query: QueryRequest) -> QueryResponse:
-    """Query the Swim RAG system with a given german query string.
+    """Query the Swim Gen system with a given german query string.
     It parses the request, queries the RAG, generating or choosing a plan, and returns the result as JSON.
     This function can be used to generate a new training plan or choose an existing one from the database.
-    It is not suited for editing plans, but rather for querying the Swim RAG backend.
+    It is not suited for editing plans, but rather for querying the Swim Gen backend.
     """
-    # Send the request to the Swim RAG backend
+    # Send the request to the Swim Gen backend
     try:
         response = await make_authenticated_request(
             url=URL + "/query",

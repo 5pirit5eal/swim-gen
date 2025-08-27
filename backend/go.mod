@@ -1,4 +1,4 @@
-module github.com/5pirit5eal/swim-rag
+module github.com/5pirit5eal/swim-gen
 
 go 1.25.0
 

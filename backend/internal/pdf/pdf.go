@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
-	"github.com/5pirit5eal/swim-rag/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/google/uuid"
 	"github.com/johnfercher/maroto/v2"
 	"github.com/johnfercher/maroto/v2/pkg/components/col"

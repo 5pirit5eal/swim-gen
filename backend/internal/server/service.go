@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/5pirit5eal/swim-rag/internal/config"
-	"github.com/5pirit5eal/swim-rag/internal/models"
-	"github.com/5pirit5eal/swim-rag/internal/pdf"
-	"github.com/5pirit5eal/swim-rag/internal/rag"
+	"github.com/5pirit5eal/swim-gen/internal/config"
+	"github.com/5pirit5eal/swim-gen/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/pdf"
+	"github.com/5pirit5eal/swim-gen/internal/rag"
 	"github.com/go-chi/httplog/v2"
 	"github.com/google/uuid"
 )

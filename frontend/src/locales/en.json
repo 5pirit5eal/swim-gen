@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Swim RAG",
+    "name": "Swim Gen",
     "slogan": "AI-powered training plan generator for swimmers and triathletes.",
     "hero_title": "AI-Powered Swimming Training Plans",
     "hero_description": "Generate personalized training plans for swimmers, triathletes, and coaches. Just describe what you're looking for, and our system will create a custom training for you."
@@ -17,7 +17,7 @@
     "about": "About",
     "contact": "Contact",
     "github": "GitHub",
-    "copyright": "© 2025 Swim RAG. Built with Vue.js and TypeScript."
+    "copyright": "© 2025 Swim Gen. Built with Vue.js and TypeScript."
   },
   "form": {
     "describe_training_needs": "Describe your training needs",
@@ -127,7 +127,7 @@
     "changes_title": "11. Changes to This Privacy Policy",
     "changes": "We may update this Privacy Policy to reflect changes in our practices or for legal compliance. When we make changes: We will update the 'Last Updated' date at the top of this policy. Significant changes will be prominently displayed in the application. For major changes affecting your rights, we may provide additional notice. We encourage you to review this policy periodically to stay informed about how we protect your privacy.",
     "contact_title": "12. Contact Information",
-    "contact": "If you have any questions about this Privacy Policy or our privacy practices, please contact us: Email: {'info.swim.gen@gmail.com'}. GitHub: https://github.com/5pirit5eal/swim-rag. Data Protection Inquiries: For specific data protection questions or to exercise your rights under GDPR, please use the email address above with the subject line 'Data Protection Inquiry.'",
+    "contact": "If you have any questions about this Privacy Policy or our privacy practices, please contact us: Email: {'info.swim.gen@gmail.com'}. GitHub: https://github.com/5pirit5eal/swim-gen. Data Protection Inquiries: For specific data protection questions or to exercise your rights under GDPR, please use the email address above with the subject line 'Data Protection Inquiry.'",
     "commitment_title": "13. Our Privacy Commitment",
     "commitment": "Swim Gen is committed to being a privacy-respecting application. We believe that powerful AI tools for swimmers and triathletes can be provided without compromising your privacy. Our goal is to prove that useful applications can operate with minimal data collection while still providing excellent user experiences."
   },
