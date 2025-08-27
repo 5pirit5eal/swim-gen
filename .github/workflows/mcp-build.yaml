@@ -10,7 +10,7 @@ on:
           description: "Environment to setup for"
           default: dev
         version:
-          required: true
+          required: false
           type: string
           description: "The semantic version to be released"
   workflow_dispatch:

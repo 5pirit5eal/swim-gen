@@ -39,7 +39,6 @@ jobs:
     uses: ./.github/workflows/backend-build.yaml
     with:
       env: dev
-      version: dev-${{ github.sha }}
     secrets: inherit
 
   build-frontend:
@@ -48,7 +47,6 @@ jobs:
     uses: ./.github/workflows/frontend-build.yaml
     with:
       env: dev
-      version: dev-${{ github.sha }}
     secrets: inherit
 
   build-bff:
@@ -57,7 +55,6 @@ jobs:
     uses: ./.github/workflows/bff-build.yaml
     with:
       env: dev
-      version: dev-${{ github.sha }}
     secrets: inherit
 
   build-mcp:
@@ -66,7 +63,6 @@ jobs:
     uses: ./.github/workflows/mcp-build.yaml
     with:
       env: dev
-      version: dev-${{ github.sha }}
     secrets: inherit
 
   opentofu-infra:
