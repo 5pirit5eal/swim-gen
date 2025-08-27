@@ -10,8 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  id-token: write
-  contents: write
+  id-token: write # This is required for requesting the JWT
+  contents: write  # This is required for actions/checkout
 
 jobs:
   detect-changes:
@@ -40,6 +40,7 @@ jobs:
     with:
       env: dev
     secrets: inherit
+    permissions: write-all
 
   build-frontend:
     if: ${{ needs.detect-changes.outputs.frontend == 'true' }}
@@ -48,6 +49,7 @@ jobs:
     with:
       env: dev
     secrets: inherit
+    permissions: write-all
 
   build-bff:
     if: ${{ needs.detect-changes.outputs.bff == 'true' }}
@@ -56,6 +58,7 @@ jobs:
     with:
       env: dev
     secrets: inherit
+    permissions: write-all
 
   build-mcp:
     if: ${{ needs.detect-changes.outputs.mcp == 'true' }}
@@ -64,6 +67,7 @@ jobs:
     with:
       env: dev
     secrets: inherit
+    permissions: write-all
 
   opentofu-infra:
     name: 🪄 OpenTofu infra (dev)
