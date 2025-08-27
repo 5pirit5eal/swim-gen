@@ -6,16 +6,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-dev-${{ github.ref_name }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   id-token: write
   contents: read
-
-env:
-  TF_IN_AUTOMATION: true
-  TF_INPUT: 0
 
 jobs:
   detect-changes:
@@ -73,15 +69,29 @@ jobs:
       version: dev-${{ github.sha }}
     secrets: inherit
 
-  terraform:
+  opentofu-infra:
+    name: 🪄 OpenTofu infra (dev)
     needs:
         - build-backend
         - build-frontend
         - build-bff
         - build-mcp
     if: always() && !cancelled() && (needs.build-backend.result != 'failure') && (needs.build-frontend.result != 'failure') && (needs.build-bff.result != 'failure') && (needs.build-mcp.result != 'failure')
-    uses: ./.github/workflows/tf-build-apply.yaml
+    uses: ./.github/workflows/tf-plan-apply.yaml
     with:
       env: dev
+      apply: true
+      cwd: deployments/dev/0-infra
+    secrets: inherit
+
+  opentofu-services:
+    name: 🪄 OpenTofu services (dev)
+    needs:
+      - opentofu-infra
+    uses: ./.github/workflows/tf-plan-apply.yaml
+    with:
+      env: dev
+      apply: true
+      cwd: deployments/dev/1-services
     secrets: inherit
 

@@ -1,87 +1,86 @@
-name: 🔔 Release and Build to Prod
+name: 🚀 Build & Deploy (main)
 
 on:
   push:
-    branches:
-      - "main"
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref_name }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: write # This is required for actions/checkout and release
+  id-token: write
+  contents: read
+
+env:
+  TF_IN_AUTOMATION: true
+  TF_INPUT: 0
 
 jobs:
-  validate_backend:
-    name: 🔍 Validating Backend
-    uses: ./.github/workflows/backend-validate.yaml
-    with:
-      ENVIRONMENT: dev
-    secrets: inherit
-  validate_bff:
-    name: 🔍 Validating BFF
-    uses: ./.github/workflows/bff-validate.yaml
-    with:
-      ENVIRONMENT: dev
-    secrets: inherit
-  validate_frontend:
-    name: 🔍 Validating Frontend
-    uses: ./.github/workflows/frontend-validate.yaml
-    with:
-      ENVIRONMENT: dev
-    secrets: inherit
-  validate_mcp:
-    name: 🔍 Validating MCP Server
-    uses: ./.github/workflows/mcp-validate.yaml
-    with:
-      ENVIRONMENT: dev
-    secrets: inherit
-
-  wait_for_validation:
-    name: 🔍 Valid services
-    needs:
-      - validate_backend
-      - validate_frontend
-      - validate_bff
-      - validate_mcp
+  get_version:
     runs-on: ubuntu-latest
-    environment: dev
+    outputs:
+      next_version: ${{ steps.next_version.outputs.next_version }}
     steps:
-      - name: ⬇️ Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: 📦 Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: 🔐 Load ENV variables
-        uses: ./.github/actions/load-env-variables
-        with:
-          env-file: "./.config.env"
-
-      - name: 📦 Setup Workflow
-        uses: ./.github/actions/setup
-        with:
-          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-
-      - name: 🚀 Installing Semantic-Release and Releasing
+      - name: Get Next Release Version
+        id: next_version
+        uses: semantic-release-action/next-release-version@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./Taskfile.sh release
 
-  deploy:
-    name: 🚀 Deploy
-    needs:
-      - validate
-      - release
-    uses: ./.github/workflows/_deploy.yaml
+  build-backend:
+    uses: ./.github/workflows/backend-build.yaml
     with:
-      ENVIRONMENT: dev
+      env: main
+      version: ${{ needs.get_version.outputs.next_version }}
+    secrets: inherit
+
+  build-frontend:
+    uses: ./.github/workflows/frontend-build.yaml
+    with:
+      env: main
+      version: ${{ needs.get_version.outputs.next_version }}
+    secrets: inherit
+
+  build-bff:
+    uses: ./.github/workflows/bff-build.yaml
+    with:
+      env: main
+      version: ${{ needs.get_version.outputs.next_version }}
+    secrets: inherit
+
+  build-mcp:
+    uses: ./.github/workflows/mcp-build.yaml
+    with:
+      env: main
+      version: ${{ needs.get_version.outputs.next_version }}
+    secrets: inherit
+
+  opentofu-infra:
+    name: 🪄 OpenTofu infra (main)
+    needs:
+        - build-backend
+        - build-frontend
+        - build-bff
+        - build-mcp
+    if: always() && !cancelled() && (needs.build-backend.result != 'failure') && (needs.build-frontend.result != 'failure') && (needs.build-bff.result != 'failure') && (needs.build-mcp.result != 'failure')
+    uses: ./.github/workflows/tf-plan-apply.yaml
+    with:
+      env: main
+      apply: false
+      cwd: deployments/main/0-infra
+    secrets: inherit
+
+  opentofu-services:
+    name: 🪄 OpenTofu services (main)
+    needs:
+      - opentofu-infra
+    uses: ./.github/workflows/tf-plan-apply.yaml
+    with:
+      env: main
+      apply: false
+      cwd: deployments/main/1-services
     secrets: inherit
