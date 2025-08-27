@@ -11,6 +11,7 @@ run() {
 
 validate() {
   go vet ./...
+  golangci-lint run --path-mode=abs
 }
 
 format() {

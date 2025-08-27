@@ -64,6 +64,7 @@ jobs:
         working-directory: bff
 
       - name: 🔄 Auto-commit formatting
+        if: github.event_name == 'pull_request'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore(fmt): apply prettier formatting"
