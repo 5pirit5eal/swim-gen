@@ -360,17 +360,17 @@ func (db *RAGDB) AddScrapedPlans(ctx context.Context, collectionUUID string, doc
 		// If a URL already exists, delete the old entry and insert the new one
 		_, err = pseudoTx.Exec(ctx, fmt.Sprintf(`
 			WITH deleted AS (
-				DELETE FROM %s 
+				DELETE FROM %s
 				WHERE uuid = (
-					SELECT plan_id 
-					FROM %s 
+					SELECT plan_id
+					FROM %s
 					WHERE url = $1 AND collection_id = $3
 				)
 				RETURNING uuid
 			)
-			INSERT INTO %s (url, plan_id, collection_id) 
-			VALUES ($1, $2, $3) 
-			ON CONFLICT (url, collection_id) 
+			INSERT INTO %s (url, plan_id, collection_id)
+			VALUES ($1, $2, $3)
+			ON CONFLICT (url, collection_id)
 			DO UPDATE SET plan_id = EXCLUDED.plan_id`, db.cfg.Embedding.Name, ScrapedTableName, ScrapedTableName),
 			url, plan.PlanID, collectionUUID)
 
