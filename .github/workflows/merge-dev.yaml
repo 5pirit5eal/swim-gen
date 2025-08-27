@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   detect-changes:
+    if: github.event_name == 'push'
     name: 🔎 Detect service changes
     runs-on: ubuntu-latest
     outputs:
