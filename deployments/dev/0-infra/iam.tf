@@ -25,6 +25,7 @@ resource "google_project_iam_member" "github_actions_iam" {
     "roles/secretmanager.secretAccessor",
     "roles/aiplatform.user",
     # Roles for Terraform to plan and apply
+    "roles/cloudsql.editor",
     "roles/serviceusage.serviceUsageAdmin",
     "roles/resourcemanager.projectIamAdmin",
     "roles/iam.serviceAccountAdmin",
