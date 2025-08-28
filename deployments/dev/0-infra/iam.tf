@@ -23,7 +23,13 @@ resource "google_project_iam_member" "github_actions_iam" {
     "roles/iam.serviceAccountTokenCreator",
     "roles/artifactregistry.admin",
     "roles/secretmanager.secretAccessor",
-    "roles/aiplatform.user"
+    "roles/aiplatform.user",
+    # Roles for Terraform to plan and apply
+    "roles/serviceusage.serviceUsageAdmin",
+    "roles/resourcemanager.projectIamAdmin",
+    "roles/iam.serviceAccountAdmin",
+    "roles/iam.workloadIdentityPoolAdmin",
+    "roles/secretmanager.viewer"
   ])
   project = var.project_id
   role    = each.key
