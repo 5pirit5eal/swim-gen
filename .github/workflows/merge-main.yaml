@@ -92,6 +92,7 @@ jobs:
       env: main
       apply: false
       cwd: deployments/main/1-services
+      infra_outputs: ${{ needs.opentofu-infra.outputs.tf_outputs }}
     secrets: inherit
 
   create-release:
