@@ -87,9 +87,9 @@ jobs:
     - name: 📤 Plan summary
       if: success()
       working-directory: ${{ inputs.cwd}}
-      run: tofu show -no-color deployments/${{ inputs.env }}/0-infra/tfplan | sed -e 's/^/    /'
+      run: tofu show -no-color tfplan | sed -e 's/^/    /'
 
     - name: 🚀 Apply
       if: ${{ inputs.apply == true && success() }}
       working-directory: ${{ inputs.cwd}}
-      run: tofu apply -auto-approve -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}" tfplan
+      run: tofu apply -auto-approve tfplan
