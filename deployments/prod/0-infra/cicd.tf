@@ -83,15 +83,19 @@ data "github_repository" "swim_gen_repo" {
   full_name = "${var.github_owner}/${var.github_repository}"
 }
 
-resource "github_repository_environment" "dev" {
-  repository  = data.github_repository.swim_gen_repo.name
-  environment = "dev"
+data "github_repository_environments" "dev_environment" {
+  repository = data.github_repository.swim_gen_repo.name
 }
 
-resource "github_actions_environment_variable" "dev_project_id" {
+resource "github_repository_environment" "prod" {
+  repository  = data.github_repository.swim_gen_repo.name
+  environment = "prod"
+}
+
+resource "github_actions_environment_variable" "prod_project_id" {
   for_each      = local.github_env_variables
   repository    = data.github_repository.swim_gen_repo.name
-  environment   = github_repository_environment.dev.environment
+  environment   = github_repository_environment.prod.environment
   variable_name = each.key
   value         = each.value
 }
