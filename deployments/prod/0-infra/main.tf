@@ -49,6 +49,7 @@ resource "google_sql_database_instance" "main" {
     }
   }
   deletion_protection = true
+
   depends_on          = [google_project_service.apis]
 }
 
