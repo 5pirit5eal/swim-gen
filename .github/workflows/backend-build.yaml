@@ -28,7 +28,7 @@ permissions:
   contents: write  # This is required for actions/checkout
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: backend-build-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -53,7 +53,7 @@ jobs:
         uses: ./.github/actions/setup
         with:
           WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
-          WIF_SA: ${{ vars.WIF_SA }}‚
+          WIF_SA: ${{ vars.WIF_SA }}
 
       - name: Build Docker Image
         shell: bash
@@ -75,4 +75,3 @@ jobs:
         run: |
           gcloud artifacts docker tags add
           ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-backend:${{ inputs.version }}
-

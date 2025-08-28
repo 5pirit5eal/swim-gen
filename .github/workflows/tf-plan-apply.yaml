@@ -43,7 +43,7 @@ permissions:
   contents: write  # This is required for actions/checkout
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: tf-plan-apply-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -82,7 +82,7 @@ jobs:
     - name: 🔍 Plan
       id: plan
       working-directory: ${{ inputs.cwd}}
-      run: tofu plan -no-color -out=tfplan
+      run: tofu plan -no-color -out=tfplan -var="github_token=${{ secrets.GITHUB_TOKEN }}"
 
     - name: 📤 Plan summary
       if: success()
@@ -91,4 +91,4 @@ jobs:
     - name: 🚀 Apply
       if: ${{ inputs.apply == true && success() }}
       working-directory: ${{ inputs.cwd}}
-      run: tofu apply -auto-approve tfplan
+      run: tofu apply -auto-approve tfplan -var="github_token=${{ secrets.GITHUB_TOKEN }}"
