@@ -66,12 +66,31 @@ resource "google_cloud_run_v2_service" "frontend" {
   depends_on = [google_cloud_run_v2_service.backend, google_cloud_run_v2_service.frontend]
 }
 
-# Cloud domain mapping and Domain
-resource "google_cloud_run_v2_domain_mapping" "frontend_domain" {
-  location            = var.region
-  name                = var.domain_url.frontend
-  service             = google_cloud_run_v2_service.frontend.name
-  client              = "terraform"
-  depends_on          = [google_cloud_run_v2_service.frontend]
-  deletion_protection = false
+# Cloud domain mapping
+resource "google_cloud_run_domain_mapping" "frontend_domain_mapping" {
+  location = google_cloud_run_v2_service.frontend.location
+  name     = var.domain_url
+
+  metadata {
+    namespace = var.project_id
+  }
+
+  spec {
+    route_name = google_cloud_run_v2_service.frontend.name
+  }
+}
+
+# DNS records for the domain mapping
+resource "google_dns_record_set" "frontend_dns_records" {
+  for_each     = { for r in google_cloud_run_domain_mapping.frontend_domain_mapping.status[0].resource_records : r.name => r }
+  name         = each.value.name
+  managed_zone = data.google_dns_managed_zone.swim_gen_zone.name
+  type         = each.value.type
+  ttl          = 300
+
+  rrdatas = [each.value.rrdata]
+}
+
+data "google_dns_managed_zone" "swim_gen_zone" {
+  name = "swim-gen-com"
 }

@@ -52,3 +52,8 @@ variable "mcp_server_image_tag" {
   type    = string
   default = "latest"
 }
+variable "outputs_location" {
+  description = "The GCP output locations"
+  type        = string
+  default     = "../0-config"
+}
