@@ -58,7 +58,7 @@ jobs:
 
       - name: Build Docker Image
         shell: bash
-        run: docker build --platform linux/amd64 ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ github.sha }} .
+        run: docker build --platform linux/amd64 --tag ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ github.sha }} .
         working-directory: bff
       - name: Push Docker Image to Registry
         shell: bash
@@ -67,13 +67,15 @@ jobs:
       - name: Tag Image as latest
         shell: bash
         run: |
-          gcloud artifacts docker tags add
+          gcloud artifacts docker tags add \
+          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ github.sha }} \
           ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:latest
 
       - name: Tag with main version
         if: inputs.version
         shell: bash
         run: |
-          gcloud artifacts docker tags add
+          gcloud artifacts docker tags add \
+          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ github.sha }} \
           ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ inputs.version }}
 
