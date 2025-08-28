@@ -1,3 +1,8 @@
+variable "github_token" {
+  description = "GitHub token with repo and workflow permissions"
+  type        = string
+}
+
 variable "model" {
   description = "The model name"
   type        = string
