@@ -61,5 +61,10 @@ variable "secret_ids" {
   })
 }
 
-
-
+variable "secret_version_ids" {
+  description = "Secret version resource IDs"
+  type = object({
+    dbpassword_root = string
+    dbpassword_user = string
+  })
+}

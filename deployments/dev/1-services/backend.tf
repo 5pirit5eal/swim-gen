@@ -3,9 +3,9 @@ locals {
     PROJECT_ID       = var.project_id
     REGION           = var.region
     DB_NAME          = var.csql_db.name
-    DB_INSTANCE      = var.db_instance.connection_name
+    DB_INSTANCE      = var.csql_instance.connection_name
     DB_USER          = var.csql_db.dbuser
-    DB_PASS_LOCATION = var.secret_ids.dbpassword_user
+    DB_PASS_LOCATION = var.secret_version_ids.dbpassword_user
     EMBEDDING_MODEL  = var.embedding_model
     EMBEDDING_NAME   = var.embedding_name
     EMBEDDING_SIZE   = var.embedding_size
@@ -13,7 +13,7 @@ locals {
     SMALL_MODEL      = var.small_model # fixed key (was SMALl_MODEL)
     LOG_LEVEL        = var.log_level
     BUCKET_NAME      = var.bucket_name
-    SIGNING_SA       = var.signing_sa.email
+    SIGNING_SA       = var.iam.pdf_export.email
   }
 }
 

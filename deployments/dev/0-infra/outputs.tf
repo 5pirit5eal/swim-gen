@@ -15,9 +15,9 @@ locals {
       public_ip       = try(google_sql_database_instance.main.public_ip_address, null)
       private_ip      = try(google_sql_database_instance.main.private_ip_address, null)
     }
-    secret_ids  = local.secret_ids
-    bucket_name = google_storage_bucket.exported_pdfs.name
-
+    secret_ids         = local.secret_ids
+    secret_version_ids = local.secret_version_ids
+    bucket_name        = google_storage_bucket.exported_pdfs.name
     artifactregistry = {
       repository = google_artifact_registry_repository.docker.name
       location   = google_artifact_registry_repository.docker.location

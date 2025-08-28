@@ -37,9 +37,12 @@ resource "google_project_iam_member" "github_actions_iam" {
 }
 
 resource "google_secret_manager_secret_iam_member" "github_actions_sa_secret_access" {
-  for_each  = local.secret_ids
+  for_each = local.secret_ids
+  # Use project ID for secrets defined as resources (dbname, dbuser),
+  # and project number for imported/data secrets (dbpassword_root, dbpassword_user)
+  project = contains(["dbname", "dbuser"], each.key) ? var.project_id : data.google_project.project.number
+  # Extract the short secret_id from the full resource id
   secret_id = each.value
-  project   = var.project_id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.github_actions_sa.email}"
 }
@@ -69,7 +72,7 @@ resource "google_project_iam_member" "swim_gen_backend_iam" {
 resource "google_secret_manager_secret_iam_member" "swim_gen_backend_sa_secret_access" {
   for_each  = local.secret_ids
   secret_id = each.value
-  project   = var.project_id
+  project   = contains(["dbname", "dbuser"], each.key) ? var.project_id : data.google_project.project.number
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.swim_gen_backend_sa.email}"
 }
