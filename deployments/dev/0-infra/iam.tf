@@ -17,7 +17,7 @@ resource "google_project_iam_member" "github_actions_iam" {
   for_each = toset([
     "roles/iam.workloadIdentityUser",
     "roles/storage.admin",
-    "roles/run.developer",
+    "roles/run.admin",
     "roles/logging.logWriter",
     "roles/iam.serviceAccountUser",
     "roles/iam.serviceAccountTokenCreator",
