@@ -102,17 +102,17 @@ jobs:
       run: |
         set -euo pipefail
         # Store raw incoming JSON
-        echo '${{ inputs.infra_outputs }}' > ${{ inputs.cwd }}/infra.auto.tfvars.raw.json
+        echo '${{ inputs.infra_outputs }}' > infra.auto.tfvars.raw.json
         # Detect if this looks like a Terraform outputs schema (each value is an object with a 'value' key)
-        if jq -e 'to_entries|all(.value|type=="object" and has("value"))' ${{ inputs.cwd }}/infra.auto.tfvars.raw.json >/dev/null 2>&1; then
+        if jq -e 'to_entries|all(.value|type=="object" and has("value"))' infra.auto.tfvars.raw.json >/dev/null 2>&1; then
           echo "Transforming from outputs schema to tfvars schema" >&2
-          jq 'with_entries(.value = .value.value)' ${{ inputs.cwd }}/infra.auto.tfvars.raw.json > ${{ inputs.cwd }}/infra.auto.tfvars.json
+          jq 'with_entries(.value = .value.value)' infra.auto.tfvars.raw.json > infra.auto.tfvars.json
         else
           echo "Assuming already tfvars-compatible JSON" >&2
-          mv ${{ inputs.cwd }}/infra.auto.tfvars.raw.json ${{ inputs.cwd }}/infra.auto.tfvars.json
+          cp infra.auto.tfvars.raw.json infra.auto.tfvars.json
         fi
-        echo "Rehydrated vars written to ${{ inputs.cwd }}/infra.auto.tfvars.json" >&2
-        jq -c 'del(..|objects|.sensitive? // empty)' ${{ inputs.cwd }}/infra.auto.tfvars.json | head -c 500 || true
+        echo "Rehydrated vars written to infra.auto.tfvars.json" >&2
+        jq -c 'del(..|objects|.sensitive? // empty)' infra.auto.tfvars.json | head -c 500 || true
 
     - name: 📝 Validate
       working-directory: ${{ inputs.cwd}}
