@@ -85,11 +85,10 @@ jobs:
       run: tofu plan -no-color -out=tfplan -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}"
 
     - name: 📤 Plan summary
-      if: success()
       working-directory: ${{ inputs.cwd}}
       run: tofu show -no-color tfplan | sed -e 's/^/    /'
 
     - name: 🚀 Apply
-      if: ${{ inputs.apply == true && success() }}
+      if: inputs.apply
       working-directory: ${{ inputs.cwd}}
       run: tofu apply -auto-approve tfplan
