@@ -63,7 +63,9 @@ jobs:
         working-directory: mcp-server
       - name: Push Docker Image to Registry
         shell: bash
-        run: docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-mcp-server:${{ github.sha }}
+        run: |
+          gcloud --quiet auth configure-docker "${{ vars.REGION }}-docker.pkg.dev"
+          docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-mcp-server:${{ github.sha }}
 
       - name: Tag Image as latest
         shell: bash

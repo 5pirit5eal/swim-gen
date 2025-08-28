@@ -62,7 +62,9 @@ jobs:
         working-directory: bff
       - name: Push Docker Image to Registry
         shell: bash
-        run: docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ github.sha }}
+        run: |
+          gcloud --quiet auth configure-docker "${{ vars.REGION }}-docker.pkg.dev"
+          docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ github.sha }}
 
       - name: Tag Image as latest
         shell: bash
