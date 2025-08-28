@@ -86,6 +86,7 @@ jobs:
 
     - name: 📤 Plan summary
       if: success()
+      working-directory: ${{ inputs.cwd}}
       run: tofu show -no-color deployments/${{ inputs.env }}/0-infra/tfplan | sed -e 's/^/    /'
 
     - name: 🚀 Apply
