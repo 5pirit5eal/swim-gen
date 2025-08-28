@@ -59,7 +59,7 @@ jobs:
 
       - name: Build Docker Image
         shell: bash
-        run: docker build --platform ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-mcp-server:${{ github.sha }} .
+        run: docker build--platform linux/amd64 ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-mcp-server:${{ github.sha }} .
         working-directory: mcp-server
       - name: Push Docker Image to Registry
         shell: bash
