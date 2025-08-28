@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket = "swim-gen-state-dev"
+    bucket = "swim-gen-state-prod"
     prefix = "tofu/swim-gen-services"
   }
 }
