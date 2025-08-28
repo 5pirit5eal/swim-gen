@@ -28,7 +28,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: mcp-validate-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

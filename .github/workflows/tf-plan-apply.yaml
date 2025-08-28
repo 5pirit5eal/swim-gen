@@ -43,7 +43,7 @@ permissions:
   contents: write  # This is required for actions/checkout
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: tf-plan-apply-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

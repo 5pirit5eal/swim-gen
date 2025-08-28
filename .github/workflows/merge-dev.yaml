@@ -43,7 +43,7 @@ jobs:
     secrets: inherit
 
   build-frontend:
-    if: ${{ needs.detect-changes.outputs.frontend == 'true' || github.event_name != 'push'}}
+    if: ${{ needs.detect-changes.outputs.frontend == 'true' || github.event_name != 'push' }}
     needs: detect-changes
     uses: ./.github/workflows/frontend-build.yaml
     with:
@@ -51,7 +51,7 @@ jobs:
     secrets: inherit
 
   build-bff:
-    if: ${{ needs.detect-changes.outputs.bff == 'true' || github.event_name != 'push'}}
+    if: ${{ needs.detect-changes.outputs.bff == 'true' || github.event_name != 'push' }}
     needs: detect-changes
     uses: ./.github/workflows/bff-build.yaml
     with:
@@ -59,7 +59,7 @@ jobs:
     secrets: inherit
 
   build-mcp:
-    if: ${{ needs.detect-changes.outputs.mcp == 'true' || github.event_name != 'push'}}
+    if: ${{ needs.detect-changes.outputs.mcp == 'true' || github.event_name != 'push' }}
     needs: detect-changes
     uses: ./.github/workflows/mcp-build.yaml
     with:
@@ -73,7 +73,7 @@ jobs:
       - build-frontend
       - build-bff
       - build-mcp
-    if: always() && !cancelled() && (needs.build-backend.result != 'failure') && (needs.build-frontend.result != 'failure') && (needs.build-bff.result != 'failure') && (needs.build-mcp.result != 'failure')
+    if: always() && !cancelled() && !contains(needs.*.result, 'failure')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
       env: dev
