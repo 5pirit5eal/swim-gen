@@ -57,22 +57,26 @@ jobs:
 
       - name: Build Docker Image
         shell: bash
-        run: docker build --platform ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:${{ github.sha }} .
+        run: docker build --platform linux/amd64 --tag ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:${{ github.sha }} .
         working-directory: frontend
       - name: Push Docker Image to Registry
         shell: bash
-        run: docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:${{ github.sha }}
+        run: |
+          gcloud --quiet auth configure-docker "${{ vars.REGION }}-docker.pkg.dev"
+          docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:${{ github.sha }}
 
       - name: Tag Image as latest
         shell: bash
         run: |
-          gcloud artifacts docker tags add
+          gcloud artifacts docker tags add \
+          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:${{ github.sha }} \
           ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:latest
 
       - name: Tag with main version
         if: inputs.version
         shell: bash
         run: |
-          gcloud artifacts docker tags add
+          gcloud artifacts docker tags add \
+          ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:${{ github.sha }} \
           ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:${{ inputs.version }}
 

@@ -17,6 +17,15 @@ on:
           description: "The working directory to run in"
           required: true
           type: string
+        infra_outputs:
+          description: "(Optional) JSON string of outputs from previous layer (made available as INFRA_TF_OUTPUTS env var)"
+          required: false
+          type: string
+          default: ""
+      outputs:
+        tf_outputs:
+          description: "Terraform/OpenTofu outputs in JSON form (compact)"
+          value: ${{ jobs.tofu-plan-apply.outputs.tf_outputs }}
 
   workflow_dispatch:
     inputs:
@@ -52,6 +61,10 @@ jobs:
     # Still run if some builds were skipped (only depends on those that existed).
     runs-on: ubuntu-latest
     environment: ${{ inputs.env }}
+    outputs:
+      tf_outputs: ${{ steps.capture_outputs.outputs.json }}
+    env:
+      INFRA_TF_OUTPUTS: ${{ inputs.infra_outputs }}
 
     steps:
     - name: ⬇️ Checkout
@@ -75,6 +88,32 @@ jobs:
       run: tofu init -input=false
       continue-on-error: true
 
+    - name: 📥 Previous layer outputs (debug)
+      if: inputs.infra_outputs != ''
+      run: |
+        echo "Received previous layer outputs (truncated):"
+        echo "${INFRA_TF_OUTPUTS}" || true
+      shell: bash
+
+    - name: 🧩 Rehydrate previous layer vars
+      if: inputs.infra_outputs != ''
+      working-directory: ${{ inputs.cwd}}
+      shell: bash
+      run: |
+        set -euo pipefail
+        # Store raw incoming JSON
+        echo '${{ inputs.infra_outputs }}' > infra.auto.tfvars.raw.json
+        # Detect if this looks like a Terraform outputs schema (each value is an object with a 'value' key)
+        if jq -e 'to_entries|all(.value|type=="object" and has("value"))' infra.auto.tfvars.raw.json >/dev/null 2>&1; then
+          echo "Transforming from outputs schema to tfvars schema" >&2
+          jq 'with_entries(.value = .value.value)' infra.auto.tfvars.raw.json > infra.auto.tfvars.json
+        else
+          echo "Assuming already tfvars-compatible JSON" >&2
+          cp infra.auto.tfvars.raw.json infra.auto.tfvars.json
+        fi
+        echo "Rehydrated vars written to infra.auto.tfvars.json" >&2
+        jq -c 'del(..|objects|.sensitive? // empty)' infra.auto.tfvars.json | head -c 500 || true
+
     - name: 📝 Validate
       working-directory: ${{ inputs.cwd}}
       run: tofu validate -no-color
@@ -82,13 +121,35 @@ jobs:
     - name: 🔍 Plan
       id: plan
       working-directory: ${{ inputs.cwd}}
-      run: tofu plan -no-color -out=tfplan -var="github_token=${{ secrets.GITHUB_TOKEN }}"
+      run: tofu plan -no-color -out=tfplan -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}"
 
     - name: 📤 Plan summary
-      if: success()
-      run: tofu show -no-color deployments/${{ inputs.env }}/0-infra/tfplan | sed -e 's/^/    /'
+      working-directory: ${{ inputs.cwd}}
+      run: tofu show -no-color tfplan | sed -e 's/^/    /'
 
     - name: 🚀 Apply
-      if: ${{ inputs.apply == true && success() }}
+      if: inputs.apply
       working-directory: ${{ inputs.cwd}}
-      run: tofu apply -auto-approve tfplan -var="github_token=${{ secrets.GITHUB_TOKEN }}"
+      run: tofu apply -auto-approve tfplan
+
+
+    - name: 📦 Export outputs
+      id: capture_outputs
+      working-directory: ${{ inputs.cwd}}
+      shell: bash
+      run: |
+        set -euo pipefail
+        # Prefer an auto tfvars file produced by the layer (e.g. ../0-config/infra.auto.tfvars.json),
+        # otherwise fall back to tofu output -json.
+        AUTO_TFVARS_PATH="$(realpath ../0-config/infra.auto.tfvars.json || true)"
+        if [ -f "${AUTO_TFVARS_PATH}" ]; then
+          echo "Found auto tfvars file: ${AUTO_TFVARS_PATH}" >&2
+          cp "${AUTO_TFVARS_PATH}" tf-outputs.json
+        else
+          echo "auto tfvars file not found, using 'tofu output -json'" >&2
+          (tofu output -json || echo '{}') > tf-outputs.json
+        fi
+        # Compact JSON for output variable size constraints (~64KB limit)
+        echo "json=$(jq -c . tf-outputs.json)" >> $GITHUB_OUTPUT
+        # Also show a short preview for logs
+        jq 'to_entries|map(select(.value|type=="object" and .value.sensitive==true)|.value.value="***" )|from_entries' tf-outputs.json 2>/dev/null | head -c 800 || true

@@ -85,9 +85,11 @@ jobs:
     name: 🪄 OpenTofu services (dev)
     needs:
       - opentofu-infra
+    if: always() && !cancelled() && !contains(needs.*.result, 'failure')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
       env: dev
       apply: true
       cwd: deployments/dev/1-services
+      infra_outputs: ${{ needs.opentofu-infra.outputs.tf_outputs }}
     secrets: inherit
