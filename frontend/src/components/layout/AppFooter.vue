@@ -32,15 +32,17 @@ const { t } = useI18n()
             <li>
               <a href="#privacy" id="privacy-policy" @click="showPrivacyPolicyModal = true">{{
                 t('footer.privacy_policy')
-                }}</a>
+              }}</a>
             </li>
             <li>
               <a href="#terms" @click="showTermsOfServiceModal = true">{{
                 t('footer.terms_of_service')
-                }}</a>
+              }}</a>
             </li>
             <li>
-              <a href="#impressum" @click.prevent="showImpressumModal = true">{{ t('footer.impressum') }}</a>
+              <a href="#impressum" @click.prevent="showImpressumModal = true">{{
+                t('footer.impressum')
+              }}</a>
             </li>
           </ul>
         </div>
@@ -51,15 +53,20 @@ const { t } = useI18n()
             <li>
               <a href="https://github.com/5pirit5eal/swim-gen" target="_blank" rel="noopener">{{
                 t('footer.github')
-                }}</a>
+              }}</a>
             </li>
             <li>
               <a href="https://github.com/5pirit5eal/swim-gen" target="_blank" rel="noopener">{{
                 t('footer.roadmap')
-                }}</a>
+              }}</a>
             </li>
             <li>
-              <a href="https://buymeacoffee.com/spiritseal" target="_blank" rel="noopener" class="sponsor-link">
+              <a
+                href="https://buymeacoffee.com/spiritseal"
+                target="_blank"
+                rel="noopener"
+                class="sponsor-link"
+              >
                 <IconHeart class="icon-heart" />
                 {{ t('footer.sponsor') }}
               </a>

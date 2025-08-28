@@ -60,7 +60,11 @@
       <h4>{{ $t('privacy_policy.processing_restriction_right_title') }}</h4>
       <p>{{ $t('privacy_policy.processing_restriction_right_text_1') }}</p>
       <ul>
-        <li v-for="item in $t('privacy_policy.processing_restriction_right_list').split('\n')" :key="item">{{ item }}
+        <li
+          v-for="item in $t('privacy_policy.processing_restriction_right_list').split('\n')"
+          :key="item"
+        >
+          {{ item }}
         </li>
       </ul>
       <p>{{ $t('privacy_policy.processing_restriction_right_text_2') }}</p>
@@ -106,7 +110,7 @@
   margin-bottom: 1.5rem;
 }
 
-.privacy-policy section+section {
+.privacy-policy section + section {
   margin-top: 1.5rem;
 }
 
