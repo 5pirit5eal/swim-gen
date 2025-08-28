@@ -91,4 +91,4 @@ jobs:
     - name: 🚀 Apply
       if: ${{ inputs.apply == true && success() }}
       working-directory: ${{ inputs.cwd}}
-      run: tofu apply -auto-approve tfplan -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}"
+      run: tofu apply -auto-approve -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}" tfplan
