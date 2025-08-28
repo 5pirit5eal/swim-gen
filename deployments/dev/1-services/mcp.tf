@@ -10,11 +10,11 @@ locals {
 data "google_artifact_registry_docker_image" "mcp_image" {
   location      = data.google_artifact_registry_repository.docker.location
   repository_id = data.google_artifact_registry_repository.docker.repository_id
-  image_name    = "swim-gen-mcp:${var.mcp_server_image_tag}"
+  image_name    = "swim-gen-mcp-server:${var.mcp_server_image_tag}"
 }
 
 resource "google_cloud_run_v2_service" "mcp" {
-  name     = "swim-gen-mcp"
+  name     = "swim-gen-mcp-server"
   location = var.region
 
   # gcloud command used --no-allow-unauthenticated (public ingress but no allUsers binding)
@@ -30,7 +30,7 @@ resource "google_cloud_run_v2_service" "mcp" {
 
   template {
     service_account = var.iam.swim_gen_frontend.email
-    timeout         = 600
+    timeout         = "600s"
     containers {
       image = data.google_artifact_registry_docker_image.mcp_image.self_link
 

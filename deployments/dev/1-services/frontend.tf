@@ -30,7 +30,7 @@ resource "google_cloud_run_v2_service" "frontend" {
   template {
     service_account                  = var.iam.swim_gen_frontend.email
     max_instance_request_concurrency = 200
-    timeout                          = 60
+    timeout                          = "60s"
     containers {
       image = data.google_artifact_registry_docker_image.frontend_image.self_link
       resources {

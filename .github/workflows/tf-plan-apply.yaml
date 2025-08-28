@@ -92,7 +92,7 @@ jobs:
       if: inputs.infra_outputs != ''
       run: |
         echo "Received previous layer outputs (truncated):"
-        echo "${INFRA_TF_OUTPUTS}" | head -c 500 || true
+        echo "${INFRA_TF_OUTPUTS}" || true
       shell: bash
 
     - name: 🧩 Rehydrate previous layer vars

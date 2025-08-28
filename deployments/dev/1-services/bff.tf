@@ -33,7 +33,7 @@ resource "google_cloud_run_v2_service" "bff" {
     service_account                  = var.iam.swim_gen_frontend.email
     session_affinity                 = true
     max_instance_request_concurrency = 200
-    timeout                          = 600
+    timeout                          = "600s"
 
     containers {
       image = data.google_artifact_registry_docker_image.bff_image.self_link
