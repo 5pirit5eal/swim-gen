@@ -1,27 +1,36 @@
 locals {
-  bff_env_variables = {
-    PROJECT_ID   = var.project_id
-    REGION       = var.region
-    LOG_LEVEL    = var.log_level
-    BACKEND_URL  = google_cloud_run_v2_service.backend.uri
-    FRONTEND_URL = coalesce(try(google_cloud_run_v2_service.frontend.uri, null), var.domain_url)
+  backend_env_variables = {
+    PROJECT_ID       = var.project_id
+    REGION           = var.region
+    DB_NAME          = var.csql_db.name
+    DB_INSTANCE      = var.csql_instance.connection_name
+    DB_USER          = var.csql_db.dbuser
+    DB_PASS_LOCATION = var.secret_version_ids.dbpassword_user
+    EMBEDDING_MODEL  = var.embedding_model
+    EMBEDDING_NAME   = var.embedding_name
+    EMBEDDING_SIZE   = var.embedding_size
+    MODEL            = var.model
+    SMALL_MODEL      = var.small_model # fixed key (was SMALl_MODEL)
+    LOG_LEVEL        = var.log_level
+    BUCKET_NAME      = var.bucket_name
+    SIGNING_SA       = var.iam.pdf_export.email
   }
 }
 
-data "google_artifact_registry_docker_image" "bff_image" {
+data "google_artifact_registry_docker_image" "backend_image" {
   location      = data.google_artifact_registry_repository.docker.location
   repository_id = data.google_artifact_registry_repository.docker.repository_id
-  image_name    = "swim-gen-bff:${var.bff_image_tag}"
+  image_name    = "swim-gen-backend:${var.backend_image_tag}"
 }
 
-resource "google_cloud_run_v2_service" "bff" {
-  name     = "swim-gen-bff"
+resource "google_cloud_run_v2_service" "backend" {
+  name     = "swim-gen-backend"
   location = var.region
 
   # gcloud command used --no-allow-unauthenticated (public ingress but no allUsers binding)
   # So expose all ingress, rely on IAM to restrict.
   ingress              = "INGRESS_TRAFFIC_ALL"
-  invoker_iam_disabled = true
+  invoker_iam_disabled = false
 
   # Only allow authenticated invocations from other services with the "run.invoker" role
   # (e.g. the BFF service).
@@ -30,13 +39,15 @@ resource "google_cloud_run_v2_service" "bff" {
   deletion_protection = false
 
   template {
-    service_account                  = var.iam.swim_gen_frontend.email
-    session_affinity                 = true
+    service_account                  = var.iam.swim_gen_backend.email
     max_instance_request_concurrency = 200
-    timeout                          = "600s"
-
+    timeout                          = "3600s"
+    scaling {
+      min_instance_count = 0
+      max_instance_count = 15
+    }
     containers {
-      image = data.google_artifact_registry_docker_image.bff_image.self_link
+      image = data.google_artifact_registry_docker_image.backend_image.self_link
       resources {
         limits = {
           cpu    = 1
@@ -45,6 +56,7 @@ resource "google_cloud_run_v2_service" "bff" {
         cpu_idle          = true
         startup_cpu_boost = true
       }
+
       liveness_probe {
         http_get {
           path = "/health"
@@ -57,7 +69,7 @@ resource "google_cloud_run_v2_service" "bff" {
       }
 
       dynamic "env" {
-        for_each = local.bff_env_variables
+        for_each = local.backend_env_variables
         content {
           name  = env.key
           value = tostring(env.value)
@@ -67,13 +79,5 @@ resource "google_cloud_run_v2_service" "bff" {
   }
 
   client     = "terraform"
-  depends_on = [google_cloud_run_v2_service.backend]
-}
-
-resource "google_cloud_run_v2_service_iam_member" "backend_invoker" {
-  project  = var.project_id
-  location = var.region
-  name     = google_cloud_run_v2_service.backend.name
-  role     = "roles/run.invoker"
-  member   = "serviceAccount:${var.iam.swim_gen_frontend.email}"
+  depends_on = []
 }
