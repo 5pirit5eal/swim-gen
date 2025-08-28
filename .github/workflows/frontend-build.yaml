@@ -57,7 +57,7 @@ jobs:
 
       - name: Build Docker Image
         shell: bash
-        run: docker build--platform linux/amd64 ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:${{ github.sha }} .
+        run: docker build --platform linux/amd64 ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:${{ github.sha }} .
         working-directory: frontend
       - name: Push Docker Image to Registry
         shell: bash
