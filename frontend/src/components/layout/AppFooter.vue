@@ -2,6 +2,8 @@
 import BaseModal from '@/components/ui/BaseModal.vue'
 import PrivacyPolicy from '../legal/PrivacyPolicy.vue'
 import TermsOfService from '../legal/TermsOfService.vue'
+import LegalImpressum from '../legal/LegalImpressum.vue'
+import IconHeart from '@/components/icons/IconHeart.vue'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -10,18 +12,9 @@ import { useI18n } from 'vue-i18n'
 
 const showPrivacyPolicyModal = ref(false)
 const showTermsOfServiceModal = ref(false)
+const showImpressumModal = ref(false)
 
 const { t } = useI18n()
-
-const showImpressum = () => {
-  // TODO: Implement impressum modal/page (required for German/EU law)
-  console.log('Impressum clicked')
-}
-
-const showContact = () => {
-  // TODO: Implement contact modal/page
-  console.log('Contact clicked')
-}
 </script>
 
 <template>
@@ -39,15 +32,15 @@ const showContact = () => {
             <li>
               <a href="#privacy" id="privacy-policy" @click="showPrivacyPolicyModal = true">{{
                 t('footer.privacy_policy')
-              }}</a>
+                }}</a>
             </li>
             <li>
               <a href="#terms" @click="showTermsOfServiceModal = true">{{
                 t('footer.terms_of_service')
-              }}</a>
+                }}</a>
             </li>
             <li>
-              <a href="#impressum" @click.prevent="showImpressum">{{ t('footer.impressum') }}</a>
+              <a href="#impressum" @click.prevent="showImpressumModal = true">{{ t('footer.impressum') }}</a>
             </li>
           </ul>
         </div>
@@ -56,12 +49,20 @@ const showContact = () => {
           <h4>{{ t('footer.about') }}</h4>
           <ul class="footer-links">
             <li>
-              <a href="#contact" @click.prevent="showContact">{{ t('footer.contact') }}</a>
+              <a href="https://github.com/5pirit5eal/swim-gen" target="_blank" rel="noopener">{{
+                t('footer.github')
+                }}</a>
             </li>
             <li>
               <a href="https://github.com/5pirit5eal/swim-gen" target="_blank" rel="noopener">{{
-                t('footer.github')
-              }}</a>
+                t('footer.roadmap')
+                }}</a>
+            </li>
+            <li>
+              <a href="https://buymeacoffee.com/spiritseal" target="_blank" rel="noopener" class="sponsor-link">
+                <IconHeart class="icon-heart" />
+                {{ t('footer.sponsor') }}
+              </a>
             </li>
           </ul>
         </div>
@@ -87,6 +88,15 @@ const showContact = () => {
     </template>
     <template #body>
       <TermsOfService />
+    </template>
+  </BaseModal>
+
+  <BaseModal :show="showImpressumModal" @close="showImpressumModal = false">
+    <template #header>
+      <h1>{{ t('footer.impressum') }}</h1>
+    </template>
+    <template #body>
+      <LegalImpressum />
     </template>
   </BaseModal>
 </template>
@@ -151,6 +161,23 @@ const showContact = () => {
 .footer-links a:hover {
   color: var(--color-text-light, #64748b);
   text-decoration: underline;
+}
+
+.sponsor-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon-heart {
+  width: 1rem;
+  height: 1rem;
+  color: #732441;
+  transition: color 0.2s;
+}
+
+.sponsor-link:hover .icon-heart {
+  color: var(--color-text-light, #64748b);
 }
 
 .footer-bottom {

@@ -104,7 +104,7 @@ The next version takes lessons learned in v1 into consideration and adds user au
   - Number of plans donated
   - Comparative statistics with other user behaviour
 
-# Side-Quest
+## Side-Quest
 
 - **MCP-Server**:
   - Connecting other chat interfaces to the functionality of the Go Backend
