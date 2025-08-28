@@ -15,23 +15,27 @@ permissions:
 
 env:
   TF_IN_AUTOMATION: true
-  TF_INPUT: 0
 
 jobs:
   get_version:
     runs-on: ubuntu-latest
     outputs:
-      next_version: ${{ steps.next_version.outputs.next_version }}
+      next_version: ${{ steps.semantic.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Get Next Release Version
-        id: next_version
-        uses: semantic-release-action/next-release-version@v1
+        with:
+          fetch-depth: 0 # Required for semantic-release to analyze the full commit history
+      - name: Get next version
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          dry_run: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-backend:
+    needs: get_version
     uses: ./.github/workflows/backend-build.yaml
     with:
       env: main
@@ -39,6 +43,7 @@ jobs:
     secrets: inherit
 
   build-frontend:
+    needs: get_version
     uses: ./.github/workflows/frontend-build.yaml
     with:
       env: main
@@ -46,6 +51,7 @@ jobs:
     secrets: inherit
 
   build-bff:
+    needs: get_version
     uses: ./.github/workflows/bff-build.yaml
     with:
       env: main
@@ -53,6 +59,7 @@ jobs:
     secrets: inherit
 
   build-mcp:
+    needs: get_version
     uses: ./.github/workflows/mcp-build.yaml
     with:
       env: main
@@ -84,3 +91,19 @@ jobs:
       apply: false
       cwd: deployments/main/1-services
     secrets: inherit
+
+  create-release:
+    name: 🚀 Create Release
+    runs-on: ubuntu-latest
+    needs:
+      - get_version
+      - opentofu-services
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

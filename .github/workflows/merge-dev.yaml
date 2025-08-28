@@ -11,11 +11,10 @@ concurrency:
 
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: write  # This is required for actions/checkout
+  contents: write # This is required for actions/checkout
 
 jobs:
   detect-changes:
-    if: github.event_name == 'push'
     name: 🔎 Detect service changes
     runs-on: ubuntu-latest
     outputs:
@@ -25,7 +24,8 @@ jobs:
       mcp: ${{ steps.filter.outputs.mcp }}
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
+        with:
+          fetch-depth: 0
       - id: filter
         run: |
           changed() { git diff --name-only origin/${{ github.ref_name }}~1 | grep -E "^$1/" >/dev/null && echo true || echo false; }
@@ -36,21 +36,17 @@ jobs:
 
   build-backend:
     if: ${{ needs.detect-changes.outputs.backend == 'true' || github.event_name != 'push' }}
-    needs: detect-changes
     uses: ./.github/workflows/backend-build.yaml
     with:
       env: dev
     secrets: inherit
-    permissions: write-all
 
   build-frontend:
     if: ${{ needs.detect-changes.outputs.frontend == 'true' || github.event_name != 'push'}}
-    needs: detect-changes
     uses: ./.github/workflows/frontend-build.yaml
     with:
       env: dev
     secrets: inherit
-    permissions: write-all
 
   build-bff:
     if: ${{ needs.detect-changes.outputs.bff == 'true' || github.event_name != 'push'}}
@@ -59,7 +55,6 @@ jobs:
     with:
       env: dev
     secrets: inherit
-    permissions: write-all
 
   build-mcp:
     if: ${{ needs.detect-changes.outputs.mcp == 'true' || github.event_name != 'push'}}
@@ -68,15 +63,14 @@ jobs:
     with:
       env: dev
     secrets: inherit
-    permissions: write-all
 
   opentofu-infra:
     name: 🪄 OpenTofu infra (dev)
     needs:
-        - build-backend
-        - build-frontend
-        - build-bff
-        - build-mcp
+      - build-backend
+      - build-frontend
+      - build-bff
+      - build-mcp
     if: always() && !cancelled() && (needs.build-backend.result != 'failure') && (needs.build-frontend.result != 'failure') && (needs.build-bff.result != 'failure') && (needs.build-mcp.result != 'failure')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
@@ -95,4 +89,3 @@ jobs:
       apply: true
       cwd: deployments/dev/1-services
     secrets: inherit
-
