@@ -36,6 +36,7 @@ jobs:
 
   build-backend:
     if: ${{ needs.detect-changes.outputs.backend == 'true' || github.event_name != 'push' }}
+    needs: detect-changes
     uses: ./.github/workflows/backend-build.yaml
     with:
       env: dev
@@ -43,6 +44,7 @@ jobs:
 
   build-frontend:
     if: ${{ needs.detect-changes.outputs.frontend == 'true' || github.event_name != 'push'}}
+    needs: detect-changes
     uses: ./.github/workflows/frontend-build.yaml
     with:
       env: dev
