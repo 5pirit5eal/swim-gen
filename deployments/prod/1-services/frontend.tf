@@ -9,7 +9,7 @@ locals {
 data "google_artifact_registry_docker_image" "frontend_image" {
   location      = data.google_artifact_registry_repository.docker.location
   repository_id = data.google_artifact_registry_repository.docker.repository_id
-  image_name    = "swim-gen-frontend:${var.frontend_image_tag}"
+  image_name    = "swim-gen-frontend:${var.version_tag}"
 }
 
 resource "google_cloud_run_v2_service" "frontend" {

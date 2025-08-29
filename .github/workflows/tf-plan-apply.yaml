@@ -17,6 +17,11 @@ on:
           description: "The working directory to run in"
           required: true
           type: string
+        version:
+          required: false
+          description: "The semantic version to be deployed (if applicable)"
+          type: string
+          default: "latest"
         infra_outputs:
           description: "(Optional) JSON string of outputs from previous layer (made available as INFRA_TF_OUTPUTS env var)"
           required: false
@@ -119,9 +124,15 @@ jobs:
       run: tofu validate -no-color
 
     - name: 🔍 Plan
+      if: inputs.version == 'latest'
       id: plan
       working-directory: ${{ inputs.cwd}}
       run: tofu plan -no-color -out=tfplan -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}"
+
+    - name: 🚀 Plan for ${{ inputs.version }}
+      if: inputs.version != 'latest'
+      working-directory: ${{ inputs.cwd}}
+      run: tofu plan -no-color -out=tfplan -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}" -var="version_tag=${{ inputs.version }}"
 
     - name: 📤 Plan summary
       working-directory: ${{ inputs.cwd}}

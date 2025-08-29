@@ -36,21 +36,10 @@ variable "domain_url" {
   type        = string
 }
 
-variable "backend_image_tag" {
-  type    = string
-  default = "latest"
-}
-variable "bff_image_tag" {
-  type    = string
-  default = "latest"
-}
-variable "frontend_image_tag" {
-  type    = string
-  default = "latest"
-}
-variable "mcp_server_image_tag" {
-  type    = string
-  default = "latest"
+variable "version_tag" {
+  description = "The version tag for all images"
+  type        = string
+  default     = "latest"
 }
 variable "outputs_location" {
   description = "The GCP output locations"
