@@ -61,7 +61,12 @@ const { t } = useI18n()
               }}</a>
             </li>
             <li>
-              <a href="https://buymeacoffee.com/spiritseal" target="_blank" rel="noopener" class="sponsor-link">
+              <a
+                href="https://buymeacoffee.com/spiritseal"
+                target="_blank"
+                rel="noopener"
+                class="sponsor-link"
+              >
                 <IconHeart class="icon-heart" />
                 {{ t('footer.sponsor') }}
               </a>

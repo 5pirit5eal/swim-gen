@@ -6,7 +6,11 @@ const showTooltip = ref(false)
 </script>
 
 <template>
-  <span class="tooltip-container" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
+  <span
+    class="tooltip-container"
+    @mouseenter="showTooltip = true"
+    @mouseleave="showTooltip = false"
+  >
     <TooltipIcon />
     <div v-if="showTooltip" class="tooltip-text">
       <slot name="tooltip"> A helpful tooltip with additional information. </slot>
