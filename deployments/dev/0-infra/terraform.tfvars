@@ -2,6 +2,7 @@
 project_id = "rubenschulze-sandbox"
 region     = "europe-west4"
 apis = [
+  "cloudresourcemanager.googleapis.com",
   "run.googleapis.com",             # Cloud Run
   "sqladmin.googleapis.com",        # Cloud SQL
   "container.googleapis.com",       # Container Registry
