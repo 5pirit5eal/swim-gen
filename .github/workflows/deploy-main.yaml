@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       env:
-        description: Target environment (main or dev)
+        description: Target environment (prod or dev)
         required: true
         type: choice
         options:
-          - main
+          - prod
           - dev
-        default: main
+        default: prod
       apply:
         description: Set true to run apply after plan
         required: true
@@ -27,16 +27,16 @@ concurrency:
 
 jobs:
   opentofu-infra:
-    name: 🪄 OpenTofu infra (main)
+    name: 🪄 OpenTofu infra (${{ inputs.env }})
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
       env: ${{ inputs.env }}
       apply: ${{ inputs.apply }}
-      cwd: deployments/main/0-infra
+      cwd: deployments/${{ inputs.env }}/0-infra
     secrets: inherit
 
   opentofu-services:
-    name: 🪄 OpenTofu services (main)
+    name: 🪄 OpenTofu services (${{ inputs.env }})
     needs:
       - opentofu-infra
     if: always() && !cancelled() && !contains(needs.*.result, 'failure')
@@ -44,6 +44,6 @@ jobs:
     with:
       env: ${{ inputs.env }}
       apply: ${{ inputs.apply }}
-      cwd: deployments/main/1-services
+      cwd: deployments/${{ inputs.env }}/1-services
       infra_outputs: ${{ needs.opentofu-infra.outputs.tf_outputs }}
     secrets: inherit
