@@ -1,3 +1,15 @@
+## [1.1.0](https://github.com/5pirit5eal/swim-gen/compare/v1.0.0...v1.1.0) (2025-08-29)
+
+### Features
+
+* 19 mobile optimization of frontend ([#40](https://github.com/5pirit5eal/swim-gen/issues/40)) ([0213953](https://github.com/5pirit5eal/swim-gen/commit/02139531d4bd048967f4a80a9734ec23adc6b344))
+* added full support for mobile in v1 ([815c794](https://github.com/5pirit5eal/swim-gen/commit/815c79428514a077d78697f1d0a3d1d11fb26830))
+* mobile optimization and some fixes ([#41](https://github.com/5pirit5eal/swim-gen/issues/41)) ([801975c](https://github.com/5pirit5eal/swim-gen/commit/801975cb2400dd9397ae28c365ea9fbce88f22f4))
+
+### Bug Fixes
+
+* fixed terms of service and privacy ([c7d9cc1](https://github.com/5pirit5eal/swim-gen/commit/c7d9cc19c181cb970b23822f871ad298ae62c2d5))
+
 ## 1.0.0 (2025-08-29)
 
 ### Features
