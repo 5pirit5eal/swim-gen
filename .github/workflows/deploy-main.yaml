@@ -26,21 +26,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  tofu-infra:
-    name: 0-infra (${{ inputs.env }})
+  opentofu-infra:
+    name: 🪄 OpenTofu infra (main)
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
       env: ${{ inputs.env }}
       apply: ${{ inputs.apply }}
-      cwd: deployments/${{ inputs.env }}/0-infra
+      cwd: deployments/main/0-infra
     secrets: inherit
 
-  tofu-services:
-    name: 1-services (${{ inputs.env }})
-    needs: tofu-infra
+  opentofu-services:
+    name: 🪄 OpenTofu services (main)
+    needs:
+      - opentofu-infra
+    if: always() && !cancelled() && !contains(needs.*.result, 'failure')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
       env: ${{ inputs.env }}
       apply: ${{ inputs.apply }}
-      cwd: deployments/${{ inputs.env }}/1-services
+      cwd: deployments/main/1-services
+      infra_outputs: ${{ needs.opentofu-infra.outputs.tf_outputs }}
     secrets: inherit
