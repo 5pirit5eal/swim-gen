@@ -78,8 +78,13 @@ resource "google_storage_bucket" "exported_pdfs" {
     prevent_destroy = true
   }
 
-  versioning {
-    enabled = true
+  lifecycle_rule {
+    condition {
+      age = 1
+    }
+    action {
+      type = "Delete"
+    }
   }
 
   depends_on = [google_project_service.apis]
