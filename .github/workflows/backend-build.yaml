@@ -33,12 +33,12 @@ concurrency:
 
 jobs:
   validate:
-    name: Validate backend for ${{ inputs.env }}
+    name: Validate backend for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     uses: ./.github/workflows/backend-validate.yaml
     with:
       env: ${{ inputs.env }}
   build:
-    name: Build backend for ${{ inputs.env }}
+    name: Build backend for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     needs:
       - validate
     runs-on: ubuntu-latest
