@@ -6,11 +6,7 @@ const showTooltip = ref(false)
 </script>
 
 <template>
-  <span
-    class="tooltip-container"
-    @mouseenter="showTooltip = true"
-    @mouseleave="showTooltip = false"
-  >
+  <span class="tooltip-container" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
     <TooltipIcon />
     <div v-if="showTooltip" class="tooltip-text">
       <slot name="tooltip"> A helpful tooltip with additional information. </slot>
@@ -54,7 +50,17 @@ const showTooltip = ref(false)
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   font-size: 0.875rem;
   line-height: 1.4;
-  white-space: nowrap;
+  text-wrap: wrap;
+  overflow: auto;
+}
+
+@media (max-width: 600px) {
+  .tooltip-text {
+    font-size: 0.75rem;
+    padding: 0.25rem;
+    white-space: normal;
+    width: 200px;
+  }
 }
 
 .tooltip-container:hover .tooltip-text {

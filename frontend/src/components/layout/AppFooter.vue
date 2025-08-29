@@ -61,12 +61,7 @@ const { t } = useI18n()
               }}</a>
             </li>
             <li>
-              <a
-                href="https://buymeacoffee.com/spiritseal"
-                target="_blank"
-                rel="noopener"
-                class="sponsor-link"
-              >
+              <a href="https://buymeacoffee.com/spiritseal" target="_blank" rel="noopener" class="sponsor-link">
                 <IconHeart class="icon-heart" />
                 {{ t('footer.sponsor') }}
               </a>
@@ -127,6 +122,16 @@ const { t } = useI18n()
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   justify-items: center;
   margin-bottom: 2rem;
+}
+
+@media (max-width: 600px) {
+  .footer-content {
+    justify-items: left;
+  }
+
+  .footer-section {
+    margin-bottom: 1.5rem;
+  }
 }
 
 .footer-section h3,

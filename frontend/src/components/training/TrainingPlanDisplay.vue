@@ -205,66 +205,36 @@ async function handleExport() {
             <tr v-for="(row, index) in exerciseRows" :key="index" class="exercise-row">
               <!-- Amount Cell -->
               <td @click="startEditing(index, 'Amount')">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  pattern="[0-9]*"
-                  v-if="isEditing"
-                  :value="row.Amount"
-                  @blur="stopEditing($event, index, 'Amount')"
-                  @keyup.enter="stopEditing($event, index, 'Amount')"
-                  class="editable-small"
-                />
+                <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Amount"
+                  @blur="stopEditing($event, index, 'Amount')" @keyup.enter="stopEditing($event, index, 'Amount')"
+                  class="editable-small" />
                 <span v-else>{{ row.Amount }}</span>
               </td>
               <td>{{ row.Multiplier }}</td>
               <!-- Distance Cell -->
               <td @click="startEditing(index, 'Distance')">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  pattern="[0-9]*"
-                  v-if="isEditing"
-                  :value="row.Distance"
-                  @blur="stopEditing($event, index, 'Distance')"
-                  @keyup.enter="stopEditing($event, index, 'Distance')"
-                  class="editable-small"
-                />
+                <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Distance"
+                  @blur="stopEditing($event, index, 'Distance')" @keyup.enter="stopEditing($event, index, 'Distance')"
+                  class="editable-small" />
                 <span v-else>{{ row.Distance }}</span>
               </td>
               <!-- Intensity Cell -->
               <td @click="startEditing(index, 'Break')">
-                <input
-                  type="text"
-                  v-if="isEditing"
-                  :value="row.Break"
-                  @blur="stopEditing($event, index, 'Break')"
-                  @keyup.enter="stopEditing($event, index, 'Break')"
-                  class="editable-small"
-                />
+                <input type="text" v-if="isEditing" :value="row.Break" @blur="stopEditing($event, index, 'Break')"
+                  @keyup.enter="stopEditing($event, index, 'Break')" class="editable-small" />
                 <span v-else>{{ row.Break }}</span>
               </td>
               <!-- Content Cell -->
               <td class="content-cell" @click="startEditing(index, 'Content')">
-                <textarea
-                  v-if="isEditing"
-                  :value="row.Content"
-                  @blur="stopEditing($event, index, 'Content')"
-                  @keyup.enter="stopEditing($event, index, 'Content')"
-                  class="editable-area"
-                ></textarea>
+                <textarea v-if="isEditing" :value="row.Content" @blur="stopEditing($event, index, 'Content')"
+                  @keyup.enter="stopEditing($event, index, 'Content')" class="editable-area"></textarea>
                 <span v-else>{{ row.Content }}</span>
               </td>
               <!-- Intensity Cell -->
               <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                <input
-                  type="text"
-                  v-if="isEditing"
-                  :value="row.Intensity"
-                  @blur="stopEditing($event, index, 'Intensity')"
-                  @keyup.enter="stopEditing($event, index, 'Intensity')"
-                  class="editable-small"
-                />
+                <input type="text" v-if="isEditing" :value="row.Intensity"
+                  @blur="stopEditing($event, index, 'Intensity')" @keyup.enter="stopEditing($event, index, 'Intensity')"
+                  class="editable-small" />
                 <span v-else>{{ row.Intensity }}</span>
               </td>
               <td class="total-cell">{{ row.Sum }}</td>
@@ -299,10 +269,7 @@ async function handleExport() {
       <p>{{ t('display.no_plan_placeholder') }}</p>
     </div>
   </div>
-  <div
-    v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading"
-    class="export-section"
-  >
+  <div v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading" class="export-section">
     <!-- Edit Action -->
     <button @click="isEditing = !isEditing" class="export-btn">
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
@@ -326,7 +293,12 @@ async function handleExport() {
   background: var(--color-background);
   border-radius: 0.5rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .training-plan-display {
+    zoom: 0.75;
+  }
 }
 
 .plan-header {
@@ -353,12 +325,16 @@ async function handleExport() {
 .table-container {
   padding: 1.5rem;
   background: var(--color-background-soft);
+  width: inherit;
+  /* Set table to take full width of its container */
+  table-layout: fixed;
 }
 
 .exercise-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
+  table-layout: fixed;
 }
 
 .exercise-table th,
@@ -367,6 +343,11 @@ async function handleExport() {
   padding: 0.75rem 0.5rem;
   text-align: center;
   color: var(--color-text-light);
+  width: auto;
+}
+
+th:nth-child(5) {
+  width: 30%;
 }
 
 .exercise-table th {
@@ -383,8 +364,18 @@ async function handleExport() {
   /* Prevent text from wrapping */
 }
 
-.exercise-table td > span,
-.exercise-table td > textarea {
+@media (max-width: 400px) {
+
+  .exercise-table th,
+  .exercise-table td {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.25rem;
+    white-space: normal;
+  }
+}
+
+.exercise-table td>span,
+.exercise-table td>textarea {
   display: block;
 }
 
@@ -403,6 +394,7 @@ async function handleExport() {
 .content-cell {
   text-align: left;
   font-weight: 500;
+  width: 300px;
 }
 
 .intensity-cell {
@@ -574,5 +566,11 @@ async function handleExport() {
   opacity: 0.6;
   cursor: not-allowed;
   background: var(--color-text-light);
+}
+
+
+button+button {
+  margin-left: 60px;
+  /* Adds 10px space to the left of any button that follows another button */
 }
 </style>
