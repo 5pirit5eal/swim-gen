@@ -35,12 +35,12 @@ const { t } = useI18n()
               }}</a>
             </li>
             <li>
-              <a href="#terms" @click="showTermsOfServiceModal = true">{{
+              <a href="#terms" id="tos" @click="showTermsOfServiceModal = true">{{
                 t('footer.terms_of_service')
               }}</a>
             </li>
             <li>
-              <a href="#impressum" @click.prevent="showImpressumModal = true">{{
+              <a href="#impressum" id="impress" @click.prevent="showImpressumModal = true">{{
                 t('footer.impressum')
               }}</a>
             </li>

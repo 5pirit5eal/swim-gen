@@ -1,20 +1,3 @@
-<script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-
-const { tm } = useI18n()
-
-const acceptableUseList = computed(() => {
-  // Use tm (translate message) to get the array directly
-  return tm('terms_of_service.acceptable_use_list') as string[]
-})
-
-const requirementsList = computed(() => {
-  // Use tm (translate message) to get the array directly
-  return tm('terms_of_service.requirements_list') as string[]
-})
-</script>
-
 <template>
   <div class="terms-of-service">
     <section class="intro">
@@ -40,7 +23,7 @@ const requirementsList = computed(() => {
       <p>{{ $t('terms_of_service.additional_conditions') }}</p>
       <p>{{ $t('terms_of_service.requirements') }}</p>
       <ul>
-        <li v-for="item in requirementsList" :key="item">{{ item }}</li>
+        <li v-for="i in 1" :key="i">{{ $t(`terms_of_service.requirements_list.${i - 1}`) }}</li>
       </ul>
     </section>
 
@@ -77,7 +60,7 @@ const requirementsList = computed(() => {
       <p>{{ $t('terms_of_service.acceptable_use_responsibility') }}</p>
       <p>{{ $t('terms_of_service.acceptable_use_rights') }}</p>
       <ul>
-        <li v-for="item in acceptableUseList" :key="item">{{ item }}</li>
+        <li v-for="i in 4" :key="i">{{ $t(`terms_of_service.acceptable_use_list.${i - 1}`) }}</li>
       </ul>
     </section>
 
