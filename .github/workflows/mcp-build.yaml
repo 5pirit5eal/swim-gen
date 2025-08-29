@@ -33,13 +33,13 @@ concurrency:
 
 jobs:
   validate:
-    name: Validate mcp-server for ${{ inputs.env }}
+    name: Validate mcp-server for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     uses: ./.github/workflows/mcp-validate.yaml
     with:
       env: ${{ inputs.env }}
 
   build:
-    name: Build mcp-server for ${{ inputs.env }}
+    name: Build mcp-server for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     needs:
       - validate
     runs-on: ubuntu-latest

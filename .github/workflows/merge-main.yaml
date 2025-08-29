@@ -18,6 +18,7 @@ env:
 
 jobs:
   get_version:
+    name: 🔢 Get next semantic version
     runs-on: ubuntu-latest
     outputs:
       next_version: ${{ steps.semantic.outputs.version }}
@@ -40,7 +41,7 @@ jobs:
     needs: get_version
     uses: ./.github/workflows/backend-build.yaml
     with:
-      env: main
+      env: prod
       version: ${{ needs.get_version.outputs.next_version }}
     secrets: inherit
 
@@ -48,7 +49,7 @@ jobs:
     needs: get_version
     uses: ./.github/workflows/frontend-build.yaml
     with:
-      env: main
+      env: prod
       version: ${{ needs.get_version.outputs.next_version }}
     secrets: inherit
 
@@ -56,7 +57,7 @@ jobs:
     needs: get_version
     uses: ./.github/workflows/bff-build.yaml
     with:
-      env: main
+      env: prod
       version: ${{ needs.get_version.outputs.next_version }}
     secrets: inherit
 
@@ -64,7 +65,7 @@ jobs:
     needs: get_version
     uses: ./.github/workflows/mcp-build.yaml
     with:
-      env: main
+      env: prod
       version: ${{ needs.get_version.outputs.next_version }}
     secrets: inherit
 
@@ -78,7 +79,7 @@ jobs:
     if: always() && !cancelled() && (needs.build-backend.result != 'failure') && (needs.build-frontend.result != 'failure') && (needs.build-bff.result != 'failure') && (needs.build-mcp.result != 'failure')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
-      env: main
+      env: prod
       apply: false
       cwd: deployments/main/0-infra
     secrets: inherit
@@ -89,7 +90,7 @@ jobs:
       - opentofu-infra
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
-      env: main
+      env: prod
       apply: false
       cwd: deployments/main/1-services
       infra_outputs: ${{ needs.opentofu-infra.outputs.tf_outputs }}
