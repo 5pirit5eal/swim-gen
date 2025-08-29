@@ -4,6 +4,11 @@ locals {
     REGION           = var.region
     VITE_APP_API_URL = google_cloud_run_v2_service.bff.uri
   }
+  records = {
+    for type, records in {
+      for r in google_cloud_run_domain_mapping.frontend_domain_mapping.status[0].resource_records : r.type => r.rrdata...
+    } : type => { rrdatas = records }
+  }
 }
 
 data "google_artifact_registry_docker_image" "frontend_image" {
@@ -26,6 +31,8 @@ resource "google_cloud_run_v2_service" "frontend" {
   # This is enforced via IAM bindings in the frontend.tf file.
   # See: https://cloud.google.com/run/docs/securing/service-identity#granting_other_identities_access_to_your_service
   deletion_protection = false
+
+  custom_audiences = [var.domain_url]
 
   template {
     service_account                  = var.iam.swim_gen_frontend.email
@@ -82,13 +89,14 @@ resource "google_cloud_run_domain_mapping" "frontend_domain_mapping" {
 
 # DNS records for the domain mapping
 resource "google_dns_record_set" "frontend_dns_records" {
-  for_each     = { for r in google_cloud_run_domain_mapping.frontend_domain_mapping.status[0].resource_records : r.name => r }
-  name         = each.value.name
+  for_each     = local.records
+  name         = data.google_dns_managed_zone.swim_gen_zone.dns_name
   managed_zone = data.google_dns_managed_zone.swim_gen_zone.name
-  type         = each.value.type
+  type         = each.key
   ttl          = 300
 
-  rrdatas = [each.value.rrdata]
+  rrdatas    = each.value.rrdatas
+  depends_on = [google_cloud_run_domain_mapping.frontend_domain_mapping]
 }
 
 data "google_dns_managed_zone" "swim_gen_zone" {
