@@ -2,6 +2,7 @@
 project_id = "swim-gen-prod"
 region     = "europe-west4"
 apis = [
+  "cloudresourcemanager.googleapis.com",
   "run.googleapis.com",
   "sqladmin.googleapis.com",
   "container.googleapis.com",
