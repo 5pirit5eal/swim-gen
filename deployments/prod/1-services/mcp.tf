@@ -10,7 +10,7 @@ locals {
 data "google_artifact_registry_docker_image" "mcp_image" {
   location      = data.google_artifact_registry_repository.docker.location
   repository_id = data.google_artifact_registry_repository.docker.repository_id
-  image_name    = "swim-gen-mcp-server:${var.mcp_server_image_tag}"
+  image_name    = "swim-gen-mcp-server:${var.version_tag}"
 }
 
 resource "google_cloud_run_v2_service" "mcp" {

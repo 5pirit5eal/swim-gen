@@ -75,11 +75,7 @@ resource "google_storage_bucket" "exported_pdfs" {
   project  = var.project_id
 
   lifecycle {
-    prevent_destroy = true
-  }
-
-  versioning {
-    enabled = true
+    prevent_destroy = false
   }
 
   depends_on = [google_project_service.apis]
