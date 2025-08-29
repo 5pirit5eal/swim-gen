@@ -32,7 +32,7 @@ jobs:
     with:
       env: ${{ inputs.env }}
       apply: ${{ inputs.apply }}
-      cwd: deployments/${{ inputs.env }}/0-infra
+      cwd: deployments/main/0-infra
     secrets: inherit
 
   opentofu-services:

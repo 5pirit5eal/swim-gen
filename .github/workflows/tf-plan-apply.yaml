@@ -137,7 +137,6 @@ jobs:
       working-directory: ${{ inputs.cwd}}
       run: tofu apply -refresh-only -auto-approve -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}"
 
-
     - name: 📦 Export outputs
       id: capture_outputs
       working-directory: ${{ inputs.cwd}}
