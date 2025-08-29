@@ -143,17 +143,38 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        # Prefer an auto tfvars file produced by the layer (e.g. ../0-config/infra.auto.tfvars.json),
-        # otherwise fall back to tofu output -json.
-        AUTO_TFVARS_PATH="$(realpath ../0-config/infra.auto.tfvars.json || true)"
+
+        # Get all outputs from tofu for logging and processing.
+        if ! tofu output -json > all-outputs.json 2>/dev/null; then
+          echo '{}' > all-outputs.json
+        fi
+
+        # Also show a short preview for logs, with sensitive values redacted.
+        echo "Outputs preview (redacted):" >&2
+        jq 'with_entries(if .value.sensitive == true then .value.value = "***" else . end)' all-outputs.json | jq -c . | head -c 800 || true
+        echo "" >&2
+
+        # Now, determine the actual step output, which should be in tfvars format.
+        # Prefer an auto tfvars file produced by the layer.
+        AUTO_TFVARS_PATH="$(realpath ../0-config/infra.auto.tfvars.json 2>/dev/null || true)"
         if [ -f "${AUTO_TFVARS_PATH}" ]; then
-          echo "Found auto tfvars file: ${AUTO_TFVARS_PATH}" >&2
+          echo "Found auto tfvars file to use for outputs: ${AUTO_TFVARS_PATH}" >&2
           cp "${AUTO_TFVARS_PATH}" tf-outputs.json
         else
-          echo "auto tfvars file not found, using 'tofu output -json'" >&2
-          tofu output -json tfvars > tf-outputs.json
+          # Otherwise, fall back to the 'tfvars' output from tofu.
+          echo "auto tfvars file not found, using 'tfvars' output from tofu" >&2
+          if jq -e '.tfvars.value' all-outputs.json > /dev/null; then
+            # Extract the value of the 'tfvars' output, which is expected to be a JSON object.
+            jq '.tfvars.value' all-outputs.json > tf-outputs.json
+          else
+            echo "'tfvars' output not found, using empty JSON object for outputs" >&2
+            echo '{}' > tf-outputs.json
+          fi
         fi
-        # Compact JSON for output variable size constraints (~64KB limit)
+
+        # Compact JSON for output variable size constraints and set as step output.
         echo "json=$(jq -c . tf-outputs.json)" >> $GITHUB_OUTPUT
-        # Also show a short preview for logs
-        jq 'to_entries|map(select(.value|type=="object" and .value.sensitive==true)|.value.value="***" )|from_entries' tf-outputs.json 2>/dev/null | head -c 800 || true
+
+        echo "Final step outputs (first 500 bytes of tf-outputs.json):" >&2
+        head -c 500 tf-outputs.json || true
+        echo "" >&2
