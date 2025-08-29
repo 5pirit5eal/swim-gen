@@ -66,6 +66,17 @@ tofu apply
 
 Repeat this process for the `prod` environment if needed.
 
+The prod environment is also designed to be used together with a custom domain. You should therefore ensure that the DNS zone is already setup.
+Once the DNS records have been set by OpenTofu, they take around **15-30 mins** to take effect. The record setting relies on an already setup domain mapping, which requires you to use a targeted apply on the first run and then run it a second time.
+
+```bash
+tofu apply -target google_cloud_run_domain_mapping.frontend_domain_mapping
+```
+
+```bash
+tofu apply
+```
+
 #### Subsequent Manual Runs
 
 After the initial setup, you can run subsequent deployments manually if required.

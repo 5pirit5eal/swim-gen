@@ -7,7 +7,8 @@ apis = [
   "sqladmin.googleapis.com",
   "container.googleapis.com",
   "compute.googleapis.com",
-  "artifactregistry.googleapis.com"
+  "artifactregistry.googleapis.com",
+  "aiplatform.googleapis.com"
 ]
 dbname           = "swim-gen-db"
 dbuser           = "swimmer"
