@@ -2,6 +2,8 @@
 
 Vue 3 + TypeScript frontend for the Swim Training Plan Generator application.
 
+The app can be displayed with both mobile and larger displays. The latter is recommended.
+
 ## Key Technologies
 
 - **Vue 3**: The progressive JavaScript framework for building user interfaces.
