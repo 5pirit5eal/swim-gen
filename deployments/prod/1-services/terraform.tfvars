@@ -6,4 +6,3 @@ embedding_size   = 768
 log_level        = "INFO"
 domain_url       = "swim-gen.com"
 outputs_location = "../0-config"
-version_tag      = "1.0.0"
