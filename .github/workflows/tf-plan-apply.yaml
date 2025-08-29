@@ -151,7 +151,7 @@ jobs:
           cp "${AUTO_TFVARS_PATH}" tf-outputs.json
         else
           echo "auto tfvars file not found, using 'tofu output -json'" >&2
-          (tofu output -json || echo '{}') > tf-outputs.json
+          tofu output -json tfvars > tf-outputs.json
         fi
         # Compact JSON for output variable size constraints (~64KB limit)
         echo "json=$(jq -c . tf-outputs.json)" >> $GITHUB_OUTPUT
