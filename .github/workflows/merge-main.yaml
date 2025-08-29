@@ -21,7 +21,7 @@ jobs:
     name: 🔢 Get next semantic version
     runs-on: ubuntu-latest
     outputs:
-      next_version: ${{ steps.semantic.outputs.version }}
+      next_version: ${{ steps.semantic.outputs.new_release_version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -70,7 +70,7 @@ jobs:
     secrets: inherit
 
   opentofu-infra:
-    name: 🪄 OpenTofu infra (main)
+    name: 🪄 OpenTofu infra (prod)
     needs:
         - build-backend
         - build-frontend
@@ -81,18 +81,19 @@ jobs:
     with:
       env: prod
       apply: false
-      cwd: deployments/main/0-infra
+      cwd: deployments/prod/0-infra
     secrets: inherit
 
   opentofu-services:
-    name: 🪄 OpenTofu services (main)
+    name: 🪄 OpenTofu services (prod)
     needs:
       - opentofu-infra
+    if: always() && !cancelled() && !contains(needs.*.result, 'failure')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
       env: prod
       apply: false
-      cwd: deployments/main/1-services
+      cwd: deployments/prod/1-services
       infra_outputs: ${{ needs.opentofu-infra.outputs.tf_outputs }}
     secrets: inherit
 

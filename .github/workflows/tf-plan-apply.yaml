@@ -132,6 +132,11 @@ jobs:
       working-directory: ${{ inputs.cwd}}
       run: tofu apply -auto-approve tfplan
 
+    - name: 🚀 Refresh
+      if: ${{ !inputs.apply }}
+      working-directory: ${{ inputs.cwd}}
+      run: tofu apply -refresh-only -auto-approve
+
 
     - name: 📦 Export outputs
       id: capture_outputs
