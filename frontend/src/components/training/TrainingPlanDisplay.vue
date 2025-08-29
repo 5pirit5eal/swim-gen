@@ -326,7 +326,12 @@ async function handleExport() {
   background: var(--color-background);
   border-radius: 0.5rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .training-plan-display {
+    zoom: 0.75;
+  }
 }
 
 .plan-header {
@@ -353,12 +358,16 @@ async function handleExport() {
 .table-container {
   padding: 1.5rem;
   background: var(--color-background-soft);
+  width: inherit;
+  /* Set table to take full width of its container */
+  table-layout: fixed;
 }
 
 .exercise-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
+  table-layout: fixed;
 }
 
 .exercise-table th,
@@ -367,6 +376,11 @@ async function handleExport() {
   padding: 0.75rem 0.5rem;
   text-align: center;
   color: var(--color-text-light);
+  width: auto;
+}
+
+th:nth-child(5) {
+  width: 30%;
 }
 
 .exercise-table th {
@@ -381,6 +395,15 @@ async function handleExport() {
   font-size: 0.8rem;
   white-space: nowrap;
   /* Prevent text from wrapping */
+}
+
+@media (max-width: 400px) {
+  .exercise-table th,
+  .exercise-table td {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.25rem;
+    white-space: normal;
+  }
 }
 
 .exercise-table td > span,
@@ -403,6 +426,7 @@ async function handleExport() {
 .content-cell {
   text-align: left;
   font-weight: 500;
+  width: 300px;
 }
 
 .intensity-cell {
@@ -574,5 +598,10 @@ async function handleExport() {
   opacity: 0.6;
   cursor: not-allowed;
   background: var(--color-text-light);
+}
+
+button + button {
+  margin-left: 60px;
+  /* Adds 10px space to the left of any button that follows another button */
 }
 </style>

@@ -2,6 +2,9 @@
 
 #app {
   /* max-width: 1280px; */
+  display: flex;
+  flex-direction: column;
+  /* min-width: 860px; */
   margin: auto auto;
   font-weight: normal;
 }

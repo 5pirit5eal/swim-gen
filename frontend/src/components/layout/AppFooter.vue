@@ -35,12 +35,12 @@ const { t } = useI18n()
               }}</a>
             </li>
             <li>
-              <a href="#terms" @click="showTermsOfServiceModal = true">{{
+              <a href="#terms" id="tos" @click="showTermsOfServiceModal = true">{{
                 t('footer.terms_of_service')
               }}</a>
             </li>
             <li>
-              <a href="#impressum" @click.prevent="showImpressumModal = true">{{
+              <a href="#impressum" id="impress" @click.prevent="showImpressumModal = true">{{
                 t('footer.impressum')
               }}</a>
             </li>
@@ -127,6 +127,16 @@ const { t } = useI18n()
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   justify-items: center;
   margin-bottom: 2rem;
+}
+
+@media (max-width: 600px) {
+  .footer-content {
+    justify-items: left;
+  }
+
+  .footer-section {
+    margin-bottom: 1.5rem;
+  }
 }
 
 .footer-section h3,

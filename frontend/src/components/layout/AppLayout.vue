@@ -62,6 +62,7 @@ import AppFooter from './AppFooter.vue'
     background-attachment: scroll;
     /* Better performance on mobile */
     background-size: cover;
+    zoom: 0.75;
   }
 }
 </style>
