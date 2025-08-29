@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/5pirit5eal/swim-gen/compare/v1.1.0...v1.1.1) (2025-08-29)
+
+### Bug Fixes
+
+* fixed manual deployment workflow ([88422c7](https://github.com/5pirit5eal/swim-gen/commit/88422c7505a7bab73ad55e5742c1a371a776442f))
+* fixed manual deployment workflow ([#42](https://github.com/5pirit5eal/swim-gen/issues/42)) ([1ad0399](https://github.com/5pirit5eal/swim-gen/commit/1ad03999df333a654663abf4ec8465e033aa5695))
+
 ## [1.1.0](https://github.com/5pirit5eal/swim-gen/compare/v1.0.0...v1.1.0) (2025-08-29)
 
 ### Features
