@@ -73,7 +73,7 @@ const { t } = useI18n()
   font-size: 1rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 740px) {
   .hero h1 {
     font-size: 2rem;
   }
