@@ -27,6 +27,11 @@ resource "google_cloud_run_v2_service" "frontend" {
   # See: https://cloud.google.com/run/docs/securing/service-identity#granting_other_identities_access_to_your_service
   deletion_protection = false
 
+  # Set the number of maximum instances to control costs
+  scaling {
+    max_instance_count = 1
+  }
+
   template {
     service_account                  = var.iam.swim_gen_frontend.email
     max_instance_request_concurrency = 200

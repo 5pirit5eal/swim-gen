@@ -34,6 +34,11 @@ resource "google_cloud_run_v2_service" "frontend" {
 
   custom_audiences = [var.domain_url]
 
+  # Set the number of maximum instances to control costs
+  scaling {
+    max_instance_count = 5
+  }
+
   template {
     service_account                  = var.iam.swim_gen_frontend.email
     max_instance_request_concurrency = 200

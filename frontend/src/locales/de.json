@@ -105,12 +105,11 @@
   "impressum": {
     "title": "Impressum",
     "name": "Ruben Schulze",
-    "address": "Völklinger Straße, 9",
+    "address": "Hermann-Smeets-Str. 21-25",
     "city": "40219 Düsseldorf",
     "contact_title": "Kontakt",
     "phone": "Telefon: +4915143148606",
-    "email": "E-Mail: {'info.swim.gen@gmail.com'}",
-    "source": "Quelle: e-recht24.de"
+    "email": "E-Mail: {'info.swim.gen@gmail.com'}"
   },
   "privacy_policy": {
     "title": "Datenschutzerklärung",
@@ -132,7 +131,7 @@
     "data_protection_text": "Die Betreiber dieser Seiten nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend den gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung. Wenn Sie diese Website benutzen, werden verschiedene personenbezogene Daten erhoben. Personenbezogene Daten sind Daten, mit denen Sie persönlich identifiziert werden können. Die vorliegende Datenschutzerklärung erläutert, welche Daten wir erheben und wofür wir sie nutzen. Sie erläutert auch, wie und zu welchem Zweck das geschieht. Wir weisen darauf hin, dass die Datenübertragung im Internet (z. B. bei der Kommunikation per E-Mail) Sicherheitslücken aufweisen kann. Ein lückenloser Schutz der Daten vor dem Zugriff durch Dritte ist nicht möglich.",
     "responsible_party_title": "Hinweis zur verantwortlichen Stelle",
     "responsible_party_text": "Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:",
-    "responsible_party_details": "Ruben Schulze\nVölklinger Straße, 9\n40219\nDüsseldorf\nTelefon: +49 15143148606\nE-Mail: {'info.swim.gen@gmail.com'}",
+    "responsible_party_details": "Ruben Schulze\nHermann-Smeets-Str. 21-25\n40219\nDüsseldorf\nTelefon: +49 15143148606\nE-Mail: {'info.swim.gen@gmail.com'}",
     "responsible_party_definition": "Verantwortliche Stelle ist die natürliche oder juristische Person, die allein oder gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten (z. B. Namen, E-Mail-Adressen o. Ä.) entscheidet.",
     "storage_duration_title": "Speicherdauer",
     "storage_duration_text": "Soweit innerhalb dieser Datenschutzerklärung keine speziellere Speicherdauer genannt wurde, verbleiben Ihre personenbezogenen Daten bei uns, bis der Zweck für die Datenverarbeitung entfällt. Wenn Sie ein berechtigtes Löschersuchen geltend machen oder eine Einwilligung zur Datenverarbeitung widerrufen, werden Ihre Daten gelöscht, sofern wir keine anderen rechtlich zulässigen Gründe für die Speicherung Ihrer personenbezogenen Daten haben (z. B. steuer- oder handelsrechtliche Aufbewahrungsfristen); im letztgenannten Fall erfolgt die Löschung nach Fortfall dieser Gründe.",

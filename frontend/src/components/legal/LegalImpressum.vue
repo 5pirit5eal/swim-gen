@@ -15,11 +15,6 @@
         {{ $t('impressum.email') }}
       </p>
     </section>
-    <section>
-      <p>
-        <small>{{ $t('impressum.source') }}</small>
-      </p>
-    </section>
   </div>
 </template>
 
