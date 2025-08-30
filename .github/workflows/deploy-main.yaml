@@ -1,4 +1,4 @@
-name: 🪄 Manual OpenTofu Plan & Apply
+name: 🪄 Manual Plan & Apply
 
 on:
   workflow_dispatch:
