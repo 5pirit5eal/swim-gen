@@ -99,6 +99,7 @@ defineEmits<{ close: [] }>()
 .modal-leave-active {
   transition: opacity 0.3s ease;
 }
+
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
@@ -115,7 +116,7 @@ defineEmits<{ close: [] }>()
 }
 
 /* Add responsive padding */
-@media (max-width: 480px) {
+@media (max-width: 740px) {
   .modal-container {
     width: 95%;
     margin: 1rem;

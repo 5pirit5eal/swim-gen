@@ -60,11 +60,8 @@
       <h4>{{ $t('privacy_policy.processing_restriction_right_title') }}</h4>
       <p>{{ $t('privacy_policy.processing_restriction_right_text_1') }}</p>
       <ul>
-        <li
-          v-for="item in $t('privacy_policy.processing_restriction_right_list').split('\n')"
-          :key="item"
-        >
-          {{ item }}
+        <li v-for="i in 4" :key="i">
+          {{ $t(`privacy_policy.processing_restriction_right_list.${i - 1}`) }}
         </li>
       </ul>
       <p>{{ $t('privacy_policy.processing_restriction_right_text_2') }}</p>
