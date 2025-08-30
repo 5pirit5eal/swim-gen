@@ -37,7 +37,7 @@ Manual deployments are discouraged but may be necessary for initial setup or spe
 Before you can run any OpenTofu commands, you must manually configure the following:
 
 1. **Domain & DNS**: Procure a domain name and configure its DNS settings to point to your GCP project. The specific DNS records will be output by the `0-infra` stage.
-2. **Secrets**: Create and configure the necessary secrets in Google Secret Manager. This includes passwords for the Cloud SQL database users. These secrets must be created before the `0-infra` stage can be successfully applied, as it sets permissions on them.
+2. **Secrets**: Create and configure the necessary secrets in Google Secret Manager. This includes passwords for the Cloud SQL database users. These secrets must be created before the `0-infra` stage can be successfully applied, as it sets permissions on them. Check the data blocks in the dev and prod configuration for details.
 
 Check the data blocks for the relevant information that needs to be prepared before applying the configuration for the first time.
 

@@ -104,16 +104,13 @@
   },
   "impressum": {
     "title": "Impressum",
-    "name": "Ruben Schulze",
-    "address": "Hermann-Smeets-Str. 21-25",
-    "city": "40219 Düsseldorf",
     "contact_title": "Contact",
-    "phone": "Phone: +4915143148606",
-    "email": "Email: {'info.swim.gen@gmail.com'}"
+    "phone": "Phone",
+    "email": "Email"
   },
   "privacy_policy": {
     "title": "Privacy Policy",
-    "last_updated": "Last Updated: August 28, 2025",
+    "last_updated": "Last Updated: August 30, 2025",
     "data_protection_at_a_glance_title": "1. Data Protection at a Glance",
     "general_notes_title": "General Information",
     "general_notes_text": "The following notes provide a simple overview of what happens to your personal data when you visit this website. Personal data is any data with which you could be personally identified. Detailed information on the subject of data protection can be found in our privacy policy listed below this text.",
@@ -131,7 +128,6 @@
     "data_protection_text": "The operators of these pages take the protection of your personal data very seriously. We treat your personal data as confidential and in accordance with the statutory data protection regulations and this privacy policy. When you use this website, various personal data are collected. Personal data is any data with which you could be personally identified. This privacy policy explains what data we collect and what we use it for. It also explains how and for what purpose this happens. We would like to point out that data transmission over the Internet (e.g., when communicating by e-mail) can have security gaps. A complete protection of the data from access by third parties is not possible.",
     "responsible_party_title": "Information on the responsible party",
     "responsible_party_text": "The responsible party for data processing on this website is:",
-    "responsible_party_details": "Ruben Schulze\nHermann-Smeets-Str. 21-25\n40219\nDüsseldorf\nTelefon: +49 15143148606\nE-Mail: {'info.swim.gen@gmail.com'}",
     "responsible_party_definition": "The responsible party is the natural or legal person who alone or jointly with others decides on the purposes and means of processing personal data (e.g., names, e-mail addresses, or the like).",
     "storage_duration_title": "Storage Duration",
     "storage_duration_text": "Unless a more specific storage period has been specified in this privacy policy, your personal data will remain with us until the purpose for which it was collected no longer applies. If you assert a justified request for deletion or revoke your consent to data processing, your data will be deleted, unless we have other legally permissible reasons for storing your personal data (e.g., tax or commercial law retention periods); in the latter case, the deletion will take place after these reasons cease to apply.",
@@ -161,13 +157,13 @@
     "ssl_tls_encryption_text": "For security reasons and to protect the transmission of confidential content, such as orders or inquiries that you send to us as the site operator, this site uses SSL or TLS encryption. You can recognize an encrypted connection by the fact that the address line of the browser changes from “http://” to “https://” and by the lock symbol in your browser line. If SSL or TLS encryption is activated, the data you transmit to us cannot be read by third parties."
   },
   "terms_of_service": {
-    "last_updated": "Last Updated: August 13, 2025",
+    "last_updated": "Last Updated: August 30, 2025",
     "title": "Terms and Conditions of Swim Gen",
     "intro": "These Terms govern the use of this Application, and, any other related Agreement or legal relationship with the Owner in a legally binding way. Capitalized words are defined in the relevant dedicated section of this document.",
     "read_carefully": "The User must read this document carefully.",
     "provided_by": "This Application is provided by:",
     "owner": "Swim Gen",
-    "owner_contact": "Owner contact email: {'info.swim.gen@gmail.com'}",
+    "owner_contact": "Owner contact email: {mail}",
     "at_a_glance_title": "What the User should know at a glance",
     "at_a_glance": "Please note that some provisions in these Terms may only apply to certain categories of Users. In particular, certain provisions may only apply to Consumers or to those Users that do not qualify as Consumers. Such limitations are always explicitly mentioned within each affected clause. In the absence of any such mention, clauses apply to all Users.",
     "terms_of_use_title": "TERMS OF USE",

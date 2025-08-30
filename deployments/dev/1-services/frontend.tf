@@ -1,8 +1,13 @@
 locals {
   frontend_env_variables = {
-    PROJECT_ID       = var.project_id
-    REGION           = var.region
-    VITE_APP_API_URL = google_cloud_run_v2_service.bff.uri
+    PROJECT_ID             = var.project_id
+    REGION                 = var.region
+    VITE_APP_API_URL       = google_cloud_run_v2_service.bff.uri
+    VITE_IMPRESSUM_NAME    = ""
+    VITE_IMPRESSUM_ADDRESS = ""
+    VITE_IMPRESSUM_CITY    = ""
+    VITE_IMPRESSUM_PHONE   = ""
+    VITE_IMPRESSUM_EMAIL   = ""
   }
 }
 
