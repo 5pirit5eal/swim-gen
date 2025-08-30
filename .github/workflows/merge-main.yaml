@@ -1,4 +1,4 @@
-name: 🚀 Build & Deploy (main)
+name: 🚀 Build (main)
 
 on:
   push:

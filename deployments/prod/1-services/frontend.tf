@@ -1,14 +1,44 @@
 locals {
   frontend_env_variables = {
-    PROJECT_ID       = var.project_id
-    REGION           = var.region
-    VITE_APP_API_URL = google_cloud_run_v2_service.bff.uri
+    PROJECT_ID             = var.project_id
+    REGION                 = var.region
+    VITE_APP_API_URL       = google_cloud_run_v2_service.bff.uri
+    VITE_IMPRESSUM_NAME    = data.google_secret_manager_secret_version.impressum_name.secret_data
+    VITE_IMPRESSUM_ADDRESS = data.google_secret_manager_secret_version.impressum_address.secret_data
+    VITE_IMPRESSUM_CITY    = data.google_secret_manager_secret_version.impressum_city.secret_data
+    VITE_IMPRESSUM_PHONE   = data.google_secret_manager_secret_version.impressum_phone.secret_data
+    VITE_IMPRESSUM_EMAIL   = data.google_secret_manager_secret_version.impressum_email.secret_data
   }
   records = {
     for type, records in {
       for r in google_cloud_run_domain_mapping.frontend_domain_mapping.status[0].resource_records : r.type => r.rrdata...
     } : type => { rrdatas = records }
   }
+}
+
+data "google_secret_manager_secret_version" "impressum_name" {
+  project = var.project_id
+  secret  = "IMPRESSUM_NAME"
+}
+
+data "google_secret_manager_secret_version" "impressum_address" {
+  project = var.project_id
+  secret  = "IMPRESSUM_ADDRESS"
+}
+
+data "google_secret_manager_secret_version" "impressum_city" {
+  project = var.project_id
+  secret  = "IMPRESSUM_CITY"
+}
+
+data "google_secret_manager_secret_version" "impressum_phone" {
+  project = var.project_id
+  secret  = "IMPRESSUM_PHONE"
+}
+
+data "google_secret_manager_secret_version" "impressum_email" {
+  project = var.project_id
+  secret  = "IMPRESSUM_EMAIL"
 }
 
 data "google_artifact_registry_docker_image" "frontend_image" {
@@ -33,6 +63,11 @@ resource "google_cloud_run_v2_service" "frontend" {
   deletion_protection = false
 
   custom_audiences = [var.domain_url]
+
+  # Set the number of maximum instances to control costs
+  scaling {
+    max_instance_count = 5
+  }
 
   template {
     service_account                  = var.iam.swim_gen_frontend.email

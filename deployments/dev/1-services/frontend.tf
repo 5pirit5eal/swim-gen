@@ -1,8 +1,13 @@
 locals {
   frontend_env_variables = {
-    PROJECT_ID       = var.project_id
-    REGION           = var.region
-    VITE_APP_API_URL = google_cloud_run_v2_service.bff.uri
+    PROJECT_ID             = var.project_id
+    REGION                 = var.region
+    VITE_APP_API_URL       = google_cloud_run_v2_service.bff.uri
+    VITE_IMPRESSUM_NAME    = ""
+    VITE_IMPRESSUM_ADDRESS = ""
+    VITE_IMPRESSUM_CITY    = ""
+    VITE_IMPRESSUM_PHONE   = ""
+    VITE_IMPRESSUM_EMAIL   = ""
   }
 }
 
@@ -26,6 +31,11 @@ resource "google_cloud_run_v2_service" "frontend" {
   # This is enforced via IAM bindings in the frontend.tf file.
   # See: https://cloud.google.com/run/docs/securing/service-identity#granting_other_identities_access_to_your_service
   deletion_protection = false
+
+  # Set the number of maximum instances to control costs
+  scaling {
+    max_instance_count = 1
+  }
 
   template {
     service_account                  = var.iam.swim_gen_frontend.email

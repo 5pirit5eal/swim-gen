@@ -1,4 +1,4 @@
-name: 🪄 Manual OpenTofu Plan & Apply
+name: 🪄 Manual Plan & Apply
 
 on:
   workflow_dispatch:
@@ -38,7 +38,6 @@ jobs:
       env: ${{ inputs.env }}
       apply: ${{ inputs.apply }}
       cwd: deployments/${{ inputs.env }}/0-infra
-      version: ${{ inputs.version }}
     secrets: inherit
 
   opentofu-services:

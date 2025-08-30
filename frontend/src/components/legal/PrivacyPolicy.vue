@@ -1,3 +1,26 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
+const VITE_IMPRESSUM_NAME = import.meta.env.VITE_IMPRESSUM_NAME
+const VITE_IMPRESSUM_ADDRESS = import.meta.env.VITE_IMPRESSUM_ADDRESS
+const VITE_IMPRESSUM_CITY = import.meta.env.VITE_IMPRESSUM_CITY
+const VITE_IMPRESSUM_PHONE = import.meta.env.VITE_IMPRESSUM_PHONE
+const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL
+
+const responsiblePartyDetails = computed(() => {
+  return `
+    ${VITE_IMPRESSUM_NAME}<br />
+    ${VITE_IMPRESSUM_ADDRESS}<br />
+    ${VITE_IMPRESSUM_CITY}<br />
+    ${t('impressum.phone')}: ${VITE_IMPRESSUM_PHONE}<br />
+    ${t('impressum.email')}: ${VITE_IMPRESSUM_EMAIL}
+  `
+})
+</script>
+
 <template>
   <div class="privacy-policy">
     <section class="intro">
@@ -32,7 +55,7 @@
 
       <h4>{{ $t('privacy_policy.responsible_party_title') }}</h4>
       <p>{{ $t('privacy_policy.responsible_party_text') }}</p>
-      <p v-html="$t('privacy_policy.responsible_party_details').replace(/\n/g, '<br>')"></p>
+      <p v-html="responsiblePartyDetails"></p>
       <p>{{ $t('privacy_policy.responsible_party_definition') }}</p>
 
       <h4>{{ $t('privacy_policy.storage_duration_title') }}</h4>

@@ -1,23 +1,26 @@
+<script setup lang="ts">
+const VITE_IMPRESSUM_NAME = import.meta.env.VITE_IMPRESSUM_NAME
+const VITE_IMPRESSUM_ADDRESS = import.meta.env.VITE_IMPRESSUM_ADDRESS
+const VITE_IMPRESSUM_CITY = import.meta.env.VITE_IMPRESSUM_CITY
+const VITE_IMPRESSUM_PHONE = import.meta.env.VITE_IMPRESSUM_PHONE
+const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL
+</script>
+
 <template>
   <div class="impressum-container">
     <section>
       <h3>{{ $t('impressum.title') }}</h3>
       <p>
-        {{ $t('impressum.name') }}<br />
-        {{ $t('impressum.address') }}<br />
-        {{ $t('impressum.city') }}
+        {{ VITE_IMPRESSUM_NAME }}<br />
+        {{ VITE_IMPRESSUM_ADDRESS }}<br />
+        {{ VITE_IMPRESSUM_CITY }}
       </p>
     </section>
     <section>
       <h3>{{ $t('impressum.contact_title') }}</h3>
       <p>
-        {{ $t('impressum.phone') }}<br />
-        {{ $t('impressum.email') }}
-      </p>
-    </section>
-    <section>
-      <p>
-        <small>{{ $t('impressum.source') }}</small>
+        {{ $t('impressum.phone') }}: {{ VITE_IMPRESSUM_PHONE }}<br />
+        {{ $t('impressum.email') }}: {{ VITE_IMPRESSUM_EMAIL }}
       </p>
     </section>
   </div>

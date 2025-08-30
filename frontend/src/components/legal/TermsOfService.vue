@@ -1,15 +1,17 @@
+<script setup lang="ts">
+const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL
+</script>
+
 <template>
   <div class="terms-of-service">
     <section class="intro">
       <p class="last-updated">
         <strong>{{ $t('terms_of_service.last_updated') }}</strong>
       </p>
-      <h3>{{ $t('terms_of_service.title') }}</h3>
-      <p>{{ $t('terms_of_service.intro') }}</p>
       <p>{{ $t('terms_of_service.read_carefully') }}</p>
       <p>{{ $t('terms_of_service.provided_by') }}</p>
       <p>{{ $t('terms_of_service.owner') }}<br /></p>
-      <p>{{ $t('terms_of_service.owner_contact') }}</p>
+      <p>{{ $t('terms_of_service.owner_contact', { mail: VITE_IMPRESSUM_EMAIL }) }}</p>
     </section>
 
     <section>
@@ -167,6 +169,7 @@
 }
 
 .terms-of-service .intro {
+  display: block;
   background: var(--color-background-soft, #f8f9fa);
   padding: 1.5rem;
   border-radius: 0.5rem;
