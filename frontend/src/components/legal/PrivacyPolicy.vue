@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const VITE_IMPRESSUM_NAME = import.meta.env.VITE_IMPRESSUM_NAME;
-const VITE_IMPRESSUM_ADDRESS = import.meta.env.VITE_IMPRESSUM_ADDRESS;
-const VITE_IMPRESSUM_CITY = import.meta.env.VITE_IMPRESSUM_CITY;
-const VITE_IMPRESSUM_PHONE = import.meta.env.VITE_IMPRESSUM_PHONE;
-const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL;
+const VITE_IMPRESSUM_NAME = import.meta.env.VITE_IMPRESSUM_NAME
+const VITE_IMPRESSUM_ADDRESS = import.meta.env.VITE_IMPRESSUM_ADDRESS
+const VITE_IMPRESSUM_CITY = import.meta.env.VITE_IMPRESSUM_CITY
+const VITE_IMPRESSUM_PHONE = import.meta.env.VITE_IMPRESSUM_PHONE
+const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL
 
 const responsiblePartyDetails = computed(() => {
   return `
@@ -17,8 +17,8 @@ const responsiblePartyDetails = computed(() => {
     ${VITE_IMPRESSUM_CITY}<br />
     ${t('impressum.phone')}: ${VITE_IMPRESSUM_PHONE}<br />
     ${t('impressum.email')}: ${VITE_IMPRESSUM_EMAIL}
-  `;
-});
+  `
+})
 </script>
 
 <template>
@@ -130,7 +130,7 @@ const responsiblePartyDetails = computed(() => {
   margin-bottom: 1.5rem;
 }
 
-.privacy-policy section+section {
+.privacy-policy section + section {
   margin-top: 1.5rem;
 }
 

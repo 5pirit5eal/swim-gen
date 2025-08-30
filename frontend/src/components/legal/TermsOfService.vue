@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL;
+const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL
 </script>
 
 <template>
@@ -142,7 +142,7 @@ const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL;
   margin-bottom: 1.5rem;
 }
 
-.terms-of-service section+section {
+.terms-of-service section + section {
   margin-top: 1.5rem;
 }
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const VITE_IMPRESSUM_NAME = import.meta.env.VITE_IMPRESSUM_NAME;
-const VITE_IMPRESSUM_ADDRESS = import.meta.env.VITE_IMPRESSUM_ADDRESS;
-const VITE_IMPRESSUM_CITY = import.meta.env.VITE_IMPRESSUM_CITY;
-const VITE_IMPRESSUM_PHONE = import.meta.env.VITE_IMPRESSUM_PHONE;
-const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL;
+const VITE_IMPRESSUM_NAME = import.meta.env.VITE_IMPRESSUM_NAME
+const VITE_IMPRESSUM_ADDRESS = import.meta.env.VITE_IMPRESSUM_ADDRESS
+const VITE_IMPRESSUM_CITY = import.meta.env.VITE_IMPRESSUM_CITY
+const VITE_IMPRESSUM_PHONE = import.meta.env.VITE_IMPRESSUM_PHONE
+const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL
 </script>
 
 <template>
