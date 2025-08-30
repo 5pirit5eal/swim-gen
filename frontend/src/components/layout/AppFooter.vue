@@ -61,12 +61,7 @@ const { t } = useI18n()
               }}</a>
             </li>
             <li>
-              <a
-                href="https://buymeacoffee.com/spiritseal"
-                target="_blank"
-                rel="noopener"
-                class="sponsor-link"
-              >
+              <a href="https://buymeacoffee.com/spiritseal" target="_blank" rel="noopener">
                 <IconHeart class="icon-heart" />
                 {{ t('footer.sponsor') }}
               </a>
@@ -173,17 +168,14 @@ const { t } = useI18n()
   color: var(--color-text, #374151);
   text-decoration: none;
   transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .footer-links a:hover {
   color: var(--color-text-light, #64748b);
   text-decoration: underline;
-}
-
-.sponsor-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .icon-heart {
@@ -193,7 +185,7 @@ const { t } = useI18n()
   transition: color 0.2s;
 }
 
-.sponsor-link:hover .icon-heart {
+.footer-links a:hover .icon-heart {
   color: var(--color-text-light, #64748b);
 }
 
