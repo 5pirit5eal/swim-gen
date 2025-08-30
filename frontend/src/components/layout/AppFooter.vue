@@ -129,7 +129,7 @@ const { t } = useI18n()
   margin-bottom: 2rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 740px) {
   .footer-content {
     justify-items: left;
   }

@@ -57,7 +57,7 @@ import AppFooter from './AppFooter.vue'
 }
 
 /* Responsive background adjustments */
-@media (max-width: 768px) {
+@media (max-width: 740px) {
   .app-layout {
     background-attachment: scroll;
     /* Better performance on mobile */

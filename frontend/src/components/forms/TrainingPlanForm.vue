@@ -384,7 +384,7 @@ async function handlePromptGeneration() {
   box-sizing: border-box;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 740px) {
   .form-container {
     padding: 1.5rem;
   }

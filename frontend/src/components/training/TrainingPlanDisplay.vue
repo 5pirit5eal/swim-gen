@@ -328,7 +328,7 @@ async function handleExport() {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 740px) {
   .training-plan-display {
     zoom: 0.75;
   }
@@ -393,16 +393,25 @@ th:nth-child(5) {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-size: 0.8rem;
-  white-space: nowrap;
+  /* white-space: nowrap; */
+  word-break: break-all;
   /* Prevent text from wrapping */
+  padding: 0.5rem 0.25rem;
 }
 
-@media (max-width: 400px) {
-  .exercise-table th,
-  .exercise-table td {
-    font-size: 0.75rem;
+@media (max-width: 740px) {
+  .exercise-table th {
+    font-size: 0.5rem;
     padding: 0.5rem 0.25rem;
     white-space: normal;
+    word-break: break-all;
+  }
+
+  .exercise-table td {
+    padding: 0.5rem 0.25rem;
+    white-space: normal;
+    padding: 0.25rem 0.2rem;
+    font-size: 0.75rem;
   }
 }
 
@@ -448,7 +457,7 @@ th:nth-child(5) {
 }
 
 .editable-small {
-  width: 70px;
+  width: 70%;
   text-align: center;
   border: 1px solid var(--color-primary);
   border-radius: 0.25rem;
@@ -590,6 +599,18 @@ th:nth-child(5) {
   min-width: 160px;
 }
 
+@media (max-width: 740px) {
+  .export-btn {
+    width: 100%;
+    min-width: 10%;
+    padding: 0.5rem 1rem;
+  }
+
+  button + button {
+    margin-left: 2rem;
+  }
+}
+
 .export-btn:hover:not(:disabled) {
   background: var(--color-primary-hover);
 }
@@ -598,10 +619,5 @@ th:nth-child(5) {
   opacity: 0.6;
   cursor: not-allowed;
   background: var(--color-text-light);
-}
-
-button + button {
-  margin-left: 60px;
-  /* Adds 10px space to the left of any button that follows another button */
 }
 </style>

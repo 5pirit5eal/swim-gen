@@ -26,6 +26,7 @@ const showTooltip = ref(false)
   /* Use inline-flex to align icon and text */
   cursor: help;
   margin-left: 0.1rem;
+  word-break: normal;
 }
 
 .tooltip-icon svg {
@@ -58,7 +59,7 @@ const showTooltip = ref(false)
   overflow: auto;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 740px) {
   .tooltip-text {
     font-size: 0.75rem;
     padding: 0.25rem;
