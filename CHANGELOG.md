@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/5pirit5eal/swim-gen/compare/v1.3.0...v1.3.1) (2025-08-30)
+
+### Bug Fixes
+
+* moved the env secrets to build ([2688a8b](https://github.com/5pirit5eal/swim-gen/commit/2688a8bf2a2eda6e4c83ce33a3e97d6765251b28))
+* moved the env secrets to build ([#49](https://github.com/5pirit5eal/swim-gen/issues/49)) ([a5caa13](https://github.com/5pirit5eal/swim-gen/commit/a5caa13421d43d4f4156717399ab4a16911213a3))
+
 ## [1.3.0](https://github.com/5pirit5eal/swim-gen/compare/v1.2.0...v1.3.0) (2025-08-30)
 
 ### Features
