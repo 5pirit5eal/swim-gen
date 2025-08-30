@@ -1,3 +1,15 @@
+## [1.3.0](https://github.com/5pirit5eal/swim-gen/compare/v1.2.0...v1.3.0) (2025-08-30)
+
+### Features
+
+* added impressum config via env variables ([61697db](https://github.com/5pirit5eal/swim-gen/commit/61697db4a8c8fb6691be59828a7047b2adac81fb))
+* configured max instances ([532e4b4](https://github.com/5pirit5eal/swim-gen/commit/532e4b49a1f2480e77ca8dad4de5ccd3d3115650))
+* Fixes and improvements to configuration and workflows ([#48](https://github.com/5pirit5eal/swim-gen/issues/48)) ([215c2a6](https://github.com/5pirit5eal/swim-gen/commit/215c2a6f6191d9b4dfd4bf7007348d38e885886d))
+
+### Bug Fixes
+
+* removed unused version tag ([b8d97a5](https://github.com/5pirit5eal/swim-gen/commit/b8d97a57ba5d6a1b1d25dfc0427dfc408c0b0af9))
+
 ## [1.2.0](https://github.com/5pirit5eal/swim-gen/compare/v1.1.1...v1.2.0) (2025-08-30)
 
 ### Features
