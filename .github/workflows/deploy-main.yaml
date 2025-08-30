@@ -16,6 +16,11 @@ on:
         required: true
         type: boolean
         default: false
+      version:
+        description: Version tag to deploy (only for prod)
+        required: false
+        type: string
+        default: latest
 
 permissions:
   id-token: write
@@ -33,6 +38,7 @@ jobs:
       env: ${{ inputs.env }}
       apply: ${{ inputs.apply }}
       cwd: deployments/${{ inputs.env }}/0-infra
+      version: ${{ inputs.version }}
     secrets: inherit
 
   opentofu-services:
@@ -46,4 +52,5 @@ jobs:
       apply: ${{ inputs.apply }}
       cwd: deployments/${{ inputs.env }}/1-services
       infra_outputs: ${{ needs.opentofu-infra.outputs.tf_outputs }}
+      version: ${{ inputs.version }}
     secrets: inherit
