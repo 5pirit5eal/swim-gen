@@ -1,8 +1,0 @@
-<svg width="200" height="200" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="#26C6DA">
-  <g>
-    <!-- Main swimmer/stroke shape -->
-    <path d="M 25 50 C 35 20, 70 15, 80 40 S 75 90, 40 85 C 20 80, 15 65, 25 50 Z"/>
-    <!-- Trailing water droplet for balance and motion -->
-    <circle cx="78" cy="75" r="8"/>
-  </g>
-</svg>
