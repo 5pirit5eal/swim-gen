@@ -8,6 +8,7 @@ ARG VITE_IMPRESSUM_ADDRESS
 ARG VITE_IMPRESSUM_CITY
 ARG VITE_IMPRESSUM_PHONE
 ARG VITE_IMPRESSUM_EMAIL
+ARG VITE_SITE_URL
 
 COPY package*.json ./
 RUN apk add --no-cache build-base autoconf automake libtool nasm zlib-dev
@@ -19,7 +20,8 @@ RUN echo "VITE_IMPRESSUM_NAME=${VITE_IMPRESSUM_NAME}" > .env.production && \
     echo "VITE_IMPRESSUM_ADDRESS=${VITE_IMPRESSUM_ADDRESS}" >> .env.production && \
     echo "VITE_IMPRESSUM_CITY=${VITE_IMPRESSUM_CITY}" >> .env.production && \
     echo "VITE_IMPRESSUM_PHONE=${VITE_IMPRESSUM_PHONE}" >> .env.production && \
-    echo "VITE_IMPRESSUM_EMAIL=${VITE_IMPRESSUM_EMAIL}" >> .env.production
+    echo "VITE_IMPRESSUM_EMAIL=${VITE_IMPRESSUM_EMAIL}" >> .env.production && \
+    echo "VITE_SITE_URL=${VITE_SITE_URL}" >> .env.production
 
 RUN npm run build
 
