@@ -2,6 +2,7 @@
   "app": {
     "name": "Swim Gen",
     "slogan": "KI-gestützter Trainingsplangenerator für Schwimmer und Triathleten.",
+    "note_meta": "HINWEIS: Der oben stehende 'name' und 'slogan' werden auch in index.html für OpenGraph/meta verwendet. Ändere diese Werte zusammen mit den Meta-Tags in index.html.",
     "hero_title": "KI-Generierte Schwimmpläne",
     "hero_description": "Generiere personalisierte Trainingspläne für Schwimmer, Triathleten und Trainer. Beschreibe einfach, was du suchst, und unserer System erstellt ein individuelles Training für dich."
   },

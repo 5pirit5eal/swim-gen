@@ -107,3 +107,15 @@ resource "google_dns_record_set" "frontend_dns_records" {
 data "google_dns_managed_zone" "swim_gen_zone" {
   name = "swim-gen-com"
 }
+
+# Site URL Github Actions Env Variable
+data "github_repository" "swim_gen_repo" {
+  full_name = "${var.github_owner}/${var.github_repository}"
+}
+
+resource "github_actions_environment_variable" "prod_site_url" {
+  repository    = data.github_repository.swim_gen_repo.name
+  environment   = "prod"
+  variable_name = "VITE_SITE_URL"
+  value         = "https://${var.domain_url}"
+}

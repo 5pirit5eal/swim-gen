@@ -70,3 +70,16 @@ resource "google_cloud_run_v2_service" "frontend" {
   client     = "terraform"
   depends_on = [google_cloud_run_v2_service.backend, google_cloud_run_v2_service.frontend]
 }
+
+# Site URL Github Actions Env Variable
+data "github_repository" "swim_gen_repo" {
+  full_name = "${var.github_owner}/${var.github_repository}"
+}
+
+resource "github_actions_environment_variable" "dev_project_id" {
+  repository    = data.github_repository.swim_gen_repo.name
+  environment   = "dev"
+  variable_name = "VITE_SITE_URL"
+  value         = google_cloud_run_v2_service.frontend.uri
+}
+

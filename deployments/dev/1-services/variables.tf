@@ -3,6 +3,18 @@ variable "github_token" {
   type        = string
 }
 
+variable "github_owner" {
+  description = "GitHub organization or user that owns the repository"
+  type        = string
+  default     = "5pirit5eal"
+}
+
+variable "github_repository" {
+  description = "Short repository name (without owner)"
+  type        = string
+  default     = "swim-gen"
+}
+
 variable "model" {
   description = "The model name"
   type        = string
