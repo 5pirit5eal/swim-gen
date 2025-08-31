@@ -76,7 +76,7 @@ data "github_repository" "swim_gen_repo" {
   full_name = "${var.github_owner}/${var.github_repository}"
 }
 
-resource "github_actions_environment_variable" "dev_project_id" {
+resource "github_actions_environment_variable" "dev_site_url" {
   repository    = data.github_repository.swim_gen_repo.name
   environment   = "dev"
   variable_name = "VITE_SITE_URL"
