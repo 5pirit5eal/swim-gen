@@ -1,3 +1,48 @@
+## [1.4.0](https://github.com/5pirit5eal/swim-gen/compare/v1.3.1...v1.4.0) (2025-08-31)
+
+### Features
+
+* 47 add preview for mobile sharing and search engines ([#53](https://github.com/5pirit5eal/swim-gen/issues/53)) ([4d44dba](https://github.com/5pirit5eal/swim-gen/commit/4d44dbab3ad073d55816aeb586bf69ecb79b57f8))
+* added open meta tags ([bf42fe6](https://github.com/5pirit5eal/swim-gen/commit/bf42fe681fd6836f1a02188d948056272226e51c))
+* added preview for social media with open graph and twitter meta tags ([#54](https://github.com/5pirit5eal/swim-gen/issues/54)) ([7bc5d85](https://github.com/5pirit5eal/swim-gen/commit/7bc5d85e98e6457aae544a1465524ea27cc39018))
+* added smaller image for whatsapp ([dff345f](https://github.com/5pirit5eal/swim-gen/commit/dff345f15f5f63f096f0317d7ae3ecdc14ba0338))
+
+### Bug Fixes
+
+* corrected vars in workflow ([86164df](https://github.com/5pirit5eal/swim-gen/commit/86164dfd72038613dec44b5413dab52dab830e43))
+* reverted unwanted changes ([c0f4a63](https://github.com/5pirit5eal/swim-gen/commit/c0f4a63bbcd6efda4af3dc890c52900816b53b62))
+
+## [1.3.1](https://github.com/5pirit5eal/swim-gen/compare/v1.3.0...v1.3.1) (2025-08-30)
+
+### Bug Fixes
+
+* moved the env secrets to build ([2688a8b](https://github.com/5pirit5eal/swim-gen/commit/2688a8bf2a2eda6e4c83ce33a3e97d6765251b28))
+* moved the env secrets to build ([#49](https://github.com/5pirit5eal/swim-gen/issues/49)) ([a5caa13](https://github.com/5pirit5eal/swim-gen/commit/a5caa13421d43d4f4156717399ab4a16911213a3))
+
+## [1.3.0](https://github.com/5pirit5eal/swim-gen/compare/v1.2.0...v1.3.0) (2025-08-30)
+
+### Features
+
+* added impressum config via env variables ([61697db](https://github.com/5pirit5eal/swim-gen/commit/61697db4a8c8fb6691be59828a7047b2adac81fb))
+* configured max instances ([532e4b4](https://github.com/5pirit5eal/swim-gen/commit/532e4b49a1f2480e77ca8dad4de5ccd3d3115650))
+* Fixes and improvements to configuration and workflows ([#48](https://github.com/5pirit5eal/swim-gen/issues/48)) ([215c2a6](https://github.com/5pirit5eal/swim-gen/commit/215c2a6f6191d9b4dfd4bf7007348d38e885886d))
+
+### Bug Fixes
+
+* removed unused version tag ([b8d97a5](https://github.com/5pirit5eal/swim-gen/commit/b8d97a57ba5d6a1b1d25dfc0427dfc408c0b0af9))
+
+## [1.2.0](https://github.com/5pirit5eal/swim-gen/compare/v1.1.1...v1.2.0) (2025-08-30)
+
+### Features
+
+* added version tag as input option ([5116393](https://github.com/5pirit5eal/swim-gen/commit/5116393016dc6b060072c026ae4ce6b2f0646ed1))
+
+### Bug Fixes
+
+* fixed mobile view of frontend ([#45](https://github.com/5pirit5eal/swim-gen/issues/45)) ([a7c6a2c](https://github.com/5pirit5eal/swim-gen/commit/a7c6a2cbe9785400f9f97c411b64a0fe7230d060))
+* fixed some layout issues on mobil ([331f1bd](https://github.com/5pirit5eal/swim-gen/commit/331f1bd30af933d8d22e76583d4e3c6f4c4c8648))
+* removed broken css class ([21e18e9](https://github.com/5pirit5eal/swim-gen/commit/21e18e9f8c04b651ea4bbfb0b6e7dc2ac37c884e))
+
 ## [1.1.1](https://github.com/5pirit5eal/swim-gen/compare/v1.1.0...v1.1.1) (2025-08-29)
 
 ### Bug Fixes
