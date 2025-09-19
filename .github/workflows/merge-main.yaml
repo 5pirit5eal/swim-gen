@@ -17,8 +17,18 @@ env:
   TF_IN_AUTOMATION: true
 
 jobs:
+  opentofu-infra:
+    name: 🪄 OpenTofu infra (prod)
+    uses: ./.github/workflows/tf-plan-apply.yaml
+    with:
+      env: prod
+      apply: false
+      cwd: deployments/prod/0-infra
+    secrets: inherit
+
   get_version:
     name: 🔢 Get next semantic version
+    needs: opentofu-infra
     runs-on: ubuntu-latest
     outputs:
       next_version: ${{ steps.semantic.outputs.new_release_version }}
@@ -69,25 +79,14 @@ jobs:
       version: ${{ needs.get_version.outputs.next_version }}
     secrets: inherit
 
-  opentofu-infra:
-    name: 🪄 OpenTofu infra (prod)
-    needs:
-        - build-backend
-        - build-frontend
-        - build-bff
-        - build-mcp
-    if: always() && !cancelled() && (needs.build-backend.result != 'failure') && (needs.build-frontend.result != 'failure') && (needs.build-bff.result != 'failure') && (needs.build-mcp.result != 'failure')
-    uses: ./.github/workflows/tf-plan-apply.yaml
-    with:
-      env: prod
-      apply: false
-      cwd: deployments/prod/0-infra
-    secrets: inherit
-
   opentofu-services:
     name: 🪄 OpenTofu services (prod)
     needs:
       - opentofu-infra
+      - build-backend
+      - build-frontend
+      - build-bff
+      - build-mcp
     if: always() && !cancelled() && !contains(needs.*.result, 'failure')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:

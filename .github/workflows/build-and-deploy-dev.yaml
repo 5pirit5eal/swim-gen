@@ -1,21 +1,33 @@
 name: 🚀 Build & Deploy (dev)
 
 on:
-  push:
-    branches: [dev]
+  issue_comment:
+    types: [created]
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.issue.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
+  issues: write # This is required for reacting to comments and posting comments
 
 jobs:
+  opentofu-infra:
+    name: 🪄 OpenTofu infra (dev)
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '.deploy dev')
+    uses: ./.github/workflows/tf-plan-apply.yaml
+    with:
+      env: dev
+      apply: true
+      cwd: deployments/dev/0-infra
+    secrets: inherit
+
   detect-changes:
     name: 🔎 Detect service changes
+    needs: opentofu-infra
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
@@ -25,10 +37,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.issue.pull_request.head.ref }}
           fetch-depth: 0
       - id: filter
         run: |
-          changed() { git diff --name-only origin/${{ github.ref_name }}~1 | grep -E "^$1/" >/dev/null && echo true || echo false; }
+          changed() { git diff --name-only origin/dev | grep -E "^$1/" >/dev/null && echo true || echo false; }
           echo "backend=$(changed backend)" >> $GITHUB_OUTPUT
           echo "frontend=$(changed frontend)" >> $GITHUB_OUTPUT
           echo "bff=$(changed bff)" >> $GITHUB_OUTPUT
@@ -66,9 +79,10 @@ jobs:
       env: dev
     secrets: inherit
 
-  opentofu-infra:
-    name: 🪄 OpenTofu infra (dev)
+  opentofu-services:
+    name: 🪄 OpenTofu services (dev)
     needs:
+      - opentofu-infra
       - build-backend
       - build-frontend
       - build-bff
@@ -78,18 +92,39 @@ jobs:
     with:
       env: dev
       apply: true
-      cwd: deployments/dev/0-infra
-    secrets: inherit
-
-  opentofu-services:
-    name: 🪄 OpenTofu services (dev)
-    needs:
-      - opentofu-infra
-    if: always() && !cancelled() && !contains(needs.*.result, 'failure')
-    uses: ./.github/workflows/tf-plan-apply.yaml
-    with:
-      env: dev
-      apply: true
       cwd: deployments/dev/1-services
       infra_outputs: ${{ needs.opentofu-infra.outputs.tf_outputs }}
     secrets: inherit
+
+  react-to-comment:
+    name: 👍 React to deploy comment
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '.deploy dev')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add reaction to comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: '+1'
+            });
+
+  comment-on-completion:
+    name: 💬 Comment on deployment completion
+    needs: opentofu-services
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: 'Deployment to dev completed successfully! 🚀'
+            });
