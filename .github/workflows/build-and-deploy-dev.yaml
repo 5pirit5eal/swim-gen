@@ -1,12 +1,12 @@
 name: 🚀 Build & Deploy (dev)
 
 on:
-  push:
-    branches: [dev]
+  issue_comment:
+    types: [created]
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.issue.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -14,8 +14,19 @@ permissions:
   contents: write # This is required for actions/checkout
 
 jobs:
+  opentofu-infra:
+    name: 🪄 OpenTofu infra (dev)
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '.deploy dev')
+    uses: ./.github/workflows/tf-plan-apply.yaml
+    with:
+      env: dev
+      apply: true
+      cwd: deployments/dev/0-infra
+    secrets: inherit
+
   detect-changes:
     name: 🔎 Detect service changes
+    needs: opentofu-infra
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
@@ -25,10 +36,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.issue.pull_request.head.ref }}
           fetch-depth: 0
       - id: filter
         run: |
-          changed() { git diff --name-only origin/${{ github.ref_name }}~1 | grep -E "^$1/" >/dev/null && echo true || echo false; }
+          changed() { git diff --name-only origin/dev | grep -E "^$1/" >/dev/null && echo true || echo false; }
           echo "backend=$(changed backend)" >> $GITHUB_OUTPUT
           echo "frontend=$(changed frontend)" >> $GITHUB_OUTPUT
           echo "bff=$(changed bff)" >> $GITHUB_OUTPUT
@@ -66,25 +78,14 @@ jobs:
       env: dev
     secrets: inherit
 
-  opentofu-infra:
-    name: 🪄 OpenTofu infra (dev)
-    needs:
-      - build-backend
-      - build-frontend
-      - build-bff
-      - build-mcp
-    if: always() && !cancelled() && !contains(needs.*.result, 'failure')
-    uses: ./.github/workflows/tf-plan-apply.yaml
-    with:
-      env: dev
-      apply: true
-      cwd: deployments/dev/0-infra
-    secrets: inherit
-
   opentofu-services:
     name: 🪄 OpenTofu services (dev)
     needs:
       - opentofu-infra
+      - build-backend
+      - build-frontend
+      - build-bff
+      - build-mcp
     if: always() && !cancelled() && !contains(needs.*.result, 'failure')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
