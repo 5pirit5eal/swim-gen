@@ -12,6 +12,7 @@ concurrency:
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
+  issues: write # This is required for reacting to comments and posting comments
 
 jobs:
   opentofu-infra:
@@ -94,3 +95,36 @@ jobs:
       cwd: deployments/dev/1-services
       infra_outputs: ${{ needs.opentofu-infra.outputs.tf_outputs }}
     secrets: inherit
+
+  react-to-comment:
+    name: 👍 React to deploy comment
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '.deploy dev')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add reaction to comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: '+1'
+            });
+
+  comment-on-completion:
+    name: 💬 Comment on deployment completion
+    needs: opentofu-services
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: 'Deployment to dev completed successfully! 🚀'
+            });
