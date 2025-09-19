@@ -1,3 +1,11 @@
+## [1.5.0](https://github.com/5pirit5eal/swim-gen/compare/v1.4.0...v1.5.0) (2025-09-19)
+
+### Features
+
+* added comment via cicd to communicate to user ([74201a9](https://github.com/5pirit5eal/swim-gen/commit/74201a9a9ef152f855ff1218a08f8153b87581c8))
+* change cicd to comment based dev deploy ([3ee7242](https://github.com/5pirit5eal/swim-gen/commit/3ee7242de0c87ea70c0e1d20bed81fedac5dcebd))
+* change cicd to comment based dev deploy ([#63](https://github.com/5pirit5eal/swim-gen/issues/63)) ([1a85fe0](https://github.com/5pirit5eal/swim-gen/commit/1a85fe09623afe07cdca35affd6c5938ba496ee7))
+
 ## [1.4.0](https://github.com/5pirit5eal/swim-gen/compare/v1.3.1...v1.4.0) (2025-08-31)
 
 ### Features
