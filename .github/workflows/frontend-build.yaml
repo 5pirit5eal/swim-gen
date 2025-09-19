@@ -55,30 +55,26 @@ jobs:
           WIF_SA: ${{ vars.WIF_SA }}
           env-file: frontend/.env.development
 
-      - name: 'Get Secrets'
-        id: secrets
-        uses: 'google-github-actions/get-secretmanager-secrets@v2'
-        with:
-          secrets: |-
-            VITE_IMPRESSUM_NAME:${{ vars.PROJECT_ID }}/IMPRESSUM_NAME
-            VITE_IMPRESSUM_ADDRESS:${{ vars.PROJECT_ID }}/IMPRESSUM_ADDRESS
-            VITE_IMPRESSUM_CITY:${{ vars.PROJECT_ID }}/IMPRESSUM_CITY
-            VITE_IMPRESSUM_PHONE:${{ vars.PROJECT_ID }}/IMPRESSUM_PHONE
-            VITE_IMPRESSUM_EMAIL:${{ vars.PROJECT_ID }}/IMPRESSUM_EMAIL
+      # Use GitHub environment vars for IMPRESSUM values.
+      # These should be configured as environment-level or repository vars
+      # with the exact names: VITE_IMPRESSUM_NAME, VITE_IMPRESSUM_ADDRESS,
+      # VITE_IMPRESSUM_CITY, VITE_IMPRESSUM_PHONE, VITE_IMPRESSUM_EMAIL.
+      # No explicit step is needed to fetch them — they are available via
+      # the `vars` context (e.g. ${{ vars.VITE_IMPRESSUM_NAME }}).
 
       - name: Build Docker Image
         shell: bash
         run: |
           docker build \
-            --platform linux/amd64 \
-            --tag ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:${{ github.sha }} \
-            --build-arg VITE_IMPRESSUM_NAME="${{ steps.secrets.outputs.VITE_IMPRESSUM_NAME }}" \
-            --build-arg VITE_IMPRESSUM_ADDRESS="${{ steps.secrets.outputs.VITE_IMPRESSUM_ADDRESS }}" \
-            --build-arg VITE_IMPRESSUM_CITY="${{ steps.secrets.outputs.VITE_IMPRESSUM_CITY }}" \
-            --build-arg VITE_IMPRESSUM_PHONE="${{ steps.secrets.outputs.VITE_IMPRESSUM_PHONE }}" \
-            --build-arg VITE_IMPRESSUM_EMAIL="${{ steps.secrets.outputs.VITE_IMPRESSUM_EMAIL }}" \
-            --build-arg VITE_SITE_URL="${{ vars.VITE_SITE_URL }}" \
-            .
+          --platform linux/amd64 \
+          --tag ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-frontend:${{ github.sha }} \
+          --build-arg VITE_IMPRESSUM_NAME="${{ vars.VITE_IMPRESSUM_NAME }}" \
+          --build-arg VITE_IMPRESSUM_ADDRESS="${{ vars.VITE_IMPRESSUM_ADDRESS }}" \
+          --build-arg VITE_IMPRESSUM_CITY="${{ vars.VITE_IMPRESSUM_CITY }}" \
+          --build-arg VITE_IMPRESSUM_PHONE="${{ vars.VITE_IMPRESSUM_PHONE }}" \
+          --build-arg VITE_IMPRESSUM_EMAIL="${{ vars.VITE_IMPRESSUM_EMAIL }}" \
+          --build-arg VITE_SITE_URL="${{ vars.VITE_SITE_URL }}" \
+          .
         working-directory: frontend
       - name: Push Docker Image to Registry
         shell: bash
