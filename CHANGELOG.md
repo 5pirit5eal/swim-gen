@@ -1,3 +1,16 @@
+## [1.6.0](https://github.com/5pirit5eal/swim-gen/compare/v1.5.0...v1.6.0) (2025-09-20)
+
+### Features
+
+* added comment to trace progress ([2c34e8c](https://github.com/5pirit5eal/swim-gen/commit/2c34e8ca592098f16258120784165dc4a7a316fe))
+
+### Bug Fixes
+
+* added the correct token permissions ([c54213e](https://github.com/5pirit5eal/swim-gen/commit/c54213e9ef831e07f89b12b74fa9a35a079032d9))
+* refactor condition ([6b95f07](https://github.com/5pirit5eal/swim-gen/commit/6b95f07d5020333a737a04a6c852a0c008212dc6))
+* removed unused success condition ([d5a7245](https://github.com/5pirit5eal/swim-gen/commit/d5a7245c578be6719642c2be5f08e4d2b7a30f6f))
+* removed unused success condition ([#66](https://github.com/5pirit5eal/swim-gen/issues/66)) ([4b0b577](https://github.com/5pirit5eal/swim-gen/commit/4b0b577f0bc25c6e219912412e13e798e4142056))
+
 ## [1.5.0](https://github.com/5pirit5eal/swim-gen/compare/v1.4.0...v1.5.0) (2025-09-19)
 
 ### Features
