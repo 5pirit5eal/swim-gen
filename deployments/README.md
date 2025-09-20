@@ -63,9 +63,10 @@ Notes
 
 ### CI/CD with GitHub Actions (Preferred Method)
 
-All deployments are automated using GitHub Actions. Pushes and pull requests to the `main` and `dev` branches will trigger the corresponding workflows to plan and apply infrastructure changes.
+The project follows a trunk-based development model where all changes are committed directly to the `main` branch.
 
-The primary workflow for deployment is defined in `.github/workflows/tf-plan-apply.yaml`. This workflow is responsible for running `tofu plan` and `tofu apply` for each stage. Other workflows like `merge-dev.yaml` and `deploy-main.yaml` orchestrate the deployment process for the respective environments.
+- **Validation**: On every commit to `main`, automated tests and linters run to validate the changes.
+- **Deployment**: Deployments to the `dev` environment are triggered by adding a `.deploy dev` comment to a commit on the `main` branch. This action initiates a workflow that builds the services and deploys them to Cloud Run.
 
 It is strongly recommended to rely on the CI/CD pipeline for all deployments to ensure consistency and safety.
 
