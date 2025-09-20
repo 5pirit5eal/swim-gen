@@ -49,7 +49,7 @@ jobs:
           echo "mcp=$(changed mcp-server)" >> $GITHUB_OUTPUT
 
   build-backend:
-    if: ${{ needs.detect-changes.outputs.backend == 'true' || github.event_name != 'push' }}
+    if: ${{ needs.detect-changes.outputs.backend == 'true' }}
     needs: detect-changes
     uses: ./.github/workflows/backend-build.yaml
     with:
@@ -57,7 +57,7 @@ jobs:
     secrets: inherit
 
   build-frontend:
-    if: ${{ needs.detect-changes.outputs.frontend == 'true' || github.event_name != 'push' }}
+    if: ${{ needs.detect-changes.outputs.frontend == 'true' }}
     needs: detect-changes
     uses: ./.github/workflows/frontend-build.yaml
     with:
@@ -65,7 +65,7 @@ jobs:
     secrets: inherit
 
   build-bff:
-    if: ${{ needs.detect-changes.outputs.bff == 'true' || github.event_name != 'push' }}
+    if: ${{ needs.detect-changes.outputs.bff == 'true' }}
     needs: detect-changes
     uses: ./.github/workflows/bff-build.yaml
     with:
@@ -73,7 +73,7 @@ jobs:
     secrets: inherit
 
   build-mcp:
-    if: ${{ needs.detect-changes.outputs.mcp == 'true' || github.event_name != 'push' }}
+    if: ${{ needs.detect-changes.outputs.mcp == 'true' }}
     needs: detect-changes
     uses: ./.github/workflows/mcp-build.yaml
     with:
@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Add reaction to comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -113,6 +113,18 @@ jobs:
               comment_id: context.payload.comment.id,
               content: '+1'
             });
+      - name: Add comment with action link
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: `Deployment to dev started! 🚀 Check the progress here: [Action Run](${runUrl})`
+            });
 
   comment-on-completion:
     name: 💬 Comment on deployment completion
@@ -121,7 +133,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Comment on PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
