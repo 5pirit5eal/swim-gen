@@ -129,7 +129,6 @@ jobs:
   comment-on-completion:
     name: 💬 Comment on deployment completion
     needs: opentofu-services
-    if: success()
     runs-on: ubuntu-latest
     steps:
       - name: Comment on PR
