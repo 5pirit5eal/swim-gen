@@ -84,6 +84,7 @@ The next version takes lessons learned in v1 into consideration and adds user au
   - Add url to delete all user data at the bottom of the page
 - **Add content required by german/eu law**
   - Impressum
+- **Login possible via Supabase**
 
 ### V3: Multimodal Generation and Community-Sharing
 
