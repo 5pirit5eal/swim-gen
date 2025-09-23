@@ -59,7 +59,7 @@ resource "google_sql_database" "main_db" {
 }
 
 resource "google_sql_user" "dbuser" {
-  name     = google_secret_manager_secret_version.dbuser.secret_data
+  name     = var.dbuser
   instance = google_sql_database_instance.main.name
   password = data.google_secret_manager_secret_version_access.dbpassword_user.secret_data
   password_policy {
