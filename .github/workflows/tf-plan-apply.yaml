@@ -4,6 +4,12 @@ name: 📦 Reusable OpenTofu Plan (and Apply)
 on:
   workflow_call:
       inputs:
+        checkout_repo:
+          required: false
+          type: string
+        checkout_ref:
+          required: false
+          type: string
         env:
           required: true
           description: "Environment to setup for"
@@ -75,6 +81,8 @@ jobs:
     - name: ⬇️ Checkout
       uses: actions/checkout@v4
       with:
+        repository: ${{ inputs.checkout_repo }}
+        ref: ${{ inputs.checkout_ref }}
         fetch-depth: 0
 
     - name: 🔐 GCP Setup

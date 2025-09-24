@@ -54,10 +54,8 @@ variable "iam" {
 variable "secret_ids" {
   description = "Secret resource IDs"
   type = object({
-    dbname          = string
     dbpassword_root = string
     dbpassword_user = string
-    dbuser          = string
   })
 }
 

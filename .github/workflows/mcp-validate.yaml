@@ -2,12 +2,18 @@ name: 🚦Validate MCP (Format, Lint, Test)
 
 on:
   workflow_call:
-    inputs:
-      env:
-        required: false
-        type: string
-        description: "Environment to setup for"
-        default: dev
+      inputs:
+        checkout_repo:
+          required: false
+          type: string
+        checkout_ref:
+          required: false
+          type: string
+        env:
+          required: false
+          type: string
+          description: Environment to setup for
+          default: dev
   pull_request:
     branches: [main]
     paths:
@@ -43,6 +49,8 @@ jobs:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
         with:
+          repository: ${{ inputs.checkout_repo }}
+          ref: ${{ inputs.checkout_ref }}
           fetch-depth: 0
 
       - name: 📦 Setup Workflow
@@ -103,4 +111,3 @@ jobs:
         if: ${{ hashFiles('tests/system_tests') != '' }}
         run: uv run --group dev pytest tests/system_tests/test_* --junitxml=system_test_log.xml || true
         working-directory: mcp-server
-
