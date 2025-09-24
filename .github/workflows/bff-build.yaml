@@ -3,16 +3,22 @@ name: 📦 Build BFF and Push to Google Cloud
 
 on:
   workflow_call:
-      inputs:
-        env:
-          required: false
-          type: string
-          description: "Environment to setup for"
-          default: dev
-        version:
-          required: false
-          type: string
-          description: "The semantic version to be released"
+    inputs:
+      checkout_repo:
+        required: false
+        type: string
+      checkout_ref:
+        required: false
+        type: string
+      env:
+        required: false
+        type: string
+        description: "Environment to setup for"
+        default: dev
+      version:
+        required: false
+        type: string
+        description: "The semantic version to be released"
   workflow_dispatch:
     inputs:
       env:
@@ -33,10 +39,12 @@ concurrency:
 
 jobs:
   validate:
-    name: Validate bff for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
+    name: Validate BFF for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     uses: ./.github/workflows/bff-validate.yaml
     with:
       env: ${{ inputs.env }}
+      checkout_repo: ${{ inputs.checkout_repo }}
+      checkout_ref: ${{ inputs.checkout_ref }}
   build:
     name: Build bff for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     needs:
@@ -47,6 +55,8 @@ jobs:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
         with:
+          repository: ${{ inputs.checkout_repo }}
+          ref: ${{ inputs.checkout_ref }}
           fetch-depth: 0
 
       - name: 📦 Setup Workflow
@@ -80,4 +90,3 @@ jobs:
           gcloud artifacts docker tags add \
           ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ github.sha }} \
           ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.AR_REPO_NAME }}/swim-gen-bff:${{ inputs.version }}
-

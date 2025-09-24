@@ -4,6 +4,12 @@ name: 📦 Build MCP Server and Push to Google Cloud
 on:
   workflow_call:
       inputs:
+        checkout_repo:
+          required: false
+          type: string
+        checkout_ref:
+          required: false
+          type: string
         env:
           required: false
           type: string
@@ -37,6 +43,8 @@ jobs:
     uses: ./.github/workflows/mcp-validate.yaml
     with:
       env: ${{ inputs.env }}
+      checkout_repo: ${{ inputs.checkout_repo }}
+      checkout_ref: ${{ inputs.checkout_ref }}
 
   build:
     name: Build mcp-server for ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
@@ -48,6 +56,8 @@ jobs:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
         with:
+          repository: ${{ inputs.checkout_repo }}
+          ref: ${{ inputs.checkout_ref }}
           fetch-depth: 0
 
       - name: 📦 Setup Workflow
