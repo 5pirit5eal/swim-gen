@@ -1,3 +1,9 @@
+## [1.6.1](https://github.com/5pirit5eal/swim-gen/compare/v1.6.0...v1.6.1) (2025-09-24)
+
+### Bug Fixes
+
+* fixed comment-based dev deployment using github actions ([0c92cd5](https://github.com/5pirit5eal/swim-gen/commit/0c92cd5c2cf013bf35571eaa2cecb1c17d57c6c1))
+
 ## [1.6.0](https://github.com/5pirit5eal/swim-gen/compare/v1.5.0...v1.6.0) (2025-09-20)
 
 ### Features
