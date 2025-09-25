@@ -180,12 +180,13 @@ describe('ApiClient', () => {
   describe('query', () => {
     const mockRequest = {
       content: 'Generate a 3-day beginner swim plan', // Renamed 'query' to 'content'
+      language: 'en',
     }
     const mockResponseData = {
       plan: {
         title: 'Beginner Swim Plan',
         description: 'A plan for beginners',
-        sections: [],
+        table: [],
       },
     }
 

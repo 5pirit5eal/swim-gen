@@ -349,7 +349,8 @@
             "description": "Request payload for querying swim training plans from the RAG system",
             "type": "object",
             "required": [
-                "content"
+                "content",
+                "language"
             ],
             "properties": {
                 "content": {
@@ -361,6 +362,11 @@
                     "description": "Filter allows filtering plans by metadata like difficulty or stroke type",
                     "type": "object",
                     "additionalProperties": {}
+                },
+                "language": {
+                    "description": "Language specifies the language for the response",
+                    "type": "string",
+                    "example": "en"
                 },
                 "method": {
                     "description": "Method can be either 'choose' (select existing plan) or 'generate' (create new plan)",

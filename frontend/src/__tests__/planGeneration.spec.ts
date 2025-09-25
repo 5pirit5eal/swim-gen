@@ -98,6 +98,7 @@ describe('Plan Generation End-to-End Workflow', () => {
       content: 'Generate a simple test plan.',
       method: 'generate',
       filter: {},
+      language: 'en-US', // Expect language to be included
     })
 
     expect(wrapper.find('.loading-state').exists()).toBe(false)

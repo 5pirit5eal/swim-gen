@@ -170,6 +170,15 @@ async function handleExport() {
                         </ul>
                       </li>
                       <li>
+                        <strong>{{ t('display.intensity_tooltip.lza') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.hf') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.lt') }}</strong>
+                      </li>
+                      <li>
                         <strong>{{ t('display.intensity_tooltip.sa') }}</strong>
                       </li>
                       <li>

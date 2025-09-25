@@ -55,7 +55,12 @@ describe('trainingPlan Store', () => {
     // Tell our mocked apiClient.query to return the mockResponse
     mockedApiQuery.mockResolvedValue(mockResponse)
 
-    const requestPayload: QueryRequest = { content: 'test query', method: 'generate', filter: {} }
+    const requestPayload: QueryRequest = {
+      content: 'test query',
+      method: 'generate',
+      filter: {},
+      language: 'en',
+    }
 
     // Call the action
     const result = await store.generatePlan(requestPayload)
@@ -87,7 +92,12 @@ describe('trainingPlan Store', () => {
     // Tell our mocked apiClient.query to return the mockErrorResponse
     mockedApiQuery.mockResolvedValue(mockErrorResponse)
 
-    const requestPayload: QueryRequest = { content: 'test query', method: 'generate', filter: {} }
+    const requestPayload: QueryRequest = {
+      content: 'test query',
+      method: 'generate',
+      filter: {},
+      language: 'en',
+    }
 
     // Call the action
     const result = await store.generatePlan(requestPayload)

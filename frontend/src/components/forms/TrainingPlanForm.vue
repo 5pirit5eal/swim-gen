@@ -13,7 +13,7 @@ const trainingStore = useTrainingPlanStore()
 const settingsStore = useSettingsStore()
 
 // i18n
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 // Form data
 const requestText = ref('')
@@ -40,6 +40,7 @@ async function handleSubmit() {
     content: requestText.value.trim(),
     method: settingsStore.preferredMethod,
     filter: settingsStore.filters,
+    language: navigator.language, // Use current locale
   }
 
   const success = await trainingStore.generatePlan(request)
@@ -56,7 +57,7 @@ function toggleAdvancedSettings() {
 async function handlePromptGeneration() {
   generatingPrompt.value = true
   const promptRequest: PromptGenerationRequest = {
-    language: locale.value, // Use current locale
+    language: navigator.language, // Use current locale
   }
   const response = await apiClient.generatePrompt(promptRequest)
   if (response.success) {

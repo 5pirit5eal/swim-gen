@@ -29,6 +29,7 @@ export interface QueryRequest {
   content: string
   filter?: Record<string, unknown>
   method?: 'choose' | 'generate'
+  language: string
 }
 
 // Backend API RAGResponse structure

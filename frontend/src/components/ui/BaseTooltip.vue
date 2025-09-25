@@ -57,6 +57,7 @@ const showTooltip = ref(false)
   line-height: 1.4;
   text-wrap: wrap;
   overflow: auto;
+  min-width: 300px;
 }
 
 @media (max-width: 740px) {
@@ -65,6 +66,7 @@ const showTooltip = ref(false)
     padding: 0.25rem;
     white-space: normal;
     width: 200px;
+    min-width: unset;
   }
 }
 

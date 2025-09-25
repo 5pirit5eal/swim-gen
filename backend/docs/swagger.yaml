@@ -9,7 +9,7 @@ definitions:
       table:
         description: A structured training plan table containing exercise rows
         items:
-          $ref: "#/definitions/models.Row"
+          $ref: '#/definitions/models.Row'
         type: array
       title:
         example: Advanced Freestyle Training
@@ -18,8 +18,8 @@ definitions:
         example: user123
         type: string
     required:
-      - table
-      - user_id
+    - table
+    - user_id
     type: object
   models.GeneratedPromptRequest:
     properties:
@@ -27,7 +27,7 @@ definitions:
         example: en
         type: string
     required:
-      - language
+    - language
     type: object
   models.GeneratedPromptResponse:
     properties:
@@ -44,15 +44,15 @@ definitions:
       table:
         description: A structured training plan table containing exercise rows
         items:
-          $ref: "#/definitions/models.Row"
+          $ref: '#/definitions/models.Row'
         type: array
       title:
         example: Advanced Freestyle Training
         type: string
     required:
-      - description
-      - table
-      - title
+    - description
+    - table
+    - title
     type: object
   models.PlanToPDFResponse:
     description: Response containing the URI to the generated PDF file
@@ -70,21 +70,24 @@ definitions:
         type: string
       filter:
         additionalProperties: {}
-        description:
-          Filter allows filtering plans by metadata like difficulty or
+        description: Filter allows filtering plans by metadata like difficulty or
           stroke type
         type: object
+      language:
+        description: Language specifies the language for the response
+        example: en
+        type: string
       method:
-        description:
-          Method can be either 'choose' (select existing plan) or 'generate'
+        description: Method can be either 'choose' (select existing plan) or 'generate'
           (create new plan)
         enum:
-          - choose
-          - generate
+        - choose
+        - generate
         example: generate
         type: string
     required:
-      - content
+    - content
+    - language
     type: object
   models.RAGResponse:
     description: Response containing a generated or selected swim training plan
@@ -95,15 +98,14 @@ definitions:
       table:
         description: A structured training plan table containing exercise rows
         items:
-          $ref: "#/definitions/models.Row"
+          $ref: '#/definitions/models.Row'
         type: array
       title:
         example: Advanced Freestyle Training
         type: string
     type: object
   models.Row:
-    description:
-      A single exercise entry with amount, distance, breaks, content, intensity
+    description: A single exercise entry with amount, distance, breaks, content, intensity
       and total volume
     properties:
       Amount:
@@ -143,17 +145,17 @@ paths:
   /add:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Upload and store a new swim training plan in the RAG system
       parameters:
-        - description: Training plan data
-          in: body
-          name: plan
-          required: true
-          schema:
-            $ref: "#/definitions/models.DonatePlanRequest"
+      - description: Training plan data
+        in: body
+        name: plan
+        required: true
+        schema:
+          $ref: '#/definitions/models.DonatePlanRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: Plan added successfully
@@ -169,26 +171,26 @@ paths:
             type: string
       summary: Add a new training plan
       tags:
-        - plans
+      - plans
   /export-pdf:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Generate and download a PDF version of a training plan
       parameters:
-        - description: Training plan data to export
-          in: body
-          name: plan
-          required: true
-          schema:
-            $ref: "#/definitions/models.PlanToPDFRequest"
+      - description: Training plan data to export
+        in: body
+        name: plan
+        required: true
+        schema:
+          $ref: '#/definitions/models.PlanToPDFRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: PDF export response with URI
           schema:
-            $ref: "#/definitions/models.PlanToPDFResponse"
+            $ref: '#/definitions/models.PlanToPDFResponse'
         "400":
           description: Bad request
           schema:
@@ -199,26 +201,26 @@ paths:
             type: string
       summary: Export training plan to PDF
       tags:
-        - export
+      - export
   /generate-prompt:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Generate a prompt for the LLM based on the provided language
       parameters:
-        - description: Request to generate a prompt
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: "#/definitions/models.GeneratedPromptRequest"
+      - description: Request to generate a prompt
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.GeneratedPromptRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: Generated prompt response
           schema:
-            $ref: "#/definitions/models.GeneratedPromptResponse"
+            $ref: '#/definitions/models.GeneratedPromptResponse'
         "400":
           description: Bad request
           schema:
@@ -229,12 +231,12 @@ paths:
             type: string
       summary: Generate a prompt for the LLM
       tags:
-        - prompt
+      - prompt
   /health:
     get:
       description: Returns the health status of the API
       produces:
-        - text/plain
+      - text/plain
       responses:
         "200":
           description: OK
@@ -242,26 +244,26 @@ paths:
             type: string
       summary: Health check
       tags:
-        - health
+      - health
   /query:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Query the RAG system for relevant training plans based on input
       parameters:
-        - description: Query parameters
-          in: body
-          name: query
-          required: true
-          schema:
-            $ref: "#/definitions/models.QueryRequest"
+      - description: Query parameters
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/models.QueryRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: Query results
           schema:
-            $ref: "#/definitions/models.RAGResponse"
+            $ref: '#/definitions/models.RAGResponse'
         "400":
           description: Bad request
           schema:
@@ -272,18 +274,18 @@ paths:
             type: string
       summary: Query training plans
       tags:
-        - query
+      - query
   /scrape:
     get:
       description: Scrape and import training plans from external websites
       parameters:
-        - description: URL to scrape training plans from
-          in: query
-          name: url
-          required: true
-          type: string
+      - description: URL to scrape training plans from
+        in: query
+        name: url
+        required: true
+        type: string
       produces:
-        - text/plain
+      - text/plain
       responses:
         "200":
           description: Scraping completed successfully
@@ -299,5 +301,5 @@ paths:
             type: string
       summary: Scrape training plans from web
       tags:
-        - scraping
+      - scraping
 swagger: "2.0"
