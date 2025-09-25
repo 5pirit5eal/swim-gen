@@ -1,3 +1,10 @@
+## [1.7.0](https://github.com/5pirit5eal/swim-gen/compare/v1.6.1...v1.7.0) (2025-09-25)
+
+### Features
+
+* added language usage and translation to backend ([0909d90](https://github.com/5pirit5eal/swim-gen/commit/0909d90aa80b00b8fdb95a01f041766953acb7d8))
+* added multi language support (default en) ([ea6422b](https://github.com/5pirit5eal/swim-gen/commit/ea6422b7e77b419c031f7edb8b43543786453eb7))
+
 ## [1.6.1](https://github.com/5pirit5eal/swim-gen/compare/v1.6.0...v1.6.1) (2025-09-24)
 
 ### Bug Fixes
