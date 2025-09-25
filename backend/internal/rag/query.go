@@ -23,7 +23,7 @@ const (
 )
 
 // Query searches for documents in the database based on the provided query and filter.
-func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any, method string) (*models.RAGResponse, error) {
+func (db *RAGDB) Query(ctx context.Context, query, lang string, filter map[string]any, method string) (*models.RAGResponse, error) {
 	logger := httplog.LogEntry(ctx)
 	// Set the embedder to query mode
 	db.Client.QueryMode()
@@ -48,13 +48,13 @@ func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any,
 	answer := &models.RAGResponse{}
 	switch method {
 	case "generate":
-		answer, err = db.Client.GeneratePlan(ctx, query, docs)
+		answer, err = db.Client.GeneratePlan(ctx, query, lang, docs)
 	case "choose":
 		if len(docs) == 0 {
 			return nil, fmt.Errorf("no documents in database matching query and filters")
 		}
 		var planID string
-		planID, err = db.Client.ChoosePlan(ctx, query, docs)
+		planID, err = db.Client.ChoosePlan(ctx, query, lang, docs)
 		if err != nil {
 			logger.Error("Error choosing plan", httplog.ErrAttr(err))
 			return nil, fmt.Errorf("error choosing plan: %w", err)
@@ -69,6 +69,15 @@ func (db *RAGDB) Query(ctx context.Context, query string, filter map[string]any,
 		answer.Title = genericPlan.Title
 		answer.Description = genericPlan.Description
 		answer.Table = genericPlan.Table
+
+		if lang != "de" {
+			translatedAnswer, err := db.Client.TranslatePlan(ctx, answer, lang)
+			if err != nil {
+				logger.Error("Error translating plan", httplog.ErrAttr(err))
+				return nil, fmt.Errorf("error translating plan: %w", err)
+			}
+			answer = translatedAnswer
+		}
 	default:
 		return nil, fmt.Errorf("unsupported method: %s", method)
 	}

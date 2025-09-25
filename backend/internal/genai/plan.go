@@ -14,7 +14,7 @@ import (
 )
 
 // GeneratePlan generates a plan using the LLM based on the provided query and documents.
-func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q string, docs []schema.Document) (*models.RAGResponse, error) {
+func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang string, docs []schema.Document) (*models.RAGResponse, error) {
 	logger := httplog.LogEntry(ctx)
 	ts, err := models.TableSchema()
 	if err != nil {
@@ -27,7 +27,7 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q string, docs []
 	}
 
 	// Create a RAG query for the LLM with the most relevant documents as context
-	query := fmt.Sprintf(ragTemplateStr, ts, q, strings.Join(dc, "\n \n"))
+	query := fmt.Sprintf(ragTemplateStr, lang, ts, q, strings.Join(dc, "\n \n"))
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
@@ -58,7 +58,7 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q string, docs []
 
 // ChoosePlan lets an LLM choose the best fitting plan from the given documents.
 // Returns the plan id of the chosen plan
-func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q string, docs []schema.Document) (string, error) {
+func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q, lang string, docs []schema.Document) (string, error) {
 	logger := httplog.LogEntry(ctx)
 	var dc string
 	for i, doc := range docs {
@@ -66,7 +66,7 @@ func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q string, docs []sc
 	}
 
 	// Create a RAG query for the LLM with the most relevant documents as context
-	query := fmt.Sprintf(choosePlanTemplateStr, q, dc)
+	query := fmt.Sprintf(choosePlanTemplateStr, lang, q, dc)
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
@@ -164,4 +164,30 @@ func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan models.P
 	}
 
 	return &metadata, nil
+}
+
+func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.RAGResponse, lang string) (*models.RAGResponse, error) {
+	logger := httplog.LogEntry(ctx)
+	ts, err := models.TableSchema()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get table schema: %w", err)
+	}
+	// Translate the plan to the requested language
+	// Create a RAG query for the LLM with the most relevant documents as context
+	query := fmt.Sprintf(translateTemplateStr, lang, plan.Title, plan.Description, plan.Table.String(), ts)
+	genCfg := *gc.gcfg
+	genCfg.ResponseMIMEType = "application/json"
+	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
+	if err != nil {
+		logger.Error("Error when generating answer with LLM", httplog.ErrAttr(err))
+		return nil, fmt.Errorf("error when generating answer with LLM: %w", err)
+	}
+
+	var p models.RAGResponse
+	err = json.Unmarshal([]byte(answer.Text()), &p)
+	if err != nil {
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)
+		return nil, fmt.Errorf("error parsing LLM response: %w", err)
+	}
+	return &p, nil
 }
