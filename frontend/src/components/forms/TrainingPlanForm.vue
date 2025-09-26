@@ -40,7 +40,8 @@ async function handleSubmit() {
     content: requestText.value.trim(),
     method: settingsStore.preferredMethod,
     filter: settingsStore.filters,
-    language: navigator.language, // Use current locale
+    language: navigator.language,
+    pool_length: settingsStore.poolLength,
   }
 
   const success = await trainingStore.generatePlan(request)
@@ -151,33 +152,48 @@ async function handlePromptGeneration() {
             <p class="setting-help">
               Generate creates a new plan, Choose selects from existing plans
             </p>
-          </div>
+          </div> -->
 
-           Pool Length
+          <!-- Pool Length -->
           <div class="setting-group">
-            <label class="setting-label">Pool Length</label>
+            <label class="setting-label">
+              {{ t('form.pool_length') }}
+              <BaseTooltip>
+                <template #tooltip>
+                  {{ t('form.pool_length_tooltip') }}
+                </template>
+              </BaseTooltip>
+            </label>
             <div class="radio-group">
               <label class="radio-option">
                 <input
                   type="radio"
                   :value="25"
-                  v-model.number="settingsStore.poolLength"
+                  v-model="settingsStore.poolLength"
                   :disabled="trainingStore.isLoading"
                 />
-                25 meters
+                {{ t('form.pool_length_twenty_five_meters') }}
               </label>
               <label class="radio-option">
                 <input
                   type="radio"
                   :value="50"
-                  v-model.number="settingsStore.poolLength"
+                  v-model="settingsStore.poolLength"
                   :disabled="trainingStore.isLoading"
                 />
-                50 meters
+                {{ t('form.pool_length_fifty_meters') }}
+              </label>
+              <label class="radio-option">
+                <input
+                  type="radio"
+                  :value="'Freiwasser'"
+                  v-model="settingsStore.poolLength"
+                  :disabled="trainingStore.isLoading"
+                />
+                {{ t('form.pool_length_open_water') }}
               </label>
             </div>
-            <p class="setting-help">Specify your pool length for accurate distance calculations</p>
-          </div> -->
+          </div>
 
           <!-- Swimming Strokes Filter -->
           <div class="setting-group">
@@ -558,13 +574,6 @@ async function handlePromptGeneration() {
 .radio-option:hover,
 .checkbox-option:hover {
   color: var(--color-heading);
-}
-
-.setting-help {
-  font-size: 0.8rem;
-  color: var(--color-text-light);
-  margin: 0;
-  line-height: 1.4;
 }
 
 .checkbox-group {

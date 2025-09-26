@@ -15,10 +15,11 @@ type DonatePlanRequest struct {
 // QueryRequest represents the request body for querying the RAG system
 // @Description Request payload for querying swim training plans from the RAG system
 type QueryRequest struct {
-	Content  string         `json:"content" example:"I need a training plan for improving my freestyle technique" binding:"required"` // Content describes what kind of training plan is needed
-	Filter   map[string]any `json:"filter,omitempty"`                                                                                 // Filter allows filtering plans by metadata like difficulty or stroke type
-	Method   string         `json:"method,omitempty" example:"generate" validate:"oneof=choose generate"`                             // Method can be either 'choose' (select existing plan) or 'generate' (create new plan)
-	Language string         `json:"language,omitempty" example:"en" binding:"required"`                                               // Language specifies the language for the response
+	Content    string         `json:"content" example:"I need a training plan for improving my freestyle technique" binding:"required"` // Content describes what kind of training plan is needed
+	Filter     map[string]any `json:"filter,omitempty"`                                                                                 // Filter allows filtering plans by metadata like difficulty or stroke type
+	Method     string         `json:"method,omitempty" example:"generate" validate:"oneof=choose generate"`                             // Method can be either 'choose' (select existing plan) or 'generate' (create new plan)
+	Language   string         `json:"language,omitempty" example:"en" binding:"required"`                                               // Language specifies the language for the response
+	PoolLength any            `json:"pool_length,omitempty" example:"25|50|Freiwasser"`                                                 // PoolLength specifies the pool length for the training plan
 }
 
 // RAGResponse represents the response after a query to the RAG system

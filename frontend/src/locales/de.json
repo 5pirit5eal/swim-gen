@@ -59,7 +59,12 @@
     "clear_all_filters": "Alle Filter löschen",
     "generate_training_plan": "Trainingsplan generieren",
     "generating_plan": "Generiere...",
-    "request_too_long": "Die Anfrage ist zu lang! Bitte beschränke dich auf 3000 Zeichen."
+    "request_too_long": "Die Anfrage ist zu lang! Bitte beschränke dich auf 3000 Zeichen.",
+    "pool_length": "Beckenlänge",
+    "pool_length_tooltip": "Die Beckenlänge wird verwendet, um den Trainingsplan zu verfeinern. 25m ist die Standardeinstellung.",
+    "pool_length_twenty_five_meters": "25 Meter",
+    "pool_length_fifty_meters": "50 Meter",
+    "pool_length_open_water": "Freiwasser"
   },
   "display": {
     "generating_plan_message": "Dein Trainingsplan wird generiert...",

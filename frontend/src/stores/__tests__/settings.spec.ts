@@ -57,8 +57,8 @@ describe('settings Store', () => {
     // First, set some filters to non-default values
     store.updateStrokeFilter('freistil', true)
     store.updateStrokeFilter('brust', true)
-    store.updateDifficultyFilter('Anfaenger')
-    store.updateTrainingTypeFilter('Techniktraining')
+    store.filters.schwierigkeitsgrad = 'Anfaenger'
+    store.filters.trainingstyp = 'Techniktraining'
 
     // Assert that they are set
     expect(store.filters.freistil).toBe(true)

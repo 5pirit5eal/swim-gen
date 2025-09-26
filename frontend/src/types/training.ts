@@ -30,6 +30,7 @@ export interface QueryRequest {
   filter?: Record<string, unknown>
   method?: 'choose' | 'generate'
   language: string
+  pool_length?: 25 | 50 | 'Freiwasser'
 }
 
 // Backend API RAGResponse structure
