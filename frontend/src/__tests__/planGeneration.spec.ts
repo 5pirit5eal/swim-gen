@@ -99,6 +99,7 @@ describe('Plan Generation End-to-End Workflow', () => {
       method: 'generate',
       filter: {},
       language: 'en-US', // Expect language to be included
+      pool_length: 25, // Expect default pool length to be included
     })
 
     expect(wrapper.find('.loading-state').exists()).toBe(false)
