@@ -1,3 +1,15 @@
+## [1.8.0](https://github.com/5pirit5eal/swim-gen/compare/v1.7.0...v1.8.0) (2025-09-26)
+
+### Features
+
+* added pool length as setting parameter ([f0bc8d8](https://github.com/5pirit5eal/swim-gen/commit/f0bc8d8cbca8213e544058cc77956ccd2d4ad36e))
+* added pool length as setting parameter ([#69](https://github.com/5pirit5eal/swim-gen/issues/69)) ([61df5c9](https://github.com/5pirit5eal/swim-gen/commit/61df5c9d94ca13e6cc3400295379939a6bfbfc3f))
+
+### Bug Fixes
+
+* fixed failing test ([8e6f08b](https://github.com/5pirit5eal/swim-gen/commit/8e6f08b2eb084cd5f5e80fb853eece4a0902edb4))
+* fixed the form value to germa ([8b47de2](https://github.com/5pirit5eal/swim-gen/commit/8b47de29b310c0fded3c67cf1038b3c0e7853fe3))
+
 ## [1.7.0](https://github.com/5pirit5eal/swim-gen/compare/v1.6.1...v1.7.0) (2025-09-25)
 
 ### Features
