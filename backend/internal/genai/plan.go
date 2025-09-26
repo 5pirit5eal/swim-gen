@@ -14,7 +14,7 @@ import (
 )
 
 // GeneratePlan generates a plan using the LLM based on the provided query and documents.
-func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang string, docs []schema.Document) (*models.RAGResponse, error) {
+func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang string, poolLength any, docs []schema.Document) (*models.RAGResponse, error) {
 	logger := httplog.LogEntry(ctx)
 	ts, err := models.TableSchema()
 	if err != nil {
@@ -27,7 +27,7 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang string, d
 	}
 
 	// Create a RAG query for the LLM with the most relevant documents as context
-	query := fmt.Sprintf(ragTemplateStr, lang, ts, q, strings.Join(dc, "\n \n"))
+	query := fmt.Sprintf(ragTemplateStr, poolLength, lang, ts, q, strings.Join(dc, "\n \n"))
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
@@ -58,7 +58,7 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang string, d
 
 // ChoosePlan lets an LLM choose the best fitting plan from the given documents.
 // Returns the plan id of the chosen plan
-func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q, lang string, docs []schema.Document) (string, error) {
+func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q, lang string, poolLength any, docs []schema.Document) (string, error) {
 	logger := httplog.LogEntry(ctx)
 	var dc string
 	for i, doc := range docs {
@@ -66,7 +66,7 @@ func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q, lang string, doc
 	}
 
 	// Create a RAG query for the LLM with the most relevant documents as context
-	query := fmt.Sprintf(choosePlanTemplateStr, lang, q, dc)
+	query := fmt.Sprintf(choosePlanTemplateStr, poolLength, lang, q, dc)
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)

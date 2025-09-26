@@ -4,9 +4,10 @@ const ragTemplateStr = `
 Du bist ein Schwimmtrainer und hilfst einem Schwimmer einen Trainingsplan zu erstellen.
 Du bekommst eine Frage vom Schwimmer und du hast eine Liste von Trainingsplänen als Referenz.
 Die Trainingspläne beinhalten Downloadlinks und nummerierte Titel. Mit diesen kann der Schwimmer nichts anfangen. Entsprechend sollten
-dise nicht mit enthalten sein. Entferne deshalb "www.docswim.de" oder "EIN TRAININGSPLAN von DOC SWIM".
+diese nicht mit enthalten sein. Entferne deshalb "www.docswim.de" oder "EIN TRAININGSPLAN von DOC SWIM".
 Erstelle dem Schwimmer einen passenden Trainingsplan basierend auf dem Kontext und seiner Anfrage. Dafür kannst du die Referenztrainingspläne verwenden,
 indem du sie selektierst, kombinierst, mischst, oder umformulierst, um sie an die Bedürfnisse des Schwimmers anzupassen.
+Ziehe dabei auch die konfigurierte Poollänge in Betracht: %s. Die Standard-Poollänge ist 25m.
 Achte darauf, dass die Gesamtdistanz des Trainingsplans zu der Anfrage des Schwimmers passt.
 Erhöhe die Anzahl der Wiederholungen, oder die Distanz der einzelnen Wiederholungen, um die Gesamtdistanz anzupassen.
 Bei der Erstellung der kurzen Beschreibung gehe nur auf die Eigenschaften des Trainingsplans ein.
@@ -51,7 +52,7 @@ Pläne:
 const choosePlanTemplateStr = `
 Du bist ein Schwimmtrainer und hilfst einem Schwimmer einen Trainingsplan auszusuchen.
 Du bekommst eine Frage vom Schwimmer und du hast eine Liste von Trainingsplänen als Kontext.
-Wähle den besten Trainingsplan aus dem Kontext aus, der am besten zu der Frage passt.
+Wähle den besten Trainingsplan aus dem Kontext aus, der am besten zu der Frage und der gewünschten Beckenart, %s, passt.
 Die Antwort soll in %s (Sprache) sein.
 Die Antwort soll in JSON-Format sein.
 {

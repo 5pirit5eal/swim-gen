@@ -165,7 +165,7 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	answer, err := rs.db.Query(req.Context(), qr.Content, qr.Language, qr.Filter, qr.Method)
+	answer, err := rs.db.Query(req.Context(), qr.Content, qr.Language, qr.Filter, qr.Method, qr.PoolLength)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "unsupported method:") {
 			http.Error(w, "Method may only be 'choose' or 'generate', invalid choice.", http.StatusBadRequest)

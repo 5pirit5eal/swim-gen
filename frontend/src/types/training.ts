@@ -30,6 +30,7 @@ export interface QueryRequest {
   filter?: Record<string, unknown>
   method?: 'choose' | 'generate'
   language: string
+  pool_length?: 25 | 50 | 'Freiwasser'
 }
 
 // Backend API RAGResponse structure
@@ -67,20 +68,20 @@ export interface Filter {
   delfin?: boolean // Butterfly swimming technique
   lagen?: boolean // Individual medley swimming
   schwierigkeitsgrad?:
-    | 'Nichtschwimmer'
-    | 'Anfaenger'
-    | 'Fortgeschritten'
-    | 'Leistungsschwimmer'
-    | 'Top-Athlet'
+  | 'Nichtschwimmer'
+  | 'Anfaenger'
+  | 'Fortgeschritten'
+  | 'Leistungsschwimmer'
+  | 'Top-Athlet'
   trainingstyp?:
-    | 'Techniktraining'
-    | 'Leistungstest'
-    | 'Grundlagenausdauer'
-    | 'Recovery'
-    | 'Kurzstrecken'
-    | 'Langstrecken'
-    | 'Atemmangel'
-    | 'Wettkampfvorbereitung'
+  | 'Techniktraining'
+  | 'Leistungstest'
+  | 'Grundlagenausdauer'
+  | 'Recovery'
+  | 'Kurzstrecken'
+  | 'Langstrecken'
+  | 'Atemmangel'
+  | 'Wettkampfvorbereitung'
 }
 
 // Helper type for difficulty options
