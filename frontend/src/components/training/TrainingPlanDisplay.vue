@@ -68,11 +68,32 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
 async function handleExport() {
   if (!trainingStore.currentPlan) return
 
+  const isIOS = /iP(ad|hone|od)/i.test(navigator.userAgent)
   const pdfUri = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
-  if (pdfUri) {
+
+  if (isIOS && pdfUri) {
+    const preOpened = window.open('', '_blank')
+    if (!preOpened) return
+    const pdfBlob = await toPdfBlob(pdfUri)
+    const blobUrl = URL.createObjectURL(pdfBlob)
+    preOpened.location.href = blobUrl
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000)
+  } else if (pdfUri) {
     // Trigger download
     window.open(pdfUri, '_blank')
   }
+}
+async function toPdfBlob(uri: string): Promise<Blob> {
+  if (uri.startsWith('data:application/pdf')) {
+    const base64 = uri.split(',')[1]
+    const byteChars = atob(base64)
+    const bytes = new Uint8Array(byteChars.length)
+    for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i)
+    return new Blob([bytes], { type: 'application/pdf' })
+  }
+  // If already a normal URL -> fetch
+  const res = await fetch(uri)
+  return await res.blob()
 }
 </script>
 
