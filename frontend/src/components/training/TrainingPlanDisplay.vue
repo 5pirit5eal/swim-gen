@@ -68,17 +68,21 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
 async function handleExport() {
   if (!trainingStore.currentPlan) return
 
-  const isIOS = /iP(ad|hone|od)/i.test(navigator.userAgent)
-  const pdfUri = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
-
-  if (isIOS && pdfUri) {
-    const preOpened = window.open('', '_blank')
-    if (!preOpened) return
+  if (/iP(ad|hone|od)/i.test(navigator.userAgent)) {
+    const newTab = window.open('', '_blank')
+    if (!newTab) return
+    const pdfUri = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
+    if (!pdfUri) {
+      newTab.close()
+      return
+    }
     const pdfBlob = await toPdfBlob(pdfUri)
     const blobUrl = URL.createObjectURL(pdfBlob)
-    preOpened.location.href = blobUrl
+    newTab.location.href = blobUrl
     setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000)
-  } else if (pdfUri) {
+  } else {
+    const pdfUri = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
+    if (!pdfUri) return
     // Trigger download
     window.open(pdfUri, '_blank')
   }
@@ -92,8 +96,17 @@ async function toPdfBlob(uri: string): Promise<Blob> {
     return new Blob([bytes], { type: 'application/pdf' })
   }
   // If already a normal URL -> fetch
-  const res = await fetch(uri)
-  return await res.blob()
+  try {
+    const res = await fetch(uri)
+    if (!res.ok) {
+      throw new Error(`Failed to fetch PDF: ${res.status} ${res.statusText}`)
+    }
+    return await res.blob()
+  } catch (error) {
+    // Optionally, you could show a user-friendly error message here
+    console.error('Error fetching PDF:', error)
+    throw error
+  }
 }
 </script>
 
