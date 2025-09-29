@@ -1,3 +1,13 @@
+## [1.8.1](https://github.com/5pirit5eal/swim-gen/compare/v1.8.0...v1.8.1) (2025-09-29)
+
+### Bug Fixes
+
+* added reset of exported pdf after entering edit mode ([082c7c0](https://github.com/5pirit5eal/swim-gen/commit/082c7c088c64097eb68154c46a5a7c41b6aa25cf))
+* added workaround for ios ([882a85c](https://github.com/5pirit5eal/swim-gen/commit/882a85cb5e280f370b4c171b6cacc032fa693458))
+* added workaround for ios ([#72](https://github.com/5pirit5eal/swim-gen/issues/72)) ([1541d8b](https://github.com/5pirit5eal/swim-gen/commit/1541d8bc84c18e60bd3c81764942cb02b2e32a80))
+* async call after new window ([c22053e](https://github.com/5pirit5eal/swim-gen/commit/c22053efbbf495b4bcaf562da72d598d6f4da1d2))
+* separated export and window opening for ios ([77ab451](https://github.com/5pirit5eal/swim-gen/commit/77ab451d3beba127401e2ce9a6c608c5cc37206f))
+
 ## [1.8.0](https://github.com/5pirit5eal/swim-gen/compare/v1.7.0...v1.8.0) (2025-09-26)
 
 ### Features
