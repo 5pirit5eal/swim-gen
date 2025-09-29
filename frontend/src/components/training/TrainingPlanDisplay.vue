@@ -16,7 +16,18 @@ const editingCell = ref<{ rowIndex: number; field: keyof Row } | null>(null)
 const exportPhase = ref<'idle' | 'exporting' | 'done'>('idle')
 const pdfUrl = ref<string | null>(null)
 
-// Computed for separating exercise rows from total row
+// Utility to reset export state (re-used)
+function resetExportState() {
+  pdfUrl.value = null
+  exportPhase.value = 'idle'
+}
+
+// Toggle editing and always clear any previously generated PDF URL
+function toggleEditing() {
+  isEditing.value = !isEditing.value
+  resetExportState()
+}
+
 const exerciseRows = computed(() => {
   if (!trainingStore.currentPlan?.table) return []
   // All rows except the last one (which should be the total)
@@ -31,16 +42,13 @@ const totalRow = computed(() => {
 })
 
 // Total exercises count (excluding the total row)
-const totalExercises = computed(() => {
-  return exerciseRows.value.length
-})
+const totalExercises = computed(() => exerciseRows.value.length)
 
-// Watch the export url
+// Reset export if plan title changes (new plan)
 watch(
   () => trainingStore.currentPlan?.title,
   () => {
-    pdfUrl.value = null
-    exportPhase.value = 'idle'
+    resetExportState()
   },
 )
 
@@ -61,15 +69,11 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
     const numValue = parseFloat(newValue as string)
     if (!isNaN(numValue) && /^\d*\.?\d*$/.test(newValue as string)) {
       newValue = Math.max(0, numValue)
-      newValue = Math.round(newValue as number) // Round to nearest integer for Amount and Distance
+      newValue = Math.round(newValue as number)
     } else {
       // Revert to the original value if input is invalid
       const originalRow = trainingStore.currentPlan?.table[rowIndex]
-      if (originalRow) {
-        newValue = originalRow[field]
-      } else {
-        newValue = 0
-      }
+      newValue = originalRow ? originalRow[field] : 0
     }
   }
   trainingStore.updatePlanRow(rowIndex, field, newValue)
@@ -79,12 +83,8 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
 async function handleExport() {
   // Phase 2: user clicks "Open PDF"
   if (exportPhase.value === 'done' && pdfUrl.value) {
-    // Try new tab first
     const w = window.open(pdfUrl.value, '_blank')
-    if (!w) {
-      // Fallback: same-tab navigation (always works on iOS)
-      window.location.href = pdfUrl.value
-    }
+    if (!w) window.location.href = pdfUrl.value
     return
   }
 
@@ -92,6 +92,7 @@ async function handleExport() {
   if (exportPhase.value === 'exporting') return
   if (!trainingStore.currentPlan) return
 
+  // Phase 1: user clicks "Export PDF"
   exportPhase.value = 'exporting'
   try {
     pdfUrl.value = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
@@ -100,10 +101,6 @@ async function handleExport() {
       return
     }
     exportPhase.value = 'done'
-    // Optional: auto-open on non-iOS platforms
-    // (Keep disabled if you want identical UX everywhere)
-    // const auto = window.open(pdfBlobUrl.value, '_blank')
-    // if (!auto) window.location.href = pdfBlobUrl.value
   } catch (e) {
     console.error('PDF export failed', e)
     exportPhase.value = 'idle'
@@ -134,26 +131,20 @@ async function handleExport() {
               <th>
                 {{ t('display.amount') }}
                 <BaseTooltip>
-                  <template #tooltip>
-                    {{ t('display.amount_tooltip') }}
-                  </template>
+                  <template #tooltip>{{ t('display.amount_tooltip') }}</template>
                 </BaseTooltip>
               </th>
               <th></th>
               <th>
                 {{ t('display.distance') }}
                 <BaseTooltip>
-                  <template #tooltip>
-                    {{ t('display.distance_tooltip') }}
-                  </template>
+                  <template #tooltip>{{ t('display.distance_tooltip') }}</template>
                 </BaseTooltip>
               </th>
               <th>
                 {{ t('display.break') }}
                 <BaseTooltip>
-                  <template #tooltip>
-                    {{ t('display.break_tooltip') }}
-                  </template>
+                  <template #tooltip>{{ t('display.break_tooltip') }}</template>
                 </BaseTooltip>
               </th>
               <th>
@@ -238,9 +229,7 @@ async function handleExport() {
               <th>
                 {{ t('display.total') }}
                 <BaseTooltip>
-                  <template #tooltip>
-                    {{ t('display.total_tooltip') }}
-                  </template>
+                  <template #tooltip>{{ t('display.total_tooltip') }}</template>
                 </BaseTooltip>
               </th>
             </tr>
@@ -249,36 +238,66 @@ async function handleExport() {
             <tr v-for="(row, index) in exerciseRows" :key="index" class="exercise-row">
               <!-- Amount Cell -->
               <td @click="startEditing(index, 'Amount')">
-                <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Amount"
-                  @blur="stopEditing($event, index, 'Amount')" @keyup.enter="stopEditing($event, index, 'Amount')"
-                  class="editable-small" />
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  v-if="isEditing"
+                  :value="row.Amount"
+                  @blur="stopEditing($event, index, 'Amount')"
+                  @keyup.enter="stopEditing($event, index, 'Amount')"
+                  class="editable-small"
+                />
                 <span v-else>{{ row.Amount }}</span>
               </td>
               <td>{{ row.Multiplier }}</td>
               <!-- Distance Cell -->
               <td @click="startEditing(index, 'Distance')">
-                <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Distance"
-                  @blur="stopEditing($event, index, 'Distance')" @keyup.enter="stopEditing($event, index, 'Distance')"
-                  class="editable-small" />
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  v-if="isEditing"
+                  :value="row.Distance"
+                  @blur="stopEditing($event, index, 'Distance')"
+                  @keyup.enter="stopEditing($event, index, 'Distance')"
+                  class="editable-small"
+                />
                 <span v-else>{{ row.Distance }}</span>
               </td>
               <!-- Intensity Cell -->
               <td @click="startEditing(index, 'Break')">
-                <input type="text" v-if="isEditing" :value="row.Break" @blur="stopEditing($event, index, 'Break')"
-                  @keyup.enter="stopEditing($event, index, 'Break')" class="editable-small" />
+                <input
+                  type="text"
+                  v-if="isEditing"
+                  :value="row.Break"
+                  @blur="stopEditing($event, index, 'Break')"
+                  @keyup.enter="stopEditing($event, index, 'Break')"
+                  class="editable-small"
+                />
                 <span v-else>{{ row.Break }}</span>
               </td>
               <!-- Content Cell -->
               <td class="content-cell" @click="startEditing(index, 'Content')">
-                <textarea v-if="isEditing" :value="row.Content" @blur="stopEditing($event, index, 'Content')"
-                  @keyup.enter="stopEditing($event, index, 'Content')" class="editable-area"></textarea>
+                <textarea
+                  v-if="isEditing"
+                  :value="row.Content"
+                  @blur="stopEditing($event, index, 'Content')"
+                  @keyup.enter="stopEditing($event, index, 'Content')"
+                  class="editable-area"
+                ></textarea>
                 <span v-else>{{ row.Content }}</span>
               </td>
               <!-- Intensity Cell -->
               <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                <input type="text" v-if="isEditing" :value="row.Intensity"
-                  @blur="stopEditing($event, index, 'Intensity')" @keyup.enter="stopEditing($event, index, 'Intensity')"
-                  class="editable-small" />
+                <input
+                  type="text"
+                  v-if="isEditing"
+                  :value="row.Intensity"
+                  @blur="stopEditing($event, index, 'Intensity')"
+                  @keyup.enter="stopEditing($event, index, 'Intensity')"
+                  class="editable-small"
+                />
                 <span v-else>{{ row.Intensity }}</span>
               </td>
               <td class="total-cell">{{ row.Sum }}</td>
@@ -313,9 +332,13 @@ async function handleExport() {
       <p>{{ t('display.no_plan_placeholder') }}</p>
     </div>
   </div>
-  <div v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading" class="export-section">
+
+  <div
+    v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading"
+    class="export-section"
+  >
     <!-- Edit Action -->
-    <button @click="isEditing = !isEditing" class="export-btn">
+    <button @click="toggleEditing" class="export-btn">
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
     </button>
     <!-- Export Action -->
@@ -434,8 +457,8 @@ th:nth-child(5) {
   }
 }
 
-.exercise-table td>span,
-.exercise-table td>textarea {
+.exercise-table td > span,
+.exercise-table td > textarea {
   display: block;
 }
 
@@ -625,7 +648,7 @@ th:nth-child(5) {
     padding: 0.5rem 1rem;
   }
 
-  button+button {
+  button + button {
     margin-left: 2rem;
   }
 }
