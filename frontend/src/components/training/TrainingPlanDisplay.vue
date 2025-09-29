@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useExportStore } from '@/stores/export'
 import type { PlanToPDFRequest, Row } from '@/types'
@@ -13,6 +13,8 @@ const { t } = useI18n()
 // Ref to track editing state
 const isEditing = ref(false)
 const editingCell = ref<{ rowIndex: number; field: keyof Row } | null>(null)
+const exportPhase = ref<'idle' | 'exporting' | 'done'>('idle')
+const pdfUrl = ref<string | null>(null)
 
 // Computed for separating exercise rows from total row
 const exerciseRows = computed(() => {
@@ -32,6 +34,15 @@ const totalRow = computed(() => {
 const totalExercises = computed(() => {
   return exerciseRows.value.length
 })
+
+// Watch the export url
+watch(
+  () => trainingStore.currentPlan?.title,
+  () => {
+    pdfUrl.value = null
+    exportPhase.value = 'idle'
+  },
+)
 
 // Start editing a specific cell
 function startEditing(rowIndex: number, field: keyof Row) {
@@ -66,46 +77,36 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
 }
 
 async function handleExport() {
+  // Phase 2: user clicks "Open PDF"
+  if (exportPhase.value === 'done' && pdfUrl.value) {
+    // Try new tab first
+    const w = window.open(pdfUrl.value, '_blank')
+    if (!w) {
+      // Fallback: same-tab navigation (always works on iOS)
+      window.location.href = pdfUrl.value
+    }
+    return
+  }
+
+  // Prevent double starts
+  if (exportPhase.value === 'exporting') return
   if (!trainingStore.currentPlan) return
 
-  if (/iP(ad|hone|od)/i.test(navigator.userAgent)) {
-    const newTab = window.open('', '_blank')
-    if (!newTab) return
-    const pdfUri = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
-    if (!pdfUri) {
-      newTab.close()
+  exportPhase.value = 'exporting'
+  try {
+    pdfUrl.value = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
+    if (!pdfUrl.value) {
+      exportPhase.value = 'idle'
       return
     }
-    const pdfBlob = await toPdfBlob(pdfUri)
-    const blobUrl = URL.createObjectURL(pdfBlob)
-    newTab.location.href = blobUrl
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000)
-  } else {
-    const pdfUri = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
-    if (!pdfUri) return
-    // Trigger download
-    window.open(pdfUri, '_blank')
-  }
-}
-async function toPdfBlob(uri: string): Promise<Blob> {
-  if (uri.startsWith('data:application/pdf')) {
-    const base64 = uri.split(',')[1]
-    const byteChars = atob(base64)
-    const bytes = new Uint8Array(byteChars.length)
-    for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i)
-    return new Blob([bytes], { type: 'application/pdf' })
-  }
-  // If already a normal URL -> fetch
-  try {
-    const res = await fetch(uri)
-    if (!res.ok) {
-      throw new Error(`Failed to fetch PDF: ${res.status} ${res.statusText}`)
-    }
-    return await res.blob()
-  } catch (error) {
-    // Optionally, you could show a user-friendly error message here
-    console.error('Error fetching PDF:', error)
-    throw error
+    exportPhase.value = 'done'
+    // Optional: auto-open on non-iOS platforms
+    // (Keep disabled if you want identical UX everywhere)
+    // const auto = window.open(pdfBlobUrl.value, '_blank')
+    // if (!auto) window.location.href = pdfBlobUrl.value
+  } catch (e) {
+    console.error('PDF export failed', e)
+    exportPhase.value = 'idle'
   }
 }
 </script>
@@ -248,66 +249,36 @@ async function toPdfBlob(uri: string): Promise<Blob> {
             <tr v-for="(row, index) in exerciseRows" :key="index" class="exercise-row">
               <!-- Amount Cell -->
               <td @click="startEditing(index, 'Amount')">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  pattern="[0-9]*"
-                  v-if="isEditing"
-                  :value="row.Amount"
-                  @blur="stopEditing($event, index, 'Amount')"
-                  @keyup.enter="stopEditing($event, index, 'Amount')"
-                  class="editable-small"
-                />
+                <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Amount"
+                  @blur="stopEditing($event, index, 'Amount')" @keyup.enter="stopEditing($event, index, 'Amount')"
+                  class="editable-small" />
                 <span v-else>{{ row.Amount }}</span>
               </td>
               <td>{{ row.Multiplier }}</td>
               <!-- Distance Cell -->
               <td @click="startEditing(index, 'Distance')">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  pattern="[0-9]*"
-                  v-if="isEditing"
-                  :value="row.Distance"
-                  @blur="stopEditing($event, index, 'Distance')"
-                  @keyup.enter="stopEditing($event, index, 'Distance')"
-                  class="editable-small"
-                />
+                <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Distance"
+                  @blur="stopEditing($event, index, 'Distance')" @keyup.enter="stopEditing($event, index, 'Distance')"
+                  class="editable-small" />
                 <span v-else>{{ row.Distance }}</span>
               </td>
               <!-- Intensity Cell -->
               <td @click="startEditing(index, 'Break')">
-                <input
-                  type="text"
-                  v-if="isEditing"
-                  :value="row.Break"
-                  @blur="stopEditing($event, index, 'Break')"
-                  @keyup.enter="stopEditing($event, index, 'Break')"
-                  class="editable-small"
-                />
+                <input type="text" v-if="isEditing" :value="row.Break" @blur="stopEditing($event, index, 'Break')"
+                  @keyup.enter="stopEditing($event, index, 'Break')" class="editable-small" />
                 <span v-else>{{ row.Break }}</span>
               </td>
               <!-- Content Cell -->
               <td class="content-cell" @click="startEditing(index, 'Content')">
-                <textarea
-                  v-if="isEditing"
-                  :value="row.Content"
-                  @blur="stopEditing($event, index, 'Content')"
-                  @keyup.enter="stopEditing($event, index, 'Content')"
-                  class="editable-area"
-                ></textarea>
+                <textarea v-if="isEditing" :value="row.Content" @blur="stopEditing($event, index, 'Content')"
+                  @keyup.enter="stopEditing($event, index, 'Content')" class="editable-area"></textarea>
                 <span v-else>{{ row.Content }}</span>
               </td>
               <!-- Intensity Cell -->
               <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                <input
-                  type="text"
-                  v-if="isEditing"
-                  :value="row.Intensity"
-                  @blur="stopEditing($event, index, 'Intensity')"
-                  @keyup.enter="stopEditing($event, index, 'Intensity')"
-                  class="editable-small"
-                />
+                <input type="text" v-if="isEditing" :value="row.Intensity"
+                  @blur="stopEditing($event, index, 'Intensity')" @keyup.enter="stopEditing($event, index, 'Intensity')"
+                  class="editable-small" />
                 <span v-else>{{ row.Intensity }}</span>
               </td>
               <td class="total-cell">{{ row.Sum }}</td>
@@ -342,17 +313,22 @@ async function toPdfBlob(uri: string): Promise<Blob> {
       <p>{{ t('display.no_plan_placeholder') }}</p>
     </div>
   </div>
-  <div
-    v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading"
-    class="export-section"
-  >
+  <div v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading" class="export-section">
     <!-- Edit Action -->
     <button @click="isEditing = !isEditing" class="export-btn">
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
     </button>
     <!-- Export Action -->
-    <button @click="handleExport" class="export-btn" :disabled="exportStore.isExporting">
-      {{ exportStore.isExporting ? t('display.exporting') : t('display.export_pdf') }}
+    <button @click="handleExport" class="export-btn" :disabled="exportPhase === 'exporting'">
+      <template v-if="exportPhase === 'exporting'">
+        {{ t('display.exporting') }}
+      </template>
+      <template v-else-if="exportPhase === 'done'">
+        {{ t('display.open_pdf') }}
+      </template>
+      <template v-else>
+        {{ t('display.export_pdf') }}
+      </template>
     </button>
   </div>
 </template>
@@ -458,8 +434,8 @@ th:nth-child(5) {
   }
 }
 
-.exercise-table td > span,
-.exercise-table td > textarea {
+.exercise-table td>span,
+.exercise-table td>textarea {
   display: block;
 }
 
@@ -649,7 +625,7 @@ th:nth-child(5) {
     padding: 0.5rem 1rem;
   }
 
-  button + button {
+  button+button {
     margin-left: 2rem;
   }
 }

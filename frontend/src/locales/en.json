@@ -108,7 +108,8 @@
     "done_editing": "Done Editing",
     "refine_plan": "Refine Plan",
     "export_pdf": "Export PDF",
-    "exporting": "Exporting..."
+    "exporting": "Exporting...",
+    "open_pdf": "Open PDF"
   },
   "impressum": {
     "title": "Impressum",
