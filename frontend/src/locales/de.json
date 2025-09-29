@@ -111,7 +111,8 @@
     "done_editing": "Bearbeitung beenden",
     "refine_plan": "Plan verfeinern",
     "export_pdf": "PDF exportieren",
-    "exporting": "Exportiere..."
+    "exporting": "Exportiere...",
+    "open_pdf": "PDF öffnen"
   },
   "impressum": {
     "title": "Impressum",

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useExportStore } from '@/stores/export'
 import type { PlanToPDFRequest, Row } from '@/types'
@@ -13,8 +13,21 @@ const { t } = useI18n()
 // Ref to track editing state
 const isEditing = ref(false)
 const editingCell = ref<{ rowIndex: number; field: keyof Row } | null>(null)
+const exportPhase = ref<'idle' | 'exporting' | 'done'>('idle')
+const pdfUrl = ref<string | null>(null)
 
-// Computed for separating exercise rows from total row
+// Utility to reset export state (re-used)
+function resetExportState() {
+  pdfUrl.value = null
+  exportPhase.value = 'idle'
+}
+
+// Toggle editing and always clear any previously generated PDF URL
+function toggleEditing() {
+  isEditing.value = !isEditing.value
+  resetExportState()
+}
+
 const exerciseRows = computed(() => {
   if (!trainingStore.currentPlan?.table) return []
   // All rows except the last one (which should be the total)
@@ -29,9 +42,15 @@ const totalRow = computed(() => {
 })
 
 // Total exercises count (excluding the total row)
-const totalExercises = computed(() => {
-  return exerciseRows.value.length
-})
+const totalExercises = computed(() => exerciseRows.value.length)
+
+// Reset export if plan title changes (new plan)
+watch(
+  () => trainingStore.currentPlan?.title,
+  () => {
+    resetExportState()
+  },
+)
 
 // Start editing a specific cell
 function startEditing(rowIndex: number, field: keyof Row) {
@@ -50,15 +69,11 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
     const numValue = parseFloat(newValue as string)
     if (!isNaN(numValue) && /^\d*\.?\d*$/.test(newValue as string)) {
       newValue = Math.max(0, numValue)
-      newValue = Math.round(newValue as number) // Round to nearest integer for Amount and Distance
+      newValue = Math.round(newValue as number)
     } else {
       // Revert to the original value if input is invalid
       const originalRow = trainingStore.currentPlan?.table[rowIndex]
-      if (originalRow) {
-        newValue = originalRow[field]
-      } else {
-        newValue = 0
-      }
+      newValue = originalRow ? originalRow[field] : 0
     }
   }
   trainingStore.updatePlanRow(rowIndex, field, newValue)
@@ -66,12 +81,29 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
 }
 
 async function handleExport() {
+  // Phase 2: user clicks "Open PDF"
+  if (exportPhase.value === 'done' && pdfUrl.value) {
+    const w = window.open(pdfUrl.value, '_blank')
+    if (!w) window.location.href = pdfUrl.value
+    return
+  }
+
+  // Prevent double starts
+  if (exportPhase.value === 'exporting') return
   if (!trainingStore.currentPlan) return
 
-  const pdfUri = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
-  if (pdfUri) {
-    // Trigger download
-    window.open(pdfUri, '_blank')
+  // Phase 1: user clicks "Export PDF"
+  exportPhase.value = 'exporting'
+  try {
+    pdfUrl.value = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
+    if (!pdfUrl.value) {
+      exportPhase.value = 'idle'
+      return
+    }
+    exportPhase.value = 'done'
+  } catch (e) {
+    console.error('PDF export failed', e)
+    exportPhase.value = 'idle'
   }
 }
 </script>
@@ -99,26 +131,20 @@ async function handleExport() {
               <th>
                 {{ t('display.amount') }}
                 <BaseTooltip>
-                  <template #tooltip>
-                    {{ t('display.amount_tooltip') }}
-                  </template>
+                  <template #tooltip>{{ t('display.amount_tooltip') }}</template>
                 </BaseTooltip>
               </th>
               <th></th>
               <th>
                 {{ t('display.distance') }}
                 <BaseTooltip>
-                  <template #tooltip>
-                    {{ t('display.distance_tooltip') }}
-                  </template>
+                  <template #tooltip>{{ t('display.distance_tooltip') }}</template>
                 </BaseTooltip>
               </th>
               <th>
                 {{ t('display.break') }}
                 <BaseTooltip>
-                  <template #tooltip>
-                    {{ t('display.break_tooltip') }}
-                  </template>
+                  <template #tooltip>{{ t('display.break_tooltip') }}</template>
                 </BaseTooltip>
               </th>
               <th>
@@ -203,9 +229,7 @@ async function handleExport() {
               <th>
                 {{ t('display.total') }}
                 <BaseTooltip>
-                  <template #tooltip>
-                    {{ t('display.total_tooltip') }}
-                  </template>
+                  <template #tooltip>{{ t('display.total_tooltip') }}</template>
                 </BaseTooltip>
               </th>
             </tr>
@@ -308,17 +332,26 @@ async function handleExport() {
       <p>{{ t('display.no_plan_placeholder') }}</p>
     </div>
   </div>
+
   <div
     v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading"
     class="export-section"
   >
     <!-- Edit Action -->
-    <button @click="isEditing = !isEditing" class="export-btn">
+    <button @click="toggleEditing" class="export-btn">
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
     </button>
     <!-- Export Action -->
-    <button @click="handleExport" class="export-btn" :disabled="exportStore.isExporting">
-      {{ exportStore.isExporting ? t('display.exporting') : t('display.export_pdf') }}
+    <button @click="handleExport" class="export-btn" :disabled="exportPhase === 'exporting'">
+      <template v-if="exportPhase === 'exporting'">
+        {{ t('display.exporting') }}
+      </template>
+      <template v-else-if="exportPhase === 'done'">
+        {{ t('display.open_pdf') }}
+      </template>
+      <template v-else>
+        {{ t('display.export_pdf') }}
+      </template>
     </button>
   </div>
 </template>
