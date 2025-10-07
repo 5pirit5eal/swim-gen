@@ -1,4 +1,10 @@
 terraform {
+  required_providers {
+    supabase = {
+      source  = "supabase/supabase"
+      version = "~> 1.0"
+    }
+  }
   backend "gcs" {
     bucket = "swim-gen-state-dev"
     prefix = "tofu/swim-gen-infra"
@@ -20,6 +26,6 @@ provider "github" {
   owner = var.github_owner
 }
 
-data "google_project" "project" {
-  project_id = var.project_id
+provider "supabase" {
+  access_token = var.supabase_access_token
 }

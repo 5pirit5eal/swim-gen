@@ -15,6 +15,14 @@ locals {
       public_ip       = try(google_sql_database_instance.main.public_ip_address, null)
       private_ip      = try(google_sql_database_instance.main.private_ip_address, null)
     }
+    supabase_project = {
+      id     = try(supabase_project.development.id, null)
+      name   = var.supabase.name
+      user   = "postgres.${supabase_project.development.id}"
+      host   = "aws-1-${var.supabase.region}.pooler.supabase.com"
+      port   = 6543
+      dbname = "postgres"
+    }
     secret_ids         = local.secret_ids
     secret_version_ids = local.secret_version_ids
     bucket_name        = google_storage_bucket.exported_pdfs.name

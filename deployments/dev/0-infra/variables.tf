@@ -11,6 +11,7 @@ variable "region" {
 variable "github_token" {
   description = "GitHub token with repo and workflow permissions"
   type        = string
+  sensitive   = true
 }
 
 variable "github_owner" {
@@ -23,6 +24,12 @@ variable "github_repository" {
   description = "Short repository name (without owner)"
   type        = string
   default     = "swim-gen"
+}
+
+variable "supabase_access_token" {
+  description = "Supabase access token with full permissions"
+  type        = string
+  sensitive   = true
 }
 
 variable "apis" {
@@ -49,4 +56,13 @@ variable "dbuser" {
 variable "dbtier" {
   description = "The GCP Cloud SQL Database Tier"
   type        = string
+}
+
+variable "supabase" {
+  description = "Supabase project configuration"
+  type = object({
+    organization_id = string
+    name            = string
+    region          = string
+  })
 }

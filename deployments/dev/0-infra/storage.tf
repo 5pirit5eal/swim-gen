@@ -52,6 +52,7 @@ resource "google_sql_database_instance" "main" {
   depends_on          = [google_project_service.apis]
 }
 
+
 resource "google_sql_database" "main_db" {
   name            = var.dbname
   instance        = google_sql_database_instance.main.name

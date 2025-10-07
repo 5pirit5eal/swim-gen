@@ -14,3 +14,8 @@ dbname           = "swim-gen-db"
 dbuser           = "swimmer"
 dbtier           = "db-f1-micro"
 outputs_location = "../0-config"
+supabase = {
+  organization_id = "rbrfvltmypsayebvplbb"
+  name            = "swim-gen-dev"
+  region          = "eu-central-1"
+}
