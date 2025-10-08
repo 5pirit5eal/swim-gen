@@ -41,6 +41,18 @@ variable "csql_instance" {
   })
 }
 
+variable "supabase" {
+  description = "Supabase project properties"
+  type = object({
+    name   = string
+    dbname = string
+    port   = number
+    user   = string
+    host   = string
+    id     = string
+  })
+}
+
 variable "iam" {
   description = "Service account identities"
   type = object({

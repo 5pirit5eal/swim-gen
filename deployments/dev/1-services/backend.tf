@@ -2,10 +2,11 @@ locals {
   backend_env_variables = {
     PROJECT_ID       = var.project_id
     REGION           = var.region
-    DB_NAME          = var.csql_db.name
-    DB_INSTANCE      = var.csql_instance.connection_name
-    DB_USER          = var.csql_db.dbuser
-    DB_PASS_LOCATION = var.secret_version_ids.dbpassword_user
+    DB_NAME          = var.supabase.dbname
+    DB_HOST          = var.supabase.host
+    DB_PORT          = var.supabase.port
+    DB_USER          = var.supabase.user
+    DB_PASS_LOCATION = var.secret_version_ids.dbpassword_root
     EMBEDDING_MODEL  = var.embedding_model
     EMBEDDING_NAME   = var.embedding_name
     EMBEDDING_SIZE   = var.embedding_size

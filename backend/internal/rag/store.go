@@ -65,7 +65,7 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	// Create a new store
 	store, err := pgvector.New(
 		ctx, pgvector.WithConn(conn),
-		pgvector.WithEmbeddingTableName(cfg.Embedding.Name),
+		pgvector.WithEmbeddingTableName(cfg.Embedding.Name), // Ensure this matches your SQL table name
 		pgvector.WithCollectionTableName(CollectionTableName),
 		// Separate the collections and documents by embedding model name
 		pgvector.WithCollectionName(cfg.Embedding.Model),
@@ -75,30 +75,30 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	slog.Info("Created store successfully")
-	// Create the URL table if it doesn't exist
+	slog.Info("Created langchaingo pgvector datastore successfully")
+	// Check that the tables exist
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
-	if err := createScrapedTableIfNotExists(ctx, tx); err != nil {
+	if err := checkScrapedTableExists(ctx, tx); err != nil {
 		return nil, err
 	}
-	if err := createPlanTableIfNotExists(ctx, tx); err != nil {
+	if err := checkPlanTableExists(ctx, tx); err != nil {
 		return nil, err
 	}
-	if err := createFeedbackTableIfNotExists(ctx, tx); err != nil {
+	if err := checkFeedbackTableExists(ctx, tx); err != nil {
 		return nil, err
 	}
-	if err := createDonatedPlanTableIfNotExists(ctx, tx); err != nil {
+	if err := checkDonatedPlanTableExists(ctx, tx); err != nil {
 		return nil, err
 	}
 	// Commit the transaction
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
-	slog.Info("Setup URL table successfully")
+	slog.Info("All required tables exist")
 	return &RAGDB{Store: &store, Conn: conn, Client: client, cfg: cfg}, nil
 }
 
@@ -135,73 +135,66 @@ func GetSecret(ctx context.Context, location string) (string, error) {
 	return string(secret.Payload.Data), nil
 }
 
-func createScrapedTableIfNotExists(ctx context.Context, tx pgx.Tx) error {
-	if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", 1573678846307946497); err != nil {
-		return err
-	}
-	_, err := tx.Exec(ctx,
-		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
-			url TEXT NOT NULL,
-			collection_id uuid NOT NULL,
-			created_at TIMESTAMPTZ DEFAULT NOW(),
-			plan_id uuid,
-			PRIMARY KEY (url, collection_id),
-			FOREIGN KEY (collection_id) REFERENCES %s (uuid) ON DELETE CASCADE)`,
-			ScrapedTableName, CollectionTableName))
+func checkScrapedTableExists(ctx context.Context, tx pgx.Tx) error {
+	var exists bool
+	err := tx.QueryRow(ctx,
+		`SELECT EXISTS (
+			SELECT FROM information_schema.tables
+			WHERE table_name = $1
+		)`, ScrapedTableName).Scan(&exists)
 	if err != nil {
-		return fmt.Errorf("failed to create scraped table: %w", err)
+		return fmt.Errorf("failed to check if scraped table exists: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("scraped table '%s' does not exist, please run migrations", ScrapedTableName)
 	}
 	return nil
 }
 
-func createPlanTableIfNotExists(ctx context.Context, tx pgx.Tx) error {
-	if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", 1573678846307946498); err != nil {
-		return err
-	}
-	_, err := tx.Exec(ctx,
-		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
-			plan_id uuid NOT NULL DEFAULT gen_random_uuid(),
-			title TEXT NOT NULL,
-			description TEXT NOT NULL,
-			plan_table JSON NOT NULL,
-			PRIMARY KEY (plan_id))`, PlanTableName))
+func checkPlanTableExists(ctx context.Context, tx pgx.Tx) error {
+	var exists bool
+	err := tx.QueryRow(ctx,
+		`SELECT EXISTS (
+			SELECT FROM information_schema.tables
+			WHERE table_name = $1
+		)`, PlanTableName).Scan(&exists)
 	if err != nil {
-		return fmt.Errorf("failed to create urls table: %w", err)
+		return fmt.Errorf("failed to check if plan table exists: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("plan table '%s' does not exist, please run migrations", PlanTableName)
 	}
 	return nil
 }
 
-func createFeedbackTableIfNotExists(ctx context.Context, tx pgx.Tx) error {
-	if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", 1573678846307946499); err != nil {
-		return err
-	}
-	_, err := tx.Exec(ctx,
-		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
-			user_id uuid NOT NULL,
-			plan_id uuid NOT NULL,
-			rating INT NOT NULL,
-			comment TEXT NOT NULL,
-			created_at TIMESTAMPTZ DEFAULT NOW(),
-			updated_at TIMESTAMPTZ DEFAULT NOW(),
-			PRIMARY KEY (user_id, plan_id))`, FeedbackTable))
+func checkFeedbackTableExists(ctx context.Context, tx pgx.Tx) error {
+	var exists bool
+	err := tx.QueryRow(ctx,
+		`SELECT EXISTS (
+			SELECT FROM information_schema.tables
+			WHERE table_name = $1
+		)`, FeedbackTable).Scan(&exists)
 	if err != nil {
-		return fmt.Errorf("failed to create feedback table: %w", err)
+		return fmt.Errorf("failed to check if feedback table exists: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("feedback table '%s' does not exist, please run migrations", FeedbackTable)
 	}
 	return nil
 }
 
-func createDonatedPlanTableIfNotExists(ctx context.Context, tx pgx.Tx) error {
-	if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", 1573678846307946500); err != nil {
-		return err
-	}
-	_, err := tx.Exec(ctx,
-		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
-			user_id uuid NOT NULL,
-			plan_id uuid NOT NULL,
-			created_at TIMESTAMPTZ DEFAULT NOW(),
-			PRIMARY KEY (user_id, plan_id))`, DonatedPlanTable))
+func checkDonatedPlanTableExists(ctx context.Context, tx pgx.Tx) error {
+	var exists bool
+	err := tx.QueryRow(ctx,
+		`SELECT EXISTS (
+			SELECT FROM information_schema.tables
+			WHERE table_name = $1
+		)`, DonatedPlanTable).Scan(&exists)
 	if err != nil {
-		return fmt.Errorf("failed to create donated table: %w", err)
+		return fmt.Errorf("failed to check if donated plan table exists: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("donated plan table '%s' does not exist, please run migrations", DonatedPlanTable)
 	}
 	return nil
 }
