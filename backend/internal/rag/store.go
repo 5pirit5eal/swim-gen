@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net"
 
-	"cloud.google.com/go/cloudsqlconn"
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"github.com/5pirit5eal/swim-gen/internal/config"
@@ -210,25 +208,13 @@ func createDonatedPlanTableIfNotExists(ctx context.Context, tx pgx.Tx) error {
 
 func connect(ctx context.Context, cfg config.Config) (*pgxpool.Pool, error) {
 	// Configure the driver to connect to the database
-	connString := fmt.Sprintf("dbname=%s user=%s password=%s sslmode=disable pool_max_conns=50 pool_min_conns=5 pool_max_conn_lifetime=30m",
-		cfg.DB.Name, cfg.DB.User, cfg.DB.Pass)
+	connString := fmt.Sprintf("dbname=%s user=%s password=%s host=%s port=%s sslmode=require pool_max_conn_lifetime=30m",
+		cfg.DB.Name, cfg.DB.User, cfg.DB.Pass, cfg.DB.Host, cfg.DB.Port)
 	config, err := pgxpool.ParseConfig(connString)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
 
-	// Create a new dialer with any options
-	d, err := cloudsqlconn.NewDialer(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create dialer: %w", err)
-	}
-
-	// Tell the driver to use the Cloud SQL Go Connector to create connections
-	config.ConnConfig.DialFunc = func(ctx context.Context, _ string, instance string) (net.Conn, error) {
-		return d.Dial(ctx, cfg.DB.Instance)
-	}
-
-	// Interact with the driver directly as you normally would
 	pool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create pool: %w", err)
