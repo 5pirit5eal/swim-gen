@@ -21,26 +21,6 @@ variable "bucket_name" {
   type        = string
 }
 
-variable "csql_db" {
-  description = "Cloud SQL database properties"
-  type = object({
-    id     = string
-    name   = string
-    tier   = string
-    dbuser = string
-  })
-}
-
-variable "csql_instance" {
-  description = "Cloud SQL instance properties"
-  type = object({
-    connection_name = string
-    private_ip      = string
-    public_ip       = string
-    uri             = string
-  })
-}
-
 variable "supabase" {
   description = "Supabase project properties"
   type = object({

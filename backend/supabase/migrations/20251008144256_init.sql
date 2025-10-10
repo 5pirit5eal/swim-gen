@@ -23,17 +23,17 @@ create table if not exists embeddings (
 );
 
 -- Index for embeddings collection lookup
-create index if not exists embeddings_collection_id 
+create index if not exists embeddings_collection_id
   on embeddings (collection_id);
 
 -- Optional: HNSW index for vector similarity search (uncomment if needed)
 -- Note: This should be created AFTER inserting enough rows for good performance
--- create index if not exists embeddings_embedding_hnsw 
+-- create index if not exists embeddings_embedding_hnsw
 --   on embeddings using hnsw (embedding vector_cosine_ops);
 
--- Plans
+-- Plans - Gold standard plans
 create table if not exists plans (
-  plan_id uuid primary key,
+  plan_id uuid primary key DEFAULT gen_random_uuid(),
   title text not null,
   description text not null,
   plan_table jsonb not null,
@@ -46,7 +46,8 @@ create table if not exists scraped (
   collection_id uuid not null,
   plan_id uuid not null references plans(plan_id) on delete cascade,
   created_at timestamptz default now(),
-  primary key (url, collection_id)
+  primary key (url, collection_id),
+  FOREIGN KEY (collection_id) REFERENCES embedders (uuid) ON DELETE CASCADE
 );
 
 -- Donations
@@ -66,15 +67,6 @@ create table if not exists feedback (
   created_at timestamptz default now(),
   updated_at timestamptz default now(),
   primary key (user_id, plan_id)
-);
-
--- Users
-create table if not exists users (
-  user_id uuid primary key,
-  name text,
-  email text unique,
-  created_at timestamptz default now(),
-  last_active timestamptz
 );
 
 -- JSONB potential future query performance

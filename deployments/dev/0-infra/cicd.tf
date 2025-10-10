@@ -96,3 +96,9 @@ resource "github_actions_environment_variable" "dev_project_id" {
   value         = each.value
 }
 
+resource "github_actions_environment_secret" "dev_supabase_access_token" {
+  repository      = data.github_repository.swim_gen_repo.name
+  environment     = github_repository_environment.dev.environment
+  secret_name     = "SUPABASE_ACCESS_TOKEN"
+  plaintext_value = var.supabase_access_token
+}

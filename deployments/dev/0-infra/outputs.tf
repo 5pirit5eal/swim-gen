@@ -3,18 +3,6 @@ locals {
   tfvars = {
     project_id = var.project_id
     region     = var.region
-    csql_db = {
-      id     = try(google_sql_database.main_db.id, null)
-      name   = var.dbname
-      tier   = var.dbtier
-      dbuser = var.dbuser
-    }
-    csql_instance = {
-      connection_name = try(google_sql_database_instance.main.connection_name, null)
-      uri             = try(google_sql_database_instance.main.self_link, null)
-      public_ip       = try(google_sql_database_instance.main.public_ip_address, null)
-      private_ip      = try(google_sql_database_instance.main.private_ip_address, null)
-    }
     supabase_project = {
       id     = try(supabase_project.development.id, null)
       name   = var.supabase.name
