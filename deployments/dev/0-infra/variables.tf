@@ -43,19 +43,12 @@ variable "outputs_location" {
   default     = "../0-config"
 }
 
-variable "dbname" {
-  description = "The GCP Cloud SQL Database Name"
-  type        = string
-}
-
-variable "dbuser" {
-  description = "The GCP Cloud SQL Database User"
-  type        = string
-}
-
-variable "dbtier" {
-  description = "The GCP Cloud SQL Database Tier"
-  type        = string
+variable "dbusers" {
+  description = "The SQL Database Users"
+  type = object({
+    backend  = string
+    frontend = string
+  })
 }
 
 variable "supabase" {

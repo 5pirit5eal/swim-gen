@@ -3,7 +3,7 @@ locals {
     PROJECT_ID   = var.project_id
     REGION       = var.region
     AR_REPO_NAME = google_artifact_registry_repository.docker.repository_id
-    WIF_PROVIDER = "projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.github.workload_identity_pool_provider_id}"
+    WIF_PROVIDER = "projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_actions.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.github_actions.workload_identity_pool_provider_id}"
     WIF_SA       = google_service_account.github_actions_sa.email
   }
 }
@@ -41,15 +41,15 @@ resource "google_artifact_registry_repository" "docker" {
 }
 
 # Workload Identity Federation
-resource "google_iam_workload_identity_pool" "github" {
-  workload_identity_pool_id = "github"
+resource "google_iam_workload_identity_pool" "github_actions" {
+  workload_identity_pool_id = "github-pool"
   display_name              = "GitHub Actions"
   description               = "WIF pool for GitHub Actions OIDC"
 }
 
-resource "google_iam_workload_identity_pool_provider" "github" {
-  workload_identity_pool_id          = google_iam_workload_identity_pool.github.workload_identity_pool_id
-  workload_identity_pool_provider_id = "github"
+resource "google_iam_workload_identity_pool_provider" "github_actions" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.github_actions.workload_identity_pool_id
+  workload_identity_pool_provider_id = "github-pool"
   display_name                       = "GitHub OIDC"
   description                        = "Provider for token.actions.githubusercontent.com"
 
@@ -73,7 +73,7 @@ resource "google_service_account_iam_binding" "gh_actions_wif_repo" {
   service_account_id = google_service_account.github_actions_sa.name
   role               = "roles/iam.workloadIdentityUser"
   members = [
-    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/${var.github_owner}/${var.github_repository}"
+    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions.name}/attribute.repository/${var.github_owner}/${var.github_repository}"
   ]
 }
 

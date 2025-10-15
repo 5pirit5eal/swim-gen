@@ -3,13 +3,14 @@ locals {
   tfvars = {
     project_id = var.project_id
     region     = var.region
-    supabase_project = {
-      id     = try(supabase_project.development.id, null)
-      name   = var.supabase.name
-      user   = "postgres.${supabase_project.development.id}"
-      host   = "aws-1-${var.supabase.region}.pooler.supabase.com"
-      port   = 6543
-      dbname = "postgres"
+    supabase_pool = {
+      id            = supabase_project.development.id
+      name          = var.supabase.name
+      backend_user  = "${var.dbusers.backend}.${supabase_project.development.id}"
+      frontend_user = "${var.dbusers.frontend}.${supabase_project.development.id}"
+      host          = "aws-1-${var.supabase.region}.pooler.supabase.com"
+      port          = 6543
+      dbname        = "postgres"
     }
     secret_ids         = local.secret_ids
     secret_version_ids = local.secret_version_ids

@@ -33,7 +33,7 @@ The service exposes the following primary endpoints:
 
 The application requires a `.env` file in the `backend` directory with the following environment variables:
 
-```
+```env
 PROJECT_ID=<your-gcp-project-id>
 REGION=<your-gcp-region>
 DB_USER=<your-database-user>

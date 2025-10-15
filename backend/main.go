@@ -104,14 +104,15 @@ func setupLogger(cfg config.Config) (*httplog.Logger, error) {
 	return logger, nil
 }
 
-// healthHandler handles health check requests
-// @Summary Health check
-// @Description Returns the health status of the API
+// Basic health check endpoint - moved to server.HealthHandler for comprehensive checks
+// This is kept for backward compatibility with simple health checks
+// @Summary Basic health check
+// @Description Returns a simple OK response for basic health monitoring
 // @Tags health
 // @Produce plain
 // @Success 200 {string} string "OK"
-// @Router /health [get]
-func healthHandler(w http.ResponseWriter, r *http.Request) {
+// @Router /health-basic [get]
+func basicHealthHandler(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write([]byte("OK")); err != nil {
 		httplog.LogEntry(r.Context()).Error("Failed to write health check response", httplog.ErrAttr(err))
 	}
@@ -132,7 +133,8 @@ func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Confi
 		r.Post("/query", ragServer.QueryHandler)
 		r.Get("/scrape", ragServer.ScrapeHandler)
 		r.Post("/export-pdf", ragServer.PlanToPDFHandler)
-		r.Get("/health", healthHandler)
+		r.Get("/health", ragServer.HealthHandler)
+		r.Get("/health-basic", basicHealthHandler)
 		r.Get("/swagger/*", httpSwagger.Handler(
 			httpSwagger.URL("0.0.0.0:"+cmp.Or(cfg.Port, "8080")+basePath+"swagger/doc.json"),
 			httpSwagger.DeepLinking(true)),
