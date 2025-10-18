@@ -57,9 +57,11 @@ jobs:
           WIF_SA: ${{ vars.WIF_SA }}
 
       - name: 🐹 Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.25
+          go-version-file: backend/go.mod
+          cache-dependency-path: |
+            backend/go.sum
 
       - name: 🔎 Vet Code
         shell: bash
