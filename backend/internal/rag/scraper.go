@@ -357,36 +357,36 @@ func (db *RAGDB) AddScrapedPlans(ctx context.Context, collectionUUID string, doc
 			return fmt.Errorf("failed to begin transaction: %w", err)
 		}
 		logger.Debug(fmt.Sprintf("Inserting URL %s into database", url), "url", url)
+		// Add the plan to the plan table
+		_, err = pseudoTx.Exec(ctx, fmt.Sprintf(`
+		INSERT INTO %s (plan_id, title, description, plan_table)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT (plan_id) DO NOTHING`, PlanTableName),
+			plan.PlanID, plan.Title, plan.Description, plan.Table)
+		if err != nil {
+			logger.Error("Failed to insert plan into database", httplog.ErrAttr(err))
+			return fmt.Errorf("failed to insert plan into database: %w", err)
+		}
 		// If a URL already exists, delete the old entry and insert the new one
 		_, err = pseudoTx.Exec(ctx, fmt.Sprintf(`
-			WITH deleted AS (
-				DELETE FROM %s
-				WHERE uuid = (
-					SELECT plan_id
-					FROM %s
-					WHERE url = $1 AND collection_id = $3
-				)
-				RETURNING uuid
+		WITH deleted AS (
+			DELETE FROM %s
+			WHERE uuid = (
+				SELECT plan_id
+				FROM %s
+				WHERE url = $1 AND collection_id = $3
 			)
-			INSERT INTO %s (url, plan_id, collection_id)
-			VALUES ($1, $2, $3)
-			ON CONFLICT (url, collection_id)
-			DO UPDATE SET plan_id = EXCLUDED.plan_id`, db.cfg.Embedding.Name, ScrapedTableName, ScrapedTableName),
+			RETURNING uuid
+		)
+		INSERT INTO %s (url, plan_id, collection_id)
+		VALUES ($1, $2, $3)
+		ON CONFLICT (url, collection_id)
+		DO UPDATE SET plan_id = EXCLUDED.plan_id`, db.cfg.Embedding.Name, ScrapedTableName, ScrapedTableName),
 			url, plan.PlanID, collectionUUID)
 
 		if err != nil {
 			logger.Error("Failed to insert scraped plan into database", httplog.ErrAttr(err))
 			return fmt.Errorf("failed to insert scraped plan into database: %w", err)
-		}
-		// Add the plan to the plan table
-		_, err = pseudoTx.Exec(ctx, fmt.Sprintf(`
-			INSERT INTO %s (plan_id, title, description, plan_table)
-			VALUES ($1, $2, $3, $4)
-			ON CONFLICT (plan_id) DO NOTHING`, PlanTableName),
-			plan.PlanID, plan.Title, plan.Description, plan.Table)
-		if err != nil {
-			logger.Error("Failed to insert plan into database", httplog.ErrAttr(err))
-			return fmt.Errorf("failed to insert plan into database: %w", err)
 		}
 
 		// Commit the transaction
