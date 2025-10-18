@@ -83,10 +83,6 @@ data "github_repository" "swim_gen_repo" {
   full_name = "${var.github_owner}/${var.github_repository}"
 }
 
-data "github_repository_environments" "dev_environment" {
-  repository = data.github_repository.swim_gen_repo.name
-}
-
 resource "github_repository_environment" "prod" {
   repository  = data.github_repository.swim_gen_repo.name
   environment = "prod"
@@ -100,3 +96,24 @@ resource "github_actions_environment_variable" "prod_project_id" {
   value         = each.value
 }
 
+resource "github_actions_environment_secret" "prod_supabase_access_token" {
+  repository      = data.github_repository.swim_gen_repo.name
+  environment     = github_repository_environment.prod.environment
+  secret_name     = "SUPABASE_ACCESS_TOKEN"
+  plaintext_value = var.supabase_access_token
+}
+
+resource "github_actions_environment_secret" "prod_supabase_project_ref" {
+  repository      = data.github_repository.swim_gen_repo.name
+  environment     = github_repository_environment.prod.environment
+  secret_name     = "SUPABASE_PROJECT_REF"
+  plaintext_value = supabase_project.production.id
+}
+
+# Root database password needed for non-interactive `supabase link` when CLI requests it
+resource "github_actions_environment_secret" "prod_supabase_db_password" {
+  repository      = data.github_repository.swim_gen_repo.name
+  environment     = github_repository_environment.prod.environment
+  secret_name     = "SUPABASE_DB_PASSWORD"
+  plaintext_value = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
+}

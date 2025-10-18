@@ -48,6 +48,12 @@ variable "domain_url" {
   type        = string
 }
 
+variable "outputs_location" {
+  description = "The GCP output locations"
+  type        = string
+  default     = "../0-config"
+}
+
 variable "backend_image_tag" {
   type    = string
   default = "latest"

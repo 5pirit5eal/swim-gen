@@ -2,18 +2,18 @@ name: 🚦Validate Backend (Format, Lint, Test)
 
 on:
   workflow_call:
-      inputs:
-        checkout_repo:
-          required: false
-          type: string
-        checkout_ref:
-          required: false
-          type: string
-        env:
-          required: false
-          type: string
-          description: Environment to setup for
-          default: dev
+    inputs:
+      checkout_repo:
+        required: false
+        type: string
+      checkout_ref:
+        required: false
+        type: string
+      env:
+        required: false
+        type: string
+        description: Environment to setup for
+        default: dev
   pull_request:
     branches: [main]
     paths:
@@ -31,7 +31,7 @@ on:
 
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: write  # This is required for actions/checkout
+  contents: write # This is required for actions/checkout
 
 concurrency:
   group: backend-validate-${{ github.workflow }}-${{ github.ref }}
@@ -57,9 +57,11 @@ jobs:
           WIF_SA: ${{ vars.WIF_SA }}
 
       - name: 🐹 Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.25
+          go-version-file: backend/go.mod
+          cache-dependency-path: |
+            backend/go.sum
 
       - name: 🔎 Vet Code
         shell: bash
@@ -76,6 +78,21 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore(fmt): apply go fmt"
+          file_pattern: backend/**
+
+      - name: 🚦 Update Swagger Docs
+        shell: bash
+        run: |
+          export PATH=${PATH}:`go env GOPATH`/bin
+          go install github.com/swaggo/swag/cmd/swag@latest
+          swag init
+        working-directory: backend
+
+      - name: 🔄 Auto-commit formatting
+        if: github.event_name == 'pull_request'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(docs): update swagger docs"
           file_pattern: backend/**
 
       - name: 🔎 Lint Code

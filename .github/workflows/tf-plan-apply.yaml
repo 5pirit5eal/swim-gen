@@ -1,42 +1,41 @@
-
 name: 📦 Reusable OpenTofu Plan (and Apply)
 
 on:
   workflow_call:
-      inputs:
-        checkout_repo:
-          required: false
-          type: string
-        checkout_ref:
-          required: false
-          type: string
-        env:
-          required: true
-          description: "Environment to setup for"
-          type: string
-        apply:
-          required: false
-          description: "Whether to apply the plan (true|false)"
-          type: boolean
-          default: true
-        cwd:
-          description: "The working directory to run in"
-          required: true
-          type: string
-        version:
-          required: false
-          description: "The semantic version to be deployed (if applicable)"
-          type: string
-          default: "latest"
-        infra_outputs:
-          description: "(Optional) JSON string of outputs from previous layer (made available as INFRA_TF_OUTPUTS env var)"
-          required: false
-          type: string
-          default: ""
-      outputs:
-        tf_outputs:
-          description: "Terraform/OpenTofu outputs in JSON form (compact)"
-          value: ${{ jobs.tofu-plan-apply.outputs.tf_outputs }}
+    inputs:
+      checkout_repo:
+        required: false
+        type: string
+      checkout_ref:
+        required: false
+        type: string
+      env:
+        required: true
+        description: "Environment to setup for"
+        type: string
+      apply:
+        required: false
+        description: "Whether to apply the plan (true|false)"
+        type: boolean
+        default: true
+      cwd:
+        description: "The working directory to run in"
+        required: true
+        type: string
+      version:
+        required: false
+        description: "The semantic version to be deployed (if applicable)"
+        type: string
+        default: "latest"
+      infra_outputs:
+        description: "(Optional) JSON string of outputs from previous layer (made available as INFRA_TF_OUTPUTS env var)"
+        required: false
+        type: string
+        default: ""
+    outputs:
+      tf_outputs:
+        description: "Terraform/OpenTofu outputs in JSON form (compact)"
+        value: ${{ jobs.tofu-plan-apply.outputs.tf_outputs }}
 
   workflow_dispatch:
     inputs:
@@ -57,10 +56,9 @@ on:
         required: true
         type: string
 
-
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: write  # This is required for actions/checkout
+  contents: write # This is required for actions/checkout
 
 concurrency:
   group: tf-plan-apply-${{ github.workflow }}-${{ github.ref }}
@@ -78,122 +76,132 @@ jobs:
       INFRA_TF_OUTPUTS: ${{ inputs.infra_outputs }}
 
     steps:
-    - name: ⬇️ Checkout
-      uses: actions/checkout@v4
-      with:
-        repository: ${{ inputs.checkout_repo }}
-        ref: ${{ inputs.checkout_ref }}
-        fetch-depth: 0
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.checkout_repo }}
+          ref: ${{ inputs.checkout_ref }}
+          fetch-depth: 0
 
-    - name: 🔐 GCP Setup
-      uses: ./.github/actions/setup
-      with:
-        WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
-        WIF_SA: ${{ vars.WIF_SA }}
+      - name: 🔐 GCP Setup
+        uses: ./.github/actions/setup
+        with:
+          WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+          WIF_SA: ${{ vars.WIF_SA }}
 
-    - name: 🧩 Install OpenTofu
-      uses: opentofu/setup-opentofu@v1
-      with:
-        tofu_wrapper: false
+      - name: 🧩 Install OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_wrapper: false
 
-    - name: 📁 Init
-      working-directory: ${{ inputs.cwd}}
-      run: tofu init -input=false
-      continue-on-error: true
+      - name: 📁 Init
+        working-directory: ${{ inputs.cwd}}
+        run: tofu init -input=false
+        continue-on-error: true
 
-    - name: 📥 Previous layer outputs (debug)
-      if: inputs.infra_outputs != ''
-      run: |
-        echo "Received previous layer outputs (truncated):"
-        echo "${INFRA_TF_OUTPUTS}" || true
-      shell: bash
+      - name: 📥 Previous layer outputs (debug)
+        if: inputs.infra_outputs != ''
+        run: |
+          echo "Received previous layer outputs (truncated):"
+          echo "${INFRA_TF_OUTPUTS}" || true
+        shell: bash
 
-    - name: 🧩 Rehydrate previous layer vars
-      if: inputs.infra_outputs != ''
-      working-directory: ${{ inputs.cwd}}
-      shell: bash
-      run: |
-        set -euo pipefail
-        # Store raw incoming JSON
-        echo '${{ inputs.infra_outputs }}' > infra.auto.tfvars.raw.json
-        # Detect if this looks like a Terraform outputs schema (each value is an object with a 'value' key)
-        if jq -e 'to_entries|all(.value|type=="object" and has("value"))' infra.auto.tfvars.raw.json >/dev/null 2>&1; then
-          echo "Transforming from outputs schema to tfvars schema" >&2
-          jq 'with_entries(.value = .value.value)' infra.auto.tfvars.raw.json > infra.auto.tfvars.json
-        else
-          echo "Assuming already tfvars-compatible JSON" >&2
-          cp infra.auto.tfvars.raw.json infra.auto.tfvars.json
-        fi
-        echo "Rehydrated vars written to infra.auto.tfvars.json" >&2
-        jq -c 'del(..|objects|.sensitive? // empty)' infra.auto.tfvars.json | head -c 500 || true
-
-    - name: 📝 Validate
-      working-directory: ${{ inputs.cwd}}
-      run: tofu validate -no-color
-
-    - name: 🔍 Plan
-      if: inputs.version == 'latest'
-      id: plan
-      working-directory: ${{ inputs.cwd}}
-      run: tofu plan -no-color -out=tfplan -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}"
-
-    - name: 🚀 Plan for ${{ inputs.version }}
-      if: inputs.version != 'latest'
-      working-directory: ${{ inputs.cwd}}
-      run: tofu plan -no-color -out=tfplan -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}" -var="version_tag=${{ inputs.version }}"
-
-    - name: 📤 Plan summary
-      working-directory: ${{ inputs.cwd}}
-      run: tofu show -no-color tfplan | sed -e 's/^/    /'
-
-    - name: 🚀 Apply
-      if: inputs.apply
-      working-directory: ${{ inputs.cwd}}
-      run: tofu apply -auto-approve tfplan
-
-    - name: 🚀 Refresh
-      if: ${{ !inputs.apply }}
-      working-directory: ${{ inputs.cwd}}
-      run: tofu apply -refresh-only -auto-approve -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}"
-
-    - name: 📦 Export outputs
-      id: capture_outputs
-      working-directory: ${{ inputs.cwd}}
-      shell: bash
-      run: |
-        set -euo pipefail
-
-        # Get all outputs from tofu for logging and processing.
-        if ! tofu output -json > all-outputs.json 2>/dev/null; then
-          echo '{}' > all-outputs.json
-        fi
-
-        # Also show a short preview for logs, with sensitive values redacted.
-        echo "Outputs preview (redacted):" >&2
-        jq 'with_entries(if .value.sensitive == true then .value.value = "***" else . end)' all-outputs.json | jq -c . | head -c 800 || true
-        echo "" >&2
-
-        # Now, determine the actual step output, which should be in tfvars format.
-        # Prefer an auto tfvars file produced by the layer.
-        AUTO_TFVARS_PATH="$(realpath ../0-config/infra.auto.tfvars.json 2>/dev/null || true)"
-        if [ -f "${AUTO_TFVARS_PATH}" ]; then
-          echo "Found auto tfvars file to use for outputs: ${AUTO_TFVARS_PATH}" >&2
-          cp "${AUTO_TFVARS_PATH}" tf-outputs.json
-        else
-          # Otherwise, fall back to the 'tfvars' output from tofu.
-          echo "auto tfvars file not found, using 'tfvars' output from tofu" >&2
-          if jq -e '.tfvars.value' all-outputs.json > /dev/null; then
-            # Extract the value of the 'tfvars' output, which is expected to be a JSON object.
-            jq '.tfvars.value' all-outputs.json > tf-outputs.json
+      - name: 🧩 Rehydrate previous layer vars
+        if: inputs.infra_outputs != ''
+        working-directory: ${{ inputs.cwd}}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Store raw incoming JSON
+          echo '${{ inputs.infra_outputs }}' > infra.auto.tfvars.raw.json
+          # Detect if this looks like a Terraform outputs schema (each value is an object with a 'value' key)
+          if jq -e 'to_entries|all(.value|type=="object" and has("value"))' infra.auto.tfvars.raw.json >/dev/null 2>&1; then
+            echo "Transforming from outputs schema to tfvars schema" >&2
+            jq 'with_entries(.value = .value.value)' infra.auto.tfvars.raw.json > infra.auto.tfvars.json
           else
-            echo "'tfvars' output not found, using empty JSON object for outputs" >&2
-            echo '{}' > tf-outputs.json
+            echo "Assuming already tfvars-compatible JSON" >&2
+            cp infra.auto.tfvars.raw.json infra.auto.tfvars.json
           fi
-        fi
+          echo "Rehydrated vars written to infra.auto.tfvars.json" >&2
+          jq -c 'del(..|objects|.sensitive? // empty)' infra.auto.tfvars.json | head -c 500 || true
 
-        # Compact JSON for output variable size constraints and set as step output.
-        echo "json=$(jq -c . tf-outputs.json)" >> $GITHUB_OUTPUT
+      - name: 📝 Validate
+        working-directory: ${{ inputs.cwd}}
+        run: tofu validate -no-color
 
-        echo "Final step outputs (first 500 bytes of tf-outputs.json):" >&2
-        head -c 500 tf-outputs.json || true
-        echo "" >&2
+      - name: 🔍 Plan
+        if: inputs.version == 'latest'
+        id: plan
+        working-directory: ${{ inputs.cwd}}
+        run: |
+          tofu plan -no-color -out=tfplan \
+          -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}" \
+          -var="supabase_access_token=${{ secrets.SUPABASE_ACCESS_TOKEN }}"
+
+      - name: 🚀 Plan for ${{ inputs.version }}
+        if: inputs.version != 'latest'
+        working-directory: ${{ inputs.cwd}}
+        run: |
+          tofu plan -no-color -out=tfplan \
+          -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}" \
+          -var="supabase_access_token=${{ secrets.SUPABASE_ACCESS_TOKEN }}" \
+          -var="version_tag=${{ inputs.version }}"
+
+      - name: 📤 Plan summary
+        working-directory: ${{ inputs.cwd}}
+        run: tofu show -no-color tfplan | sed -e 's/^/    /'
+
+      - name: 🚀 Apply
+        if: inputs.apply
+        working-directory: ${{ inputs.cwd}}
+        run: tofu apply -auto-approve tfplan
+
+      - name: 🚀 Refresh
+        if: ${{ !inputs.apply }}
+        working-directory: ${{ inputs.cwd}}
+        run: |
+          tofu apply -refresh-only -auto-approve \
+          -var="github_token=${{ secrets.USER_GITHUB_TOKEN }}" \
+          -var="supabase_access_token=${{ secrets.SUPABASE_ACCESS_TOKEN }}"
+
+      - name: 📦 Export outputs
+        id: capture_outputs
+        working-directory: ${{ inputs.cwd}}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Get all outputs from tofu for logging and processing.
+          if ! tofu output -json > all-outputs.json 2>/dev/null; then
+            echo '{}' > all-outputs.json
+          fi
+
+          # Also show a short preview for logs, with sensitive values redacted.
+          echo "Outputs preview (redacted):" >&2
+          jq 'with_entries(if .value.sensitive == true then .value.value = "***" else . end)' all-outputs.json | jq -c . | head -c 800 || true
+          echo "" >&2
+
+          # Now, determine the actual step output, which should be in tfvars format.
+          # Prefer an auto tfvars file produced by the layer.
+          AUTO_TFVARS_PATH="$(realpath ../0-config/infra.auto.tfvars.json 2>/dev/null || true)"
+          if [ -f "${AUTO_TFVARS_PATH}" ]; then
+            echo "Found auto tfvars file to use for outputs: ${AUTO_TFVARS_PATH}" >&2
+            cp "${AUTO_TFVARS_PATH}" tf-outputs.json
+          else
+            # Otherwise, fall back to the 'tfvars' output from tofu.
+            echo "auto tfvars file not found, using 'tfvars' output from tofu" >&2
+            if jq -e '.tfvars.value' all-outputs.json > /dev/null; then
+              # Extract the value of the 'tfvars' output, which is expected to be a JSON object.
+              jq '.tfvars.value' all-outputs.json > tf-outputs.json
+            else
+              echo "'tfvars' output not found, using empty JSON object for outputs" >&2
+              echo '{}' > tf-outputs.json
+            fi
+          fi
+
+          # Compact JSON for output variable size constraints and set as step output.
+          echo "json=$(jq -c . tf-outputs.json)" >> $GITHUB_OUTPUT
+
+          echo "Final step outputs (first 500 bytes of tf-outputs.json):" >&2
+          head -c 500 tf-outputs.json || true
+          echo "" >&2

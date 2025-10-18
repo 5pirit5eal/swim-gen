@@ -2,6 +2,7 @@ package rag
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
 	"github.com/gocolly/colly"
+	"github.com/jackc/pgx/v5"
 	"github.com/tmc/langchaingo/schema"
 )
 
@@ -60,7 +62,7 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 	scraper := colly.NewCollector(
 		colly.AllowedDomains("docswim.de"),
 		colly.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"),
-		colly.MaxDepth(3),
+		colly.MaxDepth(2),
 		colly.Async(true),
 	)
 	_ = scraper.Limit(&colly.LimitRule{
@@ -85,6 +87,14 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 			logger.Debug("Internal link, skipping")
 			return
 		}
+		// Check if the link points to a non-html resource
+		if strings.HasSuffix(e.Attr("href"), ".pdf") ||
+			strings.HasSuffix(e.Attr("href"), ".jpg") ||
+			strings.HasSuffix(e.Attr("href"), ".png") ||
+			strings.HasSuffix(e.Attr("href"), ".gif") {
+			logger.Debug("Non-HTML resource link, skipping", "link", e.Attr("href"))
+			return
+		}
 		// Extract the href attribute
 		href := e.Attr("href")
 		// Check if the href has been visited
@@ -103,7 +113,7 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 	})
 	scraper.OnHTML("body", func(e *colly.HTMLElement) {
 		title := e.ChildText("h1")
-		desc := e.ChildText("div.cm-posts > article.post h3")
+		desc := e.ChildText("div.cm-posts > article.post h3, div.cm-posts > article.post h4")
 
 		if table := e.ChildText("table"); table == "" {
 			logger.Debug("No table found, skipping")
@@ -118,7 +128,32 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 
 		table := make(models.Table, 0)
 		// Extract the table content
-		e.ForEach("div.cm-posts > article.post tr:not(:has(strong), [colspan], :has(span))", func(_ int, r *colly.HTMLElement) {
+		e.ForEach("div.cm-posts > article.post table tbody tr", func(_ int, r *colly.HTMLElement) {
+			// Skip header rows
+			if r.ChildText("td:nth-child(1)") == "Anzahl" || r.ChildText("td:nth-child(4)") == "Inhalt" {
+				return
+			}
+			// Skip rows with colspan attribute
+			if r.ChildAttr("td", "colspan") != "" {
+				return
+			}
+
+			// Skip summary row by checking if only content and sum are filled
+			if r.ChildText("td:nth-child(1)") == "" &&
+				r.ChildText("td:nth-child(2)") == "" &&
+				r.ChildText("td:nth-child(3)") == "" &&
+				r.ChildText("td:nth-child(4)") == "" &&
+				r.ChildText("td:nth-child(6)") == "" &&
+				r.ChildText("td:nth-child(5)") != "" &&
+				r.ChildText("td:nth-child(7)") != "" {
+				return
+			}
+
+			if strings.Contains(r.ChildText("td:nth-child(5)"), "EIN TRAININGSPLAN VON DOC SWIM") ||
+				strings.Contains(r.ChildText("td:nth-child(5)"), "www.docswim.de") {
+				return
+			}
+
 			empty := 0
 			amount, err := strconv.Atoi(r.ChildText("td:nth-child(1)"))
 			if err != nil {
@@ -265,7 +300,6 @@ Forloop:
 	logger.Info("Adding documents to the database")
 
 	// Store documents and their embeddings in the database
-	langchainDocs := make([]schema.Document, len(documents))
 	for i := range documents {
 		// Convert the models.Document to a schema.Document
 		doc, err := models.PlanToDoc(&documents[i])
@@ -273,13 +307,28 @@ Forloop:
 			logger.Error("Failed to convert plan to document", httplog.ErrAttr(err))
 			return fmt.Errorf("PlanToDoc: %w", err)
 		}
-		// Add the document to the langchainDocs slice
-		langchainDocs[i] = doc
-	}
-	_, err = db.Store.AddDocuments(ctx, langchainDocs)
-	if err != nil {
-		logger.Error("Failed to add documents to the database", httplog.ErrAttr(err))
-		return fmt.Errorf("Store.AddDocuments: %w", err)
+
+		// Check if a document with the same source already exists and delete it
+		source, ok := doc.Metadata["url"].(string)
+		if ok && source != "" {
+			// The cmetadata column is of type json, so we need to query it accordingly
+			deleteQuery := fmt.Sprintf(`
+                DELETE FROM %s
+                WHERE cmetadata->>'url' = $1
+            `, db.cfg.Embedding.Name)
+			_, err := db.Conn.Exec(ctx, deleteQuery, source)
+			if err != nil {
+				logger.Error("Failed to delete existing document from the database", httplog.ErrAttr(err))
+				// Decide if you want to return an error or just log it
+			}
+		}
+
+		// Add the new document
+		_, err = db.Store.AddDocuments(ctx, []schema.Document{doc})
+		if err != nil {
+			logger.Error("Failed to add document to the database", httplog.ErrAttr(err))
+			return fmt.Errorf("Store.AddDocuments: %w", err)
+		}
 	}
 	logger.Info("Added documents to the database successfully")
 
@@ -331,10 +380,11 @@ func (db *RAGDB) AddScrapedPlans(ctx context.Context, collectionUUID string, doc
 	}
 	// Defer rollback in case of an error
 	defer func() {
-		if err := tx.Rollback(ctx); err != nil {
+		if err := tx.Rollback(ctx); err != nil && !errors.Is(err, pgx.ErrTxClosed) {
 			logger.Error("Failed to rollback transaction", httplog.ErrAttr(err))
+		} else if err == nil {
+			logger.Info("Transaction rolled back")
 		}
-		logger.Info("Transaction rolled back")
 	}()
 	// Add the scraped urls to the database
 	for _, document := range documents {
@@ -357,36 +407,39 @@ func (db *RAGDB) AddScrapedPlans(ctx context.Context, collectionUUID string, doc
 			return fmt.Errorf("failed to begin transaction: %w", err)
 		}
 		logger.Debug(fmt.Sprintf("Inserting URL %s into database", url), "url", url)
+		// Add the plan to the plan table
+		_, err = pseudoTx.Exec(ctx, fmt.Sprintf(`
+		INSERT INTO %s (plan_id, title, description, plan_table)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT (plan_id) DO UPDATE SET
+			title = EXCLUDED.title,
+			description = EXCLUDED.description,
+			plan_table = EXCLUDED.plan_table`, PlanTableName),
+			plan.PlanID, plan.Title, plan.Description, plan.Table)
+		if err != nil {
+			logger.Error("Failed to insert plan into database", httplog.ErrAttr(err))
+			return fmt.Errorf("failed to insert plan into database: %w", err)
+		}
 		// If a URL already exists, delete the old entry and insert the new one
 		_, err = pseudoTx.Exec(ctx, fmt.Sprintf(`
-			WITH deleted AS (
-				DELETE FROM %s
-				WHERE uuid = (
-					SELECT plan_id
-					FROM %s
-					WHERE url = $1 AND collection_id = $3
-				)
-				RETURNING uuid
+		WITH deleted AS (
+			DELETE FROM %s
+			WHERE uuid = (
+				SELECT plan_id
+				FROM %s
+				WHERE url = $1 AND collection_id = $3
 			)
-			INSERT INTO %s (url, plan_id, collection_id)
-			VALUES ($1, $2, $3)
-			ON CONFLICT (url, collection_id)
-			DO UPDATE SET plan_id = EXCLUDED.plan_id`, db.cfg.Embedding.Name, ScrapedTableName, ScrapedTableName),
+			RETURNING uuid
+		)
+		INSERT INTO %s (url, plan_id, collection_id)
+		VALUES ($1, $2, $3)
+		ON CONFLICT (url, collection_id)
+		DO UPDATE SET plan_id = EXCLUDED.plan_id`, db.cfg.Embedding.Name, ScrapedTableName, ScrapedTableName),
 			url, plan.PlanID, collectionUUID)
 
 		if err != nil {
 			logger.Error("Failed to insert scraped plan into database", httplog.ErrAttr(err))
 			return fmt.Errorf("failed to insert scraped plan into database: %w", err)
-		}
-		// Add the plan to the plan table
-		_, err = pseudoTx.Exec(ctx, fmt.Sprintf(`
-			INSERT INTO %s (plan_id, title, description, plan_table)
-			VALUES ($1, $2, $3, $4)
-			ON CONFLICT (plan_id) DO NOTHING`, PlanTableName),
-			plan.PlanID, plan.Title, plan.Description, plan.Table)
-		if err != nil {
-			logger.Error("Failed to insert plan into database", httplog.ErrAttr(err))
-			return fmt.Errorf("failed to insert plan into database: %w", err)
 		}
 
 		// Commit the transaction

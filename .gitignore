@@ -36,3 +36,6 @@ third-party/*
 .clinerules
 .github/copilot-instructions*
 .vscode
+
+# misc
+.DS_Store

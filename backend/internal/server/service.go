@@ -59,8 +59,8 @@ func (rs *RAGService) Close() {
 // DonatePlanHandler handles the HTTP request to donate a training plan to the database.
 // It parses the request, stores the documents and their embeddings in the
 // database, and responds with a success message.
-// @Summary Add a new training plan
-// @Description Upload and store a new swim training plan in the RAG system
+// @Summary Donate a new training plan
+// @Description Upload and store a new user created swim training plan in the RAG system
 // @Tags plans
 // @Accept json
 // @Produce json

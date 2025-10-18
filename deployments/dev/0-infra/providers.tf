@@ -1,4 +1,15 @@
 terraform {
+  required_version = ">= 1.0.4"
+  required_providers {
+    supabase = {
+      source  = "supabase/supabase"
+      version = "~> 1.0"
+    }
+    postgresql = {
+      source  = "cyrilgdn/postgresql"
+      version = ">= 1.15.0"
+    }
+  }
   backend "gcs" {
     bucket = "swim-gen-state-dev"
     prefix = "tofu/swim-gen-infra"
@@ -20,6 +31,18 @@ provider "github" {
   owner = var.github_owner
 }
 
-data "google_project" "project" {
-  project_id = var.project_id
+provider "supabase" {
+  access_token = var.supabase_access_token
+}
+
+provider "postgresql" {
+  scheme          = "postgres"
+  host            = "db.${supabase_project.development.id}.supabase.co"
+  port            = 5432
+  username        = "postgres"
+  password        = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
+  database        = "postgres"
+  sslmode         = "require"
+  connect_timeout = 180
+  superuser       = false
 }

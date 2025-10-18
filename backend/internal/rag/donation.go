@@ -2,11 +2,13 @@ package rag
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
+	"github.com/jackc/pgx/v5"
 	"github.com/tmc/langchaingo/schema"
 )
 
@@ -26,13 +28,42 @@ func (db *RAGDB) AddDonatedPlan(ctx context.Context, donation *models.DonatedPla
 		return fmt.Errorf("Store.AddDocuments: %w", err)
 	}
 
+	// Begin transaction for plan and donation entry
+	tx, err := db.Conn.Begin(ctx)
+	if err != nil {
+		logger.Error("Error beginning transaction", httplog.ErrAttr(err))
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil && !errors.Is(err, pgx.ErrTxClosed) {
+			logger.Error("error rolling back transaction", httplog.ErrAttr(err))
+		}
+	}()
+
+	// Add the plan to the plans table
+	_, err = tx.Exec(ctx, fmt.Sprintf(`
+		INSERT INTO %s (plan_id, title, description, plan_table)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT (plan_id) DO NOTHING`, PlanTableName),
+		donation.PlanID, donation.Title, donation.Description, donation.Table)
+	if err != nil {
+		logger.Error("Error inserting plan", httplog.ErrAttr(err))
+		return fmt.Errorf("failed to insert plan: %w", err)
+	}
+
 	// Create a new donation entry in the database using the struct fields
-	_, err = db.Conn.Exec(ctx,
+	_, err = tx.Exec(ctx,
 		fmt.Sprintf("INSERT INTO %s (user_id, plan_id, created_at) VALUES ($1, $2, $3)", DonatedPlanTable),
 		donation.UserID, donation.PlanID, donation.CreatedAt)
 	if err != nil {
 		logger.Error("Error creating donation", httplog.ErrAttr(err))
-		return err
+		return fmt.Errorf("failed to insert donation: %w", err)
+	}
+
+	// Commit transaction
+	if err = tx.Commit(ctx); err != nil {
+		logger.Error("Error committing transaction", httplog.ErrAttr(err))
+		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
 	logger.Info("Donation added successfully", "donation", donation)
