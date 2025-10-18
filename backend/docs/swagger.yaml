@@ -161,7 +161,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Upload and store a new swim training plan in the RAG system
+      description: Upload and store a new user created swim training plan in the RAG
+        system
       parameters:
       - description: Training plan data
         in: body
@@ -184,7 +185,7 @@ paths:
           description: Internal server error
           schema:
             type: string
-      summary: Add a new training plan
+      summary: Donate a new training plan
       tags:
       - plans
   /export-pdf:

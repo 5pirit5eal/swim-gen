@@ -21,7 +21,7 @@ const docTemplate = `{
     "paths": {
         "/add": {
             "post": {
-                "description": "Upload and store a new swim training plan in the RAG system",
+                "description": "Upload and store a new user created swim training plan in the RAG system",
                 "consumes": [
                     "application/json"
                 ],
@@ -31,7 +31,7 @@ const docTemplate = `{
                 "tags": [
                     "plans"
                 ],
-                "summary": "Add a new training plan",
+                "summary": "Donate a new training plan",
                 "parameters": [
                     {
                         "description": "Training plan data",
