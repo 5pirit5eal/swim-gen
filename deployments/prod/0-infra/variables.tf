@@ -36,17 +36,27 @@ variable "outputs_location" {
   default     = "../0-config"
 }
 
-variable "dbname" {
-  description = "The GCP Cloud SQL Database Name"
+
+
+variable "supabase_access_token" {
+  description = "Supabase access token with full permissions"
   type        = string
+  sensitive   = true
 }
 
-variable "dbuser" {
-  description = "The GCP Cloud SQL Database User"
-  type        = string
+variable "dbusers" {
+  description = "The SQL Database Users"
+  type = object({
+    backend  = string
+    frontend = string
+  })
 }
 
-variable "dbtier" {
-  description = "The GCP Cloud SQL Database Tier"
-  type        = string
+variable "supabase" {
+  description = "Supabase project configuration"
+  type = object({
+    organization_id = string
+    name            = string
+    region          = string
+  })
 }

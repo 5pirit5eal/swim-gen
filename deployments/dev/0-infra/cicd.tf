@@ -3,7 +3,7 @@ locals {
     PROJECT_ID   = var.project_id
     REGION       = var.region
     AR_REPO_NAME = google_artifact_registry_repository.docker.repository_id
-    WIF_PROVIDER = "projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.github.workload_identity_pool_provider_id}"
+    WIF_PROVIDER = "projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_actions.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.github_actions.workload_identity_pool_provider_id}"
     WIF_SA       = google_service_account.github_actions_sa.email
   }
 }
@@ -41,15 +41,15 @@ resource "google_artifact_registry_repository" "docker" {
 }
 
 # Workload Identity Federation
-resource "google_iam_workload_identity_pool" "github" {
-  workload_identity_pool_id = "github"
+resource "google_iam_workload_identity_pool" "github_actions" {
+  workload_identity_pool_id = "github-pool"
   display_name              = "GitHub Actions"
   description               = "WIF pool for GitHub Actions OIDC"
 }
 
-resource "google_iam_workload_identity_pool_provider" "github" {
-  workload_identity_pool_id          = google_iam_workload_identity_pool.github.workload_identity_pool_id
-  workload_identity_pool_provider_id = "github"
+resource "google_iam_workload_identity_pool_provider" "github_actions" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.github_actions.workload_identity_pool_id
+  workload_identity_pool_provider_id = "github-pool"
   display_name                       = "GitHub OIDC"
   description                        = "Provider for token.actions.githubusercontent.com"
 
@@ -73,7 +73,7 @@ resource "google_service_account_iam_binding" "gh_actions_wif_repo" {
   service_account_id = google_service_account.github_actions_sa.name
   role               = "roles/iam.workloadIdentityUser"
   members = [
-    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/${var.github_owner}/${var.github_repository}"
+    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions.name}/attribute.repository/${var.github_owner}/${var.github_repository}"
   ]
 }
 
@@ -96,3 +96,24 @@ resource "github_actions_environment_variable" "dev_project_id" {
   value         = each.value
 }
 
+resource "github_actions_environment_secret" "dev_supabase_access_token" {
+  repository      = data.github_repository.swim_gen_repo.name
+  environment     = github_repository_environment.dev.environment
+  secret_name     = "SUPABASE_ACCESS_TOKEN"
+  plaintext_value = var.supabase_access_token
+}
+
+resource "github_actions_environment_secret" "dev_supabase_project_ref" {
+  repository      = data.github_repository.swim_gen_repo.name
+  environment     = github_repository_environment.dev.environment
+  secret_name     = "SUPABASE_PROJECT_REF"
+  plaintext_value = supabase_project.development.id
+}
+
+# Root database password needed for non-interactive `supabase link` when CLI requests it
+resource "github_actions_environment_secret" "dev_supabase_db_password" {
+  repository      = data.github_repository.swim_gen_repo.name
+  environment     = github_repository_environment.dev.environment
+  secret_name     = "SUPABASE_DB_PASSWORD"
+  plaintext_value = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
+}

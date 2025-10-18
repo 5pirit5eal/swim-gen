@@ -3,7 +3,6 @@ module github.com/5pirit5eal/swim-gen
 go 1.25.0
 
 require (
-	cloud.google.com/go/cloudsqlconn v1.18.0
 	cloud.google.com/go/secretmanager v1.15.0
 	cloud.google.com/go/storage v1.56.1
 	github.com/georgysavva/scany/v2 v2.1.4
@@ -92,7 +91,6 @@ require (
 	github.com/swaggo/files/v2 v2.0.2 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
-	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/detectors/gcp v1.37.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.62.0 // indirect

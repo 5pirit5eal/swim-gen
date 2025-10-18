@@ -15,7 +15,7 @@ data "google_secret_manager_secret" "dbpassword_root" {
 }
 
 data "google_secret_manager_secret" "dbpassword_user" {
-  secret_id = "db-password-${var.dbuser}"
+  secret_id = "db-password-${var.dbusers.frontend}"
   project   = data.google_project.project.number
 }
 
@@ -29,7 +29,7 @@ data "google_secret_manager_secret_version_access" "dbpassword_root" {
 
 # Manually created secret to keep the database password out of the tf state
 data "google_secret_manager_secret_version_access" "dbpassword_user" {
-  secret     = "db-password-${var.dbuser}"
+  secret     = "db-password-${var.dbusers.frontend}"
   version    = "latest"
   project    = data.google_project.project.number
   depends_on = [google_project_service.apis]

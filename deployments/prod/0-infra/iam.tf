@@ -24,7 +24,6 @@ resource "google_project_iam_member" "github_actions_iam" {
     "roles/artifactregistry.admin",
     "roles/secretmanager.secretAccessor",
     "roles/aiplatform.user",
-    "roles/cloudsql.editor",
     "roles/serviceusage.serviceUsageAdmin",
     "roles/resourcemanager.projectIamAdmin",
     "roles/iam.serviceAccountAdmin",
@@ -57,8 +56,6 @@ resource "google_service_account" "swim_gen_backend_sa" {
 resource "google_project_iam_member" "swim_gen_backend_iam" {
   for_each = toset([
     "roles/secretmanager.secretAccessor",
-    "roles/cloudsql.client",
-    "roles/cloudsql.editor",
     "roles/storage.admin",
     "roles/aiplatform.user",
     "roles/iam.serviceAccountTokenCreator",

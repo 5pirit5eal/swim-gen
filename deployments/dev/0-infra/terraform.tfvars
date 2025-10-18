@@ -2,15 +2,19 @@
 project_id = "rubenschulze-sandbox"
 region     = "europe-west4"
 apis = [
-  "cloudresourcemanager.googleapis.com",
-  "run.googleapis.com",              # Cloud Run
-  "sqladmin.googleapis.com",         # Cloud SQL
-  "container.googleapis.com",        # Container Registry
-  "compute.googleapis.com",          # Compute Engine (required for Cloud SQL)
-  "artifactregistry.googleapis.com", # Artifact Registry
-  "aiplatform.googleapis.com"
+  "cloudresourcemanager.googleapis.com", # Terraform Backend
+  "run.googleapis.com",                  # Cloud Run
+  "container.googleapis.com",            # Container Registry
+  "artifactregistry.googleapis.com",     # Artifact Registry
+  "aiplatform.googleapis.com"            # Vertex AI
 ]
-dbname           = "swim-gen-db"
-dbuser           = "swimmer"
-dbtier           = "db-f1-micro"
+dbusers = {
+  backend  = "coach"
+  frontend = "swimmer"
+}
 outputs_location = "../0-config"
+supabase = {
+  organization_id = "rbrfvltmypsayebvplbb"
+  name            = "swim-gen-dev"
+  region          = "eu-central-1"
+}

@@ -61,12 +61,12 @@ Notes
 
 ## Deployment Process
 
-### CI/CD with GitHub Actions (Preferred Method)
+### CI/CD with GitHub Actions
 
 The project follows a trunk-based development model where all changes are committed directly to the `main` branch.
 
 - **Validation**: On every commit to `main`, automated tests and linters run to validate the changes.
-- **Deployment**: Deployments to the `dev` environment are triggered by adding a `.deploy dev` comment to a commit on the `main` branch. This action initiates a workflow that builds the services and deploys them to Cloud Run.
+- **Deployment**: Deployments to the `dev` environment are triggered by adding a `.deploy dev` comment to a commit on the `main` branch. This action initiates a workflow that builds the services and deploys them to Cloud Run. Deployments to `prod` need to be triggered in the Github actions UI.
 
 It is strongly recommended to rely on the CI/CD pipeline for all deployments to ensure consistency and safety.
 
@@ -78,8 +78,9 @@ Manual deployments are discouraged but may be necessary for initial setup or spe
 
 Before you can run any OpenTofu commands, you must manually configure the following:
 
-1. **Domain & DNS**: Procure a domain name and configure its DNS settings to point to your GCP project. The specific DNS records will be output by the `0-infra` stage.
-2. **Secrets**: Create and configure the necessary secrets in Google Secret Manager. This includes passwords for the Cloud SQL database users. These secrets must be created before the `0-infra` stage can be successfully applied, as it sets permissions on them. Check the data blocks in the dev and prod configuration for details.
+1. **Google Cloud Projects**: Create two google cloud projects, one for dev, one for prod. These projects are not created as part of the terraform configuration. You may adapt the code to create a project, but need to find another way of storing and providing the pre-required secrets.
+2. **Domain & DNS**: Procure a domain name and configure its DNS settings to point to your GCP project. The specific DNS records will be output by the `0-infra` stage.
+3. **Secrets**: Create and configure the necessary secrets in Google Secret Manager. This includes passwords for the Cloud SQL database users. These secrets must be created before the `0-infra` stage can be successfully applied, as it sets permissions on them. Check the data blocks in the dev and prod configuration for details.
 
 Check the data blocks for the relevant information that needs to be prepared before applying the configuration for the first time.
 
@@ -141,3 +142,9 @@ tofu plan
 # Apply the changes
 tofu apply
 ```
+
+## Database Deployment
+
+The projects relies on a postgres database for storing and retrieving training plans and user data. The database instance is provided in the `0-infra` stage. The database users, roles and grants (permissions) are setup as part of the `1-services` stage. This is necessary, as the infrastructure is a prerequisite to the database access.  The following diagram shows the permission structure:
+
+<img src="./db-diagram.png">

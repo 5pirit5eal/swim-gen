@@ -3,17 +3,14 @@ locals {
   tfvars = {
     project_id = var.project_id
     region     = var.region
-    csql_db = {
-      id     = try(google_sql_database.main_db.id, null)
-      name   = var.dbname
-      tier   = var.dbtier
-      dbuser = var.dbuser
-    }
-    csql_instance = {
-      connection_name = try(google_sql_database_instance.main.connection_name, null)
-      uri             = try(google_sql_database_instance.main.self_link, null)
-      public_ip       = try(google_sql_database_instance.main.public_ip_address, null)
-      private_ip      = try(google_sql_database_instance.main.private_ip_address, null)
+    supabase_pool = {
+      id            = supabase_project.development.id
+      name          = var.supabase.name
+      backend_user  = "${var.dbusers.backend}.${supabase_project.development.id}"
+      frontend_user = "${var.dbusers.frontend}.${supabase_project.development.id}"
+      host          = "aws-1-${var.supabase.region}.pooler.supabase.com"
+      port          = 6543
+      dbname        = "postgres"
     }
     secret_ids         = local.secret_ids
     secret_version_ids = local.secret_version_ids

@@ -33,7 +33,7 @@ The service exposes the following primary endpoints:
 
 The application requires a `.env` file in the `backend` directory with the following environment variables:
 
-```
+```env
 PROJECT_ID=<your-gcp-project-id>
 REGION=<your-gcp-region>
 DB_USER=<your-database-user>
@@ -85,6 +85,60 @@ This project uses a `Taskfile.sh` script to manage common tasks.
 
     ```bash
     ./Taskfile.sh docker-build-and-run
+    ```
+
+## Database
+
+The database is built using supabase. The `supabase` dir contains the necessary files for the supabase cli and the database migration sql files.
+
+### How to manage schema migrations
+
+To manage schema migrations, first make changes to your database schema locally using `supabase db reset` to start fresh or by directly modifying your local instance. Once you're satisfied with the changes, generate a migration file using `supabase db diff -f <migration-name>`, which will create a new SQL file in the `supabase/migrations` directory capturing the schema differences. Review and edit this migration file as needed to ensure it accurately represents your intended changes. To apply migrations to your local database, use `supabase db reset` which will replay all migrations from scratch, or `supabase db push` to push changes to a remote Supabase project. Always test migrations locally before applying them to production environments.
+
+### Supabase CLI Commands
+
+The following commands are used to manage the Supabase database:
+
+- **Start local Supabase instance**:
+
+    ```bash
+    supabase start
+    ```
+
+- **Stop local Supabase instance**:
+
+    ```bash
+    supabase stop
+    ```
+
+- **Reset local database**:
+
+    ```bash
+    supabase db reset
+    ```
+
+- **Create a new migration**:
+
+    ```bash
+    supabase migration new <migration-name>
+    ```
+
+- **Apply migrations**:
+
+    ```bash
+    supabase db push
+    ```
+
+- **Generate TypeScript types from database schema**:
+
+    ```bash
+    supabase gen types typescript --local
+    ```
+
+- **View database diff**:
+
+    ```bash
+    supabase db diff
     ```
 
 ## Key Technologies
