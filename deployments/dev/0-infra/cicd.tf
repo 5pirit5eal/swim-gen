@@ -102,3 +102,18 @@ resource "github_actions_environment_secret" "dev_supabase_access_token" {
   secret_name     = "SUPABASE_ACCESS_TOKEN"
   plaintext_value = var.supabase_access_token
 }
+
+resource "github_actions_environment_secret" "dev_supabase_project_ref" {
+  repository      = data.github_repository.swim_gen_repo.name
+  environment     = github_repository_environment.dev.environment
+  secret_name     = "SUPABASE_PROJECT_REF"
+  plaintext_value = supabase_project.development.id
+}
+
+# Root database password needed for non-interactive `supabase link` when CLI requests it
+resource "github_actions_environment_secret" "dev_supabase_db_password" {
+  repository      = data.github_repository.swim_gen_repo.name
+  environment     = github_repository_environment.dev.environment
+  secret_name     = "SUPABASE_DB_PASSWORD"
+  plaintext_value = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
+}
