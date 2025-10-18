@@ -83,7 +83,7 @@ jobs:
       - name: 🚦 Update Swagger Docs
         shell: bash
         run: |
-          echo "${HOME}/go/bin" >> $GITHUB_PATH
+          export PATH=${PATH}:`go env GOPATH`/bin
           ./Taskfile.sh docs
         working-directory: backend
 
