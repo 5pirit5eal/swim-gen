@@ -11,7 +11,7 @@ create table if not exists embedders (
 -- Table name matches EMBEDDING_NAME from .env (embeddings)
 create table if not exists embeddings (
   collection_id uuid,
-  embedding extensions.vector(768),  -- dimensions from EMBEDDING_SIZE=768
+  embedding vector(768),  -- dimensions from EMBEDDING_SIZE=768
   document varchar,
   cmetadata json,
   uuid uuid not null,

@@ -2,9 +2,9 @@
 # Database Extensions
 ########################################
 
-resource "postgresql_extension" "pgvector_extensions" {
+resource "postgresql_extension" "pgvector" {
   name         = "vector"
-  schema       = "extensions"
+  schema       = "public"
   drop_cascade = true
 }
 

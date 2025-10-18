@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public;
+
 -- Create backend user role
 
 CREATE ROLE coach WITH LOGIN PASSWORD 'YOUR_PASSWORD_HERE' -- Replace with actual password from secret manager

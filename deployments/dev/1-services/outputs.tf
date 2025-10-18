@@ -4,9 +4,6 @@ locals {
     backend_url  = try(google_cloud_run_v2_service.backend.uri, null)
     bff_url      = try(google_cloud_run_v2_service.bff.uri, null)
     frontend_url = try(google_cloud_run_v2_service.frontend.uri, null)
-    domain_url   = var.domain_url
-    dns_status   = try(google_cloud_run_domain_mapping.frontend_domain_mapping.status, null)
-
   }
 }
 

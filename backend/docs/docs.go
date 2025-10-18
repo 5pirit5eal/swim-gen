@@ -159,14 +159,40 @@ const docTemplate = `{
         },
         "/health": {
             "get": {
-                "description": "Returns the health status of the API",
+                "description": "Returns the health status of the API including database and vector store connectivity",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Comprehensive health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.HealthStatus"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/server.HealthStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/health-basic": {
+            "get": {
+                "description": "Returns a simple OK response for basic health monitoring",
                 "produces": [
                     "text/plain"
                 ],
                 "tags": [
                     "health"
                 ],
-                "summary": "Health check",
+                "summary": "Basic health check",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -357,7 +383,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "content",
-                "language"
+                "method"
             ],
             "properties": {
                 "content": {
@@ -383,6 +409,9 @@ const docTemplate = `{
                         "generate"
                     ],
                     "example": "generate"
+                },
+                "pool_length": {
+                    "description": "PoolLength specifies the pool length for the training plan"
                 }
             }
         },
@@ -438,6 +467,26 @@ const docTemplate = `{
                 "Sum": {
                     "type": "integer",
                     "example": 400
+                }
+            }
+        },
+        "server.HealthStatus": {
+            "type": "object",
+            "properties": {
+                "components": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "schema_version": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
                 }
             }
         }

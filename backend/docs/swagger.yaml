@@ -85,9 +85,11 @@ definitions:
         - generate
         example: generate
         type: string
+      pool_length:
+        description: PoolLength specifies the pool length for the training plan
     required:
     - content
-    - language
+    - method
     type: object
   models.RAGResponse:
     description: Response containing a generated or selected swim training plan
@@ -129,6 +131,19 @@ definitions:
       Sum:
         example: 400
         type: integer
+    type: object
+  server.HealthStatus:
+    properties:
+      components:
+        additionalProperties:
+          type: string
+        type: object
+      schema_version:
+        type: integer
+      status:
+        type: string
+      timestamp:
+        type: string
     type: object
 externalDocs:
   description: OpenAPI
@@ -234,7 +249,25 @@ paths:
       - prompt
   /health:
     get:
-      description: Returns the health status of the API
+      description: Returns the health status of the API including database and vector
+        store connectivity
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.HealthStatus'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/server.HealthStatus'
+      summary: Comprehensive health check
+      tags:
+      - health
+  /health-basic:
+    get:
+      description: Returns a simple OK response for basic health monitoring
       produces:
       - text/plain
       responses:
@@ -242,7 +275,7 @@ paths:
           description: OK
           schema:
             type: string
-      summary: Health check
+      summary: Basic health check
       tags:
       - health
   /query:

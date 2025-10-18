@@ -148,7 +148,7 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 // @Tags query
 // @Accept json
 // @Produce json
-// @Param query body models.QueryRequest true "Query parameters"
+// @Param query body models.QueryRequest true "Query parameters" SchemaExample({"content": "Einen Trainingsplan", "filter": {}, "method": "generate", "pool_length": 25})
 // @Success 200 {object} models.RAGResponse "Query results"
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"

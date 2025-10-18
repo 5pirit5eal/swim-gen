@@ -4,7 +4,7 @@
 
 resource "postgresql_extension" "pgvector_extensions" {
   name         = "vector"
-  schema       = "extensions"
+  schema       = "public"
   drop_cascade = true
 }
 
