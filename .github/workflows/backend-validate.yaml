@@ -84,7 +84,8 @@ jobs:
         shell: bash
         run: |
           export PATH=${PATH}:`go env GOPATH`/bin
-          ./Taskfile.sh docs
+          go install github.com/swaggo/swag/cmd/swag@latest
+          swag init
         working-directory: backend
 
       - name: 🔄 Auto-commit formatting
