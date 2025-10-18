@@ -2,12 +2,6 @@
 # Database Extensions
 ########################################
 
-resource "postgresql_extension" "pgvector_public" {
-  name         = "vector"
-  schema       = "public"
-  drop_cascade = true
-}
-
 resource "postgresql_extension" "pgvector_extensions" {
   name         = "vector"
   schema       = "extensions"
@@ -106,15 +100,15 @@ resource "postgresql_grant" "frontend_privileges" {
 ########################################
 # REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 ########################################
-resource "postgresql_grant" "revoke_create_public" {
-  database    = "postgres"
-  schema      = postgresql_schema.schema.name
-  role        = "public"
-  object_type = "schema"
-  privileges  = []
+# resource "postgresql_grant" "revoke_create_public" {
+#   database    = "postgres"
+#   schema      = postgresql_schema.schema.name
+#   role        = "public"
+#   object_type = "schema"
+#   privileges  = []
 
-  depends_on = [
-    postgresql_grant.backend_privileges,
-    postgresql_grant.frontend_privileges,
-  ]
-}
+#   depends_on = [
+#     postgresql_grant.backend_privileges,
+#     postgresql_grant.frontend_privileges,
+#   ]
+# }

@@ -80,3 +80,11 @@ create index if not exists idx_feedback_plan_id on feedback(plan_id);
 -- create index if not exists emb_idx on embeddings using ivfflat (embedding vector_cosine_ops) with (lists=100);
 -- analyze embeddings;
 
+-- Grant ownership of tables to coach user
+ALTER TABLE embedders OWNER TO coach;
+ALTER TABLE embeddings OWNER TO coach;
+ALTER TABLE plans OWNER TO coach;
+ALTER TABLE scraped OWNER TO coach;
+ALTER TABLE donations OWNER TO coach;
+ALTER TABLE feedback OWNER TO coach;
+

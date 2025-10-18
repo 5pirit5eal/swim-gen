@@ -2,12 +2,6 @@
 # Database Extensions
 ########################################
 
-resource "postgresql_extension" "pgvector_public" {
-  name         = "vector"
-  schema       = "public"
-  drop_cascade = true
-}
-
 resource "postgresql_extension" "pgvector_extensions" {
   name         = "vector"
   schema       = "extensions"
@@ -36,6 +30,20 @@ resource "postgresql_role" "frontend_user" {
   create_role               = false
   bypass_row_level_security = true
   valid_until               = "infinity"
+}
+
+########################################
+# Grant coach and swimmer roles to postgres
+########################################
+
+resource "postgresql_grant_role" "grant_backend_to_postgres" {
+  role       = "postgres"
+  grant_role = postgresql_role.backend_user.name
+}
+
+resource "postgresql_grant_role" "grant_frontend_to_postgres" {
+  role       = "postgres"
+  grant_role = postgresql_role.frontend_user.name
 }
 
 # ########################################
@@ -110,15 +118,15 @@ resource "postgresql_grant" "frontend_privileges" {
 # Because by default, the default privileges allow any user ("public")
 # to create table inside "public" schema
 ########################################
-resource "postgresql_grant" "revoke_create_public" {
-  database    = "postgres"
-  schema      = postgresql_schema.schema.name
-  role        = "public"
-  object_type = "schema"
-  privileges  = []
+# resource "postgresql_grant" "revoke_create_public" {
+#   database    = "postgres"
+#   schema      = postgresql_schema.schema.name
+#   role        = "public"
+#   object_type = "schema"
+#   privileges  = []
 
-  depends_on = [
-    postgresql_grant.backend_privileges,
-    postgresql_grant.frontend_privileges,
-  ]
-}
+#   depends_on = [
+#     postgresql_grant.backend_privileges,
+#     postgresql_grant.frontend_privileges,
+#   ]
+# }
