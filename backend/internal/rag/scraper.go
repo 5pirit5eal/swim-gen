@@ -62,7 +62,7 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 	scraper := colly.NewCollector(
 		colly.AllowedDomains("docswim.de"),
 		colly.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"),
-		colly.MaxDepth(3),
+		colly.MaxDepth(2),
 		colly.Async(true),
 	)
 	_ = scraper.Limit(&colly.LimitRule{
@@ -300,7 +300,6 @@ Forloop:
 	logger.Info("Adding documents to the database")
 
 	// Store documents and their embeddings in the database
-	langchainDocs := make([]schema.Document, len(documents))
 	for i := range documents {
 		// Convert the models.Document to a schema.Document
 		doc, err := models.PlanToDoc(&documents[i])
@@ -308,13 +307,28 @@ Forloop:
 			logger.Error("Failed to convert plan to document", httplog.ErrAttr(err))
 			return fmt.Errorf("PlanToDoc: %w", err)
 		}
-		// Add the document to the langchainDocs slice
-		langchainDocs[i] = doc
-	}
-	_, err = db.Store.AddDocuments(ctx, langchainDocs)
-	if err != nil {
-		logger.Error("Failed to add documents to the database", httplog.ErrAttr(err))
-		return fmt.Errorf("Store.AddDocuments: %w", err)
+
+		// Check if a document with the same source already exists and delete it
+		source, ok := doc.Metadata["url"].(string)
+		if ok && source != "" {
+			// The cmetadata column is of type json, so we need to query it accordingly
+			deleteQuery := fmt.Sprintf(`
+                DELETE FROM %s
+                WHERE cmetadata->>'url' = $1
+            `, db.cfg.Embedding.Name)
+			_, err := db.Conn.Exec(ctx, deleteQuery, source)
+			if err != nil {
+				logger.Error("Failed to delete existing document from the database", httplog.ErrAttr(err))
+				// Decide if you want to return an error or just log it
+			}
+		}
+
+		// Add the new document
+		_, err = db.Store.AddDocuments(ctx, []schema.Document{doc})
+		if err != nil {
+			logger.Error("Failed to add document to the database", httplog.ErrAttr(err))
+			return fmt.Errorf("Store.AddDocuments: %w", err)
+		}
 	}
 	logger.Info("Added documents to the database successfully")
 
