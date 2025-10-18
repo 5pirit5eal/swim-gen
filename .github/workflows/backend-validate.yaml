@@ -82,7 +82,9 @@ jobs:
 
       - name: 🚦 Update Swagger Docs
         shell: bash
-        run: ./Taskfile.sh docs
+        run: |
+          echo "${HOME}/go/bin" >> $GITHUB_PATH
+          ./Taskfile.sh docs
         working-directory: backend
 
       - name: 🔄 Auto-commit formatting
