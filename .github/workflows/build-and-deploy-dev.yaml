@@ -143,7 +143,7 @@ jobs:
 
   deploy-supabase:
     if: ${{ needs.detect-changes.outputs.supabase == 'true' }}
-    needs: [detect-changes, get-deployment-data]
+    needs: [detect-changes, get-deployment-data, opentofu-infra]
     uses: ./.github/workflows/supabase-deploy.yaml
     with:
       env: dev
