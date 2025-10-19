@@ -1,3 +1,43 @@
+## [1.9.0](https://github.com/5pirit5eal/swim-gen/compare/v1.8.1...v1.9.0) (2025-10-19)
+
+### Features
+
+* added basic supabase and postgres infra and migration files ([c200f26](https://github.com/5pirit5eal/swim-gen/commit/c200f26a8a6b7e4762d93174c7d040e7a853709b))
+* added sql migration file ([54c0df7](https://github.com/5pirit5eal/swim-gen/commit/54c0df75a07d13bc3426e7717b8d27dabdd575f8))
+* added supabase migration as their own workflow ([3b0e5e6](https://github.com/5pirit5eal/swim-gen/commit/3b0e5e6dbbd7d755e4f9d9820c515fe3239b16a8))
+* added supabase project to dev infra ([fad7369](https://github.com/5pirit5eal/swim-gen/commit/fad7369a39bc99e9db4611703ecbc6003134e3b6))
+* added supabase to cicd and fixed some issues with roles ([dce76a3](https://github.com/5pirit5eal/swim-gen/commit/dce76a3913a8aa4217e5d6237038ff052ccf169f))
+* added supabase token to cicd and intialized the supabase dev db ([b217eca](https://github.com/5pirit5eal/swim-gen/commit/b217ecaca33a875b5550621b8fc38bba025f8135))
+* added the configuration to the prod env ([fca0460](https://github.com/5pirit5eal/swim-gen/commit/fca04604958eff9a9786181da364ef5228c03587))
+* added the supabase migrations to cic ([b0b3c19](https://github.com/5pirit5eal/swim-gen/commit/b0b3c193b726f612af50092c5ccad3b80744fa52))
+* old embeddings are overwritten by new ones ([f1fd972](https://github.com/5pirit5eal/swim-gen/commit/f1fd9728f94fc84a17894a408d3d4db508ca7002))
+* updated connection string to supabase ([1a3a487](https://github.com/5pirit5eal/swim-gen/commit/1a3a487df3117fd7a64b0f6ed21d05b8d9196e1a))
+* updated the scraper to handle tables correctly ([a47e59d](https://github.com/5pirit5eal/swim-gen/commit/a47e59d1620158527b509265a7b653be4499731f))
+
+### Bug Fixes
+
+* 80 build and deploy to dev doesnt work on manual run ([#82](https://github.com/5pirit5eal/swim-gen/issues/82)) ([5339f46](https://github.com/5pirit5eal/swim-gen/commit/5339f46e54b8deb3dbb4bf9c1ea20d075df34739))
+* added acces_token to service variables ([fe16c71](https://github.com/5pirit5eal/swim-gen/commit/fe16c718d34b21594b2d2e05316f7672fcf5da47))
+* added correct extensions use. ([f73cbc3](https://github.com/5pirit5eal/swim-gen/commit/f73cbc3f0ef5b870f307a3ee44ad98791c9b9fc7))
+* added correct go init ([b82ff40](https://github.com/5pirit5eal/swim-gen/commit/b82ff4035606cacd4fec25fcf0a67e9cb5c3de8b))
+* added correct pwd for backend db user ([1e71601](https://github.com/5pirit5eal/swim-gen/commit/1e71601e6335102ceef937fa4b1ee4076ace2a4e))
+* added gopath to PATH to make swag work again ([487d4b8](https://github.com/5pirit5eal/swim-gen/commit/487d4b8d12fb4666aa59ad9d6068c54d6c16bc96))
+* added manual workflow dispatch ([4e775d6](https://github.com/5pirit5eal/swim-gen/commit/4e775d6bd3b1e898b77407fae2e12cc37623a410))
+* added manual workflow dispatch ([#81](https://github.com/5pirit5eal/swim-gen/issues/81)) ([6d3e400](https://github.com/5pirit5eal/swim-gen/commit/6d3e400ee63f8b25908524360c7144f3fecbfefb))
+* added needs to supabase migration ([c8638c6](https://github.com/5pirit5eal/swim-gen/commit/c8638c6fdcf6a6f08ab7ecb0b6da50d5c1296491))
+* added the rest of the needs ([c80aa9d](https://github.com/5pirit5eal/swim-gen/commit/c80aa9d5b7975079fd90458aef6263ad8db36bb0))
+* aligned roles and extensions ([44aca28](https://github.com/5pirit5eal/swim-gen/commit/44aca28a6681367383c8aeda6d0b26897f8663ac))
+* applied the update to dev as well ([425bba8](https://github.com/5pirit5eal/swim-gen/commit/425bba85c70470e985e6e2034d5b0777b5034421))
+* applied the update to dev as well ([#79](https://github.com/5pirit5eal/swim-gen/issues/79)) ([7414bbc](https://github.com/5pirit5eal/swim-gen/commit/7414bbcece6850429ab6a4223385d929d0fb6bde))
+* change the connection strings to IPv4 on dev ([86f073a](https://github.com/5pirit5eal/swim-gen/commit/86f073a34165a98ecc970d4056c6614f0a41bebe))
+* fixed inconsitencies ([34e4b46](https://github.com/5pirit5eal/swim-gen/commit/34e4b46949061a6cb1dcb34243bf3537da490e0d))
+* issues with table use and tofu config ([4dea3c0](https://github.com/5pirit5eal/swim-gen/commit/4dea3c0aa381054c910714035d43f033222709dc))
+* moved the insertion of plan_id before reference ([9bb506e](https://github.com/5pirit5eal/swim-gen/commit/9bb506e0ca0ef1d0c90c479c9c55662b227d3346))
+* removed special roles and all other headache ([70e4f00](https://github.com/5pirit5eal/swim-gen/commit/70e4f00ce09688947f4a82253532fd07db14a659))
+* third try ([904b27b](https://github.com/5pirit5eal/swim-gen/commit/904b27be3e22750fefb0a124a76637112fa8e51d))
+* try another fix option ([cd99607](https://github.com/5pirit5eal/swim-gen/commit/cd9960736b091a872e7e50ba1154807aad70e440))
+* use longterm connection for tofu ([94ba54d](https://github.com/5pirit5eal/swim-gen/commit/94ba54df0476601d6d498788e7268ac069ad757d))
+
 ## [1.8.1](https://github.com/5pirit5eal/swim-gen/compare/v1.8.0...v1.8.1) (2025-09-29)
 
 ### Bug Fixes
