@@ -47,7 +47,6 @@ provider "postgresql" {
   sslmode         = "require"
   connect_timeout = 180
   superuser       = false
-  pool_mode       = "session"
 }
 
 data "google_project" "project" {

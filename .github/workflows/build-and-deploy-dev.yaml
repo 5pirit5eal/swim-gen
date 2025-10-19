@@ -67,6 +67,7 @@ jobs:
       frontend: ${{ steps.filter.outputs.frontend }}
       bff: ${{ steps.filter.outputs.bff }}
       mcp: ${{ steps.filter.outputs.mcp }}
+      supabase: ${{ steps.filter.outputs.supabase }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -83,6 +84,7 @@ jobs:
           echo "frontend=$(changed frontend)" >> $GITHUB_OUTPUT
           echo "bff=$(changed bff)" >> $GITHUB_OUTPUT
           echo "mcp=$(changed mcp-server)" >> $GITHUB_OUTPUT
+          echo "supabase=$(changed deployments/supabase)" >> $GITHUB_OUTPUT
 
   build-backend:
     if: ${{ needs.detect-changes.outputs.backend == 'true' }}
@@ -124,6 +126,16 @@ jobs:
       checkout_ref: ${{ needs.get-pr-data.outputs.head_sha }}
     secrets: inherit
 
+  deploy-supabase:
+    if: ${{ needs.detect-changes.outputs.supabase == 'true' }}
+    needs: [detect-changes, get-pr-data]
+    uses: ./.github/workflows/supabase-deploy.yaml
+    with:
+      env: dev
+      checkout_repo: ${{ needs.get-pr-data.outputs.head_repo_full_name }}
+      checkout_ref: ${{ needs.get-pr-data.outputs.head_sha }}
+    secrets: inherit
+
   opentofu-services:
     name: 🪄 OpenTofu services (dev)
     needs:
@@ -133,6 +145,7 @@ jobs:
       - build-frontend
       - build-bff
       - build-mcp
+      - deploy-supabase
     if: always() && !cancelled() && !contains(needs.*.result, 'failure')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
