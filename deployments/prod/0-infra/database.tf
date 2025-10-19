@@ -33,7 +33,7 @@ resource "postgresql_role" "frontend_user" {
 }
 
 ########################################
-# Grant coach and swimmer roles to postgres
+# Grant backend and frontend roles to postgres
 ########################################
 
 resource "postgresql_grant_role" "grant_backend_to_postgres" {
