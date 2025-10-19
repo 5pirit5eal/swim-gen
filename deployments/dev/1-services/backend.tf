@@ -5,7 +5,7 @@ locals {
     DB_NAME          = var.supabase.dbname
     DB_HOST          = var.supabase.host
     DB_PORT          = var.supabase.port
-    DB_USER          = var.supabase.backend_user
+    DB_USER          = var.supabase.user
     DB_PASS_LOCATION = var.secret_version_ids.dbpassword_user
     EMBEDDING_MODEL  = var.embedding_model
     EMBEDDING_NAME   = var.embedding_name

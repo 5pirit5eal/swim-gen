@@ -11,7 +11,7 @@ create table if not exists embedders (
 -- Table name matches EMBEDDING_NAME from .env (embeddings)
 create table if not exists embeddings (
   collection_id uuid,
-  embedding vector(768),  -- dimensions from EMBEDDING_SIZE=768
+  embedding extensions.vector(768),  -- dimensions from EMBEDDING_SIZE=768
   document varchar,
   cmetadata json,
   uuid uuid not null,
@@ -79,12 +79,3 @@ create index if not exists idx_feedback_plan_id on feedback(plan_id);
 -- Example (adjust table/column names per pgvector store):
 -- create index if not exists emb_idx on embeddings using ivfflat (embedding vector_cosine_ops) with (lists=100);
 -- analyze embeddings;
-
--- Grant ownership of tables to coach user
-ALTER TABLE embedders OWNER TO coach;
-ALTER TABLE embeddings OWNER TO coach;
-ALTER TABLE plans OWNER TO coach;
-ALTER TABLE scraped OWNER TO coach;
-ALTER TABLE donations OWNER TO coach;
-ALTER TABLE feedback OWNER TO coach;
-

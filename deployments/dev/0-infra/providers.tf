@@ -36,13 +36,14 @@ provider "supabase" {
 }
 
 provider "postgresql" {
-  scheme          = "postgres"
-  host            = "aws-1-${var.supabase.region}.pooler.supabase.com"
-  port            = 5432
-  username        = "postgres.${supabase_project.development.id}"
-  password        = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
-  database        = "postgres"
-  sslmode         = "require"
-  connect_timeout = 180
-  superuser       = false
+  scheme            = "postgres"
+  host              = "aws-1-${var.supabase.region}.pooler.supabase.com"
+  port              = 5432
+  username          = "postgres.${supabase_project.development.id}"
+  password          = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
+  database          = "postgres"
+  database_username = "postgres"
+  sslmode           = "require"
+  connect_timeout   = 180
+  superuser         = false
 }

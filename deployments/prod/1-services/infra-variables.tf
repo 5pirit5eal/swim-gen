@@ -24,13 +24,12 @@ variable "bucket_name" {
 variable "supabase" {
   description = "Supabase project properties"
   type = object({
-    name          = string
-    dbname        = string
-    port          = number
-    backend_user  = string
-    frontend_user = string
-    host          = string
-    id            = string
+    name   = string
+    dbname = string
+    port   = number
+    user   = string
+    host   = string
+    id     = string
   })
 }
 
