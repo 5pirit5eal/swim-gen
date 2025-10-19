@@ -11,6 +11,7 @@ variable "region" {
 variable "github_token" {
   description = "GitHub token with repo and workflow permissions"
   type        = string
+  sensitive   = true
 }
 
 variable "github_owner" {

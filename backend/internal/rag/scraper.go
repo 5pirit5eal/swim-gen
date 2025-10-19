@@ -297,7 +297,7 @@ Forloop:
 	if len(errors) > 0 {
 		logger.Warn("Failed to improve plans or errors during scraping", "err", slog.AnyValue(errors))
 	}
-	logger.Info("Adding documents to the database")
+	logger.Info("Adding documents to the database", "documents", len(documents))
 
 	// Store documents and their embeddings in the database
 	for i := range documents {

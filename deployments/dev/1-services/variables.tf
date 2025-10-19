@@ -15,6 +15,12 @@ variable "github_repository" {
   default     = "swim-gen"
 }
 
+variable "supabase_access_token" {
+  description = "Supabase access token with full permissions"
+  type        = string
+  sensitive   = true
+}
+
 variable "model" {
   description = "The model name"
   type        = string

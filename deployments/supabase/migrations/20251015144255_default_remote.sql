@@ -12,22 +12,28 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-ALTER SCHEMA "public" OWNER TO "postgres";
+
 COMMENT ON SCHEMA "public" IS 'standard public schema';
+
 CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
+
 CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
+
 CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
+
 CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
+
 CREATE EXTENSION IF NOT EXISTS "vector" WITH SCHEMA "extensions";
+
+
 ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
 
-REVOKE USAGE ON SCHEMA "public" FROM PUBLIC;
+GRANT USAGE ON SCHEMA "public" TO "postgres";
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
 GRANT USAGE ON SCHEMA "public" TO "service_role";
-GRANT ALL ON SCHEMA "public" TO "coach";
-GRANT USAGE ON SCHEMA "public" TO "swimmer";
 
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "postgres";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "anon";
@@ -46,3 +52,4 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 
 
 RESET ALL;
+
