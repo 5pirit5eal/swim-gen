@@ -8,7 +8,7 @@ locals {
       name   = var.supabase.name
       user   = "postgres.${supabase_project.production.id}"
       host   = "aws-1-${var.supabase.region}.pooler.supabase.com"
-      port   = 5432
+      port   = 6543
       dbname = "postgres"
     }
     secret_ids         = local.secret_ids
