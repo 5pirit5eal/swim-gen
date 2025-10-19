@@ -103,7 +103,7 @@ jobs:
 
   build-backend:
     if: ${{ needs.detect-changes.outputs.backend == 'true' }}
-    needs: [detect-changes, get-deployment-data]
+    needs: [detect-changes, get-deployment-data, opentofu-infra]
     uses: ./.github/workflows/backend-build.yaml
     with:
       env: dev
@@ -113,7 +113,7 @@ jobs:
 
   build-frontend:
     if: ${{ needs.detect-changes.outputs.frontend == 'true' }}
-    needs: [detect-changes, get-deployment-data]
+    needs: [detect-changes, get-deployment-data, opentofu-infra]
     uses: ./.github/workflows/frontend-build.yaml
     with:
       env: dev
@@ -123,7 +123,7 @@ jobs:
 
   build-bff:
     if: ${{ needs.detect-changes.outputs.bff == 'true' }}
-    needs: [detect-changes, get-deployment-data]
+    needs: [detect-changes, get-deployment-data, opentofu-infra]
     uses: ./.github/workflows/bff-build.yaml
     with:
       env: dev
@@ -133,7 +133,7 @@ jobs:
 
   build-mcp:
     if: ${{ needs.detect-changes.outputs.mcp == 'true' }}
-    needs: [detect-changes, get-deployment-data]
+    needs: [detect-changes, get-deployment-data, opentofu-infra]
     uses: ./.github/workflows/mcp-build.yaml
     with:
       env: dev
