@@ -37,9 +37,9 @@ provider "supabase" {
 
 provider "postgresql" {
   scheme          = "postgres"
-  host            = "db.${supabase_project.development.id}.supabase.co"
-  port            = 5432
-  username        = "postgres"
+  host            = "aws-1-${var.supabase.region}.pooler.supabase.com"
+  port            = 6543
+  username        = "postgres.${supabase_project.development.id}"
   password        = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
   database        = "postgres"
   sslmode         = "require"

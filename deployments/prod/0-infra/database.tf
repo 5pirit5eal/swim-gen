@@ -33,6 +33,20 @@ resource "postgresql_role" "frontend_user" {
 }
 
 ########################################
+# Grant coach and swimmer roles to postgres
+########################################
+
+resource "postgresql_grant_role" "grant_backend_to_postgres" {
+  role       = "postgres"
+  grant_role = postgresql_role.backend_user.name
+}
+
+resource "postgresql_grant_role" "grant_frontend_to_postgres" {
+  role       = "postgres"
+  grant_role = postgresql_role.frontend_user.name
+}
+
+########################################
 # Schema Creation & grants
 ########################################
 resource "postgresql_schema" "schema" {
@@ -96,19 +110,3 @@ resource "postgresql_grant" "frontend_privileges" {
     postgresql_role.backend_user,
   ]
 }
-
-########################################
-# REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-########################################
-# resource "postgresql_grant" "revoke_create_public" {
-#   database    = "postgres"
-#   schema      = postgresql_schema.schema.name
-#   role        = "public"
-#   object_type = "schema"
-#   privileges  = []
-
-#   depends_on = [
-#     postgresql_grant.backend_privileges,
-#     postgresql_grant.frontend_privileges,
-#   ]
-# }

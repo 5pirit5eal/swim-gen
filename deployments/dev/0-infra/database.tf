@@ -2,7 +2,7 @@
 # Database Extensions
 ########################################
 
-resource "postgresql_extension" "pgvector_extensions" {
+resource "postgresql_extension" "pgvector" {
   name         = "vector"
   schema       = "public"
   drop_cascade = true
@@ -112,21 +112,3 @@ resource "postgresql_grant" "frontend_privileges" {
     postgresql_role.backend_user,
   ]
 }
-
-########################################
-# REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-# Because by default, the default privileges allow any user ("public")
-# to create table inside "public" schema
-########################################
-# resource "postgresql_grant" "revoke_create_public" {
-#   database    = "postgres"
-#   schema      = postgresql_schema.schema.name
-#   role        = "public"
-#   object_type = "schema"
-#   privileges  = []
-
-#   depends_on = [
-#     postgresql_grant.backend_privileges,
-#     postgresql_grant.frontend_privileges,
-#   ]
-# }
