@@ -1,0 +1,62 @@
+name: 🚀 Deploy Supabase Migrations
+
+on:
+    workflow_call:
+        inputs:
+            checkout_repo:
+                required: false
+                type: string
+            checkout_ref:
+                required: false
+                type: string
+            env:
+                required: false
+                type: string
+                description: "Environment to setup for"
+                default: dev
+
+permissions:
+    id-token: write
+    contents: read
+
+concurrency:
+    group: supabase-deploy-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    deploy-supabase:
+        name: Deploy Supabase for ${{ inputs.env }}
+        runs-on: ubuntu-latest
+        environment: ${{ inputs.env }}
+        steps:
+            - name: ⬇️ Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  repository: ${{ inputs.checkout_repo }}
+                  ref: ${{ inputs.checkout_ref }}
+                  fetch-depth: 0
+
+            - name: 📦 Setup Workflow
+              uses: ./.github/actions/setup
+              with:
+                  WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+                  WIF_SA: ${{ vars.WIF_SA }}
+
+            - name: 🧪 Install Supabase CLI
+              uses: supabase/setup-cli@v1
+              with:
+                  version: latest
+
+            - name: 🔗 Link Supabase Project
+              env:
+                  SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+                  SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+              run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+              working-directory: deployments/supabase
+
+            - name: 🗄️ Apply Supabase Migrations
+              env:
+                  SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+                  SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+              run: supabase db push
+              working-directory: deployments/supabase
