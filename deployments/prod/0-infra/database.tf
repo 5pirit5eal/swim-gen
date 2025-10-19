@@ -4,7 +4,7 @@
 
 resource "postgresql_extension" "pgvector" {
   name         = "vector"
-  schema       = "public"
+  schema       = "extensions"
   drop_cascade = true
 }
 
@@ -20,6 +20,7 @@ resource "postgresql_role" "backend_user" {
   create_role               = false
   bypass_row_level_security = true
   valid_until               = "infinity"
+  search_path               = ["public", "extensions"]
 }
 
 resource "postgresql_role" "frontend_user" {
@@ -30,6 +31,7 @@ resource "postgresql_role" "frontend_user" {
   create_role               = false
   bypass_row_level_security = true
   valid_until               = "infinity"
+  search_path               = ["public", "extensions"]
 }
 
 ########################################
@@ -37,13 +39,15 @@ resource "postgresql_role" "frontend_user" {
 ########################################
 
 resource "postgresql_grant_role" "grant_backend_to_postgres" {
-  role       = "postgres"
-  grant_role = postgresql_role.backend_user.name
+  role              = "postgres"
+  grant_role        = postgresql_role.backend_user.name
+  with_admin_option = false
 }
 
 resource "postgresql_grant_role" "grant_frontend_to_postgres" {
-  role       = "postgres"
-  grant_role = postgresql_role.frontend_user.name
+  role              = "postgres"
+  grant_role        = postgresql_role.frontend_user.name
+  with_admin_option = false
 }
 
 ########################################

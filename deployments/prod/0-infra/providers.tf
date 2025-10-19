@@ -39,14 +39,15 @@ provider "supabase" {
 # Using the project ref id once created.
 provider "postgresql" {
   scheme          = "postgres"
-  host            = "db.${supabase_project.production.id}.supabase.co"
+  host            = "aws-1-${var.supabase.region}.pooler.supabase.com"
   port            = 5432
-  username        = "postgres"
+  username        = "postgres.${supabase_project.production.id}"
   password        = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
   database        = "postgres"
   sslmode         = "require"
   connect_timeout = 180
   superuser       = false
+  pool_mode       = "session"
 }
 
 data "google_project" "project" {

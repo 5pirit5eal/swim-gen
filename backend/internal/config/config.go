@@ -26,7 +26,7 @@ type Config struct {
 	DB struct {
 		Name         string `env:"DB_NAME"`
 		Host         string `env:"DB_HOST"`
-		Port         string `env:"DB_PORT" default:"6543"`
+		Port         string `env:"DB_PORT" default:"5432"`
 		User         string `env:"DB_USER"`
 		Pass         string `env:"DB_PASS"`
 		PassLocation string `env:"DB_PASS_LOCATION"`
