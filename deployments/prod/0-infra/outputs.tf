@@ -9,7 +9,7 @@ locals {
       backend_user  = "${var.dbusers.backend}.${supabase_project.production.id}"
       frontend_user = "${var.dbusers.frontend}.${supabase_project.production.id}"
       host          = "aws-1-${var.supabase.region}.pooler.supabase.com"
-      port          = 6543
+      port          = 5432
       dbname        = "postgres"
     }
     secret_ids         = local.secret_ids

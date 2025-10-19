@@ -201,7 +201,7 @@ func checkDonatedPlanTableExists(ctx context.Context, tx pgx.Tx) error {
 
 func connect(ctx context.Context, cfg config.Config) (*pgxpool.Pool, error) {
 	// Configure the driver to connect to the database
-	connString := fmt.Sprintf("dbname=%s user=%s password=%s host=%s port=%s sslmode=require pool_max_conn_lifetime=30m",
+	connString := fmt.Sprintf("dbname=%s user=%s password=%s host=%s port=%s sslmode=require pool_max_conn_lifetime=30m pool_mode=session",
 		cfg.DB.Name, cfg.DB.User, cfg.DB.Pass, cfg.DB.Host, cfg.DB.Port)
 	config, err := pgxpool.ParseConfig(connString)
 	if err != nil {
