@@ -6,6 +6,6 @@ resource "postgresql_extension" "pgvector" {
 
 resource "postgresql_extension" "pg_cron" {
   name         = "pg_cron"
-  schema       = "extensions"
+  schema       = "pg_catalog"
   drop_cascade = true
 }
