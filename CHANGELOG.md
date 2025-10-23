@@ -1,3 +1,15 @@
+## [1.10.0](https://github.com/5pirit5eal/swim-gen/compare/v1.9.0...v1.10.0) (2025-10-23)
+
+### Features
+
+* added rls to all public tables ([03e4fd2](https://github.com/5pirit5eal/swim-gen/commit/03e4fd2dc33002f7aec0b3922f2eb7804cd22447))
+* updated migration ([11fb1e2](https://github.com/5pirit5eal/swim-gen/commit/11fb1e2809bd47c524f6783dd1dd933c3b662bd1))
+* updated migration ([#87](https://github.com/5pirit5eal/swim-gen/issues/87)) ([2565549](https://github.com/5pirit5eal/swim-gen/commit/2565549daa4b8a8f87fc0d654cb73a82932dc073))
+
+### Bug Fixes
+
+* moved pg_cron extension into the correct schema ([700fee3](https://github.com/5pirit5eal/swim-gen/commit/700fee3b9a074a64c6c9a009845f28fc84ea7b02))
+
 ## [1.9.0](https://github.com/5pirit5eal/swim-gen/compare/v1.8.1...v1.9.0) (2025-10-19)
 
 ### Features
