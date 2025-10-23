@@ -27,6 +27,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
 CREATE EXTENSION IF NOT EXISTS "vector" WITH SCHEMA "extensions";
 
+CREATE EXTENSION IF NOT EXISTS "pg_cron" WITH SCHEMA "extensions";
+
 
 ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
 
