@@ -171,4 +171,36 @@ describe('trainingPlan Store', () => {
     const newSum = store.currentPlan.table[newRowCount - 1].Sum
     expect(newSum).toBe(initialSum - rowToRemove.Sum) // 500 - 400 = 100
   })
+
+  it('does not add a row if the table has 26 or more rows', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    // Fill the table with 26 rows
+    store.currentPlan.table = Array.from({ length: 26 }, (_, i) => ({
+      Amount: 1, Distance: 100, Sum: 100, Break: '10s', Content: `Swim ${i}`, Intensity: 'GA1', Multiplier: 'x'
+    }));
+
+    const initialRowCount = store.currentPlan.table.length
+    store.addRow(1)
+    const newRowCount = store.currentPlan.table.length
+    expect(newRowCount).toBe(initialRowCount)
+  })
+
+  it('does not remove a row if only one exercise row is left', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = {
+      title: 'Test Plan',
+      description: 'A plan for testing.',
+      table: [
+        { Amount: 1, Distance: 100, Sum: 100, Break: '10s', Content: 'Swim', Intensity: 'GA1', Multiplier: 'x' },
+        { Amount: 0, Distance: 0, Sum: 100, Break: '', Content: 'Total', Intensity: '', Multiplier: '' }
+      ]
+    }
+
+    const initialRowCount = store.currentPlan.table.length
+    store.removeRow(0)
+    const newRowCount = store.currentPlan.table.length
+    expect(newRowCount).toBe(initialRowCount)
+  })
 })

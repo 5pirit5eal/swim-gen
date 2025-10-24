@@ -47,7 +47,10 @@ describe('export Store', () => {
     const requestPayload: PlanToPDFRequest = {
       title: 'Test Plan',
       description: 'A plan for export.',
-      table: [],
+      table: [
+        { Amount: 1, Distance: 100, Sum: 100, Break: '10s', Content: 'Swim', Intensity: 'GA1', Multiplier: 'x' },
+        { Amount: 0, Distance: 0, Sum: 100, Break: '', Content: 'Total', Intensity: '', Multiplier: '' }
+      ],
     }
 
     // Call the action
@@ -81,7 +84,10 @@ describe('export Store', () => {
     const requestPayload: PlanToPDFRequest = {
       title: 'Test Plan',
       description: 'A plan for export.',
-      table: [],
+      table: [
+        { Amount: 1, Distance: 100, Sum: 100, Break: '10s', Content: 'Swim', Intensity: 'GA1', Multiplier: 'x' },
+        { Amount: 0, Distance: 0, Sum: 100, Break: '', Content: 'Total', Intensity: '', Multiplier: '' }
+      ],
     }
 
     // Call the action
@@ -95,5 +101,26 @@ describe('export Store', () => {
     // Verify that apiClient.exportPDF was called
     expect(mockedApiExportPDF).toHaveBeenCalledTimes(1)
     expect(mockedApiExportPDF).toHaveBeenCalledWith(requestPayload)
+  })
+
+  it('does not export if the plan table is empty or has only a total row', async () => {
+    const store = useExportStore()
+
+    const requestPayload: PlanToPDFRequest = {
+      title: 'Empty Plan',
+      description: 'This plan has no exercises.',
+      table: [{ Amount: 0, Distance: 0, Sum: 0, Break: '', Content: 'Total', Intensity: '', Multiplier: '' }]
+    }
+
+    // Call the action
+    const result = await store.exportToPDF(requestPayload)
+
+    // Assertions
+    expect(result).toBeNull()
+    expect(store.isExporting).toBe(false)
+    expect(store.exportError).toBe('Cannot export an empty plan.')
+
+    // Verify that apiClient.exportPDF was NOT called
+    expect(mockedApiExportPDF).not.toHaveBeenCalled()
   })
 })

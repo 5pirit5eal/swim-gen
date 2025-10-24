@@ -58,7 +58,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   }
 
   function addRow(rowIndex: number) {
-    if (currentPlan.value) {
+    if (currentPlan.value && currentPlan.value.table.length < 26) {
       const newRow: Row = {
         Amount: 0,
         Break: '',
@@ -74,8 +74,8 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   }
 
   function removeRow(rowIndex: number) {
-    // Ensure we don't remove the total row
-    if (currentPlan.value && rowIndex < currentPlan.value.table.length - 1) {
+    // Ensure we don't remove the total row and at least one exercise row remains
+    if (currentPlan.value && currentPlan.value.table.length > 2 && rowIndex < currentPlan.value.table.length - 1) {
       currentPlan.value.table.splice(rowIndex, 1)
       recalculateTotalSum()
     }
