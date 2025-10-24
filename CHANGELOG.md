@@ -1,3 +1,14 @@
+## [1.11.0](https://github.com/5pirit5eal/swim-gen/compare/v1.10.0...v1.11.0) (2025-10-24)
+
+### Features
+
+* 70 enable the user to add rows to table ([#95](https://github.com/5pirit5eal/swim-gen/issues/95)) ([f2898fb](https://github.com/5pirit5eal/swim-gen/commit/f2898fbfef2c7f9df6a62e7eb7db730dd51176bc))
+* added + and - operations to editing table ([d235a2f](https://github.com/5pirit5eal/swim-gen/commit/d235a2f258024ffaf3743bc6048498ed023c33d4))
+* added correct styling for border and buttons ([5076b86](https://github.com/5pirit5eal/swim-gen/commit/5076b86c7c3737dc53593d41426692d93005fe41))
+* added guard rails for adding or removing rows ([9250b73](https://github.com/5pirit5eal/swim-gen/commit/9250b73bb67e508fd3a07015216d2a9920823f46))
+* added locales for new ops ([e08251b](https://github.com/5pirit5eal/swim-gen/commit/e08251b450d7508c64f50c31f14722517867d77c))
+* added move up and move down on tables ([b74f002](https://github.com/5pirit5eal/swim-gen/commit/b74f002a0e4310a8ebb1f2f4403738f25447bfbc))
+
 ## [1.10.0](https://github.com/5pirit5eal/swim-gen/compare/v1.9.0...v1.10.0) (2025-10-23)
 
 ### Features
