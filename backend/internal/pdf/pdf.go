@@ -62,9 +62,8 @@ func GenerateFullPDF(plan *models.Plan, ho bool, lang models.Language) ([]byte, 
 func PlanToPDF(plan *models.Plan, ho, lf bool, lang models.Language) ([]byte, error) {
 	if !lf {
 		return GenerateFullPDF(plan, ho, lang)
-	} else {
-		return GenerateEasyReadablePDF(&plan.Table, ho, lang)
 	}
+	return GenerateEasyReadablePDF(&plan.Table, ho, lang)
 
 }
 
