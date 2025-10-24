@@ -90,6 +90,9 @@ function handleRemoveRow(index: number) {
   trainingStore.removeRow(index)
 }
 
+function handleMoveRow(index: number, direction: 'up' | 'down') {
+  trainingStore.moveRow(index, direction)
+}
 
 async function handleExport() {
   // Phase 2: user clicks "Open PDF"
@@ -250,20 +253,9 @@ async function handleExport() {
               <tr class="exercise-row">
                 <!-- Amount Cell -->
                 <td @click="startEditing(index, 'Amount')" class="anchor-cell">
-                  <BaseTableAction v-if="isEditing">
-                    <template #actions>
-                      <div class="action-buttons">
-                        <button @click.stop="handleAddRow(index)" class="action-btn add-btn"
-                          :title="t('display.add_row')">
-                          <!-- CSS Icon -->
-                        </button>
-                        <button @click.stop="handleRemoveRow(index)" class="action-btn remove-btn"
-                          :title="t('display.remove_row')">
-                          <!-- CSS Icon -->
-                        </button>
-                      </div>
-                    </template>
-                  </BaseTableAction>
+                  <BaseTableAction v-if="isEditing" :is-first="index === 0" :is-last="index === exerciseRows.length - 1"
+                    @add="handleAddRow(index)" @remove="handleRemoveRow(index)" @move-up="handleMoveRow(index, 'up')"
+                    @move-down="handleMoveRow(index, 'down')" />
                   <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Amount"
                     @blur="stopEditing($event, index, 'Amount')" @keyup.enter="stopEditing($event, index, 'Amount')"
                     class="editable-small" />
@@ -523,53 +515,8 @@ async function handleExport() {
 /* Show action container on row hover */
 .exercise-row:hover .anchor-cell :deep(.action-container) {
   opacity: 1;
+  transform: translateX(0);
 }
-
-.action-buttons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  /* Space between buttons */
-}
-
-.action-btn {
-  background-color: var(--color-primary);
-  border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  position: relative;
-  /* Needed for pseudo-element positioning */
-  transition: background-color 0.2s;
-}
-
-/* Common style for icon bars */
-.action-btn::before,
-.action-btn::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  width: 12px;
-  /* Width of the icon bar */
-  height: 2px;
-  /* Thickness of the icon bar */
-  border-radius: 1px;
-}
-
-/* Create the vertical bar for the plus icon */
-.add-btn::after {
-  transform: translate(-50%, -50%) rotate(90deg);
-}
-
-.action-btn:hover {
-  background-color: var(--color-primary-hover);
-}
-
 
 .total-cell {
   font-weight: 600;

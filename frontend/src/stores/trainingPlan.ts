@@ -81,6 +81,22 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     }
   }
 
+  function moveRow(rowIndex: number, direction: 'up' | 'down') {
+    if (!currentPlan.value) return
+
+    const table = currentPlan.value.table
+    const isMovingUp = direction === 'up'
+    const isMovingDown = direction === 'down'
+
+    // Prevent moving the first row up or the last exercise row down
+    if ((isMovingUp && rowIndex === 0) || (isMovingDown && rowIndex === table.length - 2)) {
+      return
+    }
+
+    const newIndex = isMovingUp ? rowIndex - 1 : rowIndex + 1
+    const [movedRow] = table.splice(rowIndex, 1)
+    table.splice(newIndex, 0, movedRow)
+  }
 
   function clearPlan() {
     currentPlan.value = null
@@ -103,6 +119,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     updatePlanRow,
     addRow,
     removeRow,
+    moveRow,
     clearPlan,
     clearError,
   }

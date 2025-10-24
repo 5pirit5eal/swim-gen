@@ -203,4 +203,45 @@ describe('trainingPlan Store', () => {
     const newRowCount = store.currentPlan.table.length
     expect(newRowCount).toBe(initialRowCount)
   })
+
+  it('moves a row up', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    const rowToMove = store.currentPlan.table[1]
+    store.moveRow(1, 'up')
+
+    expect(store.currentPlan.table[0]).toBe(rowToMove)
+  })
+
+  it('moves a row down', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    const rowToMove = store.currentPlan.table[0]
+    store.moveRow(0, 'down')
+
+    expect(store.currentPlan.table[1]).toBe(rowToMove)
+  })
+
+  it('does not move the first row up', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    const initialOrder = [...store.currentPlan.table]
+    store.moveRow(0, 'up')
+
+    expect(store.currentPlan.table).toEqual(initialOrder)
+  })
+
+  it('does not move the last exercise row down', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    const initialOrder = [...store.currentPlan.table]
+    const lastExerciseRowIndex = store.currentPlan.table.length - 2
+    store.moveRow(lastExerciseRowIndex, 'down')
+
+    expect(store.currentPlan.table).toEqual(initialOrder)
+  })
 })

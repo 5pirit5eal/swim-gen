@@ -11,6 +11,7 @@
     "build": "vue-tsc --build && vite build",
     "preview": "vite preview",
     "test:unit": "vitest run",
+    "test": "vitest run",
     "test:continous": "vitest",
     "optimize-images": "vite build --mode=production",
     "build-only": "vite build",
