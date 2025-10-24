@@ -4,6 +4,7 @@ import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useExportStore } from '@/stores/export'
 import type { PlanToPDFRequest, Row } from '@/types'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
+import BaseTableAction from '@/components/ui/BaseTableAction.vue'
 import { useI18n } from 'vue-i18n'
 
 const trainingStore = useTrainingPlanStore()
@@ -15,18 +16,6 @@ const isEditing = ref(false)
 const editingCell = ref<{ rowIndex: number; field: keyof Row } | null>(null)
 const exportPhase = ref<'idle' | 'exporting' | 'done'>('idle')
 const pdfUrl = ref<string | null>(null)
-
-// Utility to reset export state (re-used)
-function resetExportState() {
-  pdfUrl.value = null
-  exportPhase.value = 'idle'
-}
-
-// Toggle editing and always clear any previously generated PDF URL
-function toggleEditing() {
-  isEditing.value = !isEditing.value
-  resetExportState()
-}
 
 const exerciseRows = computed(() => {
   if (!trainingStore.currentPlan?.table) return []
@@ -59,6 +48,18 @@ function startEditing(rowIndex: number, field: keyof Row) {
   }
 }
 
+// Utility to reset export state (re-used)
+function resetExportState() {
+  pdfUrl.value = null
+  exportPhase.value = 'idle'
+}
+
+// Toggle editing and always clear any previously generated PDF URL
+function toggleEditing() {
+  isEditing.value = !isEditing.value
+  resetExportState()
+}
+
 // Stop editing the current cell and save the changes
 function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
   const target = event.target as HTMLInputElement | HTMLTextAreaElement
@@ -79,6 +80,16 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
   trainingStore.updatePlanRow(rowIndex, field, newValue)
   editingCell.value = null
 }
+
+// Add a new row after the specified index
+function handleAddRow(index: number) {
+  trainingStore.addRow(index)
+}
+
+function handleRemoveRow(index: number) {
+  trainingStore.removeRow(index)
+}
+
 
 async function handleExport() {
   // Phase 2: user clicks "Open PDF"
@@ -134,7 +145,7 @@ async function handleExport() {
                   <template #tooltip>{{ t('display.amount_tooltip') }}</template>
                 </BaseTooltip>
               </th>
-              <th></th>
+              <th class="multiplier"></th>
               <th>
                 {{ t('display.distance') }}
                 <BaseTooltip>
@@ -147,7 +158,7 @@ async function handleExport() {
                   <template #tooltip>{{ t('display.break_tooltip') }}</template>
                 </BaseTooltip>
               </th>
-              <th>
+              <th class="content-header">
                 {{ t('display.content') }}
                 <BaseTooltip>
                   <template #tooltip>
@@ -235,74 +246,60 @@ async function handleExport() {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in exerciseRows" :key="index" class="exercise-row">
-              <!-- Amount Cell -->
-              <td @click="startEditing(index, 'Amount')">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  pattern="[0-9]*"
-                  v-if="isEditing"
-                  :value="row.Amount"
-                  @blur="stopEditing($event, index, 'Amount')"
-                  @keyup.enter="stopEditing($event, index, 'Amount')"
-                  class="editable-small"
-                />
-                <span v-else>{{ row.Amount }}</span>
-              </td>
-              <td>{{ row.Multiplier }}</td>
-              <!-- Distance Cell -->
-              <td @click="startEditing(index, 'Distance')">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  pattern="[0-9]*"
-                  v-if="isEditing"
-                  :value="row.Distance"
-                  @blur="stopEditing($event, index, 'Distance')"
-                  @keyup.enter="stopEditing($event, index, 'Distance')"
-                  class="editable-small"
-                />
-                <span v-else>{{ row.Distance }}</span>
-              </td>
-              <!-- Intensity Cell -->
-              <td @click="startEditing(index, 'Break')">
-                <input
-                  type="text"
-                  v-if="isEditing"
-                  :value="row.Break"
-                  @blur="stopEditing($event, index, 'Break')"
-                  @keyup.enter="stopEditing($event, index, 'Break')"
-                  class="editable-small"
-                />
-                <span v-else>{{ row.Break }}</span>
-              </td>
-              <!-- Content Cell -->
-              <td class="content-cell" @click="startEditing(index, 'Content')">
-                <textarea
-                  v-if="isEditing"
-                  :value="row.Content"
-                  @blur="stopEditing($event, index, 'Content')"
-                  @keyup.enter="stopEditing($event, index, 'Content')"
-                  class="editable-area"
-                ></textarea>
-                <span v-else>{{ row.Content }}</span>
-              </td>
-              <!-- Intensity Cell -->
-              <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                <input
-                  type="text"
-                  v-if="isEditing"
-                  :value="row.Intensity"
-                  @blur="stopEditing($event, index, 'Intensity')"
-                  @keyup.enter="stopEditing($event, index, 'Intensity')"
-                  class="editable-small"
-                />
-                <span v-else>{{ row.Intensity }}</span>
-              </td>
-              <td class="total-cell">{{ row.Sum }}</td>
-            </tr>
-            <!-- Total row from backend -->
+            <template v-for="(row, index) in exerciseRows" :key="index">
+              <tr class="exercise-row">
+                <!-- Amount Cell -->
+                <td @click="startEditing(index, 'Amount')" class="anchor-cell">
+                  <BaseTableAction v-if="isEditing">
+                    <template #actions>
+                      <div class="action-buttons">
+                        <button @click.stop="handleAddRow(index)" class="action-btn add-btn"
+                          :title="t('display.add_row')">
+                          <!-- CSS Icon -->
+                        </button>
+                        <button @click.stop="handleRemoveRow(index)" class="action-btn remove-btn"
+                          :title="t('display.remove_row')">
+                          <!-- CSS Icon -->
+                        </button>
+                      </div>
+                    </template>
+                  </BaseTableAction>
+                  <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Amount"
+                    @blur="stopEditing($event, index, 'Amount')" @keyup.enter="stopEditing($event, index, 'Amount')"
+                    class="editable-small" />
+                  <span v-else>{{ row.Amount }}</span>
+                </td>
+                <td>{{ row.Multiplier }}</td>
+                <!-- Distance Cell -->
+                <td @click="startEditing(index, 'Distance')">
+                  <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Distance"
+                    @blur="stopEditing($event, index, 'Distance')" @keyup.enter="stopEditing($event, index, 'Distance')"
+                    class="editable-small" />
+                  <span v-else>{{ row.Distance }}</span>
+                </td>
+                <!-- Intensity Cell -->
+                <td @click="startEditing(index, 'Break')">
+                  <input type="text" v-if="isEditing" :value="row.Break" @blur="stopEditing($event, index, 'Break')"
+                    @keyup.enter="stopEditing($event, index, 'Break')" class="editable-small" />
+                  <span v-else>{{ row.Break }}</span>
+                </td>
+                <!-- Content Cell -->
+                <td class="content-cell" @click="startEditing(index, 'Content')">
+                  <textarea v-if="isEditing" :value="row.Content" @blur="stopEditing($event, index, 'Content')"
+                    @keyup.enter="stopEditing($event, index, 'Content')" class="editable-area"></textarea>
+                  <span v-else>{{ row.Content }}</span>
+                </td>
+                <!-- Intensity Cell -->
+                <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
+                  <input type="text" v-if="isEditing" :value="row.Intensity"
+                    @blur="stopEditing($event, index, 'Intensity')"
+                    @keyup.enter="stopEditing($event, index, 'Intensity')" class="editable-small" />
+                  <span v-else>{{ row.Intensity }}</span>
+                </td>
+                <td class="total-cell">{{ row.Sum }}</td>
+              </tr>
+            </template>
+            <!-- Total row -->
             <tr v-if="totalRow" class="total-row">
               <td colspan="6">
                 <strong>{{ totalRow.Content }}</strong>
@@ -333,10 +330,7 @@ async function handleExport() {
     </div>
   </div>
 
-  <div
-    v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading"
-    class="export-section"
-  >
+  <div v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading" class="export-section">
     <!-- Edit Action -->
     <button @click="toggleEditing" class="export-btn">
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
@@ -421,7 +415,12 @@ async function handleExport() {
   width: auto;
 }
 
-th:nth-child(5) {
+.exercise-table th.multiplier,
+.exercise-table td.multiplier {
+  width: 5%;
+}
+
+.exercise-table th.content-header {
   width: 30%;
 }
 
@@ -457,11 +456,12 @@ th:nth-child(5) {
   }
 }
 
-.exercise-table td > span,
-.exercise-table td > textarea {
+.exercise-table td>span,
+.exercise-table td>textarea {
   display: block;
 }
 
+/* Apply alternating backgrounds to data cells */
 .exercise-row:nth-child(even) {
   background-color: var(--color-background);
 }
@@ -470,8 +470,13 @@ th:nth-child(5) {
   background-color: var(--color-background-soft);
 }
 
+/* Apply hover effect to data cells */
 .exercise-row:hover {
   background-color: var(--color-background-mute);
+}
+
+.exercise-row:hover {
+  --action-bg-color: var(--color-background-mute);
 }
 
 .content-cell {
@@ -509,6 +514,62 @@ th:nth-child(5) {
   font-size: inherit;
   box-sizing: border-box;
 }
+
+.anchor-cell {
+  position: relative;
+  border-left: none;
+}
+
+/* Show action container on row hover */
+.exercise-row:hover .anchor-cell :deep(.action-container) {
+  opacity: 1;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  /* Space between buttons */
+}
+
+.action-btn {
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  position: relative;
+  /* Needed for pseudo-element positioning */
+  transition: background-color 0.2s;
+}
+
+/* Common style for icon bars */
+.action-btn::before,
+.action-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  width: 12px;
+  /* Width of the icon bar */
+  height: 2px;
+  /* Thickness of the icon bar */
+  border-radius: 1px;
+}
+
+/* Create the vertical bar for the plus icon */
+.add-btn::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.action-btn:hover {
+  background-color: var(--color-primary-hover);
+}
+
 
 .total-cell {
   font-weight: 600;
@@ -648,7 +709,7 @@ th:nth-child(5) {
     padding: 0.5rem 1rem;
   }
 
-  button + button {
+  button+button {
     margin-left: 2rem;
   }
 }

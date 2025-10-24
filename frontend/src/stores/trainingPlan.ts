@@ -37,23 +37,50 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     console.log(`Updating row ${rowIndex}, field ${field} with value:`, value)
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       // Recalculate Sum if Amount or Distance changed
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
-
-        // Update the last row with the new sum
-        if (currentPlan.value.table.length > 0) {
-          const lastRowIndex = currentPlan.value.table.length - 1
-          const lastRow = currentPlan.value.table[lastRowIndex]
-          lastRow.Sum = currentPlan.value.table
-            .slice(0, -1)
-            .reduce((acc, r) => acc + (r.Sum || 0), 0)
-        }
+        recalculateTotalSum()
       }
     }
   }
+
+  function recalculateTotalSum() {
+    if (currentPlan.value && currentPlan.value.table.length > 0) {
+      const lastRowIndex = currentPlan.value.table.length - 1
+      const lastRow = currentPlan.value.table[lastRowIndex]
+      lastRow.Sum = currentPlan.value.table
+        .slice(0, -1)
+        .reduce((acc, r) => acc + (r.Sum || 0), 0)
+    }
+  }
+
+  function addRow(rowIndex: number) {
+    if (currentPlan.value) {
+      const newRow: Row = {
+        Amount: 0,
+        Break: '',
+        Content: '',
+        Distance: 0,
+        Intensity: '',
+        Multiplier: 'x',
+        Sum: 0,
+      }
+      currentPlan.value.table.splice(rowIndex, 0, newRow)
+      recalculateTotalSum()
+    }
+  }
+
+  function removeRow(rowIndex: number) {
+    // Ensure we don't remove the total row
+    if (currentPlan.value && rowIndex < currentPlan.value.table.length - 1) {
+      currentPlan.value.table.splice(rowIndex, 1)
+      recalculateTotalSum()
+    }
+  }
+
 
   function clearPlan() {
     currentPlan.value = null
@@ -74,6 +101,8 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     // Actions
     generatePlan,
     updatePlanRow,
+    addRow,
+    removeRow,
     clearPlan,
     clearError,
   }

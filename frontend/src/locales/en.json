@@ -109,7 +109,9 @@
     "refine_plan": "Refine Plan",
     "export_pdf": "Export PDF",
     "exporting": "Exporting...",
-    "open_pdf": "Open PDF"
+    "open_pdf": "Open PDF",
+    "add_row": "Add new row",
+    "remove_row": "Remove this row"
   },
   "impressum": {
     "title": "Impressum",
