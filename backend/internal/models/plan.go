@@ -141,7 +141,7 @@ func (t *Table) AddSum() {
 	for _, row := range *t {
 		sum += row.Sum
 	}
-	*t = append(*t, Row{Sum: sum})
+	*t = append(*t, Row{Content: "Gesamt", Sum: sum})
 }
 
 // Recalculates the sum for each row
