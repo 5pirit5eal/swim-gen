@@ -82,3 +82,32 @@ func DescriptionSchema() (string, error) {
 	}
 	return string(jsonSchema), nil
 }
+
+var Abbreviations = map[string]string{
+	"K":        "Kraulschwimmen",
+	"Kr":       "Kraulschwimmen",
+	"Freistil": "Kraulschwimmen",
+	"F":        "Kraulschwimmen",
+	"Fr":       "Kraulschwimmen",
+	"R":        "Rückenschwimmen",
+	"B":        "Brustschwimmen",
+	"Br":       "Brustschwimmen",
+	"Be":       "Beinarbeit",
+	"S":        "Schmetterling/Delfinschwimmen oder Sprint/Schnelligkeit wenn genutzt für Belastungszonen",
+	"D":        "Schmetterling/Delfinschwimmen",
+	"Lagen":    "Lagenstaffel",
+	"DL":       "Dauerlauf",
+	"SL":       "Sprintlauf",
+	"GA":       "Grundlagenausdauer",
+	"SA":       "Schnelligkeitsausdauer",
+	"TA":       "Technikausdauer",
+	"TÜ":       "Technische Übung",
+	"TS":       "Technisch Sauber",
+	"BZ":       "Belastungszone",
+	"HF":       "Herzfrequenz",
+	"LT":       "lactate threshold",
+	"LZA":      "Langzeitausdauer",
+	"Rekom":    "Regenerations- und Kompensationsbereich",
+	"WA":       "Wettkampfspezifische Ausdauer",
+	"WK":       "Wettkampf",
+}

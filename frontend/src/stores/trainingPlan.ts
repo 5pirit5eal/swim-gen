@@ -23,6 +23,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     if (result.success && result.data) {
       currentPlan.value = result.data
       isLoading.value = false
+      recalculateTotalSum()
       return true
     } else {
       error.value = result.error

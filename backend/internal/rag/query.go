@@ -23,7 +23,7 @@ const (
 )
 
 // Query searches for documents in the database based on the provided query and filter.
-func (db *RAGDB) Query(ctx context.Context, query, lang string, filter map[string]any, method string, poolLength any) (*models.RAGResponse, error) {
+func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, filter map[string]any, method string, poolLength any) (*models.RAGResponse, error) {
 	logger := httplog.LogEntry(ctx)
 	// Set the embedder to query mode
 	db.Client.QueryMode()
@@ -48,13 +48,13 @@ func (db *RAGDB) Query(ctx context.Context, query, lang string, filter map[strin
 	answer := &models.RAGResponse{}
 	switch method {
 	case "generate":
-		answer, err = db.Client.GeneratePlan(ctx, query, lang, poolLength, docs)
+		answer, err = db.Client.GeneratePlan(ctx, query, string(lang), poolLength, docs)
 	case "choose":
 		if len(docs) == 0 {
 			return nil, fmt.Errorf("no documents in database matching query and filters")
 		}
 		var planID string
-		planID, err = db.Client.ChoosePlan(ctx, query, lang, poolLength, docs)
+		planID, err = db.Client.ChoosePlan(ctx, query, string(lang), poolLength, docs)
 		if err != nil {
 			logger.Error("Error choosing plan", httplog.ErrAttr(err))
 			return nil, fmt.Errorf("error choosing plan: %w", err)

@@ -145,7 +145,7 @@ func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan models.P
 	}
 	// Enhance scraped documents with gemini and create meaningful metadata
 	genericPlan := plan.Plan()
-	query := fmt.Sprintf(metadataTemplateStr, genericPlan.Title, genericPlan.Description, genericPlan.Table.String(), ms)
+	query := fmt.Sprintf(metadataTemplateStr, models.Abbreviations, genericPlan.Title, genericPlan.Description, genericPlan.Table.String(), ms)
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
@@ -166,15 +166,16 @@ func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan models.P
 	return &metadata, nil
 }
 
-func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.RAGResponse, lang string) (*models.RAGResponse, error) {
+func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.RAGResponse, lang models.Language) (*models.RAGResponse, error) {
 	logger := httplog.LogEntry(ctx)
 	ts, err := models.TableSchema()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get table schema: %w", err)
 	}
+
 	// Translate the plan to the requested language
 	// Create a RAG query for the LLM with the most relevant documents as context
-	query := fmt.Sprintf(translateTemplateStr, lang, plan.Title, plan.Description, plan.Table.String(), ts)
+	query := fmt.Sprintf(translateTemplateStr, lang, models.Abbreviations, plan.Title, plan.Description, plan.Table.String(), ts)
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)

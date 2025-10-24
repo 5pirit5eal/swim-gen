@@ -209,11 +209,16 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 	}
 
 	// Convert the table to PDF
-	planPDF, err := pdf.PlanToPDF(&models.Plan{
-		Title:       qr.Title,
-		Description: qr.Description,
-		Table:       qr.Table,
-	})
+	planPDF, err := pdf.PlanToPDF(
+		&models.Plan{
+			Title:       qr.Title,
+			Description: qr.Description,
+			Table:       qr.Table,
+		},
+		qr.Horizontal,
+		qr.LargeFont,
+		qr.Language,
+	)
 	if err != nil {
 		logger.Error("Table generation failed", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -243,7 +248,7 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 // @Tags prompt
 // @Accept json
 // @Produce json
-// @Param request body models.GeneratedPromptRequest true "Request to generate a prompt"
+// @Param request body models.GeneratePromptRequest true "Request to generate a prompt"
 // @Success 200 {object} models.GeneratedPromptResponse "Generated prompt response"
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"
@@ -253,7 +258,7 @@ func (rs *RAGService) GeneratePromptHandler(w http.ResponseWriter, req *http.Req
 	logger.Info("Generating prompt...")
 
 	// Parse HTTP request from JSON.
-	gpr := &models.GeneratedPromptRequest{}
+	gpr := &models.GeneratePromptRequest{}
 	err := models.GetRequestJSON(req, gpr)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

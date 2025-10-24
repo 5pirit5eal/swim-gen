@@ -45,6 +45,9 @@ export interface PlanToPDFRequest {
   title: string
   description: string
   table: Row[]
+  horizontal?: boolean
+  large_font?: boolean
+  language?: string
 }
 
 // Backend API PlanToPDFResponse structure

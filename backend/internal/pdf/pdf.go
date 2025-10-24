@@ -20,6 +20,7 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/consts/align"
 	"github.com/johnfercher/maroto/v2/pkg/consts/breakline"
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
+	"github.com/johnfercher/maroto/v2/pkg/consts/orientation"
 	"github.com/johnfercher/maroto/v2/pkg/core"
 	"github.com/johnfercher/maroto/v2/pkg/props"
 )
@@ -27,10 +28,10 @@ import (
 // Converts the given table to a PDF string representation.
 // Uses maroto to create a PDF document with the table data.
 // The PDF is returned as a string, which can be saved to a file or sent to cloud storage.
-func TableToPDF(table models.Table) ([]byte, error) {
-	m := getMaroto()
+func GenerateEasyReadablePDF(table *models.Table, ho bool, lang models.Language) ([]byte, error) {
+	m := getMaroto(ho)
 
-	m.AddRows(getRows(table)...)
+	m.AddRows(getRows(*table, true, lang)...)
 
 	document, err := m.Generate()
 	if err != nil {
@@ -40,14 +41,11 @@ func TableToPDF(table models.Table) ([]byte, error) {
 	return document.GetBytes(), nil
 }
 
-func PlanToPDF(plan *models.Plan) ([]byte, error) {
-	m := getMaroto()
-
+func GenerateFullPDF(plan *models.Plan, ho bool, lang models.Language) ([]byte, error) {
+	m := getMaroto(ho)
 	_ = m.RegisterHeader(text.NewAutoRow(plan.Title, props.Text{Size: 18, Style: fontstyle.Bold, Align: align.Center}))
-
 	m.AddAutoRow(col.New().Add(text.New(plan.Description, props.Text{Size: 10, Top: 10, Bottom: 10})))
-
-	m.AddRows(getRows((*plan).Table)...)
+	m.AddRows(getRows((*plan).Table, false, lang)...)
 
 	document, err := m.Generate()
 	if err != nil {
@@ -55,6 +53,18 @@ func PlanToPDF(plan *models.Plan) ([]byte, error) {
 	}
 
 	return document.GetBytes(), nil
+}
+
+// Converts the given plan to a PDF byte slice representation.
+//
+// Uses maroto to create a PDF document with the plan data.
+// The PDF is returned as a byte slice, which can be saved to a file or sent to cloud storage.
+func PlanToPDF(plan *models.Plan, ho, lf bool, lang models.Language) ([]byte, error) {
+	if !lf {
+		return GenerateFullPDF(plan, ho, lang)
+	}
+	return GenerateEasyReadablePDF(&plan.Table, ho, lang)
+
 }
 
 // Uploads the given pdf to cloud storage and returns the URI of the uploaded file.
@@ -107,29 +117,40 @@ func GenerateFilename() string {
 	return path.Join("anonymous", uuid.NewString()+".pdf")
 }
 
-func getMaroto() core.Maroto {
+func getMaroto(ho bool) core.Maroto {
 	cfg := config.NewBuilder().
 		WithMaxGridSize(25).
 		WithLeftMargin(10).
 		WithTopMargin(15).
-		WithRightMargin(10).
-		Build()
+		WithBottomMargin(15).
+		WithRightMargin(10)
 
-	m := maroto.New(cfg)
+	if ho {
+		cfg = cfg.WithTopMargin(5).WithBottomMargin(5).WithOrientation(orientation.Horizontal)
+	}
+
+	m := maroto.New(cfg.Build())
 	return m
 }
 
-func getRows(table models.Table) []core.Row {
+// Convert table rows to maroto rows
+// lf indicates if large font should be used
+func getRows(table models.Table, lf bool, lang models.Language) []core.Row {
 	if len(table) < 2 {
 		return make([]core.Row, 0)
 	}
 	// A row consists of 7 columns based on models.Row
-	headerRow := row.New(8)
+	headerRow := row.New()
 	headerProps := props.Text{Style: fontstyle.Bold, Align: align.Center, Top: 2, Bottom: 2}
+	if lf {
+		headerProps.Top = 3
+		headerProps.Bottom = 3
+		headerProps.Size = 12
+	}
 	darkGray := &props.Color{Red: 200, Green: 200, Blue: 200}
 	lightGray := &props.Color{Red: 240, Green: 240, Blue: 240}
 
-	for i, title := range table.Header() {
+	for i, title := range table.Header(lang) {
 		switch i {
 		case 1:
 			headerRow.Add(text.NewCol(1, title, headerProps))
@@ -142,21 +163,24 @@ func getRows(table models.Table) []core.Row {
 	headerRow.WithStyle(&props.Cell{BackgroundColor: darkGray})
 
 	rows := []core.Row{headerRow}
-	p := props.Text{
-		Align:  align.Center,
-		Top:    2,
-		Bottom: 2,
-		// Left:   2,
-		// Right:  2,
+	p := props.Text{Align: align.Center, Top: 2, Bottom: 2}
+	if lf {
+		p.Size = 16
+		p.Top = 3
+		p.Bottom = 3
 	}
 	for i, content := range table {
 		row := row.New()
 		if i < len(table)-1 {
-			row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Amount), p)).WithStyle(&props.Cell{}))
+			row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Amount), p)))
 			row.Add(col.New(1).Add(text.New(content.Multiplier, p)))
 			row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Distance), p)))
 			row.Add(col.New(3).Add(text.New(content.Break, p)))
-			row.Add(col.New(9).Add(text.New(content.Content, props.Text{Align: align.Center, Top: 2, Bottom: 2, Left: 2, Right: 2, BreakLineStrategy: breakline.EmptySpaceStrategy})))
+			row.Add(col.New(9).Add(text.New(content.Content, props.Text{
+				Size: p.Size, Align: p.Align,
+				Top: p.Top, Bottom: p.Bottom, Left: 2, Right: 2,
+				BreakLineStrategy: breakline.EmptySpaceStrategy,
+			})))
 			row.Add(col.New(3).Add(text.New(content.Intensity, p)))
 			row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Sum), p)))
 
@@ -165,10 +189,13 @@ func getRows(table models.Table) []core.Row {
 			}
 
 		} else {
+			sloganProps := props.Text{Size: headerProps.Size, Align: align.Left, Top: p.Top, Bottom: p.Bottom, Left: 2, Style: fontstyle.BoldItalic}
+			footer := table.Footer(lang)
 			row.Add(
-				col.New(16),
-				text.NewCol(6, "Gesamtumfang", headerProps),
-				text.NewCol(3, strconv.Itoa(content.Sum), headerProps),
+				text.NewCol(7, footer[0], sloganProps),
+				col.New(12),
+				text.NewCol(3, footer[4], headerProps),
+				text.NewCol(3, footer[6], headerProps),
 			).WithStyle(&props.Cell{BackgroundColor: darkGray})
 		}
 		rows = append(rows, row)
