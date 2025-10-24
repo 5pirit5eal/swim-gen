@@ -27,10 +27,34 @@ const createMockPlan = (): RAGResponse => ({
   title: 'Test Plan',
   description: 'A plan for testing.',
   table: [
-    { Amount: 1, Distance: 100, Sum: 100, Break: '10s', Content: 'Swim', Intensity: 'GA1', Multiplier: 'x' },
-    { Amount: 2, Distance: 200, Sum: 400, Break: '20s', Content: 'Kick', Intensity: 'GA2', Multiplier: 'x' },
-    { Amount: 0, Distance: 0, Sum: 500, Break: '', Content: 'Total', Intensity: '', Multiplier: '' }
-  ]
+    {
+      Amount: 1,
+      Distance: 100,
+      Sum: 100,
+      Break: '10s',
+      Content: 'Swim',
+      Intensity: 'GA1',
+      Multiplier: 'x',
+    },
+    {
+      Amount: 2,
+      Distance: 200,
+      Sum: 400,
+      Break: '20s',
+      Content: 'Kick',
+      Intensity: 'GA2',
+      Multiplier: 'x',
+    },
+    {
+      Amount: 0,
+      Distance: 0,
+      Sum: 500,
+      Break: '',
+      Content: 'Total',
+      Intensity: '',
+      Multiplier: '',
+    },
+  ],
 })
 
 describe('trainingPlan Store', () => {
@@ -165,7 +189,7 @@ describe('trainingPlan Store', () => {
     expect(newRowCount).toBe(initialRowCount - 1)
 
     // Check that the correct row was removed
-    expect(store.currentPlan.table.find(r => r.Content === 'Kick')).toBeUndefined()
+    expect(store.currentPlan.table.find((r) => r.Content === 'Kick')).toBeUndefined()
 
     // The new total sum should be the initial sum minus the sum of the removed row
     const newSum = store.currentPlan.table[newRowCount - 1].Sum
@@ -178,8 +202,14 @@ describe('trainingPlan Store', () => {
 
     // Fill the table with 26 rows
     store.currentPlan.table = Array.from({ length: 26 }, (_, i) => ({
-      Amount: 1, Distance: 100, Sum: 100, Break: '10s', Content: `Swim ${i}`, Intensity: 'GA1', Multiplier: 'x'
-    }));
+      Amount: 1,
+      Distance: 100,
+      Sum: 100,
+      Break: '10s',
+      Content: `Swim ${i}`,
+      Intensity: 'GA1',
+      Multiplier: 'x',
+    }))
 
     const initialRowCount = store.currentPlan.table.length
     store.addRow(1)
@@ -193,9 +223,25 @@ describe('trainingPlan Store', () => {
       title: 'Test Plan',
       description: 'A plan for testing.',
       table: [
-        { Amount: 1, Distance: 100, Sum: 100, Break: '10s', Content: 'Swim', Intensity: 'GA1', Multiplier: 'x' },
-        { Amount: 0, Distance: 0, Sum: 100, Break: '', Content: 'Total', Intensity: '', Multiplier: '' }
-      ]
+        {
+          Amount: 1,
+          Distance: 100,
+          Sum: 100,
+          Break: '10s',
+          Content: 'Swim',
+          Intensity: 'GA1',
+          Multiplier: 'x',
+        },
+        {
+          Amount: 0,
+          Distance: 0,
+          Sum: 100,
+          Break: '',
+          Content: 'Total',
+          Intensity: '',
+          Multiplier: '',
+        },
+      ],
     }
 
     const initialRowCount = store.currentPlan.table.length

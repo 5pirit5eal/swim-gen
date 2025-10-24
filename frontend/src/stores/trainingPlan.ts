@@ -37,7 +37,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     console.log(`Updating row ${rowIndex}, field ${field} with value:`, value)
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-        ; (row[field] as string | number) = value
+      ;(row[field] as string | number) = value
 
       // Recalculate Sum if Amount or Distance changed
       if (field === 'Amount' || field === 'Distance') {
@@ -51,9 +51,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     if (currentPlan.value && currentPlan.value.table.length > 0) {
       const lastRowIndex = currentPlan.value.table.length - 1
       const lastRow = currentPlan.value.table[lastRowIndex]
-      lastRow.Sum = currentPlan.value.table
-        .slice(0, -1)
-        .reduce((acc, r) => acc + (r.Sum || 0), 0)
+      lastRow.Sum = currentPlan.value.table.slice(0, -1).reduce((acc, r) => acc + (r.Sum || 0), 0)
     }
   }
 
@@ -75,7 +73,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   function removeRow(rowIndex: number) {
     // Ensure we don't remove the total row and at least one exercise row remains
-    if (currentPlan.value && currentPlan.value.table.length > 2 && rowIndex < currentPlan.value.table.length - 1) {
+    if (
+      currentPlan.value &&
+      currentPlan.value.table.length > 2 &&
+      rowIndex < currentPlan.value.table.length - 1
+    ) {
       currentPlan.value.table.splice(rowIndex, 1)
       recalculateTotalSum()
     }

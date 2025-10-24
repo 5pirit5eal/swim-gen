@@ -48,8 +48,24 @@ describe('export Store', () => {
       title: 'Test Plan',
       description: 'A plan for export.',
       table: [
-        { Amount: 1, Distance: 100, Sum: 100, Break: '10s', Content: 'Swim', Intensity: 'GA1', Multiplier: 'x' },
-        { Amount: 0, Distance: 0, Sum: 100, Break: '', Content: 'Total', Intensity: '', Multiplier: '' }
+        {
+          Amount: 1,
+          Distance: 100,
+          Sum: 100,
+          Break: '10s',
+          Content: 'Swim',
+          Intensity: 'GA1',
+          Multiplier: 'x',
+        },
+        {
+          Amount: 0,
+          Distance: 0,
+          Sum: 100,
+          Break: '',
+          Content: 'Total',
+          Intensity: '',
+          Multiplier: '',
+        },
       ],
     }
 
@@ -85,8 +101,24 @@ describe('export Store', () => {
       title: 'Test Plan',
       description: 'A plan for export.',
       table: [
-        { Amount: 1, Distance: 100, Sum: 100, Break: '10s', Content: 'Swim', Intensity: 'GA1', Multiplier: 'x' },
-        { Amount: 0, Distance: 0, Sum: 100, Break: '', Content: 'Total', Intensity: '', Multiplier: '' }
+        {
+          Amount: 1,
+          Distance: 100,
+          Sum: 100,
+          Break: '10s',
+          Content: 'Swim',
+          Intensity: 'GA1',
+          Multiplier: 'x',
+        },
+        {
+          Amount: 0,
+          Distance: 0,
+          Sum: 100,
+          Break: '',
+          Content: 'Total',
+          Intensity: '',
+          Multiplier: '',
+        },
       ],
     }
 
@@ -109,7 +141,17 @@ describe('export Store', () => {
     const requestPayload: PlanToPDFRequest = {
       title: 'Empty Plan',
       description: 'This plan has no exercises.',
-      table: [{ Amount: 0, Distance: 0, Sum: 0, Break: '', Content: 'Total', Intensity: '', Multiplier: '' }]
+      table: [
+        {
+          Amount: 0,
+          Distance: 0,
+          Sum: 0,
+          Break: '',
+          Content: 'Total',
+          Intensity: '',
+          Multiplier: '',
+        },
+      ],
     }
 
     // Call the action
