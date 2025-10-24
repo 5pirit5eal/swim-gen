@@ -1,3 +1,15 @@
+## [1.12.0](https://github.com/5pirit5eal/swim-gen/compare/v1.11.0...v1.12.0) (2025-10-24)
+
+### Features
+
+* added export options to frontend ([213da5e](https://github.com/5pirit5eal/swim-gen/commit/213da5e6df8f72591b1cd75e9711ccd36f8230eb))
+* added horizontal, large font and english export ([5acce78](https://github.com/5pirit5eal/swim-gen/commit/5acce78c18c0f1dd81b0826165d7b6148f727fec))
+
+### Bug Fixes
+
+* correct update of total row ([74eb012](https://github.com/5pirit5eal/swim-gen/commit/74eb0128b6955390cda59732d22cedf1bbcf6819))
+* readded Gesamt marker ([bd669f8](https://github.com/5pirit5eal/swim-gen/commit/bd669f8f9a5bd916973952f2a5ee6bba3032ca2b))
+
 ## [1.11.0](https://github.com/5pirit5eal/swim-gen/compare/v1.10.0...v1.11.0) (2025-10-24)
 
 ### Features
