@@ -194,9 +194,8 @@ func getRows(table models.Table, lf bool, lang models.Language) []core.Row {
 			footer := table.Footer(lang)
 			row.Add(
 				text.NewCol(7, footer[0], sloganProps),
-				col.New(3),
-				text.NewCol(9, footer[4], headerProps),
-				col.New(3),
+				col.New(12),
+				text.NewCol(3, footer[4], headerProps),
 				text.NewCol(3, footer[6], headerProps),
 			).WithStyle(&props.Cell{BackgroundColor: darkGray})
 		}

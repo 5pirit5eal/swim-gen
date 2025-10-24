@@ -16,6 +16,9 @@ const isEditing = ref(false)
 const editingCell = ref<{ rowIndex: number; field: keyof Row } | null>(null)
 const exportPhase = ref<'idle' | 'exporting' | 'done'>('idle')
 const pdfUrl = ref<string | null>(null)
+const exportHorizontal = ref(false)
+const exportLargeFont = ref(false)
+const isExportMenuOpen = ref(false)
 
 const exerciseRows = computed(() => {
   if (!trainingStore.currentPlan?.table) return []
@@ -95,6 +98,7 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
 }
 
 async function handleExport() {
+  isExportMenuOpen.value = false // Close menu on export
   // Phase 2: user clicks "Open PDF"
   if (exportPhase.value === 'done' && pdfUrl.value) {
     const w = window.open(pdfUrl.value, '_blank')
@@ -109,7 +113,13 @@ async function handleExport() {
   // Phase 1: user clicks "Export PDF"
   exportPhase.value = 'exporting'
   try {
-    pdfUrl.value = await exportStore.exportToPDF(trainingStore.currentPlan as PlanToPDFRequest)
+    const payload: PlanToPDFRequest = {
+      ...trainingStore.currentPlan,
+      horizontal: exportHorizontal.value,
+      large_font: exportLargeFont.value,
+      language: navigator.language.split('-')[0] || 'en'
+    }
+    pdfUrl.value = await exportStore.exportToPDF(payload)
     if (!pdfUrl.value) {
       exportPhase.value = 'idle'
       return
@@ -253,75 +263,39 @@ async function handleExport() {
               <tr class="exercise-row">
                 <!-- Amount Cell -->
                 <td @click="startEditing(index, 'Amount')" class="anchor-cell">
-                  <BaseTableAction
-                    v-if="isEditing"
-                    :is-first="index === 0"
-                    :is-last="index === exerciseRows.length - 1"
-                    @add="handleAddRow(index)"
-                    @remove="handleRemoveRow(index)"
-                    @move-up="handleMoveRow(index, 'up')"
-                    @move-down="handleMoveRow(index, 'down')"
-                  />
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Amount"
-                    @blur="stopEditing($event, index, 'Amount')"
-                    @keyup.enter="stopEditing($event, index, 'Amount')"
-                    class="editable-small"
-                  />
+                  <BaseTableAction v-if="isEditing" :is-first="index === 0" :is-last="index === exerciseRows.length - 1"
+                    @add="handleAddRow(index)" @remove="handleRemoveRow(index)" @move-up="handleMoveRow(index, 'up')"
+                    @move-down="handleMoveRow(index, 'down')" />
+                  <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Amount"
+                    @blur="stopEditing($event, index, 'Amount')" @keyup.enter="stopEditing($event, index, 'Amount')"
+                    class="editable-small" />
                   <span v-else>{{ row.Amount }}</span>
                 </td>
                 <td>{{ row.Multiplier }}</td>
                 <!-- Distance Cell -->
                 <td @click="startEditing(index, 'Distance')">
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Distance"
-                    @blur="stopEditing($event, index, 'Distance')"
-                    @keyup.enter="stopEditing($event, index, 'Distance')"
-                    class="editable-small"
-                  />
+                  <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Distance"
+                    @blur="stopEditing($event, index, 'Distance')" @keyup.enter="stopEditing($event, index, 'Distance')"
+                    class="editable-small" />
                   <span v-else>{{ row.Distance }}</span>
                 </td>
                 <!-- Intensity Cell -->
                 <td @click="startEditing(index, 'Break')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Break"
-                    @blur="stopEditing($event, index, 'Break')"
-                    @keyup.enter="stopEditing($event, index, 'Break')"
-                    class="editable-small"
-                  />
+                  <input type="text" v-if="isEditing" :value="row.Break" @blur="stopEditing($event, index, 'Break')"
+                    @keyup.enter="stopEditing($event, index, 'Break')" class="editable-small" />
                   <span v-else>{{ row.Break }}</span>
                 </td>
                 <!-- Content Cell -->
                 <td class="content-cell" @click="startEditing(index, 'Content')">
-                  <textarea
-                    v-if="isEditing"
-                    :value="row.Content"
-                    @blur="stopEditing($event, index, 'Content')"
-                    @keyup.enter="stopEditing($event, index, 'Content')"
-                    class="editable-area"
-                  ></textarea>
+                  <textarea v-if="isEditing" :value="row.Content" @blur="stopEditing($event, index, 'Content')"
+                    @keyup.enter="stopEditing($event, index, 'Content')" class="editable-area"></textarea>
                   <span v-else>{{ row.Content }}</span>
                 </td>
                 <!-- Intensity Cell -->
                 <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Intensity"
+                  <input type="text" v-if="isEditing" :value="row.Intensity"
                     @blur="stopEditing($event, index, 'Intensity')"
-                    @keyup.enter="stopEditing($event, index, 'Intensity')"
-                    class="editable-small"
-                  />
+                    @keyup.enter="stopEditing($event, index, 'Intensity')" class="editable-small" />
                   <span v-else>{{ row.Intensity }}</span>
                 </td>
                 <td class="total-cell">{{ row.Sum }}</td>
@@ -358,26 +332,43 @@ async function handleExport() {
     </div>
   </div>
 
-  <div
-    v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading"
-    class="export-section"
-  >
+  <div v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading" class="export-section">
     <!-- Edit Action -->
     <button @click="toggleEditing" class="export-btn">
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
     </button>
+
+    <div class="gap"></div>
     <!-- Export Action -->
-    <button @click="handleExport" class="export-btn" :disabled="exportPhase === 'exporting'">
-      <template v-if="exportPhase === 'exporting'">
-        {{ t('display.exporting') }}
-      </template>
-      <template v-else-if="exportPhase === 'done'">
-        {{ t('display.open_pdf') }}
-      </template>
-      <template v-else>
-        {{ t('display.export_pdf') }}
-      </template>
-    </button>
+    <div class="export-actions">
+      <button @click="handleExport" class="export-btn main-action" :disabled="exportPhase === 'exporting'">
+        <template v-if="exportPhase === 'exporting'">
+          {{ t('display.exporting') }}
+        </template>
+        <template v-else-if="exportPhase === 'done'">
+          {{ t('display.open_pdf') }}
+        </template>
+        <template v-else>
+          {{ t('display.export_pdf') }}
+        </template>
+      </button>
+      <div class="dropdown-container">
+        <button @click="isExportMenuOpen = !isExportMenuOpen" class="export-btn dropdown-toggle"
+          :disabled="exportPhase === 'exporting'"></button>
+        <Transition name="dropdown-transform">
+          <div v-if="isExportMenuOpen" class="dropdown-menu">
+            <label>
+              <input type="checkbox" v-model="exportHorizontal" />
+              {{ t('display.export_horizontal') }}
+            </label>
+            <label>
+              <input type="checkbox" v-model="exportLargeFont" />
+              {{ t('display.export_large_font') }}
+            </label>
+          </div>
+        </Transition>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -487,8 +478,8 @@ async function handleExport() {
   }
 }
 
-.exercise-table td > span,
-.exercise-table td > textarea {
+.exercise-table td>span,
+.exercise-table td>textarea {
   display: block;
 }
 
@@ -667,7 +658,6 @@ async function handleExport() {
 .export-section {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   border-radius: 0.5rem;
   border: 1px solid var(--color-border);
   padding: 1.5rem;
@@ -676,6 +666,7 @@ async function handleExport() {
 }
 
 .export-btn {
+  flex: 1;
   background: var(--color-primary);
   color: white;
   border: none;
@@ -693,10 +684,7 @@ async function handleExport() {
     width: 100%;
     min-width: 10%;
     padding: 0.5rem 1rem;
-  }
-
-  .export-btn + .export-btn {
-    margin-left: 2rem;
+    overflow-wrap: break-word;
   }
 }
 
@@ -707,6 +695,98 @@ async function handleExport() {
 .export-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: var(--color-text-light);
+}
+
+.gap {
+  flex: 1;
+  display: flex;
+}
+
+.export-actions {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
+.export-actions .main-action {
+  flex: 3;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  min-width: 0;
+}
+
+.dropdown-container {
+  flex: 1;
+  display: flex;
+  position: static;
+}
+
+.export-actions .dropdown-toggle {
+  flex: 1;
+  position: relative;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 1px solid var(--color-primary-hover);
+  padding: 0.75rem 1rem;
+  min-width: 0;
+}
+
+.dropdown-toggle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-left: 0.375rem solid transparent;
+  border-right: 0.375rem solid transparent;
+  border-top: 0.5rem solid white;
+  transform: translate(-50%, -50%);
+  transition: border-color 0.2s;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  margin-top: 0.5rem;
+}
+
+.dropdown-menu label {
+  display: block;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.dropdown-menu label:hover {
+  background-color: var(--color-background-mute);
+}
+
+.dropdown-menu input {
+  margin-right: 0.5rem;
+}
+
+/* Dropdown Transition using transform */
+.dropdown-transform-enter-active,
+.dropdown-transform-leave-active {
+  transition:
+    opacity 0.2s ease-in-out,
+    transform 0.2s ease-in-out;
+  transform-origin: top;
+}
+
+.dropdown-transform-enter-from,
+.dropdown-transform-leave-to {
+  opacity: 0;
+  transform: scaleY(0.9) translateY(-0.5rem);
 }
 </style>

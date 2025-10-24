@@ -165,4 +165,48 @@ describe('export Store', () => {
     // Verify that apiClient.exportPDF was NOT called
     expect(mockedApiExportPDF).not.toHaveBeenCalled()
   })
+
+  it('sends custom export options when provided', async () => {
+    const store = useExportStore()
+
+    const mockResponse: ApiResult<PlanToPDFResponse> = {
+      success: true,
+      data: {
+        uri: 'http://mock.pdf/plan123.pdf',
+      },
+    }
+    mockedApiExportPDF.mockResolvedValue(mockResponse)
+
+    const requestPayload: PlanToPDFRequest = {
+      title: 'Custom Export Plan',
+      description: 'A plan with custom export options.',
+      table: [
+        {
+          Amount: 1,
+          Distance: 100,
+          Sum: 100,
+          Break: '10s',
+          Content: 'Swim',
+          Intensity: 'GA1',
+          Multiplier: 'x',
+        },
+        {
+          Amount: 0,
+          Distance: 0,
+          Sum: 100,
+          Break: '',
+          Content: 'Total',
+          Intensity: '',
+          Multiplier: '',
+        },
+      ],
+      horizontal: true,
+      large_font: true,
+      language: 'de',
+    }
+
+    await store.exportToPDF(requestPayload)
+
+    expect(mockedApiExportPDF).toHaveBeenCalledWith(requestPayload)
+  })
 })
