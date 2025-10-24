@@ -111,7 +111,9 @@
     "exporting": "Exporting...",
     "open_pdf": "Open PDF",
     "add_row": "Add new row",
-    "remove_row": "Remove this row"
+    "remove_row": "Remove this row",
+    "move_row_up": "Move row up",
+    "move_row_down": "Move row down"
   },
   "impressum": {
     "title": "Impressum",

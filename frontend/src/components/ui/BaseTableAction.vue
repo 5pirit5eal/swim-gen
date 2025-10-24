@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
 defineProps<{
   isFirst: boolean
   isLast: boolean
@@ -19,16 +23,24 @@ const emit = defineEmits<{
         class="action-btn move-up"
         :disabled="isFirst"
         @click.stop="emit('move-up')"
-        title="Move row up"
+        :title="t('display.move_row_up')"
       ></button>
-      <button class="action-btn add" @click.stop="emit('add')" title="Add new row"></button>
+      <button
+        class="action-btn add"
+        @click.stop="emit('add')"
+        :title="t('display.add_row')"
+      ></button>
       <button
         class="action-btn move-down"
         :disabled="isLast"
         @click.stop="emit('move-down')"
-        title="Move row down"
+        :title="t('display.move_row_down')"
       ></button>
-      <button class="action-btn remove" @click.stop="emit('remove')" title="Remove row"></button>
+      <button
+        class="action-btn remove"
+        @click.stop="emit('remove')"
+        :title="t('display.remove_row')"
+      ></button>
     </div>
   </div>
 </template>

@@ -114,7 +114,9 @@
     "exporting": "Exportiert...",
     "open_pdf": "PDF öffnen",
     "add_row": "Neue Zeile hinzufügen",
-    "remove_row": "Diese Zeile entfernen"
+    "remove_row": "Diese Zeile entfernen",
+    "move_row_up": "Zeile nach oben verschieben",
+    "move_row_down": "Zeile nach unten verschieben"
   },
   "impressum": {
     "title": "Impressum",
