@@ -23,6 +23,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     if (result.success && result.data) {
       currentPlan.value = result.data
       isLoading.value = false
+      recalculateTotalSum()
       return true
     } else {
       error.value = result.error
@@ -37,7 +38,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     console.log(`Updating row ${rowIndex}, field ${field} with value:`, value)
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       // Recalculate Sum if Amount or Distance changed
       if (field === 'Amount' || field === 'Distance') {

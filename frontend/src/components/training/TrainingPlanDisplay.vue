@@ -44,6 +44,11 @@ watch(
   },
 )
 
+// Reset export if options change
+watch([exportHorizontal, exportLargeFont], () => {
+  resetExportState()
+})
+
 // Start editing a specific cell
 function startEditing(rowIndex: number, field: keyof Row) {
   if (isEditing.value) {
@@ -304,7 +309,7 @@ async function handleExport() {
             <!-- Total row -->
             <tr v-if="totalRow" class="total-row">
               <td colspan="6">
-                <strong>{{ totalRow.Content }}</strong>
+                <strong>{{ t('display.meters_total') }}</strong>
               </td>
               <td>
                 <strong>{{ totalRow.Sum }} m</strong>
