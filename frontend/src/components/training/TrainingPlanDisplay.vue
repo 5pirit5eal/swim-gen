@@ -709,7 +709,7 @@ async function handleExport() {
     padding: 0.5rem 1rem;
   }
 
-  button+button {
+  .export-btn+.export-btn {
     margin-left: 2rem;
   }
 }

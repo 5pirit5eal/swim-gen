@@ -13,7 +13,7 @@
     bottom: 0;
 
     /* Place it just to the left of the parent cell's boundary */
-    right: 100%;
+    right: 101%;
 
     /* Vertically center the content inside */
     display: flex;
@@ -28,10 +28,9 @@
     z-index: 10;
 
     /* Use a CSS variable for the background, defaulting to transparent */
-    background-color: var(--action-bg-color, transparent);
+    background-color: var(--color-background-mute);
     border-top-left-radius: 0.5rem;
     border-bottom-left-radius: 0.5rem;
-    border: 1px solid var(--color-border);
-    border-right: none;
+    outline: solid 1px rgba(60, 60, 60, 1.0);
 }
 </style>
