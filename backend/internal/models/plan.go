@@ -4,9 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"maps"
+	"strconv"
 	"strings"
 
 	"github.com/tmc/langchaingo/schema"
+)
+
+type Language string
+
+const (
+	LanguageEN Language = "en"
+	LanguageDE Language = "de"
 )
 
 type Planable interface {
@@ -133,7 +141,7 @@ func (t *Table) AddSum() {
 	for _, row := range *t {
 		sum += row.Sum
 	}
-	*t = append(*t, Row{Content: "Gesamt", Sum: sum})
+	*t = append(*t, Row{Sum: sum})
 }
 
 // Recalculates the sum for each row
@@ -151,10 +159,24 @@ func (t *Table) UpdateSum() {
 }
 
 // Returns the Header of the table
-//
-// | Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |
-func (t *Table) Header() []string {
-	return []string{"Anzahl", "", "Strecke(m)", "Pause(s)", "Inhalt", "Intensität", "Umfang"}
+func (t *Table) Header(lang Language) []string {
+	switch lang {
+	case LanguageDE:
+		return []string{"Anzahl", "", "Strecke(m)", "Pause(s)", "Inhalt", "Intensität", "Umfang"}
+	default: // LanguageEN and any other unsupported languages
+		return []string{"Amount", "", "Distance(m)", "Break(s)", "Content", "Intensity", "Volume"}
+	}
+}
+
+// Returns the bottom row of the table
+func (t *Table) Footer(lang Language) []string {
+	sum := strconv.Itoa((*t)[len(*t)-1].Sum) + " m"
+	switch lang {
+	case LanguageDE:
+		return []string{"KI-GENERIERT MIT SWIM-GEN.COM", "", "", "", "Gesamt", "", sum}
+	default: // LanguageEN and any other unsupported languages
+		return []string{"AI-GENERATED WITH SWIM-GEN.COM", "", "", "", "Total meters", "", sum}
+	}
 }
 
 // Returns the json encoded table as a string

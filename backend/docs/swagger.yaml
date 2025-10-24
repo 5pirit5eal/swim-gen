@@ -6,6 +6,11 @@ definitions:
       description:
         example: A comprehensive training plan for improving freestyle technique
         type: string
+      language:
+        allOf:
+        - $ref: '#/definitions/models.Language'
+        description: Language specifies the language of the training plan
+        example: en
       table:
         description: A structured training plan table containing exercise rows
         items:
@@ -21,11 +26,12 @@ definitions:
     - table
     - user_id
     type: object
-  models.GeneratedPromptRequest:
+  models.GeneratePromptRequest:
     properties:
       language:
+        allOf:
+        - $ref: '#/definitions/models.Language'
         example: en
-        type: string
     required:
     - language
     type: object
@@ -35,12 +41,33 @@ definitions:
         example: Generate a swim training plan for improving freestyle technique
         type: string
     type: object
+  models.Language:
+    enum:
+    - en
+    - de
+    type: string
+    x-enum-varnames:
+    - LanguageEN
+    - LanguageDE
   models.PlanToPDFRequest:
     description: Request payload for exporting a training plan to PDF format
     properties:
       description:
         example: A comprehensive training plan for improving freestyle technique
         type: string
+      horizontal:
+        description: Horizontal indicates if the PDF should be in landscape orientation
+        example: false
+        type: boolean
+      language:
+        allOf:
+        - $ref: '#/definitions/models.Language'
+        description: Language specifies the language for the PDF content
+        example: en
+      large_font:
+        description: LargeFont indicates if the PDF should use a larger font size
+        example: true
+        type: boolean
       table:
         description: A structured training plan table containing exercise rows
         items:
@@ -74,9 +101,10 @@ definitions:
           stroke type
         type: object
       language:
+        allOf:
+        - $ref: '#/definitions/models.Language'
         description: Language specifies the language for the response
         example: en
-        type: string
       method:
         description: Method can be either 'choose' (select existing plan) or 'generate'
           (create new plan)
@@ -229,7 +257,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.GeneratedPromptRequest'
+          $ref: '#/definitions/models.GeneratePromptRequest'
       produces:
       - application/json
       responses:

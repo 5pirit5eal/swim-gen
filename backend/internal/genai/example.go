@@ -9,7 +9,7 @@ import (
 	"google.golang.org/genai"
 )
 
-func (c *GoogleGenAIClient) GeneratePrompt(ctx context.Context, req models.GeneratedPromptRequest) (string, error) {
+func (c *GoogleGenAIClient) GeneratePrompt(ctx context.Context, req models.GeneratePromptRequest) (string, error) {
 	logger := httplog.LogEntry(ctx)
 	logger.Info("Generating prompt example...")
 

@@ -131,7 +131,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.GeneratedPromptRequest"
+                            "$ref": "#/definitions/models.GeneratePromptRequest"
                         }
                     }
                 ],
@@ -304,6 +304,15 @@ const docTemplate = `{
                     "type": "string",
                     "example": "A comprehensive training plan for improving freestyle technique"
                 },
+                "language": {
+                    "description": "Language specifies the language of the training plan",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Language"
+                        }
+                    ],
+                    "example": "en"
+                },
                 "table": {
                     "description": "A structured training plan table containing exercise rows",
                     "type": "array",
@@ -321,14 +330,18 @@ const docTemplate = `{
                 }
             }
         },
-        "models.GeneratedPromptRequest": {
+        "models.GeneratePromptRequest": {
             "type": "object",
             "required": [
                 "language"
             ],
             "properties": {
                 "language": {
-                    "type": "string",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Language"
+                        }
+                    ],
                     "example": "en"
                 }
             }
@@ -342,6 +355,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Language": {
+            "type": "string",
+            "enum": [
+                "en",
+                "de"
+            ],
+            "x-enum-varnames": [
+                "LanguageEN",
+                "LanguageDE"
+            ]
+        },
         "models.PlanToPDFRequest": {
             "description": "Request payload for exporting a training plan to PDF format",
             "type": "object",
@@ -354,6 +378,25 @@ const docTemplate = `{
                 "description": {
                     "type": "string",
                     "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "horizontal": {
+                    "description": "Horizontal indicates if the PDF should be in landscape orientation",
+                    "type": "boolean",
+                    "example": false
+                },
+                "language": {
+                    "description": "Language specifies the language for the PDF content",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Language"
+                        }
+                    ],
+                    "example": "en"
+                },
+                "large_font": {
+                    "description": "LargeFont indicates if the PDF should use a larger font size",
+                    "type": "boolean",
+                    "example": true
                 },
                 "table": {
                     "description": "A structured training plan table containing exercise rows",
@@ -398,7 +441,11 @@ const docTemplate = `{
                 },
                 "language": {
                     "description": "Language specifies the language for the response",
-                    "type": "string",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Language"
+                        }
+                    ],
                     "example": "en"
                 },
                 "method": {

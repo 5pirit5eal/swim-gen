@@ -139,7 +139,7 @@ func TestTableToPDF(t *testing.T) {
 	table.UpdateSum()
 
 	// Call the function to be tested
-	pdfBytes, err := pdf.TableToPDF(table)
+	pdfBytes, err := pdf.GenerateEasyReadablePDF(&table, false, models.LanguageDE)
 
 	// Assertions
 	assert.NoError(t, err, "TableToPDF should not return an error")
@@ -152,6 +152,17 @@ func TestTableToPDF(t *testing.T) {
 
 	// Cleanup
 	err = os.Remove("table.pdf")
+	assert.NoError(t, err, "Cleanup failed")
+
+	// Test large font
+	pdfBytes, err = pdf.GenerateEasyReadablePDF(&table, true, models.LanguageDE)
+	assert.NoError(t, err, "TableToPDF with large font should not return an error")
+	assert.NotEmpty(t, pdfBytes, "TableToPDF with large font should return non-empty PDF bytes")
+
+	err = writePDF("table_lf.pdf", pdfBytes)
+	assert.NoError(t, err, "writePDF with large font should not return an error")
+
+	err = os.Remove("table_lf.pdf")
 	assert.NoError(t, err, "Cleanup failed")
 }
 
@@ -285,7 +296,7 @@ um dich optimal auf die Sprints vorzubereiten.`,
 		Table: table,
 	}
 
-	planPDF, err := pdf.PlanToPDF(plan)
+	planPDF, err := pdf.PlanToPDF(plan, false, false, models.LanguageDE)
 	assert.NoError(t, err, "PlanToPDF should not return an error")
 	assert.NotEmpty(t, planPDF, "PlanToPDF should return non-empty PDF bytes")
 
