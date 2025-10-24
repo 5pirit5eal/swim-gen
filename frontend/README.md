@@ -40,7 +40,7 @@ npm run preview         # Preview production build locally
 npm run optimize-images # Optimize images for production
 ```
 
-### Running with the BFF
+### Running with the BFF and Backend
 
 To run the frontend with the BFF locally, you need to have both the backend and the BFF services running.
 

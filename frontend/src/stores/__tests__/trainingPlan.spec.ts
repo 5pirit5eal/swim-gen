@@ -20,8 +20,42 @@ vi.mock('@/api/client', async (importOriginal) => {
 })
 
 // Cast apiClient.query to a Mock type for TypeScript to recognize mock methods
-// Cast apiClient.query to a Mock type for TypeScript to recognize mock methods
 const mockedApiQuery = apiClient.query as Mock<typeof apiClient.query>
+
+// Helper to create a mock RAGResponse
+const createMockPlan = (): RAGResponse => ({
+  title: 'Test Plan',
+  description: 'A plan for testing.',
+  table: [
+    {
+      Amount: 1,
+      Distance: 100,
+      Sum: 100,
+      Break: '10s',
+      Content: 'Swim',
+      Intensity: 'GA1',
+      Multiplier: 'x',
+    },
+    {
+      Amount: 2,
+      Distance: 200,
+      Sum: 400,
+      Break: '20s',
+      Content: 'Kick',
+      Intensity: 'GA2',
+      Multiplier: 'x',
+    },
+    {
+      Amount: 0,
+      Distance: 0,
+      Sum: 500,
+      Break: '',
+      Content: 'Total',
+      Intensity: '',
+      Multiplier: '',
+    },
+  ],
+})
 
 describe('trainingPlan Store', () => {
   beforeEach(() => {
@@ -114,5 +148,146 @@ describe('trainingPlan Store', () => {
     // Verify that apiClient.query was called
     expect(mockedApiQuery).toHaveBeenCalledTimes(1)
     expect(mockedApiQuery).toHaveBeenCalledWith(requestPayload)
+  })
+
+  it('adds a row at the specified index and recalculates sum', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    const initialRowCount = store.currentPlan.table.length
+    const initialSum = store.currentPlan.table[initialRowCount - 1].Sum
+
+    // Add a new row at index 1
+    store.addRow(1)
+
+    const newRowCount = store.currentPlan.table.length
+    expect(newRowCount).toBe(initialRowCount + 1)
+
+    // Check that the new row is at the correct position and has default values
+    const newRow = store.currentPlan.table[1]
+    expect(newRow.Amount).toBe(0)
+    expect(newRow.Content).toBe('')
+    expect(newRow.Sum).toBe(0)
+
+    // The total sum should be unchanged since the new row has a sum of 0
+    const newSum = store.currentPlan.table[newRowCount - 1].Sum
+    expect(newSum).toBe(initialSum)
+  })
+
+  it('removes a row at the specified index and recalculates sum', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    const initialRowCount = store.currentPlan.table.length
+    const rowToRemove = store.currentPlan.table[1] // Sum is 400
+    const initialSum = store.currentPlan.table[initialRowCount - 1].Sum // Sum is 500
+
+    // Remove the row at index 1
+    store.removeRow(1)
+
+    const newRowCount = store.currentPlan.table.length
+    expect(newRowCount).toBe(initialRowCount - 1)
+
+    // Check that the correct row was removed
+    expect(store.currentPlan.table.find((r) => r.Content === 'Kick')).toBeUndefined()
+
+    // The new total sum should be the initial sum minus the sum of the removed row
+    const newSum = store.currentPlan.table[newRowCount - 1].Sum
+    expect(newSum).toBe(initialSum - rowToRemove.Sum) // 500 - 400 = 100
+  })
+
+  it('does not add a row if the table has 26 or more rows', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    // Fill the table with 26 rows
+    store.currentPlan.table = Array.from({ length: 26 }, (_, i) => ({
+      Amount: 1,
+      Distance: 100,
+      Sum: 100,
+      Break: '10s',
+      Content: `Swim ${i}`,
+      Intensity: 'GA1',
+      Multiplier: 'x',
+    }))
+
+    const initialRowCount = store.currentPlan.table.length
+    store.addRow(1)
+    const newRowCount = store.currentPlan.table.length
+    expect(newRowCount).toBe(initialRowCount)
+  })
+
+  it('does not remove a row if only one exercise row is left', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = {
+      title: 'Test Plan',
+      description: 'A plan for testing.',
+      table: [
+        {
+          Amount: 1,
+          Distance: 100,
+          Sum: 100,
+          Break: '10s',
+          Content: 'Swim',
+          Intensity: 'GA1',
+          Multiplier: 'x',
+        },
+        {
+          Amount: 0,
+          Distance: 0,
+          Sum: 100,
+          Break: '',
+          Content: 'Total',
+          Intensity: '',
+          Multiplier: '',
+        },
+      ],
+    }
+
+    const initialRowCount = store.currentPlan.table.length
+    store.removeRow(0)
+    const newRowCount = store.currentPlan.table.length
+    expect(newRowCount).toBe(initialRowCount)
+  })
+
+  it('moves a row up', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    const rowToMove = store.currentPlan.table[1]
+    store.moveRow(1, 'up')
+
+    expect(store.currentPlan.table[0]).toBe(rowToMove)
+  })
+
+  it('moves a row down', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    const rowToMove = store.currentPlan.table[0]
+    store.moveRow(0, 'down')
+
+    expect(store.currentPlan.table[1]).toBe(rowToMove)
+  })
+
+  it('does not move the first row up', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    const initialOrder = [...store.currentPlan.table]
+    store.moveRow(0, 'up')
+
+    expect(store.currentPlan.table).toEqual(initialOrder)
+  })
+
+  it('does not move the last exercise row down', () => {
+    const store = useTrainingPlanStore()
+    store.currentPlan = createMockPlan()
+
+    const initialOrder = [...store.currentPlan.table]
+    const lastExerciseRowIndex = store.currentPlan.table.length - 2
+    store.moveRow(lastExerciseRowIndex, 'down')
+
+    expect(store.currentPlan.table).toEqual(initialOrder)
   })
 })

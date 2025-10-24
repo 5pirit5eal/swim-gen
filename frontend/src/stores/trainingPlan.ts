@@ -42,17 +42,62 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       // Recalculate Sum if Amount or Distance changed
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
-
-        // Update the last row with the new sum
-        if (currentPlan.value.table.length > 0) {
-          const lastRowIndex = currentPlan.value.table.length - 1
-          const lastRow = currentPlan.value.table[lastRowIndex]
-          lastRow.Sum = currentPlan.value.table
-            .slice(0, -1)
-            .reduce((acc, r) => acc + (r.Sum || 0), 0)
-        }
+        recalculateTotalSum()
       }
     }
+  }
+
+  function recalculateTotalSum() {
+    if (currentPlan.value && currentPlan.value.table.length > 0) {
+      const lastRowIndex = currentPlan.value.table.length - 1
+      const lastRow = currentPlan.value.table[lastRowIndex]
+      lastRow.Sum = currentPlan.value.table.slice(0, -1).reduce((acc, r) => acc + (r.Sum || 0), 0)
+    }
+  }
+
+  function addRow(rowIndex: number) {
+    if (currentPlan.value && currentPlan.value.table.length < 26) {
+      const newRow: Row = {
+        Amount: 0,
+        Break: '',
+        Content: '',
+        Distance: 0,
+        Intensity: '',
+        Multiplier: 'x',
+        Sum: 0,
+      }
+      currentPlan.value.table.splice(rowIndex, 0, newRow)
+      recalculateTotalSum()
+    }
+  }
+
+  function removeRow(rowIndex: number) {
+    // Ensure we don't remove the total row and at least one exercise row remains
+    if (
+      currentPlan.value &&
+      currentPlan.value.table.length > 2 &&
+      rowIndex < currentPlan.value.table.length - 1
+    ) {
+      currentPlan.value.table.splice(rowIndex, 1)
+      recalculateTotalSum()
+    }
+  }
+
+  function moveRow(rowIndex: number, direction: 'up' | 'down') {
+    if (!currentPlan.value) return
+
+    const table = currentPlan.value.table
+    const isMovingUp = direction === 'up'
+    const isMovingDown = direction === 'down'
+
+    // Prevent moving the first row up or the last exercise row down
+    if ((isMovingUp && rowIndex === 0) || (isMovingDown && rowIndex === table.length - 2)) {
+      return
+    }
+
+    const newIndex = isMovingUp ? rowIndex - 1 : rowIndex + 1
+    const [movedRow] = table.splice(rowIndex, 1)
+    table.splice(newIndex, 0, movedRow)
   }
 
   function clearPlan() {
@@ -74,6 +119,9 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     // Actions
     generatePlan,
     updatePlanRow,
+    addRow,
+    removeRow,
+    moveRow,
     clearPlan,
     clearError,
   }
