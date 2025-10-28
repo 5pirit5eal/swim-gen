@@ -7,9 +7,12 @@ export const useAuthStore = defineStore('auth', () => {
   const session = ref<Session | null>(null)
   const user = ref<User | null>(null)
 
-  supabase.auth.getUser().then(({ data }) => {
+  supabase.auth.getSession().then(({ data }) => {
     session.value = data.session
-    user.value = data.session?.user ?? null
+  })
+
+  supabase.auth.getUser().then(({ data }) => {
+    user.value = data.user ?? null
   })
 
   supabase.auth.onAuthStateChange((event, newSession) => {
@@ -27,6 +30,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function signUp(email: string, password: string, username: string) {
+    // Check if the username is already taken
+
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,

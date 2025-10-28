@@ -265,6 +265,7 @@
     "loading": "Lädt...",
     "needAccount": "Neu bei Swim Gen? Registriere dich hier",
     "haveAccount": "Hast du bereits ein Konto? Melde dich hier an",
-    "checkEmail": "Überprüfe deine E-Mails für den Anmelde-Link!"
+    "checkEmail": "Überprüfe deine E-Mails für den Anmelde-Link!",
+    "invalidLogin": "Ungültige Anmeldeinformationen. Bitte versuche es erneut."
   }
 }

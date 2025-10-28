@@ -262,6 +262,9 @@
     "loading": "Loading...",
     "needAccount": "Need an account? Sign Up",
     "haveAccount": "Already have an account? Login",
-    "checkEmail": "Check your email for the login link!"
+    "checkEmail": "You should receive a confirmation email shortly. Please check your inbox.",
+    "invalidLogin": "Invalid login credentials. Please try again.",
+    "registrationFailed": "Registration failed. Please try different credentials.",
+    "autoLogin": "This user already exists. Logging in..."
   }
 }

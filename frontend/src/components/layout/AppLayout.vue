@@ -44,7 +44,7 @@ import AppFooter from './AppFooter.vue'
 }
 
 .main-content {
-  flex: 1;
+  margin-block: auto;
   container-type: inherit;
   padding: 0 2rem;
   position: relative;
