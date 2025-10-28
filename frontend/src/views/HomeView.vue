@@ -29,7 +29,7 @@ const { t } = useI18n()
 
 <style scoped>
 .home-view {
-  padding: 2rem 0;
+  padding: 0.25rem 0 2rem 0;
 }
 
 .container {

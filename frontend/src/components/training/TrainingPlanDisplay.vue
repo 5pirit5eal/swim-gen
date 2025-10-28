@@ -268,75 +268,39 @@ async function handleExport() {
               <tr class="exercise-row">
                 <!-- Amount Cell -->
                 <td @click="startEditing(index, 'Amount')" class="anchor-cell">
-                  <BaseTableAction
-                    v-if="isEditing"
-                    :is-first="index === 0"
-                    :is-last="index === exerciseRows.length - 1"
-                    @add="handleAddRow(index)"
-                    @remove="handleRemoveRow(index)"
-                    @move-up="handleMoveRow(index, 'up')"
-                    @move-down="handleMoveRow(index, 'down')"
-                  />
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Amount"
-                    @blur="stopEditing($event, index, 'Amount')"
-                    @keyup.enter="stopEditing($event, index, 'Amount')"
-                    class="editable-small"
-                  />
+                  <BaseTableAction v-if="isEditing" :is-first="index === 0" :is-last="index === exerciseRows.length - 1"
+                    @add="handleAddRow(index)" @remove="handleRemoveRow(index)" @move-up="handleMoveRow(index, 'up')"
+                    @move-down="handleMoveRow(index, 'down')" />
+                  <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Amount"
+                    @blur="stopEditing($event, index, 'Amount')" @keyup.enter="stopEditing($event, index, 'Amount')"
+                    class="editable-small" />
                   <span v-else>{{ row.Amount }}</span>
                 </td>
                 <td>{{ row.Multiplier }}</td>
                 <!-- Distance Cell -->
                 <td @click="startEditing(index, 'Distance')">
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Distance"
-                    @blur="stopEditing($event, index, 'Distance')"
-                    @keyup.enter="stopEditing($event, index, 'Distance')"
-                    class="editable-small"
-                  />
+                  <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Distance"
+                    @blur="stopEditing($event, index, 'Distance')" @keyup.enter="stopEditing($event, index, 'Distance')"
+                    class="editable-small" />
                   <span v-else>{{ row.Distance }}</span>
                 </td>
                 <!-- Intensity Cell -->
                 <td @click="startEditing(index, 'Break')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Break"
-                    @blur="stopEditing($event, index, 'Break')"
-                    @keyup.enter="stopEditing($event, index, 'Break')"
-                    class="editable-small"
-                  />
+                  <input type="text" v-if="isEditing" :value="row.Break" @blur="stopEditing($event, index, 'Break')"
+                    @keyup.enter="stopEditing($event, index, 'Break')" class="editable-small" />
                   <span v-else>{{ row.Break }}</span>
                 </td>
                 <!-- Content Cell -->
                 <td class="content-cell" @click="startEditing(index, 'Content')">
-                  <textarea
-                    v-if="isEditing"
-                    :value="row.Content"
-                    @blur="stopEditing($event, index, 'Content')"
-                    @keyup.enter="stopEditing($event, index, 'Content')"
-                    class="editable-area"
-                  ></textarea>
+                  <textarea v-if="isEditing" :value="row.Content" @blur="stopEditing($event, index, 'Content')"
+                    @keyup.enter="stopEditing($event, index, 'Content')" class="editable-area"></textarea>
                   <span v-else>{{ row.Content }}</span>
                 </td>
                 <!-- Intensity Cell -->
                 <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Intensity"
+                  <input type="text" v-if="isEditing" :value="row.Intensity"
                     @blur="stopEditing($event, index, 'Intensity')"
-                    @keyup.enter="stopEditing($event, index, 'Intensity')"
-                    class="editable-small"
-                  />
+                    @keyup.enter="stopEditing($event, index, 'Intensity')" class="editable-small" />
                   <span v-else>{{ row.Intensity }}</span>
                 </td>
                 <td class="total-cell">{{ row.Sum }}</td>
@@ -373,10 +337,7 @@ async function handleExport() {
     </div>
   </div>
 
-  <div
-    v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading"
-    class="export-section"
-  >
+  <div v-if="trainingStore.hasPlan && trainingStore.currentPlan && !trainingStore.isLoading" class="export-section">
     <!-- Edit Action -->
     <button @click="toggleEditing" class="export-btn">
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
@@ -385,11 +346,7 @@ async function handleExport() {
     <div class="gap"></div>
     <!-- Export Action -->
     <div class="export-actions">
-      <button
-        @click="handleExport"
-        class="export-btn main-action"
-        :disabled="exportPhase === 'exporting'"
-      >
+      <button @click="handleExport" class="export-btn main-action" :disabled="exportPhase === 'exporting'">
         <template v-if="exportPhase === 'exporting'">
           {{ t('display.exporting') }}
         </template>
@@ -401,11 +358,8 @@ async function handleExport() {
         </template>
       </button>
       <div class="dropdown-container">
-        <button
-          @click="isExportMenuOpen = !isExportMenuOpen"
-          class="export-btn dropdown-toggle"
-          :disabled="exportPhase === 'exporting'"
-        ></button>
+        <button @click="isExportMenuOpen = !isExportMenuOpen" class="export-btn dropdown-toggle"
+          :disabled="exportPhase === 'exporting'"></button>
         <Transition name="dropdown-transform">
           <div v-if="isExportMenuOpen" class="dropdown-menu">
             <label>
@@ -484,7 +438,7 @@ async function handleExport() {
   border: 1px solid var(--color-border);
   padding: 0.75rem 0.5rem;
   text-align: center;
-  color: var(--color-text-light);
+  color: var(--color-text);
   width: auto;
 }
 
@@ -499,7 +453,7 @@ async function handleExport() {
 
 .exercise-table th {
   background: var(--color-border);
-  color: var(--color-text);
+  color: var(--color-heading);
   /* Use flexbox for alignment */
   align-items: center;
   /* Horizontally center items */
@@ -529,8 +483,8 @@ async function handleExport() {
   }
 }
 
-.exercise-table td > span,
-.exercise-table td > textarea {
+.exercise-table td>span,
+.exercise-table td>textarea {
   display: block;
 }
 
@@ -604,14 +558,14 @@ async function handleExport() {
 }
 
 .total-row {
-  background: var(--color-border) !important;
-  color: var(--color-text) !important;
+  background: var(--color-border);
   font-weight: 700;
   font-size: 1rem;
 }
 
 .total-row td {
   border-color: var(--color-border);
+  color: var(--color-heading);
 }
 
 .summary-section {
@@ -644,7 +598,7 @@ async function handleExport() {
 }
 
 .summary-label {
-  color: var(--color-text-light);
+  color: var(--color-heading);
   text-transform: uppercase;
   font-size: 0.75rem;
   letter-spacing: 1px;
@@ -654,7 +608,7 @@ async function handleExport() {
 .no-plan {
   text-align: center;
   padding: 3rem 2rem;
-  color: var(--color-text-light);
+  color: var(--color-text);
   font-style: italic;
 }
 

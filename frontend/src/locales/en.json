@@ -251,5 +251,17 @@
     "failed_to_export_plan": "Failed to export training plan to PDF.",
     "timeout": "Request timed out after {time} seconds. Please try again.",
     "connection_failed": "Failed to connect to the server. Please check your internet connection and try again."
+  },
+  "login": {
+    "login": "Login",
+    "logout": "Logout",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "username": "Username",
+    "loading": "Loading...",
+    "needAccount": "Need an account? Sign Up",
+    "haveAccount": "Already have an account? Login",
+    "checkEmail": "Check your email for the login link!"
   }
 }
