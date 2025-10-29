@@ -30,8 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function signUp(email: string, password: string, username: string) {
-    // Check if the username is already taken
-
+    // TODO: Check if the username is already taken, can be done once the profile table is setup
 
     const { data, error } = await supabase.auth.signUp({
       email,

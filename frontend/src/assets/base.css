@@ -24,6 +24,9 @@
 
   --vt-c-background-light: rgba(237, 237, 237, 0.25);
   --vt-c-background-dark: rgba(22, 22, 22, 0.655);
+
+  --color-success: #07bc0c;
+  --color-error: #e74c3c;
 }
 
 /* semantic color variables for this project */
@@ -43,6 +46,20 @@
   --color-primary-hover: var(--vt-c-blue-soft);
 
   --section-gap: 160px;
+
+  /* toastify css */
+  --toastify-toast-background: var(--color-heading);
+  --toastify-color-transparent: var(--color-transparent);
+  --toastify-color-info: var(--color-primary);
+  --toastify-color-success: var(--color-success);
+  --toastify-color-error: var(--color-error);
+  --toastify-color-light: var(--color-background-soft);
+  --toastify-color-dark: var(--color-background);
+  --toastify-text-color-light: var(--color-text);
+  --toastify-text-color-dark: var(--color-text);
+  --toastify-font-family:
+    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {

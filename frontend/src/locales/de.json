@@ -266,6 +266,13 @@
     "needAccount": "Neu bei Swim Gen? Registriere dich hier",
     "haveAccount": "Hast du bereits ein Konto? Melde dich hier an",
     "checkEmail": "Überprüfe deine E-Mails für den Anmelde-Link!",
-    "invalidLogin": "Ungültige Anmeldeinformationen. Bitte versuche es erneut."
+    "invalidLogin": "Ungültige Anmeldeinformationen. Bitte versuche es erneut.",
+    "emailNotConfirmed": "E-Mail nicht bestätigt. Bitte überprüfe deine E-Mails.",
+    "registrationFailed": "Die Registrierung ist fehlgeschlagen. Bitte versuche es erneut.",
+    "loginSuccess": "Anmeldung erfolgreich!",
+    "registrationSuccess": "Registrierung erfolgreich! Bitte überprüfe deine E-Mails, um dein Konto zu bestätigen.",
+    "userExistsLoginSuccess": "Benutzer existiert bereits, Anmeldung erfolgreich!",
+    "userExistsLoginFailed": "Benutzer existiert bereits, aber die Anmeldung ist fehlgeschlagen. Bitte überprüfe deine Anmeldeinformationen.",
+    "unknownError": "Ein unbekannter Fehler ist aufgetreten. Bitte kontaktiere den Support."
   }
 }

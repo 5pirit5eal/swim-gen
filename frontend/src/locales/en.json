@@ -264,7 +264,12 @@
     "haveAccount": "Already have an account? Login",
     "checkEmail": "You should receive a confirmation email shortly. Please check your inbox.",
     "invalidLogin": "Invalid login credentials. Please try again.",
+    "emailNotConfirmed": "Email not confirmed. Please check your email for the confirmation link.",
     "registrationFailed": "Registration failed. Please try different credentials.",
-    "autoLogin": "This user already exists. Logging in..."
+    "loginSuccess": "Login successful!",
+    "registrationSuccess": "Registration successful! Please check your email to confirm your account.",
+    "userExistsLoginSuccess": "User already exists, login successful!",
+    "userExistsLoginFailed": "User already exists, but login failed. Please check your credentials.",
+    "unknownError": "An unknown error occurred. Please contact support."
   }
 }
