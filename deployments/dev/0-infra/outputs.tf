@@ -3,7 +3,7 @@ locals {
   tfvars = {
     project_id = var.project_id
     region     = var.region
-    supabase_variables = {
+    supabase = {
       id     = supabase_project.development.id
       name   = var.supabase.name
       user   = "postgres.${supabase_project.development.id}"
