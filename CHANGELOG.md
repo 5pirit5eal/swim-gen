@@ -1,3 +1,19 @@
+## [1.13.0](https://github.com/5pirit5eal/swim-gen/compare/v1.12.0...v1.13.0) (2025-10-30)
+
+### Features
+
+* added login buttons and styled them ([72609c5](https://github.com/5pirit5eal/swim-gen/commit/72609c5a186ce2e76c493333ae4ef0535575602a))
+* added toasts for login and logout ([556489c](https://github.com/5pirit5eal/swim-gen/commit/556489c8c426546eaa6fcd3bcc9e0a42f101cbc8))
+* centered the login and registration functions ([c741c33](https://github.com/5pirit5eal/swim-gen/commit/c741c33e409ad35d57404245b34a7a3b0f982068))
+
+### Bug Fixes
+
+* added Dockerfile ([0575ed9](https://github.com/5pirit5eal/swim-gen/commit/0575ed966f4dfa2857fc84120b3fadaac6694a42))
+* added supabase mock for all test ([151538d](https://github.com/5pirit5eal/swim-gen/commit/151538df9966a9a11236b21cb1b45c767c5ac96e))
+* corrected missnamed variable ([bc54433](https://github.com/5pirit5eal/swim-gen/commit/bc54433b37a414fd0e1cd58693f1643b858f4ff8))
+* fix build and tofu config ([a360aa0](https://github.com/5pirit5eal/swim-gen/commit/a360aa04ebed65526030794b46e55338f21f855a))
+* fixed how build variables are used ([ccac2da](https://github.com/5pirit5eal/swim-gen/commit/ccac2da5ee5efbed6473f847da81cc0dd4e9cb50))
+
 ## [1.12.0](https://github.com/5pirit5eal/swim-gen/compare/v1.11.0...v1.12.0) (2025-10-24)
 
 ### Features
