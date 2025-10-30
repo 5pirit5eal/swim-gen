@@ -56,7 +56,8 @@ async function handleSignUp() {
   let response
   try {
     response = await auth.signUp(email.value, password.value, username.value)
-  } catch {
+  } catch (error) {
+    console.error('Sign up failed:', error)
     toast.error(t('login.unknownError'))
   }
   loading.value = false
