@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/5pirit5eal/swim-gen/compare/v1.13.0...v1.13.1) (2025-10-30)
+
+### Bug Fixes
+
+* rename secret to correct name ([ea5af6d](https://github.com/5pirit5eal/swim-gen/commit/ea5af6d9537b10fcba06c2b7f751a3785807762b))
+* rename secret to correct name ([#103](https://github.com/5pirit5eal/swim-gen/issues/103)) ([d595547](https://github.com/5pirit5eal/swim-gen/commit/d595547a8998b9fdd39395cfb0e851adcf5b4557))
+
 ## [1.13.0](https://github.com/5pirit5eal/swim-gen/compare/v1.12.0...v1.13.0) (2025-10-30)
 
 ### Features
