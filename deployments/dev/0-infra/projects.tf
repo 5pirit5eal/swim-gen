@@ -17,6 +17,10 @@ resource "supabase_settings" "development" {
   })
 }
 
+data "supabase_apikeys" "development_keys" {
+  project_ref = supabase_project.development.id
+}
+
 data "google_project" "project" {
   project_id = var.project_id
 }

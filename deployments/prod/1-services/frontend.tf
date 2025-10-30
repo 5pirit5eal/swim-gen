@@ -1,8 +1,8 @@
 locals {
   frontend_env_variables = {
-    PROJECT_ID       = var.project_id
-    REGION           = var.region
-    VITE_APP_API_URL = google_cloud_run_v2_service.bff.uri
+    PROJECT_ID      = var.project_id
+    REGION          = var.region
+    BFF_APP_API_URL = google_cloud_run_v2_service.bff.uri
   }
   records = {
     for type, records in {

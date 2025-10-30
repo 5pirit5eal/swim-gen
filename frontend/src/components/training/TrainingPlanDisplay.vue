@@ -484,7 +484,7 @@ async function handleExport() {
   border: 1px solid var(--color-border);
   padding: 0.75rem 0.5rem;
   text-align: center;
-  color: var(--color-text-light);
+  color: var(--color-text);
   width: auto;
 }
 
@@ -499,7 +499,7 @@ async function handleExport() {
 
 .exercise-table th {
   background: var(--color-border);
-  color: var(--color-text);
+  color: var(--color-heading);
   /* Use flexbox for alignment */
   align-items: center;
   /* Horizontally center items */
@@ -604,14 +604,14 @@ async function handleExport() {
 }
 
 .total-row {
-  background: var(--color-border) !important;
-  color: var(--color-text) !important;
+  background: var(--color-border);
   font-weight: 700;
   font-size: 1rem;
 }
 
 .total-row td {
   border-color: var(--color-border);
+  color: var(--color-heading);
 }
 
 .summary-section {
@@ -644,7 +644,7 @@ async function handleExport() {
 }
 
 .summary-label {
-  color: var(--color-text-light);
+  color: var(--color-heading);
   text-transform: uppercase;
   font-size: 0.75rem;
   letter-spacing: 1px;
@@ -654,7 +654,7 @@ async function handleExport() {
 .no-plan {
   text-align: center;
   padding: 3rem 2rem;
-  color: var(--color-text-light);
+  color: var(--color-text);
   font-style: italic;
 }
 

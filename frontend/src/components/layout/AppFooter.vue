@@ -105,10 +105,10 @@ const { t } = useI18n()
 
 <style scoped>
 .app-footer {
-  background-color: var(--color-background-soft, #f8f9fa);
-  border-top: 1px solid var(--color-border, #e2e8f0);
+  background-color: var(--color-background-soft);
+  border-top: 1px solid var(--color-border);
   margin-top: auto;
-  padding: 2rem 0 1rem;
+  padding: 2rem 0 1rem 0;
 }
 
 .footer-container {
@@ -137,7 +137,7 @@ const { t } = useI18n()
 .footer-section h3,
 .footer-section h4 {
   margin: 0 0 1rem 0;
-  color: var(--color-heading, #2c3e50);
+  color: var(--color-heading);
 }
 
 .footer-section h3 {
@@ -150,7 +150,7 @@ const { t } = useI18n()
 
 .footer-section p {
   margin: 0;
-  color: var(--color-text-light, #64748b);
+  color: var(--color-text-light);
   line-height: 1.6;
 }
 
@@ -165,7 +165,7 @@ const { t } = useI18n()
 }
 
 .footer-links a {
-  color: var(--color-text, #374151);
+  color: var(--color-text);
   text-decoration: none;
   transition: color 0.2s;
   display: flex;
@@ -174,7 +174,7 @@ const { t } = useI18n()
 }
 
 .footer-links a:hover {
-  color: var(--color-text-light, #64748b);
+  color: var(--color-text-light);
   text-decoration: underline;
 }
 
@@ -186,18 +186,18 @@ const { t } = useI18n()
 }
 
 .footer-links a:hover .icon-heart {
-  color: var(--color-text-light, #64748b);
+  color: var(--color-text-light);
 }
 
 .footer-bottom {
   padding-top: 1rem;
-  border-top: 1px solid var(--color-border, #e2e8f0);
+  border-top: 1px solid var(--color-border);
   text-align: center;
 }
 
 .footer-bottom p {
   margin: 0;
-  color: var(--color-text-light, #64748b);
+  color: var(--color-text-light);
   font-size: 0.875rem;
 }
 </style>

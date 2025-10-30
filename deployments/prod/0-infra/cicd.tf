@@ -6,6 +6,13 @@ locals {
     WIF_PROVIDER = "projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.github.workload_identity_pool_provider_id}"
     WIF_SA       = google_service_account.github_actions_sa.email
   }
+  github_env_secrets = {
+    SUPABASE_ACCESS_TOKEN     = var.supabase_access_token
+    SUPABASE_PROJECT_REF      = supabase_project.production.id
+    SUPABASE_DB_PASSWORD      = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
+    VITE_SUPBASE_ANON_API_KEY = data.supabase_apikeys.production_keys.anon_key
+    VITE_SUPABASE_URL         = "https://${supabase_project.production.id}.supabase.co"
+  }
 }
 
 
@@ -97,23 +104,9 @@ resource "github_actions_environment_variable" "prod_project_id" {
 }
 
 resource "github_actions_environment_secret" "prod_supabase_access_token" {
+  for_each        = local.github_env_secrets
   repository      = data.github_repository.swim_gen_repo.name
   environment     = github_repository_environment.prod.environment
-  secret_name     = "SUPABASE_ACCESS_TOKEN"
-  plaintext_value = var.supabase_access_token
-}
-
-resource "github_actions_environment_secret" "prod_supabase_project_ref" {
-  repository      = data.github_repository.swim_gen_repo.name
-  environment     = github_repository_environment.prod.environment
-  secret_name     = "SUPABASE_PROJECT_REF"
-  plaintext_value = supabase_project.production.id
-}
-
-# Root database password needed for non-interactive `supabase link` when CLI requests it
-resource "github_actions_environment_secret" "prod_supabase_db_password" {
-  repository      = data.github_repository.swim_gen_repo.name
-  environment     = github_repository_environment.prod.environment
-  secret_name     = "SUPABASE_DB_PASSWORD"
-  plaintext_value = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
+  secret_name     = each.key
+  plaintext_value = each.value
 }

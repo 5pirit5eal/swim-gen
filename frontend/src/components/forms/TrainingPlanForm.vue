@@ -477,7 +477,8 @@ async function handlePromptGeneration() {
   transition: background-color 0.2s;
 }
 
-.submit-btn:hover:not(:disabled) .submit-btn.loading {
+.submit-btn:hover:not(:disabled),
+.submit-btn.loading {
   background: var(--color-primary-hover);
 }
 

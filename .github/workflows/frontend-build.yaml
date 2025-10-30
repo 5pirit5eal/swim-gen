@@ -2,22 +2,22 @@ name: 📦 Build Frontend and Push to Google Cloud
 
 on:
   workflow_call:
-      inputs:
-        checkout_repo:
-          required: false
-          type: string
-        checkout_ref:
-          required: false
-          type: string
-        env:
-          required: false
-          type: string
-          description: "Environment to setup for"
-          default: dev
-        version:
-          required: false
-          type: string
-          description: "The semantic version to be released"
+    inputs:
+      checkout_repo:
+        required: false
+        type: string
+      checkout_ref:
+        required: false
+        type: string
+      env:
+        required: false
+        type: string
+        description: "Environment to setup for"
+        default: dev
+      version:
+        required: false
+        type: string
+        description: "The semantic version to be released"
   workflow_dispatch:
     inputs:
       env:
@@ -30,7 +30,7 @@ on:
 
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: write  # This is required for actions/checkout
+  contents: write # This is required for actions/checkout
 
 concurrency:
   group: frontend-build-${{ github.workflow }}-${{ github.ref }}
@@ -84,6 +84,8 @@ jobs:
           --build-arg VITE_IMPRESSUM_PHONE="${{ vars.VITE_IMPRESSUM_PHONE }}" \
           --build-arg VITE_IMPRESSUM_EMAIL="${{ vars.VITE_IMPRESSUM_EMAIL }}" \
           --build-arg VITE_SITE_URL="${{ vars.VITE_SITE_URL }}" \
+          --build-arg VITE_SUPABASE_URL="${{ secrets.VITE_SUPABASE_URL }}" \
+          --build-arg VITE_SUPABASE_ANON_KEY="${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
           .
         working-directory: frontend
       - name: Push Docker Image to Registry

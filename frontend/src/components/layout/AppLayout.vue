@@ -1,10 +1,11 @@
 <script setup lang="ts">
-// import AppHeader from './AppHeader.vue' // Necessary for v2
+import AppHeader from './AppHeader.vue' // Necessary for v2
 import AppFooter from './AppFooter.vue'
 </script>
 
 <template>
   <div class="app-layout">
+    <AppHeader />
     <main class="main-content">
       <router-view />
     </main>
@@ -43,16 +44,16 @@ import AppFooter from './AppFooter.vue'
 }
 
 .main-content {
-  flex: 1;
+  margin-block: auto;
   container-type: inherit;
-  padding: 2rem;
+  padding: 0 2rem;
   position: relative;
   z-index: 1;
 }
 
 @media (min-width: 1024px) {
   .main-content {
-    padding: 2rem;
+    padding: 0 2rem;
   }
 }
 
