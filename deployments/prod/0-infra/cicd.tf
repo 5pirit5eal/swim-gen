@@ -10,7 +10,7 @@ locals {
     SUPABASE_ACCESS_TOKEN     = var.supabase_access_token
     SUPABASE_PROJECT_REF      = supabase_project.production.id
     SUPABASE_DB_PASSWORD      = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
-    VITE_SUPBASE_ANON_API_KEY = data.supabase_apikeys.production_keys.anon_key
+    VITE_SUPABASE_ANON_KEY = data.supabase_apikeys.production_keys.anon_key
     VITE_SUPABASE_URL         = "https://${supabase_project.production.id}.supabase.co"
   }
 }
