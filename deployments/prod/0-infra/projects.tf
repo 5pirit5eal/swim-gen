@@ -16,3 +16,11 @@ resource "supabase_settings" "production" {
     max_rows             = 1000
   })
 }
+
+data "supabase_apikeys" "production_keys" {
+  project_ref = supabase_project.production.id
+}
+
+data "google_project" "project" {
+  project_id = var.project_id
+}

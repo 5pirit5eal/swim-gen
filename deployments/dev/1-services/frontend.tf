@@ -1,10 +1,8 @@
 locals {
   frontend_env_variables = {
-    PROJECT_ID             = var.project_id
-    REGION                 = var.region
-    VITE_APP_API_URL       = google_cloud_run_v2_service.bff.uri
-    VITE_SUPABASE_URL      = "https://${var.supabase.id}.supabase.co"
-    VITE_SUPABASE_ANON_KEY = data.supabase_apikeys.development_keys.anon_key
+    PROJECT_ID      = var.project_id
+    REGION          = var.region
+    BFF_APP_API_URL = google_cloud_run_v2_service.bff.uri
   }
 }
 
@@ -83,9 +81,4 @@ resource "github_actions_environment_variable" "dev_site_url" {
   environment   = "dev"
   variable_name = "VITE_SITE_URL"
   value         = google_cloud_run_v2_service.frontend.uri
-}
-
-# Supabase Anon Key
-data "supabase_apikeys" "development_keys" {
-  project_ref = var.supabase.id
 }

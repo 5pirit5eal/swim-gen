@@ -14,18 +14,23 @@ ARG VITE_SUPABASE_ANON_KEY
 
 COPY package*.json ./
 RUN apk add --no-cache build-base autoconf automake libtool nasm zlib-dev
+
+# Set args as env variables for npm build process
+ENV VITE_IMPRESSUM_NAME=$VITE_IMPRESSUM_NAME
+ENV VITE_IMPRESSUM_ADDRESS=$VITE_IMPRESSUM_ADDRESS
+ENV VITE_IMPRESSUM_CITY=$VITE_IMPRESSUM_CITY
+ENV VITE_IMPRESSUM_PHONE=$VITE_IMPRESSUM_PHONE
+ENV VITE_IMPRESSUM_EMAIL=$VITE_IMPRESSUM_EMAIL
+ENV VITE_SITE_URL=$VITE_SITE_URL
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+
 RUN npm install
 
 COPY . .
 
-RUN echo "VITE_IMPRESSUM_NAME=${VITE_IMPRESSUM_NAME}" > .env.production && \
-    echo "VITE_IMPRESSUM_ADDRESS=${VITE_IMPRESSUM_ADDRESS}" >> .env.production && \
-    echo "VITE_IMPRESSUM_CITY=${VITE_IMPRESSUM_CITY}" >> .env.production && \
-    echo "VITE_IMPRESSUM_PHONE=${VITE_IMPRESSUM_PHONE}" >> .env.production && \
-    echo "VITE_IMPRESSUM_EMAIL=${VITE_IMPRESSUM_EMAIL}" >> .env.production && \
-    echo "VITE_SITE_URL=${VITE_SITE_URL}" >> .env.production && \
-    echo "VITE_SUPABASE_URL=${VITE_SUPABASE_URL}" >> .env.production && \
-    echo "VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}" >> .env.production
+# Delete any env variable files
+RUN rm -f .env .env.*
 
 RUN npm run build
 

@@ -63,7 +63,16 @@ To run the entire application stack (frontend, BFF, and backend) using Docker, y
 3. **Run the following command:**
 
     ```sh
-    docker-compose up --build
+    docker compose build \ 
+        --build-arg VITE_IMPRESSUM_NAME=$VITE_IMPRESSUM_NAME \
+        --build-arg VITE_IMPRESSUM_ADDRESS=$VITE_IMPRESSUM_ADDRESS \
+        --build-arg VITE_IMPRESSUM_CITY=$VITE_IMPRESSUM_CITY \
+        --build-arg VITE_IMPRESSUM_PHONE=$VITE_IMPRESSUM_PHONE \
+        --build-arg VITE_IMPRESSUM_EMAIL=$VITE_IMPRESSUM_EMAIL \
+        --build-arg VITE_SITE_URL=$VITE_SITE_URL \
+        --build-arg VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
+        --build-arg VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+    docker compose up
     ```
 
     This will build the Docker images for the frontend, BFF, and backend services and start them. The frontend will be available at `http://localhost:5173`.
