@@ -1,6 +1,6 @@
 -- Create a table for public profiles
 create table profiles (
-  user_id uuid references auth.users not null primary key on delete cascade,
+  user_id uuid references auth.users on delete cascade not null primary key,
   updated_at timestamptz not null default now(),
   username text unique not null,
   experience text,
@@ -52,10 +52,15 @@ begin
   -- Try meta, fallback to generated value
   v_username := coalesce(new.raw_user_meta_data->>'username', 'user_' || substr(new.id::text, 1, 8));
 
-  insert into public.profiles (user_id, username)
-  values (new.id, v_username)
-  on conflict do nothing;
-
+  begin
+    insert into public.profiles (user_id, username)
+    values (new.id, v_username);
+  exception
+    when unique_violation then
+      raise exception using
+        message = 'Username already taken. Please choose another one.',
+        errcode = '23505';
+  end;
   return new;
 end;
 $$;
