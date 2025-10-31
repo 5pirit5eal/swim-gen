@@ -7,11 +7,11 @@ locals {
     WIF_SA       = google_service_account.github_actions_sa.email
   }
   github_env_secrets = {
-    SUPABASE_ACCESS_TOKEN     = var.supabase_access_token
-    SUPABASE_PROJECT_REF      = supabase_project.production.id
-    SUPABASE_DB_PASSWORD      = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
+    SUPABASE_ACCESS_TOKEN  = var.supabase_access_token
+    SUPABASE_PROJECT_REF   = supabase_project.production.id
+    SUPABASE_DB_PASSWORD   = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
     VITE_SUPABASE_ANON_KEY = data.supabase_apikeys.production_keys.anon_key
-    VITE_SUPABASE_URL         = "https://${supabase_project.production.id}.supabase.co"
+    VITE_SUPABASE_URL      = "https://${supabase_project.production.id}.supabase.co"
   }
 }
 
