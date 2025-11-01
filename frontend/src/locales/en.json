@@ -275,5 +275,26 @@
     "unknownError": "An unknown error occurred. Please contact support.",
     "logoutSuccess": "You have been logged out successfully.",
     "logoutFailed": "Logout failed. Please try again."
+  },
+  "profile": {
+    "title": "Profile",
+    "description": "Your profile information is used to improve the generation of plans. It is only visible to you and may be used to improve the application.",
+    "your_information": "Your Information",
+    "experience": "Experience",
+    "experience_explanation": "Your swimming experience level.",
+    "preferred_strokes": "Preferred Strokes",
+    "preferred_strokes_explanation": "Your preferred swimming strokes.",
+    "categories": "Categories",
+    "categories_explanation": "Your user categories.",
+    "edit_profile": "Edit Profile",
+    "save": "Save",
+    "saving": "Saving...",
+    "statistics": "Statistics",
+    "generated_plans": "Generated Plans",
+    "exported_plans": "Exported Plans",
+    "monthly_quota": "Monthly Quota",
+    "delete_account": "Delete Account",
+    "delete_account_placeholder": "This action cannot be undone.",
+    "delete_account_button": "Delete Account"
   }
 }

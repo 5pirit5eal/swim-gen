@@ -20,13 +20,14 @@
   --vt-c-text-light-1: var(--vt-c-indigo);
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
-  --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+  --vt-c-text-dark-2: rgba(235, 235, 235, 0.732);
 
   --vt-c-background-light: rgba(237, 237, 237, 0.25);
   --vt-c-background-dark: rgba(22, 22, 22, 0.655);
 
   --color-success: #07bc0c;
   --color-error: #e74c3c;
+  --color-error-soft: #b91c1c;
 }
 
 /* semantic color variables for this project */

@@ -45,3 +45,6 @@ export interface AppState {
   error: string | null
   theme: 'light' | 'dark' | 'auto'
 }
+
+// Export user profile type
+export type { Profile } from './profile'

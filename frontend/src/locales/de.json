@@ -278,5 +278,26 @@
     "unknownError": "Ein unbekannter Fehler ist aufgetreten. Bitte kontaktiere den Support.",
     "logoutSuccess": "Abmeldung erfolgreich!",
     "logoutFailed": "Die Abmeldung ist fehlgeschlagen. Bitte versuche es erneut."
+  },
+  "profile": {
+    "title": "Profil",
+    "description": "Deine Profilinformationen werden verwendet, um die Generierung von Plänen zu verbessern. Sie sind nur für dich sichtbar und können zur Verbesserung der Anwendung verwendet werden.",
+    "your_information": "Deine Informationen",
+    "experience": "Erfahrung",
+    "experience_explanation": "Dein Erfahrungslevel im Schwimmen.",
+    "preferred_strokes": "Bevorzugte Schwimmstile",
+    "preferred_strokes_explanation": "Deine bevorzugten Schwimmstile.",
+    "categories": "Kategorien",
+    "categories_explanation": "Deine Benutzerkategorien.",
+    "edit_profile": "Profil bearbeiten",
+    "save": "Speichern",
+    "saving": "Speichert...",
+    "statistics": "Statistiken",
+    "generated_plans": "Generierte Pläne",
+    "exported_plans": "Exportierte Pläne",
+    "monthly_quota": "Monatliches Kontingent",
+    "delete_account": "Konto löschen",
+    "delete_account_placeholder": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "delete_account_button": "Konto löschen"
   }
 }
