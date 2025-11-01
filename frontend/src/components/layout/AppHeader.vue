@@ -2,15 +2,18 @@
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { toast } from 'vue3-toastify'
+import { useRouter } from 'vue-router'
 // Header component for the swim training plan generator
 
 const { t } = useI18n()
 const auth = useAuthStore()
+const router = useRouter()
 
 async function handleLogout() {
   try {
     await auth.signOut()
     toast.success(t('login.logoutSuccess'))
+    router.push('/')
   } catch (error) {
     console.error('Logout failed:', error)
     toast.error(t('login.unknownError'))
@@ -38,15 +41,8 @@ async function handleLogout() {
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           <h1>{{ t('app.name') }}</h1>
-          <!-- <span class="subtitle">Training Plan Generator</span> -->
         </div>
       </router-link>
-
-      <!-- Navigation for future use (V2) -->
-      <nav class="navigation" v-if="false">
-        <router-link to="/" class="nav-link">{{ t('header.home') }}</router-link>
-        <router-link to="/about" class="nav-link">{{ t('header.about') }}</router-link>
-      </nav>
 
       <div class="auth-actions">
         <div v-if="!auth.user" class="login-actions">
@@ -121,29 +117,6 @@ async function handleLogout() {
   color: var(--color-text-light);
 }
 
-.navigation {
-  display: flex;
-  gap: 1rem;
-}
-
-.nav-link {
-  text-decoration: none;
-  color: var(--color-text);
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  transition: background-color 0.2s;
-}
-
-.nav-link:hover {
-  background-color: var(--color-background-mute);
-}
-
-.nav-link.router-link-active {
-  background-color: var(--color-background-mute);
-  color: var(--color-text);
-}
-
 .auth-actions .login-actions {
   display: flex;
   gap: 0.5rem;
@@ -171,25 +144,22 @@ async function handleLogout() {
 }
 
 .auth-actions .btn-secondary {
-  background-color: transparent;
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  color: var(--color-heading);
+  border: 1px solid var(--color-text);
 }
 
 .auth-actions .btn-secondary:hover {
   border: 1px solid var(--color-primary-hover);
-  color: var(--color-primary-hover);
+  color: var(--color-primary);
 }
 
 .auth-actions .logout-btn {
-  background-color: transparent;
   color: var(--color-heading);
-  border: 1px solid var(--color-heading);
-  margin-left: unset;
+  border: 1px solid var(--color-text);
 }
 
 .auth-actions .logout-btn:hover {
-  color: var(--color-text);
-  border: 1px solid var(--color-text);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
 }
 </style>

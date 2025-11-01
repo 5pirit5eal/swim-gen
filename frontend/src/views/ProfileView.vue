@@ -55,105 +55,120 @@ function toggleEditMode() {
       </section>
 
       <section class="profile-content">
-        <div class="profile-details">
-          <div class="profile-card">
-            <h3>{{ t('profile.your_information') }}</h3>
-            <div v-if="!isEditMode" class="display-mode">
-              <div class="info-grid">
-                <div class="info-group">
-                  <label>
-                    {{ t('profile.experience') }}
-                    <BaseTooltip>
-                      <template #tooltip>{{ t('profile.experience_explanation') }}</template>
-                    </BaseTooltip>
-                  </label>
-                  <p>{{ editableProfile.experience }}</p>
-                </div>
-                <div class="info-group">
-                  <label>
-                    {{ t('profile.preferred_strokes') }}
-                    <BaseTooltip>
-                      <template #tooltip>{{ t('profile.preferred_strokes_explanation') }}</template>
-                    </BaseTooltip>
-                  </label>
-                  <p>{{ editableProfile.preferred_strokes.join(', ') }}</p>
-                </div>
-                <div class="info-group">
-                  <label>
-                    {{ t('profile.categories') }}
-                    <BaseTooltip>
-                      <template #tooltip>{{ t('profile.categories_explanation') }}</template>
-                    </BaseTooltip>
-                  </label>
-                  <p>{{ editableProfile.categories.join(', ') }}</p>
-                </div>
+        <div class="profile-card">
+          <h3>{{ t('profile.your_information') }}</h3>
+          <p>{{ t('profile.info_description', { username: profileStore.profile?.username }) }}</p>
+          <div v-if="!isEditMode" class="display-mode">
+            <div class="info-grid">
+              <div class="info-group">
+                <label>
+                  {{ t('profile.experience') }}
+                  <BaseTooltip>
+                    <template #tooltip>{{ t('profile.experience_explanation') }}</template>
+                  </BaseTooltip>
+                </label>
+                <p>{{ editableProfile.experience }}</p>
               </div>
-              <button @click="toggleEditMode" class="edit-btn">
-                {{ t('profile.edit_profile') }}
-              </button>
+              <div class="info-group">
+                <label>
+                  {{ t('profile.preferred_strokes') }}
+                  <BaseTooltip>
+                    <template #tooltip>{{ t('profile.preferred_strokes_explanation') }}</template>
+                  </BaseTooltip>
+                </label>
+                <p>{{ editableProfile.preferred_strokes.join(', ') }}</p>
+              </div>
+              <div class="info-group">
+                <label>
+                  {{ t('profile.categories') }}
+                  <BaseTooltip>
+                    <template #tooltip>{{ t('profile.categories_explanation') }}</template>
+                  </BaseTooltip>
+                </label>
+                <p>{{ editableProfile.categories.join(', ') }}</p>
+              </div>
             </div>
-            <div v-else class="edit-mode">
-              <div class="form-group">
-                <label class="form-label">{{ t('profile.experience') }}</label>
-                <div class="radio-group">
-                  <label v-for="option in experienceOptions" :key="option" class="radio-option">
-                    <input type="radio" :value="option" v-model="editableProfile.experience"
-                      :disabled="profileStore.loading" />
-                    {{ option }}
-                  </label>
+            <button @click="toggleEditMode" class="edit-btn">
+              {{ t('profile.edit_profile') }}
+            </button>
+          </div>
+          <div v-else class="edit-mode">
+            <div class="form-grid">
+              <div class="form-column">
+                <div class="form-group">
+                  <label class="form-label">{{ t('profile.experience') }}</label>
+                  <div class="radio-group">
+                    <label v-for="option in experienceOptions" :key="option" class="radio-option">
+                      <input type="radio" :value="option" v-model="editableProfile.experience"
+                        :disabled="profileStore.loading" />
+                      {{ option }}
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">{{ t('profile.preferred_strokes') }}</label>
+                  <div class="checkbox-group">
+                    <label v-for="option in strokeOptions" :key="option" class="checkbox-option">
+                      <input type="checkbox" :value="option" v-model="editableProfile.preferred_strokes"
+                        :disabled="profileStore.loading" />
+                      {{ option }}
+                    </label>
+                  </div>
                 </div>
               </div>
-              <div class="form-group">
-                <label class="form-label">{{ t('profile.preferred_strokes') }}</label>
-                <div class="checkbox-group">
-                  <label v-for="option in strokeOptions" :key="option" class="checkbox-option">
-                    <input type="checkbox" :value="option" v-model="editableProfile.preferred_strokes"
-                      :disabled="profileStore.loading" />
-                    {{ option }}
-                  </label>
+              <div class="form-column">
+                <div class="form-group">
+                  <label class="form-label">{{ t('profile.categories') }}</label>
+                  <div class="checkbox-group">
+                    <label v-for="option in categoryOptions" :key="option" class="checkbox-option">
+                      <input type="checkbox" :value="option" v-model="editableProfile.categories"
+                        :disabled="profileStore.loading" />
+                      {{ option }}
+                    </label>
+                  </div>
                 </div>
               </div>
-              <div class="form-group">
-                <label class="form-label">{{ t('profile.categories') }}</label>
-                <div class="checkbox-group">
-                  <label v-for="option in categoryOptions" :key="option" class="checkbox-option">
-                    <input type="checkbox" :value="option" v-model="editableProfile.categories"
-                      :disabled="profileStore.loading" />
-                    {{ option }}
-                  </label>
-                </div>
-              </div>
-              <button @click="saveProfile" class="submit-btn" :disabled="profileStore.loading">
-                {{ profileStore.loading ? t('profile.saving') : t('profile.save') }}
-              </button>
             </div>
+            <button @click="saveProfile" class="submit-btn" :disabled="profileStore.loading">
+              {{ profileStore.loading ? t('profile.saving') : t('profile.save') }}
+            </button>
           </div>
         </div>
 
         <div class="statistics-and-delete">
           <div class="statistics-card">
-            <h3>{{ t('profile.statistics') }}</h3>
             <div class="statistics-grid">
               <div class="stat-item">
-                <h3>{{ t('profile.generated_plans') }}</h3>
+                <h3>{{ t('profile.generated_plans') }}
+                  <BaseTooltip>
+                    <template #tooltip>{{ t('profile.generated_plans_tooltip') }}</template>
+                  </BaseTooltip>
+                </h3>
                 <p>0</p>
               </div>
               <div class="stat-item">
-                <h3>{{ t('profile.exported_plans') }}</h3>
+                <h3>{{ t('profile.exported_plans') }}
+                  <BaseTooltip>
+                    <template #tooltip>{{ t('profile.exported_plans_tooltip') }}</template>
+                  </BaseTooltip>
+                </h3>
                 <p>0</p>
               </div>
               <div class="stat-item">
-                <h3>{{ t('profile.monthly_quota') }}</h3>
-                <p>0 / 100</p>
+                <h3>{{ t('profile.monthly_quota') }}
+                  <BaseTooltip>
+                    <template #tooltip>{{ t('profile.monthly_quota_tooltip') }}</template>
+                  </BaseTooltip>
+                </h3>
+                <p>10 / 100</p>
                 <div class="progress-bar">
-                  <div class="progress" style="width: 0%"></div>
+                  <div class="progress" style="width: 10%"></div>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="delete-card">
-            <h3>{{ t('profile.delete_account') }}</h3>
             <p>{{ t('profile.delete_account_placeholder') }}</p>
             <button class="delete-btn">{{ t('profile.delete_account_button') }}</button>
           </div>
@@ -199,25 +214,12 @@ function toggleEditMode() {
   line-height: 1.6;
 }
 
-.hero-sub-description {
-  font-size: 0.9rem;
-  color: var(--color-text-light);
-  max-width: 600px;
-  margin: 1rem auto 0;
-}
-
 .profile-content {
   display: flex;
   gap: 2rem;
-  justify-content: space-between;
-}
-
-.profile-details {
-  flex: 2;
 }
 
 .statistics-and-delete {
-  flex: 2;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -232,28 +234,32 @@ function toggleEditMode() {
   border: 1px solid var(--color-border);
 }
 
-.profile-card h3,
-.statistics-card h3,
-.delete-card h3 {
+.profile-card h3 {
   margin-bottom: 1rem;
   color: var(--color-heading);
   font-size: 1.5rem;
 }
 
+.profile-card p {
+  margin-bottom: 1rem;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
 .info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  display: flex;
+  align-items: column;
 }
 
 .info-group {
-  margin-bottom: 1.5rem;
+  margin: 0.25rem 0.5rem 1.5rem;
 }
 
 .info-group label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-heading);
 }
@@ -273,11 +279,20 @@ function toggleEditMode() {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  margin-top: 1rem;
+  align-self: self-end;
 }
 
 .edit-btn:hover {
   background: var(--color-primary-hover);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.form-column {
+  padding: 1rem 0rem;
 }
 
 .form-group {
@@ -363,6 +378,11 @@ function toggleEditMode() {
 .delete-card {
   border-color: var(--color-error);
   background-color: var(--color-background-soft);
+}
+
+.delete-card p {
+  color: var(--color-error);
+  margin-bottom: 1rem;
 }
 
 .delete-btn {
