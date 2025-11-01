@@ -298,6 +298,19 @@
     "monthly_quota_tooltip": "Number of advanced training plans you can generate per month. Advanced plans are plans in chat-mode or multi-plan requests. The quota resets on the first day of each month.",
     "delete_account": "Delete Account",
     "delete_account_placeholder": "This action cannot be undone.",
-    "delete_account_button": "Delete Account"
+    "delete_account_button": "Delete Account",
+    "experience_beginner": "Beginner",
+    "experience_intermediate": "Intermediate",
+    "experience_advanced": "Advanced",
+    "category_triathlete": "Triathlete",
+    "category_swimmer": "Swimmer",
+    "category_coach": "Coach",
+    "category_hobby": "Hobby",
+    "no_selection_placeholder": "No selection yet",
+    "freestyle": "Freestyle",
+    "breaststroke": "Breaststroke",
+    "backstroke": "Backstroke",
+    "butterfly": "Butterfly",
+    "individual_medley": "Individual Medley"
   }
 }

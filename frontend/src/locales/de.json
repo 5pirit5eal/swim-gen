@@ -301,6 +301,19 @@
     "monthly_quota_tooltip": "Die Anzahl der erweiterten Trainingsgenerierungen, die du diesen Monat durchgeführt hast. Erweitertes Generieren umfasst alle Trainingspläne, die im Chat Modus oder in Multi-Plan Anfragen generiert wurden. Das Kontigent wird am ersten Tag jedes Monats zurückgesetzt.",
     "delete_account": "Konto löschen",
     "delete_account_placeholder": "Diese Aktion kann nicht rückgängig gemacht werden.",
-    "delete_account_button": "Konto löschen"
+    "delete_account_button": "Konto löschen",
+    "experience_beginner": "Anfänger",
+    "experience_intermediate": "Fortgeschritten",
+    "experience_advanced": "Erfahren",
+    "category_triathlete": "Triathlet",
+    "category_swimmer": "Schwimmer",
+    "category_coach": "Trainer",
+    "category_hobby": "Hobbyschwimmer",
+    "no_selection_placeholder": "Noch keine Auswahl",
+    "freestyle": "Freistil",
+    "breaststroke": "Brustschwimmen",
+    "backstroke": "Rückenschwimmen",
+    "butterfly": "Schmetterling",
+    "individual_medley": "Lagen"
   }
 }

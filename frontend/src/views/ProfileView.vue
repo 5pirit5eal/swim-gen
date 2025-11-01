@@ -67,7 +67,9 @@ function toggleEditMode() {
                     <template #tooltip>{{ t('profile.experience_explanation') }}</template>
                   </BaseTooltip>
                 </label>
-                <p>{{ editableProfile.experience }}</p>
+                <p v-if="editableProfile.experience">{{
+                  t(`profile.experience_${editableProfile.experience.toLowerCase()}`) }}</p>
+                <p v-else>{{ t('profile.no_selection_placeholder') }}</p>
               </div>
               <div class="info-group">
                 <label>
@@ -76,7 +78,12 @@ function toggleEditMode() {
                     <template #tooltip>{{ t('profile.preferred_strokes_explanation') }}</template>
                   </BaseTooltip>
                 </label>
-                <p>{{ editableProfile.preferred_strokes.join(', ') }}</p>
+                <ul v-if="editableProfile.preferred_strokes.length > 0">
+                  <li v-for="stroke in editableProfile.preferred_strokes" :key="stroke">
+                    {{ t(`profile.${stroke.toLowerCase().replace(' ', '_')}`) }}
+                  </li>
+                </ul>
+                <p v-else>{{ t('profile.no_selection_placeholder') }}</p>
               </div>
               <div class="info-group">
                 <label>
@@ -85,7 +92,12 @@ function toggleEditMode() {
                     <template #tooltip>{{ t('profile.categories_explanation') }}</template>
                   </BaseTooltip>
                 </label>
-                <p>{{ editableProfile.categories.join(', ') }}</p>
+                <ul v-if="editableProfile.categories.length > 0">
+                  <li v-for="category in editableProfile.categories" :key="category">
+                    {{ t(`profile.category_${category.toLowerCase()}`) }}
+                  </li>
+                </ul>
+                <p v-else>{{ t('profile.no_selection_placeholder') }}</p>
               </div>
             </div>
             <button @click="toggleEditMode" class="edit-btn">
@@ -96,34 +108,47 @@ function toggleEditMode() {
             <div class="form-grid">
               <div class="form-column">
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.experience') }}</label>
-                  <div class="radio-group">
-                    <label v-for="option in experienceOptions" :key="option" class="radio-option">
-                      <input type="radio" :value="option" v-model="editableProfile.experience"
-                        :disabled="profileStore.loading" />
-                      {{ option }}
-                    </label>
+                  <label class="form-label">{{ t('profile.experience') }}
+                    <BaseTooltip>
+                      <template #tooltip>{{ t('profile.experience_explanation') }}</template>
+                    </BaseTooltip>
+                  </label>
+                  <div class="select-group">
+                    <select class="select-input" v-model="editableProfile.experience" :disabled="profileStore.loading">
+                      <option :value="undefined">{{ t('form.any_training_type') }}</option>
+                      <option v-for="option in experienceOptions" :key="option" :value="option">
+                        {{ t(`profile.experience_${option.toLowerCase()}`) }}
+                      </option>
+                    </select>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.preferred_strokes') }}</label>
+                  <label class="form-label">{{ t('profile.preferred_strokes') }}
+                    <BaseTooltip>
+                      <template #tooltip>{{ t('profile.preferred_strokes_explanation') }}</template>
+                    </BaseTooltip>
+                  </label>
                   <div class="checkbox-group">
                     <label v-for="option in strokeOptions" :key="option" class="checkbox-option">
                       <input type="checkbox" :value="option" v-model="editableProfile.preferred_strokes"
                         :disabled="profileStore.loading" />
-                      {{ option }}
+                      {{ t(`profile.${option.toLowerCase().replace(' ', '_')}`) }}
                     </label>
                   </div>
                 </div>
               </div>
               <div class="form-column">
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.categories') }}</label>
+                  <label class="form-label">{{ t('profile.categories') }}
+                    <BaseTooltip>
+                      <template #tooltip>{{ t('profile.categories_explanation') }}</template>
+                    </BaseTooltip>
+                  </label>
                   <div class="checkbox-group">
                     <label v-for="option in categoryOptions" :key="option" class="checkbox-option">
                       <input type="checkbox" :value="option" v-model="editableProfile.categories"
                         :disabled="profileStore.loading" />
-                      {{ option }}
+                      {{ t(`profile.category_${option.toLowerCase()}`) }}
                     </label>
                   </div>
                 </div>
@@ -219,6 +244,18 @@ function toggleEditMode() {
   gap: 2rem;
 }
 
+@media (max-width: 960px) {
+  .profile-content {
+    flex-direction: column;
+  }
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .statistics-and-delete {
   display: flex;
   flex-direction: column;
@@ -248,7 +285,12 @@ function toggleEditMode() {
 
 .info-grid {
   display: flex;
-  align-items: column;
+}
+
+@media (max-width: 460px) {
+  .info-grid {
+    flex-direction: column;
+  }
 }
 
 .info-group {
@@ -258,14 +300,18 @@ function toggleEditMode() {
 .info-group label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
   font-size: 1rem;
   font-weight: 600;
   color: var(--color-heading);
 }
 
 .info-group p {
-  color: var(--color-text);
+  margin-top: 0.5rem;
+}
+
+.info-group ul {
+  padding-left: 1rem;
   margin-top: 0.5rem;
 }
 
@@ -279,7 +325,7 @@ function toggleEditMode() {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  align-self: self-end;
+  margin: auto;
 }
 
 .edit-btn:hover {
@@ -311,6 +357,22 @@ function toggleEditMode() {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  color: var(--color-text);
+}
+
+.select-input {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: var(--color-background-soft);
+  color: var(--color-text);
+}
+
+.select-input:focus {
+  outline: none;
+  border-color: var(--color-border-hover);
 }
 
 .radio-option,
