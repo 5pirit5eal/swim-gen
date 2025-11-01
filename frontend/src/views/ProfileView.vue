@@ -253,7 +253,8 @@ function toggleEditMode() {
 .profile-card {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100%;
+  position: relative;
 }
 
 .statistics-and-delete {
@@ -285,6 +286,8 @@ function toggleEditMode() {
 
 .info-grid {
   display: flex;
+  margin-bottom: 1rem;
+  justify-content: space-between;
 }
 
 @media (max-width: 460px) {
@@ -325,7 +328,9 @@ function toggleEditMode() {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  margin: auto;
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
 }
 
 .edit-btn:hover {
@@ -335,6 +340,7 @@ function toggleEditMode() {
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  margin-bottom: 1.5rem;
 }
 
 .form-column {
@@ -394,6 +400,9 @@ function toggleEditMode() {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
 }
 
 .submit-btn:hover:not(:disabled) {
