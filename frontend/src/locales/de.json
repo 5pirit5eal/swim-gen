@@ -272,8 +272,11 @@
     "registrationFailed": "Die Registrierung ist fehlgeschlagen. Bitte versuche es erneut.",
     "loginSuccess": "Anmeldung erfolgreich!",
     "registrationSuccess": "Registrierung erfolgreich! Bitte überprüfe deine E-Mails, um dein Konto zu bestätigen.",
+    "usernameTaken": "Der Benutzername ist bereits vergeben. Bitte wähle einen anderen.",
     "userExistsLoginSuccess": "Benutzer existiert bereits, Anmeldung erfolgreich!",
     "userExistsLoginFailed": "Benutzer existiert bereits, aber die Anmeldung ist fehlgeschlagen. Bitte überprüfe deine Anmeldeinformationen.",
-    "unknownError": "Ein unbekannter Fehler ist aufgetreten. Bitte kontaktiere den Support."
+    "unknownError": "Ein unbekannter Fehler ist aufgetreten. Bitte kontaktiere den Support.",
+    "logoutSuccess": "Abmeldung erfolgreich!",
+    "logoutFailed": "Die Abmeldung ist fehlgeschlagen. Bitte versuche es erneut."
   }
 }

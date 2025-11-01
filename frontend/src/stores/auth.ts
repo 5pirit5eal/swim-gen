@@ -8,17 +8,14 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
 
   supabase.auth.getSession().then(({ data }) => {
-    console.log('Fetched session on store init:', data.session)
     session.value = data.session
   })
 
   supabase.auth.getUser().then(({ data }) => {
-    console.log('Fetched user on store init:', data.user)
     user.value = data.user ?? null
   })
 
   supabase.auth.onAuthStateChange((event, newSession) => {
-    console.log('Auth state changed:', event)
     session.value = newSession
     user.value = newSession?.user ?? null
   })
@@ -30,8 +27,7 @@ export const useAuthStore = defineStore('auth', () => {
       console.error('Error fetching session:', error)
       return
     }
-    session.value = data.session
-    console.log('Session fetched:', session.value)
+    session.value = data.session ?? null
   }
 
   async function getUser() {
@@ -43,7 +39,6 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
     user.value = data.user ?? null
-    console.log('User fetched:', user.value)
   }
 
   async function signInWithPassword(email: string, password: string) {
@@ -56,7 +51,20 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function signUp(email: string, password: string, username: string) {
-    // TODO: Check if the username is already taken, can be done once the profile table is setup
+    // Check if the username is already taken
+    const { data: existingUser, error: existingUserError } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('username', username)
+      .single()
+
+    if (existingUserError && existingUserError.code !== 'PGRST116') {
+      throw existingUserError
+    }
+
+    if (existingUser) {
+      throw new Error('Username already taken')
+    }
 
     const { data, error } = await supabase.auth.signUp({
       email,

@@ -42,7 +42,6 @@ router.beforeEach(async (to, from) => {
   } else if (to.name === 'login' && auth.user) {
     return { name: 'home' }
   }
-  console.log('Navigating to:', to.fullPath)
 })
 
 export default router

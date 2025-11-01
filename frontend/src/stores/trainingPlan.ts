@@ -35,10 +35,9 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   }
 
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
-    console.log(`Updating row ${rowIndex}, field ${field} with value:`, value)
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       // Recalculate Sum if Amount or Distance changed
       if (field === 'Amount' || field === 'Distance') {

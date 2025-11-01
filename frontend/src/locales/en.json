@@ -269,8 +269,11 @@
     "registrationFailed": "Registration failed. Please try different credentials.",
     "loginSuccess": "Login successful!",
     "registrationSuccess": "Registration successful! Please check your email to confirm your account.",
+    "usernameTaken": "Username already taken. Please choose a different one.",
     "userExistsLoginSuccess": "User already exists, login successful!",
     "userExistsLoginFailed": "User already exists, but login failed. Please check your credentials.",
-    "unknownError": "An unknown error occurred. Please contact support."
+    "unknownError": "An unknown error occurred. Please contact support.",
+    "logoutSuccess": "You have been logged out successfully.",
+    "logoutFailed": "Logout failed. Please try again."
   }
 }

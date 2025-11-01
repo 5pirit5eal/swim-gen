@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import { toast } from 'vue3-toastify'
 // Header component for the swim training plan generator
 
 const { t } = useI18n()
 const auth = useAuthStore()
+
+async function handleLogout() {
+  try {
+    await auth.signOut()
+    toast.success(t('login.logoutSuccess'))
+  } catch (error) {
+    console.error('Logout failed:', error)
+    toast.error(t('login.unknownError'))
+  }
+}
 </script>
 
 <template>
@@ -56,7 +67,7 @@ const auth = useAuthStore()
               {{ t('header.profile') }}
             </button>
           </router-link>
-          <button @click="auth.signOut()" class="logout-btn">{{ t('login.logout') }}</button>
+          <button @click="handleLogout" class="logout-btn">{{ t('login.logout') }}</button>
         </div>
       </div>
     </div>
