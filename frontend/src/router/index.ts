@@ -1,6 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/HomeView.vue'
-import LoginView from '@/views/LoginView.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -9,12 +7,12 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: () => import('@/views/HomeView.vue'),
     },
     {
       path: '/login',
       name: 'login',
-      component: LoginView,
+      component: () => import('@/views/LoginView.vue'),
     },
     {
       path: '/profile',
@@ -25,17 +23,26 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from) => {
   const auth = useAuthStore()
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
+  await auth.getUser()
 
   if (requiresAuth && !auth.user) {
-    next('/login')
-  } else if (to.path === '/login' && auth.user) {
-    next('/')
-  } else {
-    next()
+    if (from.name !== 'login') {
+      return {
+        name: 'login',
+        query: {
+          redirectTo: to.fullPath,
+        },
+      }
+    } else {
+      return false
+    }
+  } else if (to.name === 'login' && auth.user) {
+    return { name: 'home' }
   }
+  console.log('Navigating to:', to.fullPath)
 })
 
 export default router
