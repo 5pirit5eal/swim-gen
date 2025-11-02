@@ -14,6 +14,7 @@ vi.mock('@/plugins/supabase', () => ({
       signInWithPassword: vi.fn(),
       signUp: vi.fn(),
       signOut: vi.fn(),
+      refreshSession: vi.fn(),
     },
     from: vi.fn(() => ({
       select: vi.fn(() => ({
@@ -31,6 +32,7 @@ const mockedOnAuthStateChange = supabase.auth.onAuthStateChange as Mock
 const mockedSignInWithPassword = supabase.auth.signInWithPassword as Mock
 const mockedSignUp = supabase.auth.signUp as Mock
 const mockedSignOut = supabase.auth.signOut as Mock
+const mockedRefreshSession = supabase.auth.refreshSession as Mock
 
 describe('auth Store', () => {
   beforeEach(() => {
@@ -51,6 +53,8 @@ describe('auth Store', () => {
     const store = useAuthStore()
     const mockData = { user: { id: '123' }, session: { access_token: 'abc' } }
     mockedSignInWithPassword.mockResolvedValue({ data: mockData, error: null })
+    mockedRefreshSession.mockResolvedValue({ data: { session: mockData.session }, error: null })
+    mockedGetUser.mockResolvedValue({ data: { user: mockData.user }, error: null })
 
     const result = await store.signInWithPassword('test@example.com', 'password')
 

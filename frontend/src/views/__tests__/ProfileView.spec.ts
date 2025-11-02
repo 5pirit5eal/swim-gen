@@ -4,27 +4,13 @@ import { createI18n } from 'vue-i18n'
 import ProfileView from '../ProfileView.vue'
 import { useProfileStore } from '@/stores/profile'
 import { describe, it, expect, vi } from 'vitest'
+import en from '@/locales/en.json'
 
 const i18n = createI18n({
   legacy: false,
   locale: 'en',
   messages: {
-    en: {
-      profile: {
-        title: 'Profile',
-        description: 'Update your profile information.',
-        experience: 'Experience',
-        preferred_strokes: 'Preferred Strokes',
-        categories: 'Categories',
-        save: 'Save',
-        saving: 'Saving...',
-        statistics: 'Statistics',
-        statistics_placeholder: 'Your usage statistics will be displayed here in the future.',
-        delete_account: 'Delete Account',
-        delete_account_placeholder: 'This action cannot be undone.',
-        delete_account_button: 'Delete Account',
-      },
-    },
+    en,
   },
 })
 
@@ -63,8 +49,10 @@ describe('ProfileView.vue', () => {
     expect(wrapper.find('.edit-btn').exists()).toBe(false)
     expect(wrapper.find('.submit-btn').exists()).toBe(true)
 
-    const radioInputs = wrapper.findAll('input[type="radio"]')
-    expect(radioInputs.length).toBe(3)
+    const select = wrapper.find('select')
+    expect(select.exists()).toBe(true)
+    const options = select.findAll('option')
+    expect(options.length).toBe(4) // 3 options + 1 empty
     const checkboxInputs = wrapper.findAll('input[type="checkbox"]')
     expect(checkboxInputs.length).toBe(9)
 
