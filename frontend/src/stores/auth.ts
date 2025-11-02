@@ -47,7 +47,7 @@ export const useAuthStore = defineStore('auth', () => {
       password,
     })
     if (error) throw error
-    console.log("Assigning session and user after signInWithPassword...")
+    console.log('Assigning session and user after signInWithPassword...')
     getSession()
     getUser()
     return data

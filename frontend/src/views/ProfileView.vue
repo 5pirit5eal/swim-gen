@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import { useProfileStore } from '@/stores/profile'
-import { useI18n } from 'vue-i18n'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
+import { useProfileStore } from '@/stores/profile'
+import { DIFFICULTY_OPTIONS } from '@/types'
+import { onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const profileStore = useProfileStore()
 const isEditMode = ref(false)
 
-const experienceOptions = ['Beginner', 'Advanced', 'Competitive']
 const strokeOptions = ['Freestyle', 'Breaststroke', 'Backstroke', 'Butterfly', 'Individual Medley']
 const categoryOptions = ['Triathlete', 'Swimmer', 'Coach', 'Hobby']
 
@@ -16,7 +16,7 @@ const editableProfile = ref({
   experience: '',
   preferred_strokes: [] as string[],
   categories: [] as string[],
-  preferred_language: ''
+  preferred_language: '',
 })
 const username = ref('')
 
@@ -32,12 +32,12 @@ watch(
         experience: newProfile.experience || '',
         preferred_strokes: newProfile.preferred_strokes || [],
         categories: newProfile.categories || [],
-        preferred_language: newProfile.preferred_language || ''
+        preferred_language: newProfile.preferred_language || '',
       }
       username.value = newProfile.username || ''
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 watch(
@@ -46,7 +46,7 @@ watch(
     editableProfile.value.preferred_language = lang
     profileStore.updateProfile({ preferred_language: lang })
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 function saveProfile() {
@@ -56,6 +56,11 @@ function saveProfile() {
 
 function toggleEditMode() {
   isEditMode.value = !isEditMode.value
+}
+
+function getExperienceLabel(value: string) {
+  const option = DIFFICULTY_OPTIONS.find((opt) => opt.value === value)
+  return option ? t(option.label) : ''
 }
 </script>
 
@@ -80,8 +85,9 @@ function toggleEditMode() {
                     <template #tooltip>{{ t('profile.experience_explanation') }}</template>
                   </BaseTooltip>
                 </label>
-                <p v-if="editableProfile.experience">{{
-                  t(`profile.experience_${editableProfile.experience.toLowerCase()}`) }}</p>
+                <p v-if="editableProfile.experience">
+                  {{ getExperienceLabel(editableProfile.experience) }}
+                </p>
                 <p v-else>{{ t('profile.no_selection_placeholder') }}</p>
               </div>
               <div class="info-group">
@@ -121,30 +127,44 @@ function toggleEditMode() {
             <div class="form-grid">
               <div class="form-column">
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.experience') }}
+                  <label class="form-label"
+                    >{{ t('profile.experience') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.experience_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="select-group">
-                    <select class="select-input" v-model="editableProfile.experience" :disabled="profileStore.loading">
-                      <option :value="undefined">{{ t('form.any_training_type') }}</option>
-                      <option v-for="option in experienceOptions" :key="option" :value="option">
-                        {{ t(`profile.experience_${option.toLowerCase()}`) }}
+                    <select
+                      class="select-input"
+                      v-model="editableProfile.experience"
+                      :disabled="profileStore.loading"
+                    >
+                      <option value="">{{ t('form.any_difficulty') }}</option>
+                      <option
+                        v-for="option in DIFFICULTY_OPTIONS"
+                        :key="option.value"
+                        :value="option.value"
+                      >
+                        {{ t(option.label) }}
                       </option>
                     </select>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.preferred_strokes') }}
+                  <label class="form-label"
+                    >{{ t('profile.preferred_strokes') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.preferred_strokes_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
                     <label v-for="option in strokeOptions" :key="option" class="checkbox-option">
-                      <input type="checkbox" :value="option" v-model="editableProfile.preferred_strokes"
-                        :disabled="profileStore.loading" />
+                      <input
+                        type="checkbox"
+                        :value="option"
+                        v-model="editableProfile.preferred_strokes"
+                        :disabled="profileStore.loading"
+                      />
                       {{ t(`profile.${option.toLowerCase().replace(' ', '_')}`) }}
                     </label>
                   </div>
@@ -152,15 +172,20 @@ function toggleEditMode() {
               </div>
               <div class="form-column">
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.categories') }}
+                  <label class="form-label"
+                    >{{ t('profile.categories') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.categories_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
                     <label v-for="option in categoryOptions" :key="option" class="checkbox-option">
-                      <input type="checkbox" :value="option" v-model="editableProfile.categories"
-                        :disabled="profileStore.loading" />
+                      <input
+                        type="checkbox"
+                        :value="option"
+                        v-model="editableProfile.categories"
+                        :disabled="profileStore.loading"
+                      />
                       {{ t(`profile.category_${option.toLowerCase()}`) }}
                     </label>
                   </div>
@@ -177,7 +202,8 @@ function toggleEditMode() {
           <div class="statistics-card">
             <div class="statistics-grid">
               <div class="stat-item">
-                <h3>{{ t('profile.generated_plans') }}
+                <h3>
+                  {{ t('profile.generated_plans') }}
                   <BaseTooltip>
                     <template #tooltip>{{ t('profile.generated_plans_tooltip') }}</template>
                   </BaseTooltip>
@@ -185,7 +211,8 @@ function toggleEditMode() {
                 <p>0</p>
               </div>
               <div class="stat-item">
-                <h3>{{ t('profile.exported_plans') }}
+                <h3>
+                  {{ t('profile.exported_plans') }}
                   <BaseTooltip>
                     <template #tooltip>{{ t('profile.exported_plans_tooltip') }}</template>
                   </BaseTooltip>
@@ -193,7 +220,8 @@ function toggleEditMode() {
                 <p>0</p>
               </div>
               <div class="stat-item">
-                <h3>{{ t('profile.monthly_quota') }}
+                <h3>
+                  {{ t('profile.monthly_quota') }}
                   <BaseTooltip>
                     <template #tooltip>{{ t('profile.monthly_quota_tooltip') }}</template>
                   </BaseTooltip>

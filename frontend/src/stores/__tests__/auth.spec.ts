@@ -13,16 +13,16 @@ vi.mock('@/plugins/supabase', () => ({
       onAuthStateChange: vi.fn(),
       signInWithPassword: vi.fn(),
       signUp: vi.fn(),
-      signOut: vi.fn()
+      signOut: vi.fn(),
     },
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
-          single: vi.fn().mockResolvedValue({ data: null, error: null })
-        }))
-      }))
-    }))
-  }
+          single: vi.fn().mockResolvedValue({ data: null, error: null }),
+        })),
+      })),
+    })),
+  },
 }))
 
 const mockedGetSession = supabase.auth.getSession as Mock
