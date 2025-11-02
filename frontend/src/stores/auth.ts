@@ -22,7 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function getSession() {
     if (session.value) return
-    const { data, error } = await supabase.auth.getSession()
+    const { data, error } = await supabase.auth.refreshSession()
     if (error) {
       console.error('Error fetching session:', error)
       return
@@ -47,6 +47,9 @@ export const useAuthStore = defineStore('auth', () => {
       password,
     })
     if (error) throw error
+    console.log("Assigning session and user after signInWithPassword...")
+    getSession()
+    getUser()
     return data
   }
 

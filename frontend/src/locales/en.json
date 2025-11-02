@@ -278,7 +278,7 @@
   },
   "profile": {
     "title": "Profile",
-    "description": "Hello, {username}. Here you can view and edit your personal information, track your usage statistics, and manage your account settings.",
+    "description": "Hello, {user}. Here you can view and edit your personal information, track your usage statistics, and manage your account settings.",
     "your_information": "Your Information",
     "info_description": "Your profile information is used to improve the generation of plans. It is public.",
     "experience": "Experience",
@@ -300,8 +300,8 @@
     "delete_account_placeholder": "This action cannot be undone.",
     "delete_account_button": "Delete Account",
     "experience_beginner": "Beginner",
-    "experience_intermediate": "Intermediate",
     "experience_advanced": "Advanced",
+    "experience_competitive": "Competitive",
     "category_triathlete": "Triathlete",
     "category_swimmer": "Swimmer",
     "category_coach": "Coach",

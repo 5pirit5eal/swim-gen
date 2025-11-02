@@ -11,7 +11,9 @@ export const useProfileStore = defineStore('profile', () => {
     const userStore = useAuthStore()
 
     async function fetchProfile() {
+        userStore.getUser()
         if (!userStore.user) {
+            console.log("User is not available.")
             return
         }
         loading.value = true

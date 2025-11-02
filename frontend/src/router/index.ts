@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -26,7 +27,7 @@ const router = createRouter({
 router.beforeEach(async (to, from) => {
   const auth = useAuthStore()
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-  await auth.getUser()
+  if (requiresAuth || to.name === 'login') await auth.getUser()
 
   if (requiresAuth && !auth.user) {
     if (from.name !== 'login') {

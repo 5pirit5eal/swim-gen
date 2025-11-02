@@ -8,15 +8,17 @@ const { t } = useI18n()
 const profileStore = useProfileStore()
 const isEditMode = ref(false)
 
-const experienceOptions = ['Beginner', 'Intermediate', 'Advanced']
+const experienceOptions = ['Beginner', 'Advanced', 'Competitive']
 const strokeOptions = ['Freestyle', 'Breaststroke', 'Backstroke', 'Butterfly', 'Individual Medley']
 const categoryOptions = ['Triathlete', 'Swimmer', 'Coach', 'Hobby']
 
 const editableProfile = ref({
   experience: '',
   preferred_strokes: [] as string[],
-  categories: [] as string[]
+  categories: [] as string[],
+  preferred_language: ''
 })
+const username = ref('')
 
 onMounted(() => {
   profileStore.fetchProfile()
@@ -29,9 +31,20 @@ watch(
       editableProfile.value = {
         experience: newProfile.experience || '',
         preferred_strokes: newProfile.preferred_strokes || [],
-        categories: newProfile.categories || []
+        categories: newProfile.categories || [],
+        preferred_language: newProfile.preferred_language || ''
       }
+      username.value = newProfile.username || ''
     }
+  },
+  { immediate: true }
+)
+
+watch(
+  () => navigator.language.split('-')[0] || 'en',
+  (lang) => {
+    editableProfile.value.preferred_language = lang
+    profileStore.updateProfile({ preferred_language: lang })
   },
   { immediate: true }
 )
@@ -51,13 +64,13 @@ function toggleEditMode() {
     <div class="container">
       <section class="hero">
         <h1>{{ t('profile.title') }}</h1>
-        <p class="hero-description">{{ t('profile.description') }}</p>
+        <p class="hero-description">{{ t('profile.description', { user: username }) }}</p>
       </section>
 
       <section class="profile-content">
         <div class="profile-card">
           <h3>{{ t('profile.your_information') }}</h3>
-          <p>{{ t('profile.info_description', { username: profileStore.profile?.username }) }}</p>
+          <p>{{ t('profile.info_description') }}</p>
           <div v-if="!isEditMode" class="display-mode">
             <div class="info-grid">
               <div class="info-group">
@@ -286,7 +299,7 @@ function toggleEditMode() {
 
 .info-grid {
   display: flex;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   justify-content: space-between;
 }
 
@@ -301,8 +314,6 @@ function toggleEditMode() {
 }
 
 .info-group label {
-  display: flex;
-  align-items: center;
   gap: 0.25rem;
   font-size: 1rem;
   font-weight: 600;
@@ -353,6 +364,7 @@ function toggleEditMode() {
 
 .form-label {
   display: block;
+  font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--color-heading);
