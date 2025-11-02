@@ -200,38 +200,42 @@ function getExperienceLabel(value: string) {
 
         <div class="statistics-and-delete">
           <div class="statistics-card">
-            <div class="statistics-grid">
-              <div class="stat-item">
-                <h3>
-                  {{ t('profile.generated_plans') }}
-                  <BaseTooltip>
-                    <template #tooltip>{{ t('profile.generated_plans_tooltip') }}</template>
-                  </BaseTooltip>
-                </h3>
-                <p>0</p>
-              </div>
-              <div class="stat-item">
-                <h3>
-                  {{ t('profile.exported_plans') }}
-                  <BaseTooltip>
-                    <template #tooltip>{{ t('profile.exported_plans_tooltip') }}</template>
-                  </BaseTooltip>
-                </h3>
-                <p>0</p>
-              </div>
-              <div class="stat-item">
-                <h3>
-                  {{ t('profile.monthly_quota') }}
-                  <BaseTooltip>
-                    <template #tooltip>{{ t('profile.monthly_quota_tooltip') }}</template>
-                  </BaseTooltip>
-                </h3>
-                <p>10 / 100</p>
-                <div class="progress-bar">
-                  <div class="progress" style="width: 10%"></div>
-                </div>
-              </div>
-            </div>
+            <table class="statistics-table">
+              <thead>
+                <tr>
+                  <th>
+                    {{ t('profile.generated_plans') }}
+                    <BaseTooltip>
+                      <template #tooltip>{{ t('profile.generated_plans_tooltip') }}</template>
+                    </BaseTooltip>
+                  </th>
+                  <th>
+                    {{ t('profile.exported_plans') }}
+                    <BaseTooltip>
+                      <template #tooltip>{{ t('profile.exported_plans_tooltip') }}</template>
+                    </BaseTooltip>
+                  </th>
+                  <th>
+                    {{ t('profile.monthly_quota') }}
+                    <BaseTooltip>
+                      <template #tooltip>{{ t('profile.monthly_quota_tooltip') }}</template>
+                    </BaseTooltip>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>
+                    <p>10 / 100</p>
+                    <div class="progress-bar">
+                      <div class="progress" style="width: 10%"></div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           <div class="delete-card">
@@ -454,23 +458,34 @@ function getExperienceLabel(value: string) {
   cursor: not-allowed;
 }
 
-.statistics-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+.statistics-table {
+  display: table;
   text-align: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.stat-item h3 {
+.statistics-table th {
   font-size: 1rem;
-  font-weight: 1rem;
+  font-weight: 600;
   color: var(--color-heading);
+  vertical-align: top;
+  padding: 0 calc(max(5%, 0.5rem));
+  width: 25%;
 }
 
-.stat-item p {
+.statistics-table td {
   font-size: 1.5rem;
-  font-weight: 0.5rem;
+  font-weight: 300;
   color: var(--color-text);
+  padding: 0 calc(max(10%, 0.5rem));
+  text-wrap: nowrap;
+}
+
+.statistics-table p {
+  width: 200%;
+  position: relative;
+  transform: translateX(-20%);
 }
 
 .progress-bar {
@@ -478,6 +493,8 @@ function getExperienceLabel(value: string) {
   border-radius: 0.25rem;
   height: 0.5rem;
   margin-top: 0.5rem;
+  width: 200%;
+  transform: translateX(-20%);
 }
 
 .progress {

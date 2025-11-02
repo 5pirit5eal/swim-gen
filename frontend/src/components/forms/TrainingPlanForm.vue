@@ -545,6 +545,18 @@ async function handlePromptGeneration() {
   color: var(--color-text-light);
 }
 
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .setting-group:nth-child(3),
+  .setting-group:nth-child(4),
+  .setting-group:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
 .setting-label {
   font-weight: 600;
   color: var(--color-heading);
@@ -622,17 +634,5 @@ async function handlePromptGeneration() {
 .clear-filters-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-@media (max-width: 768px) {
-  .settings-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .setting-group:nth-child(3),
-  .setting-group:nth-child(4),
-  .setting-group:last-child {
-    grid-column: 1 / -1;
-  }
 }
 </style>
