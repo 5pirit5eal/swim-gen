@@ -28,7 +28,7 @@ USING (
     SELECT 1
     FROM public.donations
     WHERE donations.plan_id = plans.plan_id
-      AND donations.user_id = ((SELECT auth.uid())
+      AND donations.user_id = (SELECT auth.uid())
   )
 )
 WITH CHECK (
@@ -36,7 +36,7 @@ WITH CHECK (
     SELECT 1
     FROM public.donations
     WHERE donations.plan_id = plans.plan_id
-      AND donations.user_id = ((SELECT auth.uid())
+      AND donations.user_id = (SELECT auth.uid())
   )
 );
 

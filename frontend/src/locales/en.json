@@ -7,7 +7,8 @@
   },
   "header": {
     "home": "Home",
-    "about": "About"
+    "about": "About",
+    "profile": "Profile"
   },
   "footer": {
     "privacy_legal": "Privacy & Legal",
@@ -268,8 +269,48 @@
     "registrationFailed": "Registration failed. Please try different credentials.",
     "loginSuccess": "Login successful!",
     "registrationSuccess": "Registration successful! Please check your email to confirm your account.",
+    "usernameTaken": "Username already taken. Please choose a different one.",
     "userExistsLoginSuccess": "User already exists, login successful!",
     "userExistsLoginFailed": "User already exists, but login failed. Please check your credentials.",
-    "unknownError": "An unknown error occurred. Please contact support."
+    "unknownError": "An unknown error occurred. Please contact support.",
+    "logoutSuccess": "You have been logged out successfully.",
+    "logoutFailed": "Logout failed. Please try again."
+  },
+  "profile": {
+    "title": "Profile",
+    "description": "Hello, {user}. Here you can view and edit your personal information, track your usage statistics, and manage your account.",
+    "your_information": "Your Information",
+    "info_description": "Your profile information is used to improve the generation of your training plans. It can also be viewed by other users.",
+    "experience": "Experience",
+    "experience_explanation": "Your swimming experience level.",
+    "preferred_strokes": "Preferred Strokes",
+    "preferred_strokes_explanation": "Your preferred swimming strokes.",
+    "categories": "Categories",
+    "categories_explanation": "Your user categories.",
+    "edit_profile": "Edit Profile",
+    "save": "Save",
+    "saving": "Saving...",
+    "generated_plans": "Generated Plans",
+    "generated_plan_tooltip": "Total number of training plans generated with your account.",
+    "exported_plans": "Exported Plans",
+    "exported_plan_tooltip": "Total number of training plans exported to PDF with your account.",
+    "monthly_quota": "Monthly Quota",
+    "monthly_quota_tooltip": "Number of advanced training plans you can generate per month. Advanced plans are plans in chat-mode or multi-plan requests. The quota resets on the first day of each month.",
+    "delete_account": "Delete Account",
+    "delete_account_placeholder": "This action cannot be undone.",
+    "delete_account_button": "Delete Account",
+    "experience_beginner": "Beginner",
+    "experience_advanced": "Advanced",
+    "experience_competitive": "Competitive",
+    "category_triathlete": "Triathlete",
+    "category_swimmer": "Swimmer",
+    "category_coach": "Coach",
+    "category_hobby": "Hobby",
+    "no_selection_placeholder": "No selection yet",
+    "freestyle": "Freestyle",
+    "breaststroke": "Breaststroke",
+    "backstroke": "Backstroke",
+    "butterfly": "Butterfly",
+    "individual_medley": "Individual Medley"
   }
 }

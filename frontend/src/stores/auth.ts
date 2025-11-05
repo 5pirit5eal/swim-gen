@@ -20,17 +20,54 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = newSession?.user ?? null
   })
 
+  async function getSession() {
+    if (session.value) return
+    const { data, error } = await supabase.auth.refreshSession()
+    if (error) {
+      console.error('Error fetching session:', error)
+      return
+    }
+    session.value = data.session ?? null
+  }
+
+  async function getUser() {
+    if (user.value) return
+    if (!session.value) await getSession()
+    const { data, error } = await supabase.auth.getUser()
+    if (error) {
+      console.error('Error fetching user:', error)
+      return
+    }
+    user.value = data.user ?? null
+  }
+
   async function signInWithPassword(email: string, password: string) {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
     if (error) throw error
+    console.log('Assigning session and user after signInWithPassword...')
+    getSession()
+    getUser()
     return data
   }
 
   async function signUp(email: string, password: string, username: string) {
-    // TODO: Check if the username is already taken, can be done once the profile table is setup
+    // Check if the username is already taken
+    const { data: existingUser, error: existingUserError } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('username', username)
+      .single()
+
+    if (existingUserError && existingUserError.code !== 'PGRST116') {
+      throw existingUserError
+    }
+
+    if (existingUser) {
+      throw new Error('Username already taken')
+    }
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -53,6 +90,8 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     session,
     user,
+    getSession,
+    getUser,
     signInWithPassword,
     signUp,
     signOut,

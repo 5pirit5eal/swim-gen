@@ -11,6 +11,6 @@
     "types": [
       "node",
       "jsdom"
-    ],
+    ]
   }
 }

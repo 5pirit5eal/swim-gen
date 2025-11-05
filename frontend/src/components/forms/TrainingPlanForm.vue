@@ -279,58 +279,56 @@ async function handlePromptGeneration() {
             </div>
           </div>
 
-          <div class="settings-grid">
-            <!-- Difficulty Level -->
-            <div class="setting-group">
-              <label class="setting-label">
-                {{ t('form.difficulty_level') }}
-                <BaseTooltip>
-                  <template #tooltip>
-                    {{ t('form.difficulty_level_tooltip') }}
-                  </template>
-                </BaseTooltip>
-              </label>
-              <select
-                v-model="settingsStore.filters.schwierigkeitsgrad"
-                :disabled="trainingStore.isLoading"
-                class="select-input"
+          <!-- Difficulty Level -->
+          <div class="setting-group">
+            <label class="setting-label">
+              {{ t('form.difficulty_level') }}
+              <BaseTooltip>
+                <template #tooltip>
+                  {{ t('form.difficulty_level_tooltip') }}
+                </template>
+              </BaseTooltip>
+            </label>
+            <select
+              v-model="settingsStore.filters.schwierigkeitsgrad"
+              :disabled="trainingStore.isLoading"
+              class="select-input"
+            >
+              <option :value="undefined">{{ t('form.any_difficulty') }}</option>
+              <option
+                v-for="option in DIFFICULTY_OPTIONS"
+                :key="option.value"
+                :value="option.value"
               >
-                <option :value="undefined">{{ t('form.any_difficulty') }}</option>
-                <option
-                  v-for="option in DIFFICULTY_OPTIONS"
-                  :key="option.value"
-                  :value="option.value"
-                >
-                  {{ t(option.label) }}
-                </option>
-              </select>
-            </div>
+                {{ t(option.label) }}
+              </option>
+            </select>
+          </div>
 
-            <!-- Training Type -->
-            <div class="setting-group">
-              <label class="setting-label">
-                {{ t('form.training_type') }}
-                <BaseTooltip>
-                  <template #tooltip>
-                    {{ t('form.training_type_tooltip') }}
-                  </template>
-                </BaseTooltip>
-              </label>
-              <select
-                v-model="settingsStore.filters.trainingstyp"
-                :disabled="trainingStore.isLoading"
-                class="select-input"
+          <!-- Training Type -->
+          <div class="setting-group">
+            <label class="setting-label">
+              {{ t('form.training_type') }}
+              <BaseTooltip>
+                <template #tooltip>
+                  {{ t('form.training_type_tooltip') }}
+                </template>
+              </BaseTooltip>
+            </label>
+            <select
+              v-model="settingsStore.filters.trainingstyp"
+              :disabled="trainingStore.isLoading"
+              class="select-input"
+            >
+              <option :value="undefined">{{ t('form.any_training_type') }}</option>
+              <option
+                v-for="option in TRAINING_TYPE_OPTIONS"
+                :key="option.value"
+                :value="option.value"
               >
-                <option :value="undefined">{{ t('form.any_training_type') }}</option>
-                <option
-                  v-for="option in TRAINING_TYPE_OPTIONS"
-                  :key="option.value"
-                  :value="option.value"
-                >
-                  {{ t(option.label) }}
-                </option>
-              </select>
-            </div>
+                {{ t(option.label) }}
+              </option>
+            </select>
           </div>
 
           <!-- Data Donation -->
@@ -350,16 +348,16 @@ async function handlePromptGeneration() {
           </div> -->
 
           <!-- Clear Filters -->
-          <div class="setting-group">
-            <button
-              type="button"
-              @click="settingsStore.clearFilters"
-              :disabled="trainingStore.isLoading"
-              class="clear-filters-btn"
-            >
-              {{ t('form.clear_all_filters') }}
-            </button>
-          </div>
+        </div>
+        <div class="setting-group">
+          <button
+            type="button"
+            @click="settingsStore.clearFilters"
+            :disabled="trainingStore.isLoading"
+            class="clear-filters-btn"
+          >
+            {{ t('form.clear_all_filters') }}
+          </button>
         </div>
       </div>
 
@@ -537,6 +535,7 @@ async function handlePromptGeneration() {
 .settings-grid {
   display: grid;
   gap: 1.5rem;
+  grid-template-columns: 1fr 1fr;
 }
 
 .setting-group {
@@ -544,6 +543,18 @@ async function handlePromptGeneration() {
   flex-direction: column;
   gap: 0.5rem;
   color: var(--color-text-light);
+}
+
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .setting-group:nth-child(3),
+  .setting-group:nth-child(4),
+  .setting-group:last-child {
+    grid-column: 1 / -1;
+  }
 }
 
 .setting-label {
@@ -612,6 +623,7 @@ async function handlePromptGeneration() {
   cursor: pointer;
   font-size: 0.9rem;
   color: var(--color-text);
+  margin-top: 2rem;
 }
 
 .clear-filters-btn:hover:not(:disabled) {
@@ -622,17 +634,5 @@ async function handlePromptGeneration() {
 .clear-filters-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-@media (min-width: 768px) {
-  .settings-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .setting-group:nth-child(3),
-  .setting-group:nth-child(4),
-  .setting-group:last-child {
-    grid-column: 1 / -1;
-  }
 }
 </style>

@@ -27,11 +27,9 @@ const canSubmit = computed(() => {
 
 async function handleLogin() {
   loading.value = true
-  let response
   try {
-    response = await auth.signInWithPassword(email.value, password.value)
+    await auth.signInWithPassword(email.value, password.value)
     toast.success(t('login.loginSuccess'))
-    console.log(JSON.stringify(response))
     router.push('/')
   } catch (error) {
     console.error('Login failed:', error) // Log the full error
@@ -57,13 +55,22 @@ async function handleSignUp() {
   try {
     response = await auth.signUp(email.value, password.value, username.value)
   } catch (error) {
-    console.error('Sign up failed:', error)
-    toast.error(t('login.unknownError'))
+    if (error instanceof Error) {
+      if (error.message.includes('Username already taken')) {
+        toast.error(t('login.usernameTaken'))
+        loading.value = false
+        return
+      } else if (error.message.includes('User already registered')) {
+        console.log('User exists, attempting login...')
+      } else {
+        toast.error(t('login.unknownError'))
+      }
+    } else {
+      toast.error(t('login.unknownError'))
+    }
   }
-  loading.value = false
 
   if (!response?.user?.identities?.length) {
-    loading.value = true
     try {
       response = await auth.signInWithPassword(email.value, password.value)
       toast.success(t('login.userExistsLoginSuccess'))
@@ -80,6 +87,7 @@ async function handleSignUp() {
     password.value = ''
     router.push('/login')
   }
+  loading.value = false
 }
 </script>
 
