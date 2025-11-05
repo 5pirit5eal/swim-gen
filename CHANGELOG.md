@@ -1,3 +1,23 @@
+## [1.14.0](https://github.com/5pirit5eal/swim-gen/compare/v1.13.1...v1.14.0) (2025-11-05)
+
+### Features
+
+* added correct routing to for authenticated pages ([413cd37](https://github.com/5pirit5eal/swim-gen/commit/413cd372377405223d0eb5d508de77c6b0fc5db3))
+* added formatted profile ([f5cc376](https://github.com/5pirit5eal/swim-gen/commit/f5cc376a7fbaf1b3ddb672f192bcbf89262609a4))
+* added profiles schema ([1f5a817](https://github.com/5pirit5eal/swim-gen/commit/1f5a817f4812e0b214b753dcf121e25eff6dede5))
+* added translations and screen size responsiveness ([4b3fc7f](https://github.com/5pirit5eal/swim-gen/commit/4b3fc7fbb4149dd99b2f904e8e8cd3a3fede5a91))
+* correct error handling ([94e3570](https://github.com/5pirit5eal/swim-gen/commit/94e35706afcd7a05a37557a099a7043950382a9e))
+* finished profile ([ab83a47](https://github.com/5pirit5eal/swim-gen/commit/ab83a475c4b1bf3ecb3bb34ea364ffc5d94293a8))
+* restyled buttons in header ([dbf7ab8](https://github.com/5pirit5eal/swim-gen/commit/dbf7ab8959c36082ceb06a9eb5dbff1e3c6635b2))
+
+### Bug Fixes
+
+* added some CSS for profile info ([829c0df](https://github.com/5pirit5eal/swim-gen/commit/829c0df5e96f806eafc6d984498bb775c6277689))
+* apply template format at correct position ([1cb7e51](https://github.com/5pirit5eal/swim-gen/commit/1cb7e515484173f87db9d5bab7e0d1f3c112a515))
+* fixed formatting of statistics ([2fb3cd9](https://github.com/5pirit5eal/swim-gen/commit/2fb3cd94ce03d06cddb2c613142a162b785344fa))
+* fixed issues with triggers and functions ([5f466a8](https://github.com/5pirit5eal/swim-gen/commit/5f466a8f638999f8c29989a18fb0d63af3996215))
+* fixed tests ([a22570c](https://github.com/5pirit5eal/swim-gen/commit/a22570c9229955355c91972fd744308f89175c1f))
+
 ## [1.13.1](https://github.com/5pirit5eal/swim-gen/compare/v1.13.0...v1.13.1) (2025-10-30)
 
 ### Bug Fixes
