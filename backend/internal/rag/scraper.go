@@ -466,7 +466,7 @@ func (db *RAGDB) GetScrapedPlan(ctx context.Context, planID string) (*models.Scr
 	var plan models.ScrapedPlan
 	err := pgxscan.Get(ctx, db.Conn, &plan,
 		fmt.Sprintf(`
-			SELECT sp.url, sp.plan_id, sp.created_at, p.title, p.description, p.plan_table
+			SELECT sp.plan_id, sp.url, sp.created_at, p.title, p.description, p.plan_table
 			FROM %s sp
 			JOIN %s p ON sp.plan_id = p.plan_id
 			WHERE sp.plan_id = $1`, ScrapedTableName, PlanTableName), planID)

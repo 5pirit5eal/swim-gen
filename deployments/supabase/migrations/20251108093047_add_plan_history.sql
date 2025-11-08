@@ -4,7 +4,6 @@ create table history (
   plan_id uuid not null references plans on delete cascade,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  export_count int not null default 0,
   keep_forever boolean not null default false,
 );
 create index idx_history_plan_id on history(plan_id);
@@ -76,6 +75,7 @@ add column exports int not null default 0;
 -- Alter the 'plans' table to add a updated_at column
 alter table plans
 add column updated_at timestamptz not null default now();
+add column exports int not null default 0;
 
 
 -- Create a pg_cron job that cleans up old plan history entries and the respective plan data

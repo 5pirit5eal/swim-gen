@@ -49,6 +49,10 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	switch method {
 	case "generate":
 		answer, err = db.Client.GeneratePlan(ctx, query, string(lang), poolLength, docs)
+		if err != nil {
+			logger.Error("Error generating plan", httplog.ErrAttr(err))
+			return nil, fmt.Errorf("error generating plan: %w", err)
+		}
 	case "choose":
 		if len(docs) == 0 {
 			return nil, fmt.Errorf("no documents in database matching query and filters")
@@ -81,10 +85,11 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	default:
 		return nil, fmt.Errorf("unsupported method: %s", method)
 	}
-	if err != nil {
-		return nil, err
+
+	if answer.PlanID == "" {
+		answer.PlanID = GenerateRandomUUID()
 	}
-	logger.Info("Answer generated successfully", "answer", answer)
+	logger.Debug("Answer generated successfully", "answer", answer)
 
 	return answer, nil
 }

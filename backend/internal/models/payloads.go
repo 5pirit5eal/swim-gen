@@ -36,6 +36,7 @@ type RAGResponse struct {
 // PlanToPDFRequest represents the request for PDF export
 // @Description Request payload for exporting a training plan to PDF format
 type PlanToPDFRequest struct {
+	UserID      string   `json:"user_id,omitempty" example:"user123"`  // UserID identifies the user requesting the PDF export
 	PlanID      string   `json:"plan_id,omitempty" example:"plan_123"` // PlanID identifies the training plan to be exported
 	Title       string   `json:"title" example:"Advanced Freestyle Training" binding:"required"`
 	Description string   `json:"description" example:"A comprehensive training plan for improving freestyle technique" binding:"required"`
