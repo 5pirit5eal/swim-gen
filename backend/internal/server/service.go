@@ -174,6 +174,13 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	if qr.UserID != "" {
+		// Add the plan to the users history
+		err = rs.db.AddPlanToHistory(req.Context(), qr.UserID, answer.PlanID)
+		if err != nil {
+			logger.Error("Failed to add plan to user history", httplog.ErrAttr(err))
+		}
+	}
 
 	// Recalculate the sums of the rows to be sure they are correct
 	p.Table.UpdateSum()

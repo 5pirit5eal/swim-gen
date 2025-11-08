@@ -9,28 +9,15 @@ import (
 	"github.com/go-chi/httplog/v2"
 )
 
-// Adds a new user to the database
-func (db *RAGDB) AddUser(ctx context.Context, user *models.User) error {
-	logger := httplog.LogEntry(ctx)
-
-	// Create a new user in the database using the struct fields
-	_, err := db.Conn.Exec(ctx, "INSERT INTO users (user_id, name, email, created_at, last_active) VALUES ($1, $2, $3, $4, $5)",
-		GenerateUUID(user.Email, user.Name), user.Name, user.Email, user.CreatedAt, user.LastActive)
-	if err != nil {
-		logger.Error("Error creating user", httplog.ErrAttr(err))
-		return err
-	}
-	logger.Info("User created successfully", "user", user)
-	return nil
-}
+const ProfilesTableName string = "profiles"
 
 // Retrieves a user from the database by their ID
-func (db *RAGDB) GetUser(ctx context.Context, id string) (*models.User, error) {
+func (db *RAGDB) GetUserProfile(ctx context.Context, id string) (*models.UserProfile, error) {
 	logger := httplog.LogEntry(ctx)
 
 	// Query the database for the user with the given ID
-	var user models.User
-	err := pgxscan.Get(ctx, db.Conn, &user, "SELECT * FROM users WHERE id = $1", id)
+	var user models.UserProfile
+	err := pgxscan.Get(ctx, db.Conn, &user, fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1", ProfilesTableName), id)
 	if err != nil {
 		logger.Error("Error querying user", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("pgxscan.Select: %w", err)
@@ -49,5 +36,36 @@ func (db *RAGDB) DeleteUser(ctx context.Context, id string) error {
 		return fmt.Errorf("pgxscan.Select: %w", err)
 	}
 	logger.Info("User deleted successfully", "user_id", id)
+	return nil
+}
+
+func (db *RAGDB) IncrementExportCount(ctx context.Context, planID string) error {
+	logger := httplog.LogEntry(ctx)
+
+	// Update the export count for the user
+	_, err := db.Conn.Exec(ctx,
+		fmt.Sprintf(`UPDATE %s SET exports = exports + 1 WHERE plan_id = $1`, ProfilesTableName),
+		planID)
+	if err != nil {
+		logger.Error("Error incrementing export count", httplog.ErrAttr(err))
+		return fmt.Errorf("error incrementing export count: %w", err)
+	}
+
+	logger.Info("Export count incremented successfully", "plan_id", planID)
+	return nil
+}
+
+func (db *RAGDB) IncrementGenerationCount(ctx context.Context, planID string) error {
+	logger := httplog.LogEntry(ctx)
+
+	// Update the generation count for the user
+	_, err := db.Conn.Exec(ctx,
+		fmt.Sprintf(`UPDATE %s SET overall_generations = overall_generations + 1, monthly_generations = monthly_generations + 1 WHERE plan_id = $1`, ProfilesTableName),
+		planID)
+	if err != nil {
+		logger.Error("Error incrementing generation count", httplog.ErrAttr(err))
+		return fmt.Errorf("error incrementing generation count: %w", err)
+	}
+	logger.Info("Generation count incremented successfully", "plan_id", planID)
 	return nil
 }
