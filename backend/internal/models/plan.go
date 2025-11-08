@@ -193,7 +193,7 @@ type Document struct {
 	Meta *Metadata
 }
 
-func PlanToDoc(doc *Document) (schema.Document, error) {
+func (doc Document) ToLangChainDoc() (schema.Document, error) {
 	genericPlan := doc.Plan.Plan()
 	// Create a map of the plan
 	planMap := doc.Plan.Map()

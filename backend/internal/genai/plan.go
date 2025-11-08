@@ -106,10 +106,7 @@ func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Planab
 	}
 
 	// Create request body by converting the plans into documents
-	c <- models.Document{
-		Plan: plan,
-		Meta: meta,
-	}
+	c <- models.Document{Plan: plan, Meta: meta}
 }
 
 func (gc *GoogleGenAIClient) DescribeTable(ctx context.Context, table *models.Table) (*models.Description, error) {

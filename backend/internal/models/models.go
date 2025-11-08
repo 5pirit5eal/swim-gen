@@ -1,15 +1,13 @@
 package models
 
-type User struct {
-	ID string `db:"user_id"`
-	// Name is the user's name as provided by the oauth provider
-	Name string `db:"name"`
-	// Email is the user's email address as provided by the oauth provider
-	Email string `db:"email"`
-	// CreatedAt is the time the user was created as a datetime string
-	CreatedAt string `db:"created_at"`
-	// Last time the user was active as a datetime string
-	LastActive string `db:"last_active"`
+type UserProfile struct {
+	UserID            string   `db:"user_id"`
+	UpdatedAt         string   `db:"updated_at"`
+	Username          string   `db:"username"`
+	Experience        *string  `db:"experience,omitempty"`
+	PreferredLanguage *string  `db:"preferred_language,omitempty"`
+	PreferredStrokes  []string `db:"preferred_strokes"`
+	Categories        []string `db:"categories"`
 }
 
 type Feedback struct {

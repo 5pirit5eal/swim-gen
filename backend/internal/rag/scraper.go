@@ -302,7 +302,7 @@ Forloop:
 	// Store documents and their embeddings in the database
 	for i := range documents {
 		// Convert the models.Document to a schema.Document
-		doc, err := models.PlanToDoc(&documents[i])
+		doc, err := documents[i].ToLangChainDoc()
 		if err != nil {
 			logger.Error("Failed to convert plan to document", httplog.ErrAttr(err))
 			return fmt.Errorf("PlanToDoc: %w", err)

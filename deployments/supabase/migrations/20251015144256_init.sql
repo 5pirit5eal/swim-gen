@@ -29,7 +29,7 @@ create index if not exists embeddings_collection_id
 -- create index if not exists embeddings_embedding_hnsw
 --   on embeddings using hnsw (embedding vector_cosine_ops);
 
--- Plans - Gold standard plans
+-- Plans - contains all plans
 create table if not exists plans (
   plan_id uuid primary key DEFAULT gen_random_uuid(),
   title text not null,
