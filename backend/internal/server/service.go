@@ -174,7 +174,7 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if qr.UserID != "" {
+	if qr.UserID != "" && answer.PlanID != "" {
 		// Add the plan to the users history
 		err = rs.db.AddPlanToHistory(req.Context(), qr.UserID, answer.PlanID)
 		if err != nil {
@@ -220,6 +220,14 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	// Increment the export count for the user profile if UserID is provided
+	if qr.PlanID != "" {
+		err = rs.db.IncrementExportCount(req.Context(), qr.UserID, qr.PlanID)
+		if err != nil {
+			logger.Error("Failed to increment export count", httplog.ErrAttr(err))
+		}
 	}
 
 	// Convert the table to PDF

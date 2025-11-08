@@ -39,16 +39,41 @@ func (db *RAGDB) DeleteUser(ctx context.Context, id string) error {
 	return nil
 }
 
-func (db *RAGDB) IncrementExportCount(ctx context.Context, planID string) error {
+func (db *RAGDB) IncrementExportCount(ctx context.Context, userID, planID string) error {
 	logger := httplog.LogEntry(ctx)
 
-	// Update the export count for the user
-	_, err := db.Conn.Exec(ctx,
-		fmt.Sprintf(`UPDATE %s SET exports = exports + 1 WHERE plan_id = $1`, ProfilesTableName),
-		planID)
+	if planID == "" {
+		return fmt.Errorf("planID cannot be empty")
+	}
+
+	// Create a transaction
+	ts, err := db.Conn.Begin(ctx)
 	if err != nil {
-		logger.Error("Error incrementing export count", httplog.ErrAttr(err))
-		return fmt.Errorf("error incrementing export count: %w", err)
+		logger.Error("Error starting transaction", httplog.ErrAttr(err))
+		return fmt.Errorf("error starting transaction: %w", err)
+	}
+	defer ts.Rollback(ctx)
+
+	// Update the export count for the user
+	if userID != "" {
+		if _, err := ts.Exec(ctx,
+			fmt.Sprintf(`UPDATE %s SET exports = exports + 1 WHERE user_id = $1`, ProfilesTableName),
+			planID); err != nil {
+			logger.Error("Error incrementing export count", httplog.ErrAttr(err))
+			return fmt.Errorf("error incrementing export count: %w", err)
+		}
+	}
+
+	// Update the export count for the plan
+	if _, err := ts.Exec(ctx,
+		fmt.Sprintf(`UPDATE %s SET exports = exports + 1 WHERE plan_id = $1`, PlanTableName),
+		planID); err != nil {
+		logger.Error("Error incrementing plan export count", httplog.ErrAttr(err))
+		return fmt.Errorf("error incrementing plan export count: %w", err)
+	}
+	if err = ts.Commit(ctx); err != nil {
+		logger.Error("Error committing transaction", httplog.ErrAttr(err))
+		return fmt.Errorf("error committing transaction: %w", err)
 	}
 
 	logger.Info("Export count incremented successfully", "plan_id", planID)
