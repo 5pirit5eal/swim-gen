@@ -36,6 +36,11 @@ import (
 //
 //	@externalDocs.description	OpenAPI
 //	@externalDocs.url			https://swagger.io/resources/open-api/
+//
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and the JWT.
 func main() {
 	// Configure log to write to stdout
 	projectRoot, err := os.Getwd()
@@ -128,13 +133,14 @@ func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Confi
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	r.Route(basePath, func(r chi.Router) {
+		r.Use(ragServer.SupabaseAuthMiddleware)
+		r.Get("/health", ragServer.HealthHandler)
+		r.Get("/health-basic", basicHealthHandler)
 		r.Post("/add", ragServer.DonatePlanHandler)
 		r.Post("/prompt", ragServer.GeneratePromptHandler)
 		r.Post("/query", ragServer.QueryHandler)
 		r.Get("/scrape", ragServer.ScrapeHandler)
 		r.Post("/export-pdf", ragServer.PlanToPDFHandler)
-		r.Get("/health", ragServer.HealthHandler)
-		r.Get("/health-basic", basicHealthHandler)
 		r.Get("/swagger/*", httpSwagger.Handler(
 			httpSwagger.URL("0.0.0.0:"+cmp.Or(cfg.Port, "8080")+basePath+"swagger/doc.json"),
 			httpSwagger.DeepLinking(true)),

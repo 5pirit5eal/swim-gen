@@ -19,14 +19,11 @@ definitions:
       title:
         example: Advanced Freestyle Training
         type: string
-      user_id:
-        example: user123
-        type: string
     required:
     - table
-    - user_id
     type: object
   models.GeneratePromptRequest:
+    description: Request payload for generating a prompt for swim training plan creation
     properties:
       language:
         allOf:
@@ -36,9 +33,24 @@ definitions:
     - language
     type: object
   models.GeneratedPromptResponse:
+    description: Response containing the generated prompt for swim training plan creation
     properties:
       prompt:
         example: Generate a swim training plan for improving freestyle technique
+        type: string
+    type: object
+  models.HealthStatus:
+    description: Health status of the service and its components
+    properties:
+      components:
+        additionalProperties:
+          type: string
+        type: object
+      schema_version:
+        type: integer
+      status:
+        type: string
+      timestamp:
         type: string
     type: object
   models.Language:
@@ -68,6 +80,10 @@ definitions:
         description: LargeFont indicates if the PDF should use a larger font size
         example: true
         type: boolean
+      plan_id:
+        description: PlanID identifies the training plan to be exported
+        example: plan_123
+        type: string
       table:
         description: A structured training plan table containing exercise rows
         items:
@@ -125,6 +141,10 @@ definitions:
       description:
         example: A comprehensive training plan for improving freestyle technique
         type: string
+      plan_id:
+        description: PlanID is the identifier of the training plan
+        example: plan_123
+        type: string
       table:
         description: A structured training plan table containing exercise rows
         items:
@@ -159,19 +179,6 @@ definitions:
       Sum:
         example: 400
         type: integer
-    type: object
-  server.HealthStatus:
-    properties:
-      components:
-        additionalProperties:
-          type: string
-        type: object
-      schema_version:
-        type: integer
-      status:
-        type: string
-      timestamp:
-        type: string
     type: object
 externalDocs:
   description: OpenAPI
@@ -213,6 +220,8 @@ paths:
           description: Internal server error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Donate a new training plan
       tags:
       - plans
@@ -243,6 +252,8 @@ paths:
           description: Internal server error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Export training plan to PDF
       tags:
       - export
@@ -286,11 +297,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.HealthStatus'
+            $ref: '#/definitions/models.HealthStatus'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/server.HealthStatus'
+            $ref: '#/definitions/models.HealthStatus'
       summary: Comprehensive health check
       tags:
       - health
@@ -334,6 +345,8 @@ paths:
           description: Internal server error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Query training plans
       tags:
       - query
@@ -364,4 +377,10 @@ paths:
       summary: Scrape training plans from web
       tags:
       - scraping
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the JWT.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

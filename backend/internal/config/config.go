@@ -32,6 +32,11 @@ type Config struct {
 		PassLocation string `env:"DB_PASS_LOCATION"`
 	}
 
+	SB struct {
+		ApiUrl  string `env:"SUPABASE_URL"`
+		AnonKey string `env:"SUPABASE_ANON_KEY"`
+	}
+
 	Bucket struct {
 		Name           string `env:"BUCKET_NAME"`
 		ServiceAccount string `env:"SIGNING_SA"`
