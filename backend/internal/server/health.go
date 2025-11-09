@@ -6,16 +6,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/go-chi/httplog/v2"
 )
-
-// HealthStatus represents the health status of the service and its components
-type HealthStatus struct {
-	Status        string            `json:"status"`
-	Timestamp     string            `json:"timestamp"`
-	Components    map[string]string `json:"components"`
-	SchemaVersion int               `json:"schema_version,omitempty"`
-}
 
 // HealthHandler performs comprehensive health checks including database and vector store connectivity
 //
@@ -23,14 +16,14 @@ type HealthStatus struct {
 //	@Description	Returns the health status of the API including database and vector store connectivity
 //	@Tags			health
 //	@Produce		json
-//	@Success		200	{object}	HealthStatus
-//	@Failure		503	{object}	HealthStatus
+//	@Success		200	{object}	models.HealthStatus
+//	@Failure		503	{object}	models.HealthStatus
 //	@Router			/health [get]
 func (s *RAGService) HealthHandler(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	status := HealthStatus{
+	status := models.HealthStatus{
 		Status:     "healthy",
 		Timestamp:  time.Now().UTC().Format(time.RFC3339),
 		Components: make(map[string]string),

@@ -7,6 +7,7 @@ import (
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
+	"github.com/google/uuid"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
 )
@@ -130,7 +131,7 @@ func (db *RAGDB) UpsertPlan(ctx context.Context, plan models.Plan, userID string
 
 	// If it doesn't exist, create a new plan id
 	if !exists {
-		plan.PlanID = GenerateRandomUUID()
+		plan.PlanID = uuid.New().String()
 	}
 
 	// Start a transaction

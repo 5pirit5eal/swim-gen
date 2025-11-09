@@ -21,6 +21,11 @@ const docTemplate = `{
     "paths": {
         "/add": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Upload and store a new user created swim training plan in the RAG system",
                 "consumes": [
                     "application/json"
@@ -67,6 +72,11 @@ const docTemplate = `{
         },
         "/export-pdf": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Generate and download a PDF version of a training plan",
                 "consumes": [
                     "application/json"
@@ -171,13 +181,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.HealthStatus"
+                            "$ref": "#/definitions/models.HealthStatus"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/server.HealthStatus"
+                            "$ref": "#/definitions/models.HealthStatus"
                         }
                     }
                 }
@@ -205,6 +215,11 @@ const docTemplate = `{
         },
         "/query": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Query the RAG system for relevant training plans based on input",
                 "consumes": [
                     "application/json"
@@ -296,8 +311,7 @@ const docTemplate = `{
             "description": "Request payload for donating a swim training plan to the system",
             "type": "object",
             "required": [
-                "table",
-                "user_id"
+                "table"
             ],
             "properties": {
                 "description": {
@@ -323,14 +337,11 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Advanced Freestyle Training"
-                },
-                "user_id": {
-                    "type": "string",
-                    "example": "user123"
                 }
             }
         },
         "models.GeneratePromptRequest": {
+            "description": "Request payload for generating a prompt for swim training plan creation",
             "type": "object",
             "required": [
                 "language"
@@ -347,11 +358,33 @@ const docTemplate = `{
             }
         },
         "models.GeneratedPromptResponse": {
+            "description": "Response containing the generated prompt for swim training plan creation",
             "type": "object",
             "properties": {
                 "prompt": {
                     "type": "string",
                     "example": "Generate a swim training plan for improving freestyle technique"
+                }
+            }
+        },
+        "models.HealthStatus": {
+            "description": "Health status of the service and its components",
+            "type": "object",
+            "properties": {
+                "components": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "schema_version": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
                 }
             }
         },
@@ -397,6 +430,11 @@ const docTemplate = `{
                     "description": "LargeFont indicates if the PDF should use a larger font size",
                     "type": "boolean",
                     "example": true
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the training plan to be exported",
+                    "type": "string",
+                    "example": "plan_123"
                 },
                 "table": {
                     "description": "A structured training plan table containing exercise rows",
@@ -470,6 +508,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "A comprehensive training plan for improving freestyle technique"
                 },
+                "plan_id": {
+                    "description": "PlanID is the identifier of the training plan",
+                    "type": "string",
+                    "example": "plan_123"
+                },
                 "table": {
                     "description": "A structured training plan table containing exercise rows",
                     "type": "array",
@@ -516,26 +559,14 @@ const docTemplate = `{
                     "example": 400
                 }
             }
-        },
-        "server.HealthStatus": {
-            "type": "object",
-            "properties": {
-                "components": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "schema_version": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "timestamp": {
-                    "type": "string"
-                }
-            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and the JWT.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     },
     "externalDocs": {

@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/5pirit5eal/swim-gen/internal/rag"
 	"github.com/go-chi/httplog/v2"
 	"github.com/google/uuid"
+	"github.com/supabase-community/supabase-go"
 )
 
 type RAGService struct {
@@ -20,6 +22,8 @@ type RAGService struct {
 	ctx context.Context
 	// Database client used for storing and querying documents
 	db *rag.RAGDB
+	// Supabase client for authentication
+	auth *supabase.Client
 	// Configuration for the RAG server
 	cfg config.Config
 }
@@ -36,12 +40,20 @@ func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) 
 		return nil, err
 	}
 
-	slog.Info("Creating database connection successfully")
+	slog.Info("Created database connection successfully")
+
+	auth, err := supabase.NewClient(cfg.SB.ApiUrl, cfg.SB.AnonKey, nil)
+	if err != nil {
+		fmt.Println("Failed to initalize the client: ", err)
+	}
+
+	slog.Info("Initialized Supabase client successfully")
 
 	return &RAGService{
-		ctx: ctx,
-		cfg: cfg,
-		db:  db,
+		ctx:  ctx,
+		cfg:  cfg,
+		db:   db,
+		auth: auth,
 	}, nil
 }
 
@@ -68,6 +80,7 @@ func (rs *RAGService) Close() {
 // @Success 200 {string} string "Plan added successfully"
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
 // @Router /add [post]
 func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
@@ -118,7 +131,7 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 
 	// Create a donated plan
 	plan := &models.DonatedPlan{
-		UserID:      dpr.UserID,
+		UserID:      req.Context().Value(models.UserIdCtxKey).(string),
 		PlanID:      uuid.NewString(),
 		CreatedAt:   time.Now().Format(time.DateTime),
 		Title:       desc.Title,
@@ -152,6 +165,7 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 // @Success 200 {object} models.RAGResponse "Query results"
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
 // @Router /query [post]
 func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
@@ -174,9 +188,10 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if qr.UserID != "" && answer.PlanID != "" {
-		// Add the plan to the users history
-		err = rs.db.AddPlanToHistory(req.Context(), qr.UserID, answer.PlanID)
+	userId := req.Context().Value(models.UserIdCtxKey).(string)
+	if userId != "" && p.PlanID != "" {
+		logger.Info("Adding plan to user history", "user_id", userId, "plan_id", p.PlanID)
+		err = rs.db.AddPlanToHistory(req.Context(), userId, p.PlanID)
 		if err != nil {
 			logger.Error("Failed to add plan to user history", httplog.ErrAttr(err))
 		}
@@ -188,6 +203,7 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Convert to response payload
 	answer := &models.RAGResponse{
+		PlanID:      p.PlanID,
 		Title:       p.Title,
 		Description: p.Description,
 		Table:       p.Table,
@@ -209,6 +225,7 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 // @Success 200 {object} models.PlanToPDFResponse "PDF export response with URI"
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
 // @Router /export-pdf [post]
 func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
@@ -224,7 +241,7 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 
 	// Increment the export count for the user profile if UserID is provided
 	if qr.PlanID != "" {
-		err = rs.db.IncrementExportCount(req.Context(), qr.UserID, qr.PlanID)
+		err = rs.db.IncrementExportCount(req.Context(), req.Context().Value(models.UserIdCtxKey).(string), qr.PlanID)
 		if err != nil {
 			logger.Error("Failed to increment export count", httplog.ErrAttr(err))
 		}

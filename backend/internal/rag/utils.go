@@ -12,8 +12,3 @@ func GenerateUUID(inputs ...string) string {
 
 	return combined.String()
 }
-
-// Generates a random uuid for a new plan
-func GenerateRandomUUID() string {
-	return uuid.New().String()
-}

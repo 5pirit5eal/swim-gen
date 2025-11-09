@@ -3,7 +3,6 @@ package models
 // DonatePlanRequest represents the request body for donating a training plan
 // @Description Request payload for donating a swim training plan to the system
 type DonatePlanRequest struct {
-	UserID      string   `json:"user_id" example:"user123" binding:"required"`
 	Title       string   `json:"title,omitempty" example:"Advanced Freestyle Training"`
 	Description string   `json:"description,omitempty" example:"A comprehensive training plan for improving freestyle technique"`
 	Table       Table    `json:"table" binding:"required"`
@@ -16,7 +15,6 @@ type DonatePlanRequest struct {
 // QueryRequest represents the request body for querying the RAG system
 // @Description Request payload for querying swim training plans from the RAG system
 type QueryRequest struct {
-	UserID     string         `json:"user_id,omitempty" example:"user123"`                                                              // UserID identifies the user making the request
 	Content    string         `json:"content" example:"I need a training plan for improving my freestyle technique" binding:"required"` // Content describes what kind of training plan is needed
 	Filter     map[string]any `json:"filter,omitempty"`                                                                                 // Filter allows filtering plans by metadata like difficulty or stroke type
 	Method     string         `json:"method" example:"generate" validate:"oneof=choose generate" binding:"required"`                    // Method can be either 'choose' (select existing plan) or 'generate' (create new plan)
@@ -36,7 +34,6 @@ type RAGResponse struct {
 // PlanToPDFRequest represents the request for PDF export
 // @Description Request payload for exporting a training plan to PDF format
 type PlanToPDFRequest struct {
-	UserID      string   `json:"user_id,omitempty" example:"user123"`  // UserID identifies the user requesting the PDF export
 	PlanID      string   `json:"plan_id,omitempty" example:"plan_123"` // PlanID identifies the training plan to be exported
 	Title       string   `json:"title" example:"Advanced Freestyle Training" binding:"required"`
 	Description string   `json:"description" example:"A comprehensive training plan for improving freestyle technique" binding:"required"`
@@ -52,10 +49,23 @@ type PlanToPDFResponse struct {
 	URI string `json:"uri" example:"https://storage.googleapis.com/bucket/plans/plan_123.pdf"`
 }
 
+// GeneratePromptRequest represents the request for prompt generation
+// @Description Request payload for generating a prompt for swim training plan creation
 type GeneratePromptRequest struct {
 	Language Language `json:"language" example:"en" binding:"required"`
 }
 
+// GeneratedPromptResponse represents the response containing the generated prompt
+// @Description Response containing the generated prompt for swim training plan creation
 type GeneratedPromptResponse struct {
 	Prompt string `json:"prompt" example:"Generate a swim training plan for improving freestyle technique"`
+}
+
+// HealthStatus represents the health status of the service and its components
+// @Description Health status of the service and its components
+type HealthStatus struct {
+	Status        string            `json:"status"`
+	Timestamp     string            `json:"timestamp"`
+	Components    map[string]string `json:"components"`
+	SchemaVersion int               `json:"schema_version,omitempty"`
 }
