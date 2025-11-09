@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import AppHeader from './AppHeader.vue' // Necessary for v2
 import AppFooter from './AppFooter.vue'
+import Sidebar from './Sidebar.vue'
+import { useSidebarStore } from '@/stores/sidebar'
+
+const sidebarStore = useSidebarStore()
 </script>
 
 <template>
   <div class="app-layout">
-    <AppHeader />
-    <main class="main-content">
-      <router-view />
-    </main>
-    <AppFooter />
+    <Sidebar />
+    <div class="content-wrapper" :class="{ 'sidebar-open': sidebarStore.isOpen }">
+      <AppHeader />
+      <main class="main-content">
+        <router-view />
+      </main>
+      <AppFooter />
+    </div>
   </div>
 </template>
 
@@ -17,7 +24,6 @@ import AppFooter from './AppFooter.vue'
 .app-layout {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   position: relative;
   /* Background image setup */
   background-attachment: fixed;
@@ -43,6 +49,18 @@ import AppFooter from './AppFooter.vue'
   }
 }
 
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  flex-grow: 1;
+  transition: margin-left 0.3s ease;
+}
+
+.content-wrapper.sidebar-open {
+  margin-left: 300px;
+}
+
 .main-content {
   margin-block: auto;
   container-type: inherit;
@@ -64,6 +82,10 @@ import AppFooter from './AppFooter.vue'
     /* Better performance on mobile */
     background-size: cover;
     zoom: 0.75;
+  }
+
+  .content-wrapper.sidebar-open {
+    margin-left: 0;
   }
 }
 </style>

@@ -15,6 +15,7 @@ vi.mock('@/plugins/supabase', () => ({
       signInWithPassword: vi.fn(),
       signUp: vi.fn(),
       signOut: vi.fn(),
+      refreshSession: vi.fn(() => Promise.resolve({ data: { session: null } })),
     },
   },
 }))
