@@ -33,6 +33,7 @@ export enum ApiEndpoints {
   EXPORT_PDF = 'export-pdf',
   ADD_PLAN = 'add',
   SCRAPE = 'scrape',
+  UPSERT_PLAN = 'upsert-plan',
 }
 
 // Form validation types

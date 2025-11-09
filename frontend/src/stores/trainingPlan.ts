@@ -1,19 +1,60 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
-import type { QueryRequest, RAGResponse, Row } from '@/types'
+import type { QueryRequest, RAGResponse, Row, UpsertPlanRequest, UpsertPlanResponse } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { supabase } from '@/plugins/supabase'
+import { useAuthStore } from '@/stores/auth'
 
 export const useTrainingPlanStore = defineStore('trainingPlan', () => {
-  // State
+  // --- STATE ---
   const currentPlan = ref<RAGResponse | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+  const generationHistory = ref<RAGResponse[]>([])
+  const userStore = useAuthStore()
 
-  // Computed
+  // --- COMPUTED ---
   const hasPlan = computed(() => currentPlan.value !== null)
 
-  // Actions
+  // --- ACTIONS ---
+
+  // Fetches the user's plan history
+  async function fetchHistory() {
+    userStore.getUser()
+    if (!userStore.user) {
+      console.log('User is not available.')
+      return
+    }
+    isLoading.value = true
+    const { data, error } = await supabase
+      .from('history')
+      .select('plan_id')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error(error)
+    } else if (data) {
+      const planIds = data.map((entry) => entry.plan_id)
+      const { data: plansData, error: plansError } = await supabase
+        .from('plans')
+        .select('*')
+        .in('plan_id', planIds)
+      if (plansError) {
+        console.error(plansError)
+      } else if (plansData) {
+        generationHistory.value = plansData.map((plan) => ({
+          plan_id: plan.plan_id,
+          title: plan.title,
+          description: plan.description,
+          table: plan.table,
+        }))
+      }
+    }
+    isLoading.value = false
+  }
+
+  // Generates a new training plan
   async function generatePlan(request: QueryRequest): Promise<boolean> {
     isLoading.value = true
     error.value = null
@@ -22,8 +63,9 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
     if (result.success && result.data) {
       currentPlan.value = result.data
-      isLoading.value = false
       recalculateTotalSum()
+      await fetchHistory() // Refresh history after generating a new plan
+      isLoading.value = false
       return true
     } else {
       error.value = result.error
@@ -34,12 +76,37 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     }
   }
 
+  // Upserts a plan
+  async function upsertPlan(plan: UpsertPlanRequest): Promise<UpsertPlanResponse | null> {
+    userStore.getUser()
+    if (!userStore.user) {
+      console.log('User is not available.')
+      return null
+    }
+    isLoading.value = true
+    const result = await apiClient.upsertPlan(plan)
+    isLoading.value = false
+    if (result.success && result.data) {
+      await fetchHistory() // Refresh history after upserting
+      return result.data
+    } else {
+      console.error(result.error ? formatError(result.error) : 'Unknown error during upsertPlan')
+      return null
+    }
+  }
+
+  // Loads a plan from history into the editor
+  function loadPlanFromHistory(plan: RAGResponse) {
+    currentPlan.value = JSON.parse(JSON.stringify(plan)) // Deep copy to prevent accidental edits
+  }
+
+  // --- Plan Table Manipulations ---
+
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
-      // Recalculate Sum if Amount or Distance changed
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
         recalculateTotalSum()
@@ -72,7 +139,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   }
 
   function removeRow(rowIndex: number) {
-    // Ensure we don't remove the total row and at least one exercise row remains
     if (
       currentPlan.value &&
       currentPlan.value.table.length > 2 &&
@@ -90,7 +156,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     const isMovingUp = direction === 'up'
     const isMovingDown = direction === 'down'
 
-    // Prevent moving the first row up or the last exercise row down
     if ((isMovingUp && rowIndex === 0) || (isMovingDown && rowIndex === table.length - 2)) {
       return
     }
@@ -114,6 +179,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     currentPlan,
     isLoading,
     error,
+    generationHistory,
     // Computed
     hasPlan,
     // Actions
@@ -124,5 +190,8 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     moveRow,
     clearPlan,
     clearError,
+    fetchHistory,
+    upsertPlan,
+    loadPlanFromHistory,
   }
 })
