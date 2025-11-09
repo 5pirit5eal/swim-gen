@@ -118,7 +118,7 @@ func setupLogger(cfg config.Config) (*httplog.Logger, error) {
 // This is kept for backward compatibility with simple health checks
 // @Summary Basic health check
 // @Description Returns a simple OK response for basic health monitoring
-// @Tags health
+// @Tags Health
 // @Produce plain
 // @Success 200 {string} string "OK"
 // @Router /health-basic [get]

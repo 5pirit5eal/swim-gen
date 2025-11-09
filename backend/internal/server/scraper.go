@@ -12,7 +12,7 @@ import (
 // It extracts the URL from the request, scrapes the data, and responds with a success message.
 // @Summary Scrape training plans from web
 // @Description Scrape and import training plans from external websites
-// @Tags scraping
+// @Tags Web Scraping
 // @Produce plain
 // @Param url query string true "URL to scrape training plans from"
 // @Success 200 {string} string "Scraping completed successfully"

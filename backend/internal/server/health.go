@@ -14,7 +14,7 @@ import (
 //
 //	@Summary		Comprehensive health check
 //	@Description	Returns the health status of the API including database and vector store connectivity
-//	@Tags			health
+//	@Tags			Health
 //	@Produce		json
 //	@Success		200	{object}	models.HealthStatus
 //	@Failure		503	{object}	models.HealthStatus
