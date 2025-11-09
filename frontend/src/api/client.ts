@@ -11,6 +11,8 @@ import {
   type PromptGenerationResponse,
   type QueryRequest,
   type RAGResponse,
+  type UpsertPlanRequest,
+  type UpsertPlanResponse,
   ApiEndpoints,
 } from '@/types'
 import i18n from '@/plugins/i18n'
@@ -185,6 +187,48 @@ class ApiClient {
           success: false,
           error: {
             message: i18n.global.t('errors.failed_to_export_plan'),
+            status: response.status,
+            details: response.statusText,
+          },
+        }
+      }
+
+      const data = await response.json()
+      return {
+        success: true,
+        data,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          message: error instanceof Error ? error.message : 'Network error',
+          status: 0,
+          details:
+            error instanceof Error && error.name === 'AbortError'
+              ? i18n.global.t('errors.timeout', { time: this.DEFAULT_TIMEOUT_MS / 1000 })
+              : i18n.global.t('errors.connection_failed'),
+        },
+      }
+    }
+  }
+
+  /**
+   * Upsert (create or update) a training plan
+   */
+  async upsertPlan(plan: UpsertPlanRequest): Promise<ApiResult<UpsertPlanResponse>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/${ApiEndpoints.UPSERT_PLAN}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(plan),
+      })
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: {
+            message: i18n.global.t('errors.failed_to_save_plan'),
             status: response.status,
             details: response.statusText,
           },

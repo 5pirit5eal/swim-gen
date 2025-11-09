@@ -14,6 +14,8 @@ export type {
   PlanToPDFResponse,
   DonatePlanRequest,
   Filter,
+  UpsertPlanRequest,
+  UpsertPlanResponse,
 } from './training'
 
 // Export filter option constants
