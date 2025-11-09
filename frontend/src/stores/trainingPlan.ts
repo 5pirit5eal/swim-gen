@@ -38,7 +38,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       const planIds = data.map((entry) => entry.plan_id)
       const { data: plansData, error: plansError } = await supabase
         .from('plans')
-        .select('*')
+        .select('plan_id, title, description, table')
         .in('plan_id', planIds)
       if (plansError) {
         console.error(plansError)
@@ -98,6 +98,24 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   // Loads a plan from history into the editor
   function loadPlanFromHistory(plan: RAGResponse) {
     currentPlan.value = JSON.parse(JSON.stringify(plan)) // Deep copy to prevent accidental edits
+  }
+
+  // Sets a plan to be remembered forever
+  async function keepPlanForever(planId: string) {
+    userStore.getUser()
+    if (!userStore.user) {
+      console.log('User is not available.')
+      return null
+    }
+    const { error } = await supabase
+      .from('history')
+      .update({ keep_forever: true })
+      .eq('plan_id', planId)
+    if (error) {
+      console.error(error)
+    }
+
+    await fetchHistory()
   }
 
   // --- Plan Table Manipulations ---
@@ -193,5 +211,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     fetchHistory,
     upsertPlan,
     loadPlanFromHistory,
+    keepPlanForever,
   }
 })
