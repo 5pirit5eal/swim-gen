@@ -30,6 +30,7 @@ type Config struct {
 		User         string `env:"DB_USER"`
 		Pass         string `env:"DB_PASS"`
 		PassLocation string `env:"DB_PASS_LOCATION"`
+		SslMode      string `env:"DB_SSLMODE" default:"require"`
 	}
 
 	SB struct {

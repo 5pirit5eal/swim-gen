@@ -69,3 +69,18 @@ type HealthStatus struct {
 	Components    map[string]string `json:"components"`
 	SchemaVersion int               `json:"schema_version,omitempty"`
 }
+
+// UpsertPlanRequest represents the request payload for upserting a training plan
+// @Description Request payload for upserting a swim training plan to the system
+type UpsertPlanRequest struct {
+	PlanID      string `json:"plan_id,omitempty" example:"plan_123"` // PlanID identifies the training plan to be upserted
+	Title       string `json:"title" example:"Advanced Freestyle Training" binding:"required"`
+	Description string `json:"description" example:"A comprehensive training plan for improving freestyle technique" binding:"required"`
+	Table       Table  `json:"table" binding:"required"`
+}
+
+// UpsertPlanResponse represents the response after upserting a training plan
+// @Description Response containing the upserted swim training plan
+type UpsertPlanResponse struct {
+	PlanID string `json:"plan_id" example:"plan_123"`
+}

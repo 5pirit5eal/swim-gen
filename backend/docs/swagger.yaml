@@ -180,6 +180,36 @@ definitions:
         example: 400
         type: integer
     type: object
+  models.UpsertPlanRequest:
+    description: Request payload for upserting a swim training plan to the system
+    properties:
+      description:
+        example: A comprehensive training plan for improving freestyle technique
+        type: string
+      plan_id:
+        description: PlanID identifies the training plan to be upserted
+        example: plan_123
+        type: string
+      table:
+        description: A structured training plan table containing exercise rows
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
+      title:
+        example: Advanced Freestyle Training
+        type: string
+    required:
+    - description
+    - table
+    - title
+    type: object
+  models.UpsertPlanResponse:
+    description: Response containing the upserted swim training plan
+    properties:
+      plan_id:
+        example: plan_123
+        type: string
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -377,6 +407,39 @@ paths:
       summary: Scrape training plans from web
       tags:
       - scraping
+  /upsert-plan:
+    post:
+      consumes:
+      - application/json
+      description: Update an existing training plan if it belongs to the user, or
+        insert a new one
+      parameters:
+      - description: Request to upsert a training plan
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpsertPlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plan ID of the upserted training plan
+          schema:
+            $ref: '#/definitions/models.UpsertPlanResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update or insert a training plan into a user's history
+      tags:
+      - updates
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and the JWT.
