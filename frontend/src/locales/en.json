@@ -312,5 +312,12 @@
     "backstroke": "Backstroke",
     "butterfly": "Butterfly",
     "individual_medley": "Individual Medley"
+  },
+  "sidebar": {
+    "history": "History",
+    "donated": "Donated Plans",
+    "donated_placeholder": "Coming soon!",
+    "shared": "Shared Plans",
+    "shared_placeholder": "Coming soon!"
   }
 }

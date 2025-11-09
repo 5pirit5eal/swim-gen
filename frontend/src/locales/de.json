@@ -315,5 +315,12 @@
     "backstroke": "Rückenschwimmen",
     "butterfly": "Schmetterling",
     "individual_medley": "Lagen"
+  },
+  "sidebar": {
+    "history": "Verlauf",
+    "donated": "Gespende Pläne",
+    "donated_placeholder": "Kommt bald!",
+    "shared": "Geteilte Pläne",
+    "shared_placeholder": "Kommt bald!"
   }
 }
