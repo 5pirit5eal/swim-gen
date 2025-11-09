@@ -34,7 +34,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plans"
+                    "Donation"
                 ],
                 "summary": "Donate a new training plan",
                 "parameters": [
@@ -85,7 +85,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "export"
+                    "Training Plans"
                 ],
                 "summary": "Export training plan to PDF",
                 "parameters": [
@@ -131,7 +131,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "prompt"
+                    "Training Plans"
                 ],
                 "summary": "Generate a prompt for the LLM",
                 "parameters": [
@@ -174,7 +174,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "Health"
                 ],
                 "summary": "Comprehensive health check",
                 "responses": {
@@ -200,7 +200,7 @@ const docTemplate = `{
                     "text/plain"
                 ],
                 "tags": [
-                    "health"
+                    "Health"
                 ],
                 "summary": "Basic health check",
                 "responses": {
@@ -228,7 +228,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "query"
+                    "Training Plans"
                 ],
                 "summary": "Query training plans",
                 "parameters": [
@@ -271,7 +271,7 @@ const docTemplate = `{
                     "text/plain"
                 ],
                 "tags": [
-                    "scraping"
+                    "Web Scraping"
                 ],
                 "summary": "Scrape training plans from web",
                 "parameters": [
@@ -320,7 +320,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "updates"
+                    "Training Plans"
                 ],
                 "summary": "Update or insert a training plan into a user's history",
                 "parameters": [

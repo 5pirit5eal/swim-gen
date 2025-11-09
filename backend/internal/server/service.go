@@ -73,7 +73,7 @@ func (rs *RAGService) Close() {
 // database, and responds with a success message.
 // @Summary Donate a new training plan
 // @Description Upload and store a new user created swim training plan in the RAG system
-// @Tags plans
+// @Tags Donation
 // @Accept json
 // @Produce json
 // @Param plan body models.DonatePlanRequest true "Training plan data"
@@ -158,7 +158,7 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 // It parses the request, queries the RAG, generating or choosing a plan, and returns the result as JSON.
 // @Summary Query training plans
 // @Description Query the RAG system for relevant training plans based on input
-// @Tags query
+// @Tags Training Plans
 // @Accept json
 // @Produce json
 // @Param query body models.QueryRequest true "Query parameters"
@@ -218,7 +218,7 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 // PlanToPDFHandler handles the Plan to PDF export request.
 // @Summary Export training plan to PDF
 // @Description Generate and download a PDF version of a training plan
-// @Tags export
+// @Tags Training Plans
 // @Accept json
 // @Produce json
 // @Param plan body models.PlanToPDFRequest true "Training plan data to export"
@@ -284,7 +284,7 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 // It uses the GoogleGenAIClient to generate a prompt based on the provided language.
 // @Summary Generate a prompt for the LLM
 // @Description Generate a prompt for the LLM based on the provided language
-// @Tags prompt
+// @Tags Training Plans
 // @Accept json
 // @Produce json
 // @Param request body models.GeneratePromptRequest true "Request to generate a prompt"
@@ -324,7 +324,7 @@ func (rs *RAGService) GeneratePromptHandler(w http.ResponseWriter, req *http.Req
 // Otherwise it inserts a new plan for the user.
 // @Summary Update or insert a training plan into a user's history
 // @Description Update an existing training plan if it belongs to the user, or insert a new one
-// @Tags updates
+// @Tags Training Plans
 // @Accept json
 // @Produce json
 // @Param request body models.UpsertPlanRequest true "Request to upsert a training plan"

@@ -27,7 +27,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "plans"
+                    "Donation"
                 ],
                 "summary": "Donate a new training plan",
                 "parameters": [
@@ -78,7 +78,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "export"
+                    "Training Plans"
                 ],
                 "summary": "Export training plan to PDF",
                 "parameters": [
@@ -124,7 +124,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "prompt"
+                    "Training Plans"
                 ],
                 "summary": "Generate a prompt for the LLM",
                 "parameters": [
@@ -167,7 +167,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "Health"
                 ],
                 "summary": "Comprehensive health check",
                 "responses": {
@@ -193,7 +193,7 @@
                     "text/plain"
                 ],
                 "tags": [
-                    "health"
+                    "Health"
                 ],
                 "summary": "Basic health check",
                 "responses": {
@@ -221,7 +221,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "query"
+                    "Training Plans"
                 ],
                 "summary": "Query training plans",
                 "parameters": [
@@ -264,7 +264,7 @@
                     "text/plain"
                 ],
                 "tags": [
-                    "scraping"
+                    "Web Scraping"
                 ],
                 "summary": "Scrape training plans from web",
                 "parameters": [
@@ -313,7 +313,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "updates"
+                    "Training Plans"
                 ],
                 "summary": "Update or insert a training plan into a user's history",
                 "parameters": [
