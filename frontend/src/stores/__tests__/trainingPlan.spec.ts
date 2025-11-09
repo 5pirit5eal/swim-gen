@@ -1,26 +1,56 @@
 // frontend/src/stores/__tests__/trainingPlan.spec.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
-import type { QueryRequest, RAGResponse, ApiResult } from '@/types'
+import type { QueryRequest, RAGResponse, ApiResult, UpsertPlanResponse } from '@/types'
 import { apiClient } from '@/api/client'
-import type { Mock } from 'vitest' // Import Mock type
+import { supabase } from '@/plugins/supabase'
+import { useAuthStore } from '@/stores/auth'
+import type { Mock } from 'vitest'
 
-// --- This is the mock ---
-// We are telling Vitest: "Whenever someone imports from '@/api/client',
-// don't give them the real module. Instead, give them this fake object."
+// --- Mocks ---
 vi.mock('@/api/client', async (importOriginal) => {
   const actual = (await importOriginal()) as typeof import('@/api/client')
   return {
     ...actual,
     apiClient: {
       query: vi.fn(),
+      upsertPlan: vi.fn(),
     },
-    formatError: vi.fn((error) => `${error.message}: ${error.details}`), // Mock formatError
+    formatError: vi.fn((error) => `${error.message}: ${error.details}`),
   }
 })
 
-// Cast apiClient.query to a Mock type for TypeScript to recognize mock methods
-const mockedApiQuery = apiClient.query as Mock<typeof apiClient.query>
+vi.mock('@/plugins/supabase', () => ({
+  supabase: {
+    from: vi.fn().mockReturnThis(),
+    select: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
+    update: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+  },
+}))
+
+vi.mock('@/stores/auth', () => ({
+  useAuthStore: vi.fn(() => ({
+    user: { id: 'test-user-id' },
+    getUser: vi.fn(),
+  })),
+}))
+
+// --- Mock Casts ---
+const mockedApiQuery = apiClient.query as Mock
+const mockedApiUpsert = apiClient.upsertPlan as Mock
+const mockedSupabase = supabase as unknown as {
+  from: Mock
+  select: Mock
+  order: Mock
+  in: Mock
+  update: Mock
+  eq: Mock
+}
+const mockedAuthStore = useAuthStore as unknown as Mock
 
 // Helper to create a mock RAGResponse
 const createMockPlan = (): RAGResponse => ({
@@ -59,11 +89,12 @@ const createMockPlan = (): RAGResponse => ({
 
 describe('trainingPlan Store', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    const store = useTrainingPlanStore()
-    store.currentPlan = null
-    store.isLoading = false
-    store.error = null
+    setActivePinia(createPinia())
+    vi.resetAllMocks()
+    mockedAuthStore.mockReturnValue({
+      user: { id: 'test-user-id' },
+      getUser: vi.fn(),
+    })
   })
   it('verify initial state', () => {
     const store = useTrainingPlanStore()
@@ -85,9 +116,24 @@ describe('trainingPlan Store', () => {
         table: [], // Simplified for this test
       },
     }
-
-    // Tell our mocked apiClient.query to return the mockResponse
     mockedApiQuery.mockResolvedValue(mockResponse)
+
+    // Mock the fetchHistory call that happens on success
+    mockedSupabase.from.mockImplementation((tableName: string) => {
+      if (tableName === 'history') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          order: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }
+      }
+      if (tableName === 'plans') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          in: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }
+      }
+      return {}
+    })
 
     const requestPayload: QueryRequest = {
       content: 'test query',
@@ -289,5 +335,274 @@ describe('trainingPlan Store', () => {
     store.moveRow(lastExerciseRowIndex, 'down')
 
     expect(store.currentPlan.table).toEqual(initialOrder)
+  })
+
+  describe('History Management', () => {
+    it('fetches history successfully', async () => {
+      const store = useTrainingPlanStore()
+      const mockHistory = [{ plan_id: 'plan-1' }, { plan_id: 'plan-2' }]
+      const mockPlans = [
+        {
+          plan_id: 'plan-1',
+          title: 'Plan 1',
+          description: 'Desc 1',
+          table: [],
+        },
+        {
+          plan_id: 'plan-2',
+          title: 'Plan 2',
+          description: 'Desc 2',
+          table: [],
+        },
+      ]
+
+      // Mock supabase calls for history IDs
+      mockedSupabase.from.mockImplementation((tableName: string) => {
+        if (tableName === 'history') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            order: vi.fn().mockResolvedValue({ data: mockHistory, error: null }),
+          }
+        }
+        if (tableName === 'plans') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockResolvedValue({ data: mockPlans, error: null }),
+          }
+        }
+        return {
+          select: vi.fn().mockReturnThis(),
+          order: vi.fn().mockReturnThis(),
+          in: vi.fn().mockReturnThis(),
+        }
+      })
+
+      await store.fetchHistory()
+
+      expect(store.isLoading).toBe(false)
+      expect(store.generationHistory).toHaveLength(2)
+      expect(store.generationHistory[0].title).toBe('Plan 1')
+      expect(mockedSupabase.from).toHaveBeenCalledWith('history')
+      expect(mockedSupabase.from).toHaveBeenCalledWith('plans')
+    })
+
+    it('does not fetch history if user is not available', async () => {
+      mockedAuthStore.mockReturnValue({ user: null, getUser: vi.fn() })
+      const store = useTrainingPlanStore()
+
+      await store.fetchHistory()
+
+      expect(mockedSupabase.from).not.toHaveBeenCalled()
+      expect(store.generationHistory).toEqual([])
+    })
+
+    it('handles error when fetching history plan IDs', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+      mockedSupabase.from.mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        order: vi.fn().mockResolvedValue({ data: null, error: new Error('DB Error') }),
+      })
+      const store = useTrainingPlanStore()
+
+      await store.fetchHistory()
+
+      expect(store.isLoading).toBe(false)
+      expect(store.generationHistory).toEqual([])
+      expect(consoleErrorSpy).toHaveBeenCalledWith(new Error('DB Error'))
+      consoleErrorSpy.mockRestore()
+    })
+
+    it('handles error when fetching plan details', async () => {
+      const store = useTrainingPlanStore()
+      const mockHistory = [{ plan_id: 'plan-1' }]
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+
+      mockedSupabase.from.mockImplementation((tableName: string) => {
+        if (tableName === 'history') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            order: vi.fn().mockResolvedValue({ data: mockHistory, error: null }),
+          }
+        }
+        if (tableName === 'plans') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockResolvedValue({ data: null, error: new Error('Plan fetch error') }),
+          }
+        }
+        return {
+          select: vi.fn().mockReturnThis(),
+        }
+      })
+
+      await store.fetchHistory()
+
+      expect(store.isLoading).toBe(false)
+      expect(store.generationHistory).toEqual([])
+      expect(consoleErrorSpy).toHaveBeenCalledWith(new Error('Plan fetch error'))
+      consoleErrorSpy.mockRestore()
+    })
+
+    it('upserts a plan successfully', async () => {
+      const store = useTrainingPlanStore()
+      const planToUpsert = {
+        title: 'New Plan',
+        description: 'A new plan',
+        table: [],
+      }
+      const mockResponse: ApiResult<UpsertPlanResponse> = {
+        success: true,
+        data: { plan_id: 'new-plan-1' },
+      }
+      mockedApiUpsert.mockResolvedValue(mockResponse)
+
+      // Mock fetchHistory to be empty
+      mockedSupabase.from.mockImplementation((tableName: string) => {
+        if (tableName === 'history') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            order: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
+        }
+        if (tableName === 'plans') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
+        }
+        return {}
+      })
+
+      const result = await store.upsertPlan(planToUpsert)
+
+      expect(result).toEqual(mockResponse.data)
+      expect(mockedApiUpsert).toHaveBeenCalledWith(planToUpsert)
+      expect(store.isLoading).toBe(false)
+      // fetchHistory is called on success
+      expect(mockedSupabase.from).toHaveBeenCalledWith('history')
+    })
+
+    it('does not upsert plan if user is not available', async () => {
+      mockedAuthStore.mockReturnValue({ user: null, getUser: vi.fn() })
+      const store = useTrainingPlanStore()
+      const planToUpsert = {
+        title: 'New Plan',
+        description: 'A new plan',
+        table: [],
+      }
+      // Mock the api call to prevent failure if the user check fails
+      mockedApiUpsert.mockResolvedValue({ success: false, error: 'Should not be called' })
+
+      const result = await store.upsertPlan(planToUpsert)
+
+      expect(result).toBeNull()
+      expect(mockedApiUpsert).not.toHaveBeenCalled()
+    })
+
+    it('handles upsert plan failure', async () => {
+      const store = useTrainingPlanStore()
+      const planToUpsert = {
+        title: 'New Plan',
+        description: 'A new plan',
+        table: [],
+      }
+      const mockErrorResponse: ApiResult<UpsertPlanResponse> = {
+        success: false,
+        error: { status: 500, message: 'Server Error', details: 'UPSERT_FAILED' },
+      }
+      mockedApiUpsert.mockResolvedValue(mockErrorResponse)
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+
+      const result = await store.upsertPlan(planToUpsert)
+
+      expect(result).toBeNull()
+      expect(store.isLoading).toBe(false)
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      consoleErrorSpy.mockRestore()
+    })
+
+    it('loads a plan from history and ensures it is a deep copy', () => {
+      const store = useTrainingPlanStore()
+      const planFromHistory = createMockPlan()
+      store.generationHistory = [planFromHistory]
+
+      store.loadPlanFromHistory(planFromHistory)
+
+      expect(store.currentPlan).toEqual(planFromHistory)
+      // Verify it's a deep copy by modifying the loaded plan
+      store.updatePlanRow(0, 'Amount', 99)
+      expect(store.currentPlan?.table[0].Amount).toBe(99)
+      expect(planFromHistory.table[0].Amount).toBe(1) // Original should be unchanged
+    })
+
+    it('keeps a plan forever', async () => {
+      const store = useTrainingPlanStore()
+      const planIdToKeep = 'plan-1'
+
+      const historyMock = {
+        update: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockResolvedValue({ error: null }),
+        select: vi.fn().mockReturnThis(),
+        order: vi.fn().mockResolvedValue({ data: [], error: null }),
+      }
+      const plansMock = {
+        select: vi.fn().mockReturnThis(),
+        in: vi.fn().mockResolvedValue({ data: [], error: null }),
+      }
+
+      mockedSupabase.from.mockImplementation((tableName: string) => {
+        if (tableName === 'history') return historyMock
+        if (tableName === 'plans') return plansMock
+        return {}
+      })
+
+      await store.keepPlanForever(planIdToKeep)
+
+      expect(mockedSupabase.from).toHaveBeenCalledWith('history')
+      expect(historyMock.update).toHaveBeenCalledWith({ keep_forever: true })
+      expect(historyMock.eq).toHaveBeenCalledWith('plan_id', planIdToKeep)
+      // Verify fetchHistory was called again
+      expect(historyMock.select).toHaveBeenCalledWith('plan_id')
+    })
+
+    it('does not keep plan forever if user is not available', async () => {
+      mockedAuthStore.mockReturnValue({ user: null, getUser: vi.fn() })
+      const store = useTrainingPlanStore()
+      const planIdToKeep = 'plan-1'
+
+      await store.keepPlanForever(planIdToKeep)
+
+      expect(mockedSupabase.from).not.toHaveBeenCalled()
+    })
+
+    it('handles error when keeping a plan forever', async () => {
+      const store = useTrainingPlanStore()
+      const planIdToKeep = 'plan-1'
+      const dbError = new Error('Update failed')
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+
+      mockedSupabase.from.mockImplementation((tableName: string) => {
+        if (tableName === 'history') {
+          return {
+            update: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockResolvedValue({ error: dbError }),
+            select: vi.fn().mockReturnThis(),
+            order: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
+        }
+        if (tableName === 'plans') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
+        }
+        return {}
+      })
+
+      await store.keepPlanForever(planIdToKeep)
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(dbError)
+      consoleErrorSpy.mockRestore()
+    })
   })
 })
