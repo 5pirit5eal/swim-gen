@@ -297,6 +297,57 @@
                     }
                 }
             }
+        },
+        "/upsert-plan": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an existing training plan if it belongs to the user, or insert a new one",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "updates"
+                ],
+                "summary": "Update or insert a training plan into a user's history",
+                "parameters": [
+                    {
+                        "description": "Request to upsert a training plan",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpsertPlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plan ID of the upserted training plan",
+                        "schema": {
+                            "$ref": "#/definitions/models.UpsertPlanResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -550,6 +601,47 @@
                 "Sum": {
                     "type": "integer",
                     "example": 400
+                }
+            }
+        },
+        "models.UpsertPlanRequest": {
+            "description": "Request payload for upserting a swim training plan to the system",
+            "type": "object",
+            "required": [
+                "description",
+                "table",
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the training plan to be upserted",
+                    "type": "string",
+                    "example": "plan_123"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Advanced Freestyle Training"
+                }
+            }
+        },
+        "models.UpsertPlanResponse": {
+            "description": "Response containing the upserted swim training plan",
+            "type": "object",
+            "properties": {
+                "plan_id": {
+                    "type": "string",
+                    "example": "plan_123"
                 }
             }
         }

@@ -20,7 +20,8 @@ func (rs *RAGService) SupabaseAuthMiddleware(next http.Handler) http.Handler {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
 			logger.Debug("No user token provided")
-			next.ServeHTTP(w, r)
+			fallbackCtx := context.WithValue(r.Context(), models.UserIdCtxKey, "")
+			next.ServeHTTP(w, r.WithContext(fallbackCtx))
 			return
 		}
 

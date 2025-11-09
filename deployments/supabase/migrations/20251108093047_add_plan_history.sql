@@ -4,7 +4,7 @@ create table history (
   plan_id uuid not null references plans on delete cascade,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  keep_forever boolean not null default false,
+  keep_forever boolean not null default false
 );
 create index idx_history_plan_id on history(plan_id);
 
@@ -39,7 +39,7 @@ USING (
 );
 
 -- Update policies for donations to allow access if referenced in history
-create policy "User can query Donations for Plans" ON public.donations
+create policy "User can query Donations for Plans" ON public.plans
 FOR ALL
 TO authenticated
 USING (
@@ -74,7 +74,7 @@ add column exports int not null default 0;
 
 -- Alter the 'plans' table to add a updated_at column
 alter table plans
-add column updated_at timestamptz not null default now();
+add column updated_at timestamptz not null default now(),
 add column exports int not null default 0;
 
 

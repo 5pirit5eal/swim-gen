@@ -9,6 +9,10 @@ run() {
   go run ./main.go
 }
 
+run-local() {
+  go run ./main.go -env .env.local
+}
+
 validate() {
   go vet ./...
   golangci-lint run --path-mode=abs

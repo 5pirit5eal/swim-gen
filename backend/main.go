@@ -3,6 +3,7 @@ package main
 import (
 	"cmp"
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"log/slog"
@@ -42,12 +43,16 @@ import (
 // @name Authorization
 // @description Type "Bearer" followed by a space and the JWT.
 func main() {
+	// command line flags
+	envFile := flag.String("env", ".env", "path to .env file")
+	flag.Parse()
+
 	// Configure log to write to stdout
 	projectRoot, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
-	cfg, err := config.LoadConfig(filepath.Join(projectRoot, ".env"), true)
+	cfg, err := config.LoadConfig(filepath.Join(projectRoot, *envFile), true)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -141,6 +146,7 @@ func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Confi
 		r.Post("/query", ragServer.QueryHandler)
 		r.Get("/scrape", ragServer.ScrapeHandler)
 		r.Post("/export-pdf", ragServer.PlanToPDFHandler)
+		r.Post("/upsert-plan", ragServer.UpsertPlanHandler)
 		r.Get("/swagger/*", httpSwagger.Handler(
 			httpSwagger.URL("0.0.0.0:"+cmp.Or(cfg.Port, "8080")+basePath+"swagger/doc.json"),
 			httpSwagger.DeepLinking(true)),
