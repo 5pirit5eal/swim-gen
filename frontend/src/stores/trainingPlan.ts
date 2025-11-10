@@ -38,7 +38,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       const planIds = data.map((entry) => entry.plan_id)
       const { data: plansData, error: plansError } = await supabase
         .from('plans')
-        .select('plan_id, title, description, table')
+        .select('plan_id, title, description, plan_table')
         .in('plan_id', planIds)
       if (plansError) {
         console.error(plansError)
@@ -47,7 +47,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
           plan_id: plan.plan_id,
           title: plan.title,
           description: plan.description,
-          table: plan.table,
+          table: plan.plan_table,
         }))
       }
     }
