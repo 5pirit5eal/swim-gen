@@ -181,7 +181,6 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Convert to response payload
 	answer := &models.RAGResponse{
-		PlanID:      p.PlanID,
 		Title:       p.Title,
 		Description: p.Description,
 		Table:       p.Table,
