@@ -63,17 +63,6 @@ func MetadataSchema() (string, error) {
 	return string(jsonSchema), nil
 }
 
-func TableSchema() (string, error) {
-	schema := jsonschema.Reflect(&Table{})
-
-	jsonSchema, err := json.Marshal(schema)
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal JSON schema: %w", err)
-	}
-
-	return string(jsonSchema), nil
-}
-
 func DescriptionSchema() (string, error) {
 	schema := jsonschema.Reflect(&Description{})
 	jsonSchema, err := json.Marshal(schema)

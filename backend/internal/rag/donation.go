@@ -17,7 +17,7 @@ func (db *RAGDB) AddDonatedPlan(ctx context.Context, donation *models.DonatedPla
 	logger := httplog.LogEntry(ctx)
 
 	// Add the donated plan to the vector store
-	doc, err := models.PlanToDoc(&models.Document{Plan: donation, Meta: meta})
+	doc, err := models.Document{Plan: donation, Meta: meta}.ToLangChainDoc()
 	if err != nil {
 		logger.Error("Error converting plan to document", httplog.ErrAttr(err))
 		return fmt.Errorf("PlanToDoc: %w", err)

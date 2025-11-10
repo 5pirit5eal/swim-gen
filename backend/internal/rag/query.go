@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
-	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
@@ -23,7 +22,7 @@ const (
 )
 
 // Query searches for documents in the database based on the provided query and filter.
-func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, filter map[string]any, method string, poolLength any) (*models.RAGResponse, error) {
+func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, filter map[string]any, method string, poolLength any) (*models.Plan, error) {
 	logger := httplog.LogEntry(ctx)
 	// Set the embedder to query mode
 	db.Client.QueryMode()
@@ -45,10 +44,14 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	}
 	logger.Info("Documents found", "count", len(docs))
 	logger.Debug("Documents:", "docs", docs)
-	answer := &models.RAGResponse{}
+	var plan models.Planable
 	switch method {
 	case "generate":
-		answer, err = db.Client.GeneratePlan(ctx, query, string(lang), poolLength, docs)
+		plan, err = db.Client.GeneratePlan(ctx, query, string(lang), poolLength, docs)
+		if err != nil {
+			logger.Error("Error generating plan", httplog.ErrAttr(err))
+			return nil, fmt.Errorf("error generating plan: %w", err)
+		}
 	case "choose":
 		if len(docs) == 0 {
 			return nil, fmt.Errorf("no documents in database matching query and filters")
@@ -59,52 +62,29 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 			logger.Error("Error choosing plan", httplog.ErrAttr(err))
 			return nil, fmt.Errorf("error choosing plan: %w", err)
 		}
-		var plan models.Planable
+
 		plan, err = db.GetPlan(ctx, planID, SourceOptionPlan)
 		if err != nil {
 			logger.Error("Error getting plan", httplog.ErrAttr(err))
 			return nil, fmt.Errorf("error getting plan: %w", err)
 		}
-		genericPlan := plan.Plan()
-		answer.Title = genericPlan.Title
-		answer.Description = genericPlan.Description
-		answer.Table = genericPlan.Table
 
-		if lang != "de" {
-			translatedAnswer, err := db.Client.TranslatePlan(ctx, answer, lang)
-			if err != nil {
-				logger.Error("Error translating plan", httplog.ErrAttr(err))
-				return nil, fmt.Errorf("error translating plan: %w", err)
-			}
-			answer = translatedAnswer
-		}
 	default:
 		return nil, fmt.Errorf("unsupported method: %s", method)
 	}
-	if err != nil {
-		return nil, err
-	}
-	logger.Info("Answer generated successfully", "answer", answer)
 
-	return answer, nil
-}
+	genericPlan := plan.Plan()
 
-func (db *RAGDB) GetPlan(ctx context.Context, planID string, source SourceOption) (models.Planable, error) {
-	logger := httplog.LogEntry(ctx)
-	// Query the database for the plan with the given ID
-	switch source {
-	case SourceOptionPlan:
-		var plan models.Plan
-		err := pgxscan.Get(ctx, db.Conn, &plan, fmt.Sprintf(`SELECT plan_id, title, description, plan_table FROM %s WHERE plan_id = $1`, PlanTableName), planID)
+	if lang != "de" {
+		genericPlan, err = db.Client.TranslatePlan(ctx, genericPlan, lang)
 		if err != nil {
-			logger.Error("Error querying plan", httplog.ErrAttr(err))
-			return nil, err
+			logger.Error("Error translating plan", httplog.ErrAttr(err))
+			return nil, fmt.Errorf("error translating plan: %w", err)
 		}
-		return &plan, nil
-	case SourceOptionScraped:
-		return db.GetScrapedPlan(ctx, planID)
-	case SourceOptionDonated:
-		return db.GetDonatedPlan(ctx, planID)
+
 	}
-	return nil, fmt.Errorf("unsupported source option: %s", source)
+
+	logger.Debug("Plan generated successfully", "plan", genericPlan)
+
+	return genericPlan, nil
 }
