@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import type { Profile } from '@/types'
 import { supabase } from '@/plugins/supabase'
@@ -10,13 +10,23 @@ export const useProfileStore = defineStore('profile', () => {
   const profile = ref<Profile | null>(null)
   const userStore = useAuthStore()
 
-  async function fetchProfile() {
-    userStore.getUser()
+  watch(
+    () => userStore.user?.id ?? null,
+    async (newUserId) => {
+      if (newUserId) {
+        await _fetchProfile()
+      } else {
+        profile.value = null
+      }
+    },
+    { immediate: true }
+  )
+
+  async function _fetchProfile() {
     if (!userStore.user) {
       console.log('User is not available.')
       return
     }
-    loading.value = true
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -27,6 +37,11 @@ export const useProfileStore = defineStore('profile', () => {
     } else {
       profile.value = data
     }
+  }
+
+  async function fetchProfile() {
+    loading.value = true
+    await _fetchProfile()
     loading.value = false
   }
 

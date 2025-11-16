@@ -254,7 +254,8 @@
     "failed_to_generate_plan": "Plan konnte nicht generiert werden",
     "failed_to_export_plan": "Trainingsplan konnte nicht als PDF exportiert werden.",
     "timeout": "Die Anfrage wurde nach {time} Sekunden abgebrochen. Bitte versuche es erneut.",
-    "connection_failed": "Verbindung zum Server fehlgeschlagen. Bitte überprüfe deine Internetverbindung und versuche es erneut."
+    "connection_failed": "Verbindung zum Server fehlgeschlagen. Bitte überprüfe deine Internetverbindung und versuche es erneut.",
+    "api_request_failed": "API-Anfrage für {endpoint} fehlgeschlagen"
   },
   "login": {
     "login": "Anmelden",

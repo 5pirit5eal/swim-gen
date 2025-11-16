@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useSidebarStore } from '@/stores/sidebar'
@@ -18,6 +18,12 @@ const email = ref('')
 const password = ref('')
 const username = ref('')
 const loading = ref(false)
+
+onMounted(() => {
+  if (auth.user) {
+    router.replace('/')
+  }
+})
 
 const isSignUp = computed(() => route.query.register === 'true')
 

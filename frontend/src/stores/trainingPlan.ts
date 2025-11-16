@@ -2,7 +2,7 @@ import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
 import type { QueryRequest, RAGResponse, Row, UpsertPlanRequest, UpsertPlanResponse } from '@/types'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { supabase } from '@/plugins/supabase'
 import { useAuthStore } from '@/stores/auth'
 
@@ -10,27 +10,39 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   // --- STATE ---
   const currentPlan = ref<RAGResponse | null>(null)
   const isLoading = ref(false)
+  const isFetchingHistory = ref(false)
   const error = ref<string | null>(null)
   const generationHistory = ref<RAGResponse[]>([])
   const userStore = useAuthStore()
 
   // --- COMPUTED ---
   const hasPlan = computed(() => currentPlan.value !== null)
+  watch(
+    () => userStore.user?.id ?? null,
+    async (newUserId) => {
+      if (newUserId) {
+        await fetchHistory()
+      } else {
+        generationHistory.value = []
+      }
+    },
+    { immediate: true }
+  )
 
   // --- ACTIONS ---
 
   // Fetches the user's plan history
   async function fetchHistory() {
-    userStore.getUser()
     if (!userStore.user) {
       console.log('User is not available.')
       return
     }
-    isLoading.value = true
+    isFetchingHistory.value = true
     const { data, error } = await supabase
       .from('history')
       .select('plan_id')
       .order('created_at', { ascending: false })
+      .limit(20)
 
     if (error) {
       console.error(error)
@@ -51,7 +63,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         }))
       }
     }
-    isLoading.value = false
+    isFetchingHistory.value = false
   }
 
   // Generates a new training plan
@@ -78,14 +90,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Upserts a plan
   async function upsertPlan(plan: UpsertPlanRequest): Promise<UpsertPlanResponse | null> {
-    userStore.getUser()
     if (!userStore.user) {
       console.log('User is not available.')
       return null
     }
-    isLoading.value = true
     const result = await apiClient.upsertPlan(plan)
-    isLoading.value = false
     if (result.success && result.data) {
       await fetchHistory() // Refresh history after upserting
       return result.data
@@ -102,7 +111,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Sets a plan to be remembered forever
   async function keepPlanForever(planId: string) {
-    userStore.getUser()
     if (!userStore.user) {
       console.log('User is not available.')
       return null
@@ -196,6 +204,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     // State
     currentPlan,
     isLoading,
+    isFetchingHistory,
     error,
     generationHistory,
     // Computed
