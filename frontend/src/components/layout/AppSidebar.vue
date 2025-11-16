@@ -3,14 +3,17 @@ import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useI18n } from 'vue-i18n'
 import type { RAGResponse } from '@/types'
+import { useRouter } from 'vue-router'
 
 const trainingPlanStore = useTrainingPlanStore()
 const sidebarStore = useSidebarStore()
 const { t } = useI18n()
+const router = useRouter()
 
 function loadPlan(plan: RAGResponse) {
   trainingPlanStore.loadPlanFromHistory(plan)
   sidebarStore.close()
+  router.push('/')
 }
 </script>
 
@@ -19,17 +22,8 @@ function loadPlan(plan: RAGResponse) {
     <div class="sidebar-header">
       <h3>{{ t('sidebar.history') }}</h3>
       <button @click="sidebarStore.close" class="close-btn">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
@@ -37,11 +31,7 @@ function loadPlan(plan: RAGResponse) {
     </div>
     <div class="sidebar-content">
       <ul class="plan-list">
-        <li
-          v-for="plan in trainingPlanStore.generationHistory"
-          :key="plan.plan_id"
-          @click="loadPlan(plan)"
-        >
+        <li v-for="plan in trainingPlanStore.generationHistory" :key="plan.plan_id" @click="loadPlan(plan)">
           {{ plan.title }}
         </li>
       </ul>

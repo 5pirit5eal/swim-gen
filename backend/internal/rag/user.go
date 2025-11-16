@@ -58,7 +58,7 @@ func (db *RAGDB) IncrementExportCount(ctx context.Context, userID, planID string
 	if userID != "" {
 		if _, err := ts.Exec(ctx,
 			fmt.Sprintf(`UPDATE %s SET exports = exports + 1 WHERE user_id = $1`, ProfilesTableName),
-			planID); err != nil {
+			userID); err != nil {
 			logger.Error("Error incrementing export count", httplog.ErrAttr(err))
 			return fmt.Errorf("error incrementing export count: %w", err)
 		}
