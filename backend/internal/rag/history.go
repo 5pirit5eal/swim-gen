@@ -127,8 +127,7 @@ func (db *RAGDB) AddPlanToHistory(ctx context.Context, plan *models.Plan, userID
 	// Insert the plan into the plans table
 	if _, err := ts.Exec(ctx, fmt.Sprintf(`
         INSERT INTO %s (plan_id, title, description, plan_table)
-		VALUES ($1, $2, $3, $4)
-		ON CONFLICT (plan_id) DO NOTHING`, PlanTableName),
+		VALUES ($1, $2, $3, $4)`, PlanTableName),
 		plan.PlanID, plan.Title, plan.Description, plan.Table); err != nil {
 		logger.Error("Error inserting plan", httplog.ErrAttr(err))
 		return fmt.Errorf("error inserting plan: %w", err)
@@ -136,7 +135,7 @@ func (db *RAGDB) AddPlanToHistory(ctx context.Context, plan *models.Plan, userID
 
 	// Insert the plan into the user's history
 	if _, err = ts.Exec(ctx, fmt.Sprintf(
-		`INSERT INTO %s (user_id, plan_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, HistoryTableName),
+		`INSERT INTO %s (user_id, plan_id) VALUES ($1, $2)`, HistoryTableName),
 		userProfile.UserID, plan.PlanID); err != nil {
 		logger.Error("Error adding plan to user history", httplog.ErrAttr(err))
 		return fmt.Errorf("error adding plan to user history: %w", err)

@@ -1,10 +1,11 @@
 -- Create table 'history' to manage user-created plans with reference to plans table
 create table history (
-  user_id uuid not null references auth.users on delete cascade primary key,
+  user_id uuid not null references auth.users on delete cascade,
   plan_id uuid not null references plans on delete cascade,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  keep_forever boolean not null default false
+  keep_forever boolean not null default false,
+  primary key (user_id, plan_id)
 );
 create index idx_history_plan_id on history(plan_id);
 
