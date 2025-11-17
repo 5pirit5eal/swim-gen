@@ -42,7 +42,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       .from('history')
       .select('plan_id')
       .order('created_at', { ascending: false })
-      .limit(20)
+      .limit(50)
 
     if (error) {
       console.error(error)
