@@ -1,6 +1,13 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
-import type { QueryRequest, RAGResponse, Row, UpsertPlanRequest, UpsertPlanResponse, HistoryMetadata } from '@/types'
+import type {
+  QueryRequest,
+  RAGResponse,
+  Row,
+  UpsertPlanRequest,
+  UpsertPlanResponse,
+  HistoryMetadata,
+} from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { supabase } from '@/plugins/supabase'
@@ -38,7 +45,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         historyMetadata.value = []
       }
     },
-    { immediate: true }
+    { immediate: true },
   )
 
   // --- ACTIONS ---
@@ -157,7 +164,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-        ; (row[field] as string | number) = value
+      ;(row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance

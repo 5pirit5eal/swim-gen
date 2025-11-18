@@ -127,30 +127,44 @@ function getExperienceLabel(value: string) {
             <div class="form-grid">
               <div class="form-column">
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.experience') }}
+                  <label class="form-label"
+                    >{{ t('profile.experience') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.experience_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="select-group">
-                    <select class="select-input" v-model="editableProfile.experience" :disabled="profileStore.loading">
+                    <select
+                      class="select-input"
+                      v-model="editableProfile.experience"
+                      :disabled="profileStore.loading"
+                    >
                       <option value="">{{ t('form.any_difficulty') }}</option>
-                      <option v-for="option in DIFFICULTY_OPTIONS" :key="option.value" :value="option.value">
+                      <option
+                        v-for="option in DIFFICULTY_OPTIONS"
+                        :key="option.value"
+                        :value="option.value"
+                      >
                         {{ t(option.label) }}
                       </option>
                     </select>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.preferred_strokes') }}
+                  <label class="form-label"
+                    >{{ t('profile.preferred_strokes') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.preferred_strokes_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
                     <label v-for="option in strokeOptions" :key="option" class="checkbox-option">
-                      <input type="checkbox" :value="option" v-model="editableProfile.preferred_strokes"
-                        :disabled="profileStore.loading" />
+                      <input
+                        type="checkbox"
+                        :value="option"
+                        v-model="editableProfile.preferred_strokes"
+                        :disabled="profileStore.loading"
+                      />
                       {{ t(`profile.${option.toLowerCase().replace(' ', '_')}`) }}
                     </label>
                   </div>
@@ -158,15 +172,20 @@ function getExperienceLabel(value: string) {
               </div>
               <div class="form-column">
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.categories') }}
+                  <label class="form-label"
+                    >{{ t('profile.categories') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.categories_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
                     <label v-for="option in categoryOptions" :key="option" class="checkbox-option">
-                      <input type="checkbox" :value="option" v-model="editableProfile.categories"
-                        :disabled="profileStore.loading" />
+                      <input
+                        type="checkbox"
+                        :value="option"
+                        v-model="editableProfile.categories"
+                        :disabled="profileStore.loading"
+                      />
                       {{ t(`profile.category_${option.toLowerCase()}`) }}
                     </label>
                   </div>
@@ -211,8 +230,10 @@ function getExperienceLabel(value: string) {
                   <td>
                     <p>{{ profileStore.profile?.monthly_generations ?? 0 }} / 100</p>
                     <div class="progress-bar">
-                      <div class="progress" :style="{ width: `${profileStore.profile?.monthly_generations ?? 0}%` }">
-                      </div>
+                      <div
+                        class="progress"
+                        :style="{ width: `${profileStore.profile?.monthly_generations ?? 0}%` }"
+                      ></div>
                     </div>
                   </td>
                 </tr>

@@ -19,7 +19,7 @@ export const useProfileStore = defineStore('profile', () => {
         profile.value = null
       }
     },
-    { immediate: true }
+    { immediate: true },
   )
 
   async function _fetchProfile() {

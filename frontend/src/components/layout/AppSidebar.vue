@@ -31,11 +31,16 @@ function loadPlan(plan: RAGResponse) {
     <div class="sidebar-content">
       <section>
         <h3>{{ t('sidebar.generated') }}</h3>
-        <p v-if="trainingPlanStore.planHistory.length === 0">{{ t('sidebar.generated_placeholder') }}</p>
+        <p v-if="trainingPlanStore.planHistory.length === 0">
+          {{ t('sidebar.generated_placeholder') }}
+        </p>
         <ul v-else class="plan-list">
           <li v-for="plan in trainingPlanStore.planHistory" :key="plan.plan_id">
             <div class="plan-item-main">
-              <div class="status-icon-container" @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)">
+              <div
+                class="status-icon-container"
+                @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)"
+              >
                 <IconHeart v-if="plan.keep_forever" class="status-icon" />
                 <IconHourglass v-else class="status-icon" />
               </div>

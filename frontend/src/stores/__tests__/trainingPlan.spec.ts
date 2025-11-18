@@ -409,7 +409,7 @@ describe('trainingPlan Store', () => {
     })
 
     it('handles error when fetching history plan IDs', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       mockedSupabase.from.mockReturnValue({
         select: vi.fn().mockReturnThis(),
         order: vi.fn().mockReturnThis(),
@@ -428,7 +428,7 @@ describe('trainingPlan Store', () => {
     it('handles error when fetching plan details', async () => {
       const store = useTrainingPlanStore()
       const mockHistory = [{ plan_id: 'plan-1' }]
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       mockedSupabase.from.mockImplementation((tableName: string) => {
         if (tableName === 'history') {
@@ -526,7 +526,7 @@ describe('trainingPlan Store', () => {
         error: { status: 500, message: 'Server Error', details: 'UPSERT_FAILED' },
       }
       mockedApiUpsert.mockResolvedValue(mockErrorResponse)
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const result = await store.upsertPlan(planToUpsert)
 
@@ -553,7 +553,9 @@ describe('trainingPlan Store', () => {
     it('toggles keep_forever status for a plan', async () => {
       const store = useTrainingPlanStore()
       const planId = 'plan-1'
-      store.historyMetadata = [{ plan_id: planId, keep_forever: false, created_at: '', updated_at: '' }]
+      store.historyMetadata = [
+        { plan_id: planId, keep_forever: false, created_at: '', updated_at: '' },
+      ]
 
       const historyMock = {
         update: vi.fn().mockReturnThis(),
@@ -591,9 +593,11 @@ describe('trainingPlan Store', () => {
     it('handles error when toggling keep_forever', async () => {
       const store = useTrainingPlanStore()
       const planId = 'plan-1'
-      store.historyMetadata = [{ plan_id: planId, keep_forever: false, created_at: '', updated_at: '' }]
+      store.historyMetadata = [
+        { plan_id: planId, keep_forever: false, created_at: '', updated_at: '' },
+      ]
       const dbError = new Error('Update failed')
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       mockedSupabase.from.mockImplementation((tableName: string) => {
         if (tableName === 'history') {
