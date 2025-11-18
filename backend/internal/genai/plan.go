@@ -189,7 +189,7 @@ func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.Pla
 	var gp models.GeneratedPlan
 	err = json.Unmarshal([]byte(answer.Text()), &gp)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer.Text())
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 
