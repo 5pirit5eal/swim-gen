@@ -86,7 +86,7 @@ select cron.schedule(
     $$
     begin
         -- Delete history entries older than 30 days
-        delete from public.history where created_at < now() - interval '30 days' and keep_forever = false and export_count = 0;
+        delete from public.history where created_at < now() - interval '30 days' and keep_forever = false;
 
         -- Delete plans that are not referenced anymore
         delete from public.plans p
