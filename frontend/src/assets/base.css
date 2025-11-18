@@ -11,6 +11,7 @@
 
   --vt-c-blue: #3b82f6;
   --vt-c-blue-soft: #2563eb;
+  --vt-c-blue-shadow: rgba(47, 124, 248, 0.1);
 
   --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
   --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
@@ -18,7 +19,7 @@
   --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
 
   --vt-c-text-light-1: var(--vt-c-indigo);
-  --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
+  --vt-c-text-light-2: rgba(47, 47, 47, 0.773);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.732);
 
@@ -38,6 +39,7 @@
 
   --color-border: var(--vt-c-divider-light-2);
   --color-border-hover: var(--vt-c-divider-light-1);
+  --color-shadow: var(--vt-c-blue-shadow);
 
   --color-heading: var(--vt-c-text-light-1);
   --color-text: var(--vt-c-text-light-2);

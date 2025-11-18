@@ -35,6 +35,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         await fetchHistory()
       } else {
         generationHistory.value = []
+        historyMetadata.value = []
       }
     },
     { immediate: true }

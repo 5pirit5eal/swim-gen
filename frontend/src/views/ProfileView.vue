@@ -271,7 +271,7 @@ function getExperienceLabel(value: string) {
   gap: 2rem;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1860px) {
   .profile-content {
     flex-direction: column;
   }

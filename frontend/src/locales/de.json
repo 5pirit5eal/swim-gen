@@ -318,11 +318,13 @@
     "individual_medley": "Lagen"
   },
   "sidebar": {
-    "history": "Meine Pläne",
-    "donated": "Gespende Pläne",
-    "donated_placeholder": "Kommt bald!",
+    "history": "Deine Pläne",
+    "generated": "Generierte Pläne",
+    "generated_placeholder": "Noch keine Pläne generiert.",
+    "donated": "Hochgeladene Pläne",
+    "donated_placeholder": "Noch keine Pläne hochgeladen.",
     "shared": "Geteilte Pläne",
-    "shared_placeholder": "Kommt bald!"
+    "shared_placeholder": "Noch keine Pläne mit dir geteilt."
   },
   "labels": {
     "created_at": "Erstellt am",

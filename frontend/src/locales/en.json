@@ -315,11 +315,13 @@
     "individual_medley": "Individual Medley"
   },
   "sidebar": {
-    "history": "My Plans",
-    "donated": "Donated Plans",
-    "donated_placeholder": "Coming soon!",
+    "history": "Your Plans",
+    "generated": "Generated Plans",
+    "generated_placeholder": "No generated plans yet.",
+    "donated": "Uploaded Plans",
+    "donated_placeholder": "No plans uploaded yet.",
     "shared": "Shared Plans",
-    "shared_placeholder": "Coming soon!"
+    "shared_placeholder": "No plans shared with you yet."
   },
   "labels": {
     "created_at": "Created at",
