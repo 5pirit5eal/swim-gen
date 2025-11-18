@@ -323,5 +323,9 @@
     "donated_placeholder": "Kommt bald!",
     "shared": "Geteilte Pläne",
     "shared_placeholder": "Kommt bald!"
+  },
+  "labels": {
+    "created_at": "Erstellt am",
+    "updated_at": "Aktualisiert am"
   }
 }

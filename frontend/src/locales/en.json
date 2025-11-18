@@ -320,5 +320,9 @@
     "donated_placeholder": "Coming soon!",
     "shared": "Shared Plans",
     "shared_placeholder": "Coming soon!"
+  },
+  "labels": {
+    "created_at": "Created at",
+    "updated_at": "Updated at"
   }
 }

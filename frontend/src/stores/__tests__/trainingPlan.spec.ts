@@ -550,50 +550,48 @@ describe('trainingPlan Store', () => {
       expect(planFromHistory.table[0].Amount).toBe(1) // Original should be unchanged
     })
 
-    it('keeps a plan forever', async () => {
+    it('toggles keep_forever status for a plan', async () => {
       const store = useTrainingPlanStore()
-      const planIdToKeep = 'plan-1'
+      const planId = 'plan-1'
+      store.historyMetadata = [{ plan_id: planId, keep_forever: false, created_at: '', updated_at: '' }]
 
       const historyMock = {
         update: vi.fn().mockReturnThis(),
         eq: vi.fn().mockResolvedValue({ error: null }),
-        select: vi.fn().mockReturnThis(),
-        order: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue({ data: [], error: null }),
-      }
-      const plansMock = {
-        select: vi.fn().mockReturnThis(),
-        in: vi.fn().mockResolvedValue({ data: [], error: null }),
       }
 
       mockedSupabase.from.mockImplementation((tableName: string) => {
         if (tableName === 'history') return historyMock
-        if (tableName === 'plans') return plansMock
         return {}
       })
 
-      await store.keepPlanForever(planIdToKeep)
+      await store.toggleKeepForever(planId)
 
       expect(mockedSupabase.from).toHaveBeenCalledWith('history')
       expect(historyMock.update).toHaveBeenCalledWith({ keep_forever: true })
-      expect(historyMock.eq).toHaveBeenCalledWith('plan_id', planIdToKeep)
-      // Verify fetchHistory was called again
-      expect(historyMock.select).toHaveBeenCalledWith('plan_id')
+      expect(historyMock.eq).toHaveBeenCalledWith('plan_id', planId)
+      expect(store.historyMetadata[0].keep_forever).toBe(true)
+
+      // Toggle back
+      await store.toggleKeepForever(planId)
+      expect(historyMock.update).toHaveBeenCalledWith({ keep_forever: false })
+      expect(store.historyMetadata[0].keep_forever).toBe(false)
     })
 
-    it('does not keep plan forever if user is not available', async () => {
+    it('does not toggle keep_forever if user is not available', async () => {
       mockedAuthStore.mockReturnValue({ user: null, getUser: vi.fn() })
       const store = useTrainingPlanStore()
-      const planIdToKeep = 'plan-1'
+      const planId = 'plan-1'
 
-      await store.keepPlanForever(planIdToKeep)
+      await store.toggleKeepForever(planId)
 
       expect(mockedSupabase.from).not.toHaveBeenCalled()
     })
 
-    it('handles error when keeping a plan forever', async () => {
+    it('handles error when toggling keep_forever', async () => {
       const store = useTrainingPlanStore()
-      const planIdToKeep = 'plan-1'
+      const planId = 'plan-1'
+      store.historyMetadata = [{ plan_id: planId, keep_forever: false, created_at: '', updated_at: '' }]
       const dbError = new Error('Update failed')
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
 
@@ -602,21 +600,12 @@ describe('trainingPlan Store', () => {
           return {
             update: vi.fn().mockReturnThis(),
             eq: vi.fn().mockResolvedValue({ error: dbError }),
-            select: vi.fn().mockReturnThis(),
-            order: vi.fn().mockReturnThis(),
-            limit: vi.fn().mockResolvedValue({ data: [], error: null }),
-          }
-        }
-        if (tableName === 'plans') {
-          return {
-            select: vi.fn().mockReturnThis(),
-            in: vi.fn().mockResolvedValue({ data: [], error: null }),
           }
         }
         return {}
       })
 
-      await store.keepPlanForever(planIdToKeep)
+      await store.toggleKeepForever(planId)
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(dbError)
       consoleErrorSpy.mockRestore()

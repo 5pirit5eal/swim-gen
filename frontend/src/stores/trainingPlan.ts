@@ -1,6 +1,6 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
-import type { QueryRequest, RAGResponse, Row, UpsertPlanRequest, UpsertPlanResponse } from '@/types'
+import type { QueryRequest, RAGResponse, Row, UpsertPlanRequest, UpsertPlanResponse, HistoryMetadata } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { supabase } from '@/plugins/supabase'
@@ -13,10 +13,21 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   const isFetchingHistory = ref(false)
   const error = ref<string | null>(null)
   const generationHistory = ref<RAGResponse[]>([])
+  const historyMetadata = ref<HistoryMetadata[]>([])
   const userStore = useAuthStore()
 
   // --- COMPUTED ---
   const hasPlan = computed(() => currentPlan.value !== null)
+  const planHistory = computed(() => {
+    return generationHistory.value.map((plan) => {
+      const metadata = historyMetadata.value.find((meta) => meta.plan_id === plan.plan_id)
+      return {
+        ...plan,
+        ...metadata,
+      }
+    })
+  })
+
   watch(
     () => userStore.user?.id ?? null,
     async (newUserId) => {
@@ -40,7 +51,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     isFetchingHistory.value = true
     const { data, error } = await supabase
       .from('history')
-      .select('plan_id')
+      .select('plan_id, keep_forever, created_at, updated_at')
       .order('created_at', { ascending: false })
       .limit(50)
 
@@ -48,6 +59,13 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       console.error(error)
     } else if (data) {
       const planIds = data.map((entry) => entry.plan_id)
+      historyMetadata.value = data.map((entry) => ({
+        plan_id: entry.plan_id,
+        keep_forever: entry.keep_forever,
+        created_at: entry.created_at,
+        updated_at: entry.updated_at,
+      }))
+
       const { data: plansData, error: plansError } = await supabase
         .from('plans')
         .select('plan_id, title, description, plan_table')
@@ -64,6 +82,30 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       }
     }
     isFetchingHistory.value = false
+  }
+
+  // Update keep_forever for plan in history
+  async function toggleKeepForever(planId: string | undefined) {
+    if (!userStore.user || !planId) {
+      console.log('User or planId is not available.')
+      return
+    }
+    const metadataEntry = historyMetadata.value.find((entry) => entry.plan_id === planId)
+    if (!metadataEntry) {
+      console.log('Plan metadata not found.')
+      return
+    }
+    const newKeepForever = !metadataEntry.keep_forever
+
+    const { error } = await supabase
+      .from('history')
+      .update({ keep_forever: newKeepForever })
+      .eq('plan_id', planId)
+    if (error) {
+      console.error(error)
+    } else {
+      metadataEntry.keep_forever = newKeepForever
+    }
   }
 
   // Generates a new training plan
@@ -107,23 +149,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   // Loads a plan from history into the editor
   function loadPlanFromHistory(plan: RAGResponse) {
     currentPlan.value = JSON.parse(JSON.stringify(plan)) // Deep copy to prevent accidental edits
-  }
-
-  // Sets a plan to be remembered forever
-  async function keepPlanForever(planId: string) {
-    if (!userStore.user) {
-      console.log('User is not available.')
-      return null
-    }
-    const { error } = await supabase
-      .from('history')
-      .update({ keep_forever: true })
-      .eq('plan_id', planId)
-    if (error) {
-      console.error(error)
-    }
-
-    await fetchHistory()
   }
 
   // --- Plan Table Manipulations ---
@@ -207,8 +232,10 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     isFetchingHistory,
     error,
     generationHistory,
+    historyMetadata,
     // Computed
     hasPlan,
+    planHistory,
     // Actions
     generatePlan,
     updatePlanRow,
@@ -220,6 +247,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     fetchHistory,
     upsertPlan,
     loadPlanFromHistory,
-    keepPlanForever,
+    toggleKeepForever,
   }
 })

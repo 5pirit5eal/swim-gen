@@ -4,6 +4,8 @@ import { useSidebarStore } from '@/stores/sidebar'
 import { useI18n } from 'vue-i18n'
 import type { RAGResponse } from '@/types'
 import { useRouter } from 'vue-router'
+import IconHourglass from '@/components/icons/IconHourglass.vue'
+import IconHeart from '@/components/icons/IconHeart.vue'
 
 const trainingPlanStore = useTrainingPlanStore()
 const sidebarStore = useSidebarStore()
@@ -14,6 +16,18 @@ function loadPlan(plan: RAGResponse) {
   trainingPlanStore.loadPlanFromHistory(plan)
   sidebarStore.close()
   router.push('/')
+}
+
+function formatTimestamp(timestamp: string | undefined) {
+  if (!timestamp) {
+    return ''
+  }
+  const date = new Date(timestamp)
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
 }
 </script>
 
@@ -31,8 +45,20 @@ function loadPlan(plan: RAGResponse) {
     </div>
     <div class="sidebar-content">
       <ul class="plan-list">
-        <li v-for="plan in trainingPlanStore.generationHistory" :key="plan.plan_id" @click="loadPlan(plan)">
-          {{ plan.title }}
+        <li v-for="plan in trainingPlanStore.planHistory" :key="plan.plan_id">
+          <div class="plan-item-main">
+            <div class="status-icon-container" @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)">
+              <IconHeart v-if="plan.keep_forever" class="status-icon" />
+              <IconHourglass v-else class="status-icon" />
+            </div>
+            <div class="plan-title" @click="loadPlan(plan)">
+              <span>{{ plan.title }}</span>
+            </div>
+          </div>
+          <div class="plan-timestamps">
+            <span>{{ t('labels.created_at') }}: {{ formatTimestamp(plan.created_at) }}</span>
+            <span>{{ t('labels.updated_at') }}: {{ formatTimestamp(plan.updated_at) }}</span>
+          </div>
         </li>
       </ul>
       <h3>{{ t('sidebar.donated') }}</h3>
@@ -84,7 +110,7 @@ function loadPlan(plan: RAGResponse) {
 }
 
 .sidebar-content {
-  padding: 1rem;
+  margin: 0.75rem;
   overflow-y: auto;
 }
 
@@ -95,14 +121,61 @@ function loadPlan(plan: RAGResponse) {
 }
 
 .plan-list li {
-  padding: 0.75rem;
-  cursor: pointer;
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
 }
 
-.plan-list li:hover {
+.plan-item-main {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.status-icon-container {
+  padding: 0.25rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-icon-container:hover {
+  border-color: var(--color-border-hover);
   background-color: var(--color-background-mute);
+}
+
+.plan-title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.plan-title:hover {
+  background-color: var(--color-background-mute);
+}
+
+.status-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.15rem;
+  color: var(--color-primary);
+}
+
+.plan-timestamps {
+  font-size: 0.6rem;
+  color: var(--color-text-mute);
+  margin-top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 0.5rem 2.75rem;
 }
 
 @media (max-width: 768px) {
