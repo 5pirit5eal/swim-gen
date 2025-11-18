@@ -161,7 +161,7 @@ jobs:
       - build-bff
       - build-mcp
       - deploy-supabase
-    if: always() && !cancelled() && !contains(needs.*.result, 'failure')
+    if: success()
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
       env: dev
@@ -217,4 +217,22 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.payload.issue.number,
               body: 'Deployment to dev completed successfully! 🚀'
+            });
+
+  comment-on-failure:
+    name: ❗ Comment on deployment failure
+    needs: opentofu-services
+    if: failure() && github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on PR about failure
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: 'Deployment to dev failed. ❗ Please check the Actions tab for more details.'
             });

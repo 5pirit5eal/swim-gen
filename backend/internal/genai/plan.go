@@ -14,11 +14,11 @@ import (
 )
 
 // GeneratePlan generates a plan using the LLM based on the provided query and documents.
-func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang string, poolLength any, docs []schema.Document) (*models.RAGResponse, error) {
+func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang string, poolLength any, docs []schema.Document) (*models.GeneratedPlan, error) {
 	logger := httplog.LogEntry(ctx)
-	ts, err := models.TableSchema()
+	gps, err := models.GeneratedPlanSchema()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get table schema: %w", err)
+		return nil, fmt.Errorf("failed to get GeneratedPlan schema: %w", err)
 	}
 
 	var dc []string
@@ -27,9 +27,10 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang string, p
 	}
 
 	// Create a RAG query for the LLM with the most relevant documents as context
-	query := fmt.Sprintf(ragTemplateStr, poolLength, lang, ts, q, strings.Join(dc, "\n \n"))
+	query := fmt.Sprintf(ragTemplateStr, poolLength, lang, q, strings.Join(dc, "\n \n"))
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
+	genCfg.ResponseJsonSchema = gps
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
 
 	if err != nil {
@@ -38,10 +39,10 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang string, p
 	}
 
 	// read description and table from the LLM response
-	var p models.RAGResponse
+	var p models.GeneratedPlan
 	err = json.Unmarshal([]byte(answer.Text()), &p)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer.Text())
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 	// Add the total to the table if it is not already present
@@ -106,10 +107,7 @@ func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Planab
 	}
 
 	// Create request body by converting the plans into documents
-	c <- models.Document{
-		Plan: plan,
-		Meta: meta,
-	}
+	c <- models.Document{Plan: plan, Meta: meta}
 }
 
 func (gc *GoogleGenAIClient) DescribeTable(ctx context.Context, table *models.Table) (*models.Description, error) {
@@ -166,29 +164,41 @@ func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan models.P
 	return &metadata, nil
 }
 
-func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.RAGResponse, lang models.Language) (*models.RAGResponse, error) {
+// TranslatePlan translates the given plan into the specified language.
+//
+// Returns a copy of the plan translated to the target language.
+func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.Plan, lang models.Language) (*models.Plan, error) {
 	logger := httplog.LogEntry(ctx)
-	ts, err := models.TableSchema()
+	gps, err := models.GeneratedPlanSchema()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get table schema: %w", err)
+		return nil, fmt.Errorf("failed to get GeneratedPlan schema: %w", err)
 	}
 
 	// Translate the plan to the requested language
 	// Create a RAG query for the LLM with the most relevant documents as context
-	query := fmt.Sprintf(translateTemplateStr, lang, models.Abbreviations, plan.Title, plan.Description, plan.Table.String(), ts)
+	query := fmt.Sprintf(translateTemplateStr, lang, models.Abbreviations, plan.Title, plan.Description, plan.Table.String())
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
+	genCfg.ResponseJsonSchema = gps
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
 	if err != nil {
 		logger.Error("Error when generating answer with LLM", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error when generating answer with LLM: %w", err)
 	}
 
-	var p models.RAGResponse
-	err = json.Unmarshal([]byte(answer.Text()), &p)
+	var gp models.GeneratedPlan
+	err = json.Unmarshal([]byte(answer.Text()), &gp)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer.Text())
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
+
+	p := models.Plan{
+		PlanID:      plan.PlanID,
+		Title:       gp.Title,
+		Description: gp.Description,
+		Table:       gp.Table,
+	}
+	logger.Debug("Plan translated successfully", "plan_id", p.PlanID)
 	return &p, nil
 }

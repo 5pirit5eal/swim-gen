@@ -40,6 +40,14 @@ jobs:
       cwd: deployments/${{ inputs.env }}/0-infra
     secrets: inherit
 
+  deploy-supabase:
+    needs: opentofu-infra
+    name: 🚀 Deploy Supabase Migrations (${{ inputs.env }})
+    uses: ./.github/workflows/supabase-deploy.yaml
+    with:
+      env: ${{ inputs.env }}
+    secrets: inherit
+
   opentofu-services:
     name: 🪄 OpenTofu services (${{ inputs.env }})
     needs:

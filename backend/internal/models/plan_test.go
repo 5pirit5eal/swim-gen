@@ -46,3 +46,11 @@ func TestUpdateSum(t *testing.T) {
 	assert.Equal(t, 100, table[1].Sum, "Sum for the second row should be 100")
 	assert.Equal(t, 300, table[2].Sum, "Sum for the third row should be 300")
 }
+
+func TestGeneratedPlanSchema(t *testing.T) {
+	schema, err := models.GeneratedPlanSchema()
+	assert.NoError(t, err, "Failed to retrieve schema")
+
+	// check if the schema is valid json
+	assert.NotEmpty(t, schema, "Schema should not be empty")
+}
