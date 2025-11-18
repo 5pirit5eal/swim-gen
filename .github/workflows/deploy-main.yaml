@@ -45,7 +45,7 @@ jobs:
     name: 🚀 Deploy Supabase Migrations (${{ inputs.env }})
     uses: ./.github/workflows/supabase-deploy.yaml
     with:
-      env: prod
+      env: ${{ inputs.env }}
     secrets: inherit
 
   opentofu-services:
