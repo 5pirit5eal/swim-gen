@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
@@ -54,5 +53,4 @@ func TestGeneratedPlanSchema(t *testing.T) {
 
 	// check if the schema is valid json
 	assert.NotEmpty(t, schema, "Schema should not be empty")
-	fmt.Println(schema)
 }
