@@ -165,7 +165,7 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	answer, err := rs.db.Query(req.Context(), qr.Content, qr.Language, qr.Filter, qr.Method, qr.PoolLength)
+	p, err := rs.db.Query(req.Context(), qr.Content, qr.Language, qr.Filter, qr.Method, qr.PoolLength)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "unsupported method:") {
 			http.Error(w, "Method may only be 'choose' or 'generate', invalid choice.", http.StatusBadRequest)
@@ -176,8 +176,15 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Recalculate the sums of the rows to be sure they are correct
-	answer.Table.UpdateSum()
-	logger.Debug("Updated the table sums...", "sum", answer.Table[len(answer.Table)-1].Sum)
+	p.Table.UpdateSum()
+	logger.Debug("Updated the table sums...", "sum", p.Table[len(p.Table)-1].Sum)
+
+	// Convert to response payload
+	answer := &models.RAGResponse{
+		Title:       p.Title,
+		Description: p.Description,
+		Table:       p.Table,
+	}
 
 	logger.Info("Answer generated successfully")
 	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {

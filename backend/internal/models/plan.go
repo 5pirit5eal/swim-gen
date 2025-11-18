@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
+	"github.com/invopop/jsonschema"
 	"github.com/tmc/langchaingo/schema"
 )
 
@@ -82,6 +84,45 @@ func (s *ScrapedPlan) Plan() *Plan {
 	}
 }
 
+type GeneratedPlan struct {
+	Title       string `db:"title" example:"Advanced Freestyle Training" jsonschema_description:"Title of the training plan"`
+	Description string `db:"description" example:"A comprehensive training plan for improving freestyle technique" jsonschema_description:"Description or comments about the training plan"`
+	Table       Table  `db:"table" jsonschema_description:"Structured table containing the training plan details"`
+}
+
+func (gp *GeneratedPlan) Map() map[string]any {
+	m := map[string]any{
+		"title":       gp.Title,
+		"description": gp.Description,
+	}
+
+	return m
+}
+
+func (gp *GeneratedPlan) Plan() *Plan {
+	return &Plan{
+		PlanID:      uuid.New().String(),
+		Title:       gp.Title,
+		Description: gp.Description,
+		Table:       gp.Table,
+	}
+}
+
+func GeneratedPlanSchema() (map[string]any, error) {
+	schema := jsonschema.Reflect(&GeneratedPlan{})
+
+	jsonSchema, err := json.Marshal(schema)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal JSON schema: %w", err)
+	}
+	var result map[string]any
+	return result, json.Unmarshal(jsonSchema, &result)
+}
+
+// BASIC PLAN STRUCTURES
+
+// Plan represents a swim training plan
+// @Description A swim training plan with title, description, and structured table
 type Plan struct {
 	PlanID      string `db:"plan_id"`
 	Title       string `db:"title"`
@@ -193,7 +234,7 @@ type Document struct {
 	Meta *Metadata
 }
 
-func PlanToDoc(doc *Document) (schema.Document, error) {
+func (doc Document) ToLangChainDoc() (schema.Document, error) {
 	genericPlan := doc.Plan.Plan()
 	// Create a map of the plan
 	planMap := doc.Plan.Map()

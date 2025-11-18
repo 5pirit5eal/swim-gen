@@ -14,16 +14,6 @@ Bei der Erstellung der kurzen Beschreibung gehe nur auf die Eigenschaften des Tr
 Nutze eine freundliche und motivierende Sprache. Grüße nicht den Schwimmer.
 Für den Schwimmer ist nicht relevant, ob der Plan aus mehreren oder einem anderen Trainingsplan erstellt wurde.
 Die Antwort soll in %s (Sprache) sein.
-Die Antwort soll in JSON-Format sein.
-Die Antwort soll die folgenden Felder enthalten:
-{
-	"title": "Ein passender, kurzer, prägnanter Titel des Trainings",
-	"description": "Eine kurze Beschreibung, Kommentare oder Anmerkungen zu dem Trainingsplan, damit der Schwimmer den Plan besser versteht",
-	"table": Eine Tabelle mit den Trainingsdaten nach dem unten stehenden Schema
-}
-
-table Schema:
-%s
 
 Die Antwort soll keine Fragen enthalten und auch nicht die Anweisung wiederholen.
 
@@ -158,6 +148,9 @@ Your response must be in the same JSON format as the input.
 The plan may contain abbreviations and specialized terms related to swimming training. Stay within the intent
 of the original text and abbreviate, where appropriate, using common swimming terminology in the target language.
 
+If the training plan is already in the target language, apply only minor adjustments if necessary and where appropriate.
+Ensure that the structure of the training plan remains unchanged, including the table format.
+
 Translate the following training plan into %s (language).
 
 These abbreviations are relevant for the translation:
@@ -168,9 +161,6 @@ Training Plan to Translate:
 %s
 %s
 
-%s
-
-According to the following schema:
 %s
 
 Response:
