@@ -79,13 +79,6 @@ jobs:
       version: ${{ needs.get_version.outputs.next_version }}
     secrets: inherit
 
-  deploy-supabase:
-    needs: get_version
-    uses: ./.github/workflows/supabase-deploy.yaml
-    with:
-      env: prod
-    secrets: inherit
-
   opentofu-services:
     name: 🪄 OpenTofu services (prod)
     needs:
@@ -94,7 +87,6 @@ jobs:
       - build-frontend
       - build-bff
       - build-mcp
-      - deploy-supabase
     if: always() && !cancelled() && !contains(needs.*.result, 'failure')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
