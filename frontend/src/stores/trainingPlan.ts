@@ -19,13 +19,17 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   // --- COMPUTED ---
   const hasPlan = computed(() => currentPlan.value !== null)
   const planHistory = computed(() => {
-    return historyMetadata.value.map((metadata) => {
-      const plan = generationHistory.value.find((plan) => plan.plan_id === metadata.plan_id)
+    const combined = historyMetadata.value.map((metadata) => {
+      const plan = generationHistory.value.find((p) => p.plan_id === metadata.plan_id)
       return {
         ...plan,
         ...metadata,
       }
     })
+    return combined.filter(
+      (plan): plan is RAGResponse & HistoryMetadata =>
+        !!plan.title && !!plan.description && !!plan.table,
+    )
   })
 
   watch(

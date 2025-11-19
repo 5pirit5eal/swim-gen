@@ -52,7 +52,11 @@ func (db *RAGDB) IncrementExportCount(ctx context.Context, userID, planID string
 		logger.Error("Error starting transaction", httplog.ErrAttr(err))
 		return fmt.Errorf("error starting transaction: %w", err)
 	}
-	defer ts.Rollback(ctx)
+	defer func() {
+		if err := ts.Rollback(ctx); err != nil {
+			logger.Error("Error rolling back transaction", httplog.ErrAttr(err))
+		}
+	}()
 
 	// Update the export count for the user
 	if userID != "" {

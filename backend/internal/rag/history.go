@@ -71,7 +71,11 @@ func (db *RAGDB) UpsertPlan(ctx context.Context, plan models.Plan, userID string
 		logger.Error("Error starting transaction", httplog.ErrAttr(err))
 		return "", fmt.Errorf("failed to start transaction: %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil {
+			logger.Error("Error rolling back transaction", httplog.ErrAttr(err))
+		}
+	}()
 
 	// Add the plan to the plans table
 	logger.Debug("Upserting plan into plans table")
@@ -129,7 +133,11 @@ func (db *RAGDB) AddPlanToHistory(ctx context.Context, plan *models.Plan, userID
 		logger.Error("Error starting transaction", httplog.ErrAttr(err))
 		return fmt.Errorf("error starting transaction: %w", err)
 	}
-	defer ts.Rollback(ctx)
+	defer func() {
+		if err := ts.Rollback(ctx); err != nil {
+			logger.Error("Error rolling back transaction", httplog.ErrAttr(err))
+		}
+	}()
 
 	// Insert the plan into the plans table
 	if _, err := ts.Exec(ctx, fmt.Sprintf(`
