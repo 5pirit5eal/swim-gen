@@ -1,13 +1,6 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
-import type {
-  QueryRequest,
-  RAGResponse,
-  Row,
-  UpsertPlanRequest,
-  UpsertPlanResponse,
-  HistoryMetadata,
-} from '@/types'
+import type { QueryRequest, RAGResponse, Row, HistoryMetadata } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { supabase } from '@/plugins/supabase'
@@ -26,8 +19,8 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   // --- COMPUTED ---
   const hasPlan = computed(() => currentPlan.value !== null)
   const planHistory = computed(() => {
-    return generationHistory.value.map((plan) => {
-      const metadata = historyMetadata.value.find((meta) => meta.plan_id === plan.plan_id)
+    return historyMetadata.value.map((metadata) => {
+      const plan = generationHistory.value.find((plan) => plan.plan_id === metadata.plan_id)
       return {
         ...plan,
         ...metadata,
@@ -138,19 +131,30 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     }
   }
 
-  // Upserts a plan
-  async function upsertPlan(plan: UpsertPlanRequest): Promise<UpsertPlanResponse | null> {
+  // Upserts the current plan
+  async function upsertCurrentPlan() {
     if (!userStore.user) {
       console.log('User is not available.')
-      return null
+      return
     }
-    const result = await apiClient.upsertPlan(plan)
+    if (!currentPlan.value) {
+      console.log('No current plan to upsert.')
+      return
+    }
+    const result = await apiClient.upsertPlan({
+      plan_id: currentPlan.value.plan_id,
+      title: currentPlan.value.title,
+      description: currentPlan.value.description,
+      table: currentPlan.value.table,
+    })
     if (result.success && result.data) {
       await fetchHistory() // Refresh history after upserting
-      return result.data
+      if (currentPlan.value?.plan_id !== result.data.plan_id) {
+        console.log(`Plan upserted with new plan_id: ${result.data.plan_id}`)
+      }
     } else {
       console.error(result.error ? formatError(result.error) : 'Unknown error during upsertPlan')
-      return null
+      return
     }
   }
 
@@ -253,7 +257,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     clearPlan,
     clearError,
     fetchHistory,
-    upsertPlan,
+    upsertCurrentPlan,
     loadPlanFromHistory,
     toggleKeepForever,
   }

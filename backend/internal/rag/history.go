@@ -36,18 +36,22 @@ func (db *RAGDB) UpsertPlan(ctx context.Context, plan models.Plan, userID string
 	logger := httplog.LogEntry(ctx)
 
 	if plan.PlanID == "" {
-		logger.Info("No plan ID provided, generating a new one.")
+		logger.Debug("No plan ID provided, generating a new one.")
 		plan.PlanID = uuid.New().String()
 	}
 
 	// Check if the plan exists and the user owns it by querying the donation and history table
+	// The plan is owned by the user if it is in either their donated plans or their history
 	var exists bool
 	err := pgxscan.Get(ctx, db.Conn, &exists, fmt.Sprintf(`
         SELECT EXISTS (
             SELECT 1
-            FROM %s h
-            JOIN %s d ON h.plan_id = d.plan_id
-            WHERE h.plan_id = $1 AND h.user_id = $2 AND d.user_id = $2
+            FROM (
+                SELECT plan_id, user_id FROM %s
+                UNION ALL
+                SELECT plan_id, user_id FROM %s
+            ) as combined_plans
+            WHERE plan_id = $1 AND user_id = $2
         )`, HistoryTableName, DonatedPlanTable), plan.PlanID, userID)
 
 	if err != nil {
@@ -57,6 +61,7 @@ func (db *RAGDB) UpsertPlan(ctx context.Context, plan models.Plan, userID string
 
 	// If it doesn't exist, create a new plan id
 	if !exists {
+		logger.Debug("Plan does not exist for user, generating new plan ID")
 		plan.PlanID = uuid.New().String()
 	}
 
@@ -69,6 +74,7 @@ func (db *RAGDB) UpsertPlan(ctx context.Context, plan models.Plan, userID string
 	defer tx.Rollback(ctx)
 
 	// Add the plan to the plans table
+	logger.Debug("Upserting plan into plans table")
 	_, err = tx.Exec(ctx,
 		fmt.Sprintf(`
             INSERT INTO %s (plan_id, title, description, plan_table)
@@ -87,6 +93,7 @@ func (db *RAGDB) UpsertPlan(ctx context.Context, plan models.Plan, userID string
 	}
 
 	// Add the plan to the user's history
+	logger.Debug("Adding plan to user history")
 	_, err = tx.Exec(ctx,
 		`INSERT INTO history (user_id, plan_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
 		userID, plan.PlanID,

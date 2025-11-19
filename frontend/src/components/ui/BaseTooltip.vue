@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import TooltipIcon from '@/components/icons/TooltipIcon.vue'
+import IconTooltip from '@/components/icons/IconTooltip.vue'
 
 const showTooltip = ref(false)
 </script>
@@ -11,7 +11,7 @@ const showTooltip = ref(false)
     @mouseenter="showTooltip = true"
     @mouseleave="showTooltip = false"
   >
-    <TooltipIcon />
+    <IconTooltip />
     <div v-if="showTooltip" class="tooltip-text">
       <slot name="tooltip"> A helpful tooltip with additional information. </slot>
     </div>

@@ -36,6 +36,9 @@ describe('ProfileView.vue', () => {
       preferred_language: 'en',
       preferred_strokes: ['Freestyle'],
       categories: ['Swimmer'],
+      overall_generations: 10,
+      monthly_generations: 5,
+      exports: 2,
     }
 
     await wrapper.vm.$nextTick()

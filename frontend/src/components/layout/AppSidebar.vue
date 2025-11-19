@@ -111,6 +111,8 @@ function loadPlan(plan: RAGResponse) {
 .sidebar-content {
   margin: 0.75rem;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-text) var(--color-shadow);
 }
 
 .sidebar-content section {

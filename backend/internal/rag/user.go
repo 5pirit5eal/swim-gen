@@ -79,18 +79,3 @@ func (db *RAGDB) IncrementExportCount(ctx context.Context, userID, planID string
 	logger.Info("Export count incremented successfully", "plan_id", planID)
 	return nil
 }
-
-func (db *RAGDB) IncrementGenerationCount(ctx context.Context, planID string) error {
-	logger := httplog.LogEntry(ctx)
-
-	// Update the generation count for the user
-	_, err := db.Conn.Exec(ctx,
-		fmt.Sprintf(`UPDATE %s SET overall_generations = overall_generations + 1, monthly_generations = monthly_generations + 1 WHERE plan_id = $1`, ProfilesTableName),
-		planID)
-	if err != nil {
-		logger.Error("Error incrementing generation count", httplog.ErrAttr(err))
-		return fmt.Errorf("error incrementing generation count: %w", err)
-	}
-	logger.Info("Generation count incremented successfully", "plan_id", planID)
-	return nil
-}

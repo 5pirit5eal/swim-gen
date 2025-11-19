@@ -349,6 +349,7 @@ func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request
 		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
 		return
 	}
+	logger.Debug("Upserting plan into db")
 	resp, err := rs.db.UpsertPlan(req.Context(), models.Plan{
 		PlanID:      upr.PlanID,
 		Title:       upr.Title,

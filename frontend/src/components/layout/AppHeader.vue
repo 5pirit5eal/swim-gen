@@ -30,11 +30,7 @@ async function handleLogout() {
   <header class="app-header">
     <div class="header-container">
       <div class="logo" :class="{ 'sidebar-open': sidebarStore.isOpen }">
-        <button
-          v-if="auth.user && !sidebarStore.isOpen"
-          @click="sidebarStore.toggle"
-          class="sidebar-toggle-btn"
-        >
+        <button @click="sidebarStore.toggle" class="sidebar-toggle-btn">
           <IconMenu />
         </button>
         <router-link to="/" class="logo-link">
@@ -89,11 +85,26 @@ async function handleLogout() {
   border: none;
   cursor: pointer;
   color: var(--color-heading);
+  width: 2rem;
   margin-right: 1rem;
+  opacity: 1;
+  flex-shrink: 0;
+  transition:
+    opacity 0.3s ease,
+    width 0.3s ease,
+    margin-right 0.3s ease;
+  overflow: hidden;
 }
 
 .sidebar-toggle-btn:hover {
   color: var(--color-primary);
+}
+
+.logo.sidebar-open .sidebar-toggle-btn {
+  opacity: 0;
+  width: 0;
+  margin-right: 0;
+  pointer-events: none;
 }
 
 .logo {
@@ -105,14 +116,10 @@ async function handleLogout() {
   backdrop-filter: blur(3px);
   padding: 0.25rem 0.75rem;
   border-radius: 0.375rem;
-  transition: all 1s ease;
+  transition:
+    padding 0.3s ease,
+    gap 0.3s ease;
 }
-
-/* .logo.sidebar-open {
-  transform:
-  width: 0;
-  transform-origin: left center;
-} */
 
 .logo-link {
   display: flex;

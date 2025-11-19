@@ -6,8 +6,16 @@ import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useSidebarStore } from '@/stores/sidebar'
 import i18n from '@/plugins/i18n'
 
-describe('Sidebar.vue', () => {
+const push = vi.fn()
+vi.mock('vue-router', () => ({
+  useRouter: vi.fn(() => ({
+    push,
+  })),
+}))
+
+describe('AppSidebar.vue', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
     const pinia = createTestingPinia({
       createSpy: vi.fn,
     })
@@ -15,6 +23,14 @@ describe('Sidebar.vue', () => {
     const trainingPlanStore = useTrainingPlanStore(pinia)
     trainingPlanStore.generationHistory = [
       { plan_id: '1', title: 'Test Plan 1', description: 'Desc 1', table: [] },
+    ]
+    trainingPlanStore.historyMetadata = [
+      {
+        plan_id: '1',
+        keep_forever: false,
+        created_at: '2025-01-01T00:00:00Z',
+        updated_at: '2025-01-01T00:00:00Z',
+      },
     ]
 
     const sidebarStore = useSidebarStore(pinia)
@@ -29,8 +45,8 @@ describe('Sidebar.vue', () => {
     })
 
     expect(wrapper.find('.sidebar').classes()).toContain('is-open')
-    expect(wrapper.find('h3').text()).toBe('History')
-    expect(wrapper.find('.plan-list li').text()).toBe('Test Plan 1')
+    expect(wrapper.find('.sidebar-header h3').text()).toBe(i18n.global.t('sidebar.history'))
+    expect(wrapper.find('.plan-title span').text()).toBe('Test Plan 1')
   })
 
   it('closes the sidebar when the close button is clicked', async () => {
@@ -55,8 +71,9 @@ describe('Sidebar.vue', () => {
     const trainingPlanStore = useTrainingPlanStore()
     const sidebarStore = useSidebarStore()
 
-    await wrapper.find('.plan-list li').trigger('click')
+    await wrapper.find('.plan-title').trigger('click')
     expect(trainingPlanStore.loadPlanFromHistory).toHaveBeenCalledTimes(1)
     expect(sidebarStore.close).toHaveBeenCalledTimes(1)
+    expect(push).toHaveBeenCalledWith('/')
   })
 })

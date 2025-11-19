@@ -40,6 +40,14 @@ vi.mock('@/stores/auth', () => ({
   })),
 }))
 
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    watch: vi.fn(),
+  }
+})
+
 // --- Mock Casts ---
 const mockedApiQuery = apiClient.query as Mock
 const mockedApiUpsert = apiClient.upsertPlan as Mock
@@ -459,7 +467,7 @@ describe('trainingPlan Store', () => {
 
     it('upserts a plan successfully', async () => {
       const store = useTrainingPlanStore()
-      const planToUpsert = {
+      store.currentPlan = {
         title: 'New Plan',
         description: 'A new plan',
         table: [],
@@ -488,10 +496,9 @@ describe('trainingPlan Store', () => {
         return {}
       })
 
-      const result = await store.upsertPlan(planToUpsert)
+      await store.upsertCurrentPlan()
 
-      expect(result).toEqual(mockResponse.data)
-      expect(mockedApiUpsert).toHaveBeenCalledWith(planToUpsert)
+      expect(mockedApiUpsert).toHaveBeenCalledWith(store.currentPlan)
       expect(store.isLoading).toBe(false)
       // fetchHistory is called on success
       expect(mockedSupabase.from).toHaveBeenCalledWith('history')
@@ -500,7 +507,7 @@ describe('trainingPlan Store', () => {
     it('does not upsert plan if user is not available', async () => {
       mockedAuthStore.mockReturnValue({ user: null, getUser: vi.fn() })
       const store = useTrainingPlanStore()
-      const planToUpsert = {
+      store.currentPlan = {
         title: 'New Plan',
         description: 'A new plan',
         table: [],
@@ -508,15 +515,14 @@ describe('trainingPlan Store', () => {
       // Mock the api call to prevent failure if the user check fails
       mockedApiUpsert.mockResolvedValue({ success: false, error: 'Should not be called' })
 
-      const result = await store.upsertPlan(planToUpsert)
+      await store.upsertCurrentPlan()
 
-      expect(result).toBeNull()
       expect(mockedApiUpsert).not.toHaveBeenCalled()
     })
 
     it('handles upsert plan failure', async () => {
       const store = useTrainingPlanStore()
-      const planToUpsert = {
+      store.currentPlan = {
         title: 'New Plan',
         description: 'A new plan',
         table: [],
@@ -528,9 +534,8 @@ describe('trainingPlan Store', () => {
       mockedApiUpsert.mockResolvedValue(mockErrorResponse)
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      const result = await store.upsertPlan(planToUpsert)
+      await store.upsertCurrentPlan()
 
-      expect(result).toBeNull()
       expect(store.isLoading).toBe(false)
       expect(consoleErrorSpy).toHaveBeenCalled()
       consoleErrorSpy.mockRestore()
@@ -551,6 +556,7 @@ describe('trainingPlan Store', () => {
     })
 
     it('toggles keep_forever status for a plan', async () => {
+      mockedAuthStore.mockReturnValue({ user: { id: null }, getUser: vi.fn() })
       const store = useTrainingPlanStore()
       const planId = 'plan-1'
       store.historyMetadata = [
@@ -560,10 +566,18 @@ describe('trainingPlan Store', () => {
       const historyMock = {
         update: vi.fn().mockReturnThis(),
         eq: vi.fn().mockResolvedValue({ error: null }),
+        order: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue({ data: [], error: null }),
       }
 
       mockedSupabase.from.mockImplementation((tableName: string) => {
         if (tableName === 'history') return historyMock
+        if (tableName === 'plans') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
+        }
         return {}
       })
 

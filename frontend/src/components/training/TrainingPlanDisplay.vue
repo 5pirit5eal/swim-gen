@@ -63,9 +63,13 @@ function resetExportState() {
 }
 
 // Toggle editing and always clear any previously generated PDF URL
-function toggleEditing() {
+async function toggleEditing() {
   isEditing.value = !isEditing.value
   resetExportState()
+  if (!isEditing.value) {
+    // Upsert the current plan when done editing
+    await trainingStore.upsertCurrentPlan()
+  }
 }
 
 // Stop editing the current cell and save the changes
