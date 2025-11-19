@@ -13,10 +13,16 @@ The web application is hosted in Google Cloud. The following components are invo
 5. PostgreSQL database (managed) with **pgvector**
 
 ```plaintext
-+----------------+      HTTPS     +----------------+      HTTPS     +-----------------+      HTTPS     +-----------------+      +------------+
-| User's Browser | -------------> | Frontend       | -------------> | BFF (Node.js)   | -------------> | Backend (Go)    | <--> | PostgreSQL |
-| (Vue.js)       |                | (Cloud Run)    |                | (Cloud Run)     |                | (Cloud Run)     |      | (pgvector) |
-+----------------+                +----------------+                +-----------------+                +-----------------+      +------------+
++--------------+       +-------+        +-----------+         +----------+
+|              | HTTPS |       | HTTPS  |           |         |          |
+|   FRONTEND   +------>|  BFF  +------->|  BACKEND  +-------->| SUPABASE |
+|   (Vue.js)   |       |       |        |   (Go)    |         |          |
++------+-------+       +-------+        +-----------+         +----------+
+       |                                                           ^     
+       |                                                           |     
+       |                                                           |     
+       |                                                           |     
+       +-----------------------------------------------------------+     
 ```
 
 ## Roadmap
