@@ -44,7 +44,7 @@ func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) 
 
 	auth, err := supabase.NewClient(cfg.SB.ApiUrl, cfg.SB.AnonKey, nil)
 	if err != nil {
-		fmt.Println("Failed to initalize the client: ", err)
+		fmt.Println("Failed to initialize the client: ", err)
 	}
 
 	slog.Info("Initialized Supabase client successfully")
