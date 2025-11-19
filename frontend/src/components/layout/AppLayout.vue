@@ -30,7 +30,6 @@ const sidebarStore = useSidebarStore()
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
-  transition: background-image 0.3s ease;
   /* Ensure the layout sits above the body background */
   background-color: transparent;
 }
