@@ -1,6 +1,6 @@
-# Swim RAG Backend
+# Swim Gen Backend
 
-This directory contains the backend service for the Swim RAG application. It is a Go-based RESTful API responsible for the core business logic, including training plan generation, database interactions, and PDF exports.
+This directory contains the backend service for the Swim Gen application. It is a Go-based RESTful API responsible for the core business logic, including training plan generation, database interactions, and PDF exports.
 
 ## Core Features
 

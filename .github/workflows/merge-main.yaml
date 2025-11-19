@@ -71,14 +71,6 @@ jobs:
       version: ${{ needs.get_version.outputs.next_version }}
     secrets: inherit
 
-  build-mcp:
-    needs: get_version
-    uses: ./.github/workflows/mcp-build.yaml
-    with:
-      env: prod
-      version: ${{ needs.get_version.outputs.next_version }}
-    secrets: inherit
-
   opentofu-services:
     name: 🪄 OpenTofu services (prod)
     needs:
@@ -86,7 +78,6 @@ jobs:
       - build-backend
       - build-frontend
       - build-bff
-      - build-mcp
     if: always() && !cancelled() && !contains(needs.*.result, 'failure')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:

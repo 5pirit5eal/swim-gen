@@ -1,4 +1,4 @@
-# Swim-RAG Frontend
+# Swim Gen Frontend
 
 Vue 3 + TypeScript frontend for the Swim Training Plan Generator application.
 

@@ -1,6 +1,6 @@
 # BFF (Backend-for-Frontend) Service
 
-This service acts as a Backend-for-Frontend for the Swim Gen Vue.js application. It sits between the static frontend and the Go backend API.
+This service acts as a Backend-for-Frontend for the Swim Gen Frontend application. It sits between the static frontend and the Go backend API.
 
 ## Purpose
 
