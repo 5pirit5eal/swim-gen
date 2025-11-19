@@ -1,3 +1,40 @@
+## [2.0.0](https://github.com/5pirit5eal/swim-gen/compare/v1.14.0...v2.0.0) (2025-11-19)
+
+### ⚠ BREAKING CHANGES
+
+* addition of user history and massive modification of backend endpoints
+* The endpoints are now user specific and require plan ids and/or user ids
+
+### Features
+
+* 90 tp history can be viewed ([#116](https://github.com/5pirit5eal/swim-gen/issues/116)) ([69f9a64](https://github.com/5pirit5eal/swim-gen/commit/69f9a64f305156fdf57a70a4733b745a54022793))
+* added better auth callbacks and basic plan history ([f4fb914](https://github.com/5pirit5eal/swim-gen/commit/f4fb914c27634eda64e66f8dcc17f7a962dd44e9))
+* added database operations to existing endpoints for query and export ([569d6f6](https://github.com/5pirit5eal/swim-gen/commit/569d6f6d2ca6fc3cfe043d27be3de45e184a610c))
+* added first draft of the sidebar ([9411621](https://github.com/5pirit5eal/swim-gen/commit/9411621a987474466fd33acd8679a193d3413a54))
+* added history migrations sql file ([6eced62](https://github.com/5pirit5eal/swim-gen/commit/6eced628ee24dc4b916fe83ef01e1914143cb98c))
+* added new database changes and updated the backend payloads ([1070266](https://github.com/5pirit5eal/swim-gen/commit/107026687857f443442b700cb1df06a034e517ff))
+* added supabase user auth instead of userid in request body ([9e88352](https://github.com/5pirit5eal/swim-gen/commit/9e88352488e8ddd221d441f5d3ed99cb2be0b327))
+* added tests and keep forever function ([98bd2b0](https://github.com/5pirit5eal/swim-gen/commit/98bd2b07ac5f5184bb109e6d5be7345ad28dd6c9))
+* added toggle for plan permanence ([289aa54](https://github.com/5pirit5eal/swim-gen/commit/289aa54e9dede772bc7ec659ece2f221a9ff3d24))
+* added typing and store operations for histoy ([0b8b76d](https://github.com/5pirit5eal/swim-gen/commit/0b8b76de250ffa86e053fe1fbcd7cd1117c01b14))
+* added upsert endpoint for plan updates ([93e0b17](https://github.com/5pirit5eal/swim-gen/commit/93e0b17cd7ee389de9d24c21fb6b5f768ae409e2))
+* applied updated styling to history sidebar ([e816944](https://github.com/5pirit5eal/swim-gen/commit/e8169442e344efecd0625a7ff70fb2dd34dd2b82))
+* finished styling history sidebar ([99fcb7c](https://github.com/5pirit5eal/swim-gen/commit/99fcb7c84f8fbc9737d87dcb6e97c20b74426abf))
+* made history sorted by creation date and added full upsert functionality ([f876a14](https://github.com/5pirit5eal/swim-gen/commit/f876a14c2c307e5d4f40d11b472ee0994abdf994))
+* replaced placeholder profile values with actual values ([562f84f](https://github.com/5pirit5eal/swim-gen/commit/562f84f97c1b37d1184e440cab1ccde81902d393))
+* started styling newly added elements ([7a58cec](https://github.com/5pirit5eal/swim-gen/commit/7a58cecd127925e48b3339c7e869b01f8200f339))
+
+### Bug Fixes
+
+* added the correct max width for profiel ([bfc15c4](https://github.com/5pirit5eal/swim-gen/commit/bfc15c4a05b50777a54949a2c0b5ba87f383e646))
+* fix structured response endpoints ([626b196](https://github.com/5pirit5eal/swim-gen/commit/626b196c1a318ddb2cd4949f8430230418da081d))
+* fixed migrations file and enpoint ([58da254](https://github.com/5pirit5eal/swim-gen/commit/58da25483901c3d5626c0237a5b1db91fcc146c8))
+* fixed the supabase migration in cicd ([9374b68](https://github.com/5pirit5eal/swim-gen/commit/9374b6859a2e867230ae4217069bf8ab0e327e3c))
+* fixed type issues and error handling ([ddb421c](https://github.com/5pirit5eal/swim-gen/commit/ddb421cf80b85980e963a25f3d873b213fa9033a))
+* fixed workflow ([6df2599](https://github.com/5pirit5eal/swim-gen/commit/6df25994096fdb85215933759f1a486eb89c16d3))
+* only show burger icon if logged in ([4dde94f](https://github.com/5pirit5eal/swim-gen/commit/4dde94fae212b85422a7188845b38a1aa4b8b2cb))
+* renamed query ([7bbd3f4](https://github.com/5pirit5eal/swim-gen/commit/7bbd3f43044254184c443de6df9676ee20c1f539))
+
 ## [1.14.0](https://github.com/5pirit5eal/swim-gen/compare/v1.13.1...v1.14.0) (2025-11-05)
 
 ### Features
