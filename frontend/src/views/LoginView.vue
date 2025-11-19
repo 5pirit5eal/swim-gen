@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useTrainingPlanStore } from '@/stores/trainingPlan'
+import { useSidebarStore } from '@/stores/sidebar'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue3-toastify'
 
 const { t } = useI18n()
 const auth = useAuthStore()
+const trainingPlanStore = useTrainingPlanStore()
+const sidebarStore = useSidebarStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -14,6 +18,12 @@ const email = ref('')
 const password = ref('')
 const username = ref('')
 const loading = ref(false)
+
+onMounted(() => {
+  if (auth.user) {
+    router.replace('/')
+  }
+})
 
 const isSignUp = computed(() => route.query.register === 'true')
 
@@ -29,6 +39,8 @@ async function handleLogin() {
   loading.value = true
   try {
     await auth.signInWithPassword(email.value, password.value)
+    await trainingPlanStore.fetchHistory()
+    sidebarStore.open()
     toast.success(t('login.loginSuccess'))
     router.push('/')
   } catch (error) {
@@ -73,6 +85,8 @@ async function handleSignUp() {
   if (!response?.user?.identities?.length) {
     try {
       response = await auth.signInWithPassword(email.value, password.value)
+      await trainingPlanStore.fetchHistory()
+      sidebarStore.open()
       toast.success(t('login.userExistsLoginSuccess'))
       router.push('/')
     } catch {

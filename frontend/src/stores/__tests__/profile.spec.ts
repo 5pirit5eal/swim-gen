@@ -3,6 +3,11 @@ import { useProfileStore } from '../profile'
 import { useAuthStore } from '../auth'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { supabase } from '@/plugins/supabase'
+import type { Mock } from 'vitest'
+
+const mockedSupabase = supabase as unknown as {
+  from: Mock
+}
 
 vi.mock('@/plugins/supabase', () => ({
   supabase: {
@@ -57,15 +62,11 @@ describe('Profile Store', () => {
       categories: ['Swimmer'],
     }
 
-    vi.mocked(supabase.from('profiles').select().eq('user_id', '123').single).mockResolvedValueOnce(
-      {
-        data: mockProfile,
-        error: null,
-        count: 1,
-        status: 200,
-        statusText: 'OK',
-      },
-    )
+    mockedSupabase.from.mockReturnValue({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: mockProfile, error: null }),
+    })
 
     await profileStore.fetchProfile()
 
@@ -95,14 +96,11 @@ describe('Profile Store', () => {
       categories: ['Swimmer'],
     }
 
-    vi.mocked(
-      supabase.from('profiles').update(updatedProfileData).eq('user_id', '123').select().single,
-    ).mockResolvedValueOnce({
-      data: mockUpdatedProfile,
-      error: null,
-      count: 1,
-      status: 200,
-      statusText: 'OK',
+    mockedSupabase.from.mockReturnValue({
+      update: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: mockUpdatedProfile, error: null }),
     })
 
     await profileStore.updateProfile(updatedProfileData)

@@ -26,7 +26,6 @@ const router = createRouter({
 router.beforeEach(async (to, from) => {
   const auth = useAuthStore()
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-  if (requiresAuth || to.name === 'login') await auth.getUser()
 
   if (requiresAuth && !auth.user) {
     if (from.name !== 'login') {

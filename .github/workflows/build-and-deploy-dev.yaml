@@ -161,7 +161,7 @@ jobs:
       - build-bff
       - build-mcp
       - deploy-supabase
-    if: success()
+    if: always() && !cancelled() && !contains(needs.*.result, 'failure') && (needs.opentofu-infra.result != 'skipped')
     uses: ./.github/workflows/tf-plan-apply.yaml
     with:
       env: dev

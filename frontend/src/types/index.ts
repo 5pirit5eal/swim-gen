@@ -14,6 +14,8 @@ export type {
   PlanToPDFResponse,
   DonatePlanRequest,
   Filter,
+  UpsertPlanRequest,
+  UpsertPlanResponse,
 } from './training'
 
 // Export filter option constants
@@ -48,3 +50,6 @@ export interface AppState {
 
 // Export user profile type
 export type { Profile } from './profile'
+
+// Export miscellaneous types
+export type { HistoryMetadata } from './misc'

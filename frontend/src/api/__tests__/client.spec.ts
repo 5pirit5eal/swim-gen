@@ -24,6 +24,7 @@ describe('ApiClient', () => {
         ok: true,
         status: 200,
         statusText: 'OK',
+        headers: new Headers({ 'Content-Type': 'text/plain' }),
         text: () => Promise.resolve('API is healthy'),
       })
 
@@ -38,6 +39,7 @@ describe('ApiClient', () => {
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
+        headers: new Headers(),
       })
 
       const result = await apiClient.checkHealth()
@@ -45,7 +47,7 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: i18n.global.t('errors.health_check_failed'),
+          message: i18n.global.t('errors.api_request_failed', { endpoint: ApiEndpoints.HEALTH }),
           status: 500,
           details: 'Internal Server Error',
         },
@@ -70,13 +72,7 @@ describe('ApiClient', () => {
     it('should abort the request if it times out', async () => {
       const error = new Error('The user aborted a request.')
       error.name = 'AbortError'
-      mockFetch.mockImplementationOnce(async (url, options) => {
-        return new Promise((resolve, reject) => {
-          options.signal.addEventListener('abort', () => {
-            reject(error)
-          })
-        })
-      })
+      mockFetch.mockRejectedValueOnce(error)
 
       const promise = apiClient.checkHealth()
       vi.advanceTimersByTime(5000)
@@ -86,7 +82,7 @@ describe('ApiClient', () => {
         error: {
           message: 'The user aborted a request.',
           status: 0,
-          details: i18n.global.t('errors.connection_failed'),
+          details: i18n.global.t('errors.timeout', { time: 5 }),
         },
       })
     })
@@ -102,6 +98,7 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
         json: () => Promise.resolve(mockResponseData),
       })
 
@@ -111,7 +108,7 @@ describe('ApiClient', () => {
         `/api/${ApiEndpoints.PROMPT}`,
         expect.objectContaining({
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           body: JSON.stringify(mockRequest),
         }),
       )
@@ -123,6 +120,7 @@ describe('ApiClient', () => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
+        headers: new Headers(),
       })
 
       const result = await apiClient.generatePrompt(mockRequest)
@@ -130,7 +128,7 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: i18n.global.t('errors.failed_to_generate_prompt'),
+          message: i18n.global.t('errors.api_request_failed', { endpoint: ApiEndpoints.PROMPT }),
           status: 400,
           details: 'Bad Request',
         },
@@ -155,13 +153,7 @@ describe('ApiClient', () => {
     it('should return timeout error if request takes longer than 10 seconds', async () => {
       const error = new Error('The user aborted a request.')
       error.name = 'AbortError'
-      mockFetch.mockImplementationOnce(async (url, options) => {
-        return new Promise((resolve, reject) => {
-          options.signal.addEventListener('abort', () => {
-            reject(error)
-          })
-        })
-      })
+      mockFetch.mockRejectedValueOnce(error)
 
       const promise = apiClient.generatePrompt(mockRequest)
       vi.advanceTimersByTime(10000)
@@ -194,6 +186,7 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
         json: () => Promise.resolve(mockResponseData),
       })
 
@@ -203,7 +196,10 @@ describe('ApiClient', () => {
         `/api/${ApiEndpoints.QUERY}`,
         expect.objectContaining({
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: new Headers({
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer null',
+          }),
           body: JSON.stringify(mockRequest),
         }),
       )
@@ -215,6 +211,7 @@ describe('ApiClient', () => {
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
+        headers: new Headers(),
       })
 
       const result = await apiClient.query(mockRequest)
@@ -222,7 +219,7 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: i18n.global.t('errors.training_plan_failed'),
+          message: i18n.global.t('errors.api_request_failed', { endpoint: ApiEndpoints.QUERY }),
           status: 500,
           details: 'Internal Server Error',
         },
@@ -247,14 +244,7 @@ describe('ApiClient', () => {
     it('should return timeout error if request takes longer than 60 seconds', async () => {
       const error = new Error('The user aborted a request.')
       error.name = 'AbortError'
-      mockFetch.mockImplementationOnce(async (url, options) => {
-        return new Promise((resolve, reject) => {
-          options.signal.addEventListener('abort', () => {
-            reject(error)
-          })
-          // Simulate a delay that exceeds the timeout
-        })
-      })
+      mockFetch.mockRejectedValueOnce(error)
 
       const promise = apiClient.query(mockRequest)
       vi.advanceTimersByTime(60000)
@@ -284,6 +274,7 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
         json: () => Promise.resolve(mockResponseData),
       })
 
@@ -293,7 +284,10 @@ describe('ApiClient', () => {
         `/api/${ApiEndpoints.EXPORT_PDF}`,
         expect.objectContaining({
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: new Headers({
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer null',
+          }),
           body: JSON.stringify(mockRequest),
         }),
       )
@@ -305,6 +299,7 @@ describe('ApiClient', () => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
+        headers: new Headers(),
       })
 
       const result = await apiClient.exportPDF(mockRequest)
@@ -312,7 +307,9 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: i18n.global.t('errors.failed_to_export_plan'),
+          message: i18n.global.t('errors.api_request_failed', {
+            endpoint: ApiEndpoints.EXPORT_PDF,
+          }),
           status: 400,
           details: 'Bad Request',
         },

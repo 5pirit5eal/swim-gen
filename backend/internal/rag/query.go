@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
-	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
@@ -88,24 +87,4 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	logger.Debug("Plan generated successfully", "plan", genericPlan)
 
 	return genericPlan, nil
-}
-
-func (db *RAGDB) GetPlan(ctx context.Context, planID string, source SourceOption) (models.Planable, error) {
-	logger := httplog.LogEntry(ctx)
-	// Query the database for the plan with the given ID
-	switch source {
-	case SourceOptionPlan:
-		var plan models.Plan
-		err := pgxscan.Get(ctx, db.Conn, &plan, fmt.Sprintf(`SELECT plan_id, title, description, plan_table FROM %s WHERE plan_id = $1`, PlanTableName), planID)
-		if err != nil {
-			logger.Error("Error querying plan", httplog.ErrAttr(err))
-			return nil, err
-		}
-		return &plan, nil
-	case SourceOptionScraped:
-		return db.GetScrapedPlan(ctx, planID)
-	case SourceOptionDonated:
-		return db.GetDonatedPlan(ctx, planID)
-	}
-	return nil, fmt.Errorf("unsupported source option: %s", source)
 }

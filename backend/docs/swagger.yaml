@@ -19,14 +19,11 @@ definitions:
       title:
         example: Advanced Freestyle Training
         type: string
-      user_id:
-        example: user123
-        type: string
     required:
     - table
-    - user_id
     type: object
   models.GeneratePromptRequest:
+    description: Request payload for generating a prompt for swim training plan creation
     properties:
       language:
         allOf:
@@ -36,9 +33,24 @@ definitions:
     - language
     type: object
   models.GeneratedPromptResponse:
+    description: Response containing the generated prompt for swim training plan creation
     properties:
       prompt:
         example: Generate a swim training plan for improving freestyle technique
+        type: string
+    type: object
+  models.HealthStatus:
+    description: Health status of the service and its components
+    properties:
+      components:
+        additionalProperties:
+          type: string
+        type: object
+      schema_version:
+        type: integer
+      status:
+        type: string
+      timestamp:
         type: string
     type: object
   models.Language:
@@ -68,6 +80,10 @@ definitions:
         description: LargeFont indicates if the PDF should use a larger font size
         example: true
         type: boolean
+      plan_id:
+        description: PlanID identifies the training plan to be exported
+        example: plan_123
+        type: string
       table:
         description: A structured training plan table containing exercise rows
         items:
@@ -125,6 +141,10 @@ definitions:
       description:
         example: A comprehensive training plan for improving freestyle technique
         type: string
+      plan_id:
+        description: PlanID is the identifier of the training plan
+        example: plan_123
+        type: string
       table:
         description: A structured training plan table containing exercise rows
         items:
@@ -160,17 +180,34 @@ definitions:
         example: 400
         type: integer
     type: object
-  server.HealthStatus:
+  models.UpsertPlanRequest:
+    description: Request payload for upserting a swim training plan to the system
     properties:
-      components:
-        additionalProperties:
-          type: string
-        type: object
-      schema_version:
-        type: integer
-      status:
+      description:
+        example: A comprehensive training plan for improving freestyle technique
         type: string
-      timestamp:
+      plan_id:
+        description: PlanID identifies the training plan to be upserted
+        example: plan_123
+        type: string
+      table:
+        description: A structured training plan table containing exercise rows
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
+      title:
+        example: Advanced Freestyle Training
+        type: string
+    required:
+    - description
+    - table
+    - title
+    type: object
+  models.UpsertPlanResponse:
+    description: Response containing the upserted swim training plan
+    properties:
+      plan_id:
+        example: plan_123
         type: string
     type: object
 externalDocs:
@@ -213,9 +250,11 @@ paths:
           description: Internal server error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Donate a new training plan
       tags:
-      - plans
+      - Donation
   /export-pdf:
     post:
       consumes:
@@ -243,9 +282,11 @@ paths:
           description: Internal server error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Export training plan to PDF
       tags:
-      - export
+      - Training Plans
   /generate-prompt:
     post:
       consumes:
@@ -275,7 +316,7 @@ paths:
             type: string
       summary: Generate a prompt for the LLM
       tags:
-      - prompt
+      - Training Plans
   /health:
     get:
       description: Returns the health status of the API including database and vector
@@ -286,14 +327,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.HealthStatus'
+            $ref: '#/definitions/models.HealthStatus'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/server.HealthStatus'
+            $ref: '#/definitions/models.HealthStatus'
       summary: Comprehensive health check
       tags:
-      - health
+      - Health
   /health-basic:
     get:
       description: Returns a simple OK response for basic health monitoring
@@ -306,7 +347,7 @@ paths:
             type: string
       summary: Basic health check
       tags:
-      - health
+      - Health
   /query:
     post:
       consumes:
@@ -334,9 +375,11 @@ paths:
           description: Internal server error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Query training plans
       tags:
-      - query
+      - Training Plans
   /scrape:
     get:
       description: Scrape and import training plans from external websites
@@ -363,5 +406,44 @@ paths:
             type: string
       summary: Scrape training plans from web
       tags:
-      - scraping
+      - Web Scraping
+  /upsert-plan:
+    post:
+      consumes:
+      - application/json
+      description: Update an existing training plan if it belongs to the user, or
+        insert a new one
+      parameters:
+      - description: Request to upsert a training plan
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpsertPlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plan ID of the upserted training plan
+          schema:
+            $ref: '#/definitions/models.UpsertPlanResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update or insert a training plan into a user's history
+      tags:
+      - Training Plans
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the JWT.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

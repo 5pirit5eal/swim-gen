@@ -225,12 +225,15 @@ function getExperienceLabel(value: string) {
               </thead>
               <tbody>
                 <tr>
-                  <td>0</td>
-                  <td>0</td>
+                  <td>{{ profileStore.profile?.overall_generations ?? 0 }}</td>
+                  <td>{{ profileStore.profile?.exports ?? 0 }}</td>
                   <td>
-                    <p>10 / 100</p>
+                    <p>{{ profileStore.profile?.monthly_generations ?? 0 }} / 100</p>
                     <div class="progress-bar">
-                      <div class="progress" style="width: 10%"></div>
+                      <div
+                        class="progress"
+                        :style="{ width: `${profileStore.profile?.monthly_generations ?? 0}%` }"
+                      ></div>
                     </div>
                   </td>
                 </tr>
@@ -289,7 +292,7 @@ function getExperienceLabel(value: string) {
   gap: 2rem;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1186px) {
   .profile-content {
     flex-direction: column;
   }

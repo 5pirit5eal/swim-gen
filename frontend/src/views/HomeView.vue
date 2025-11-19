@@ -57,20 +57,11 @@ const { t } = useI18n()
 
 .hero-description {
   font-size: 1.25rem;
-  color: var(--color-text-light);
+  color: var(--color-heading);
+  font-weight: 500;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
-}
-
-.placeholder {
-  text-align: center;
-  color: var(--color-text-light);
-}
-
-.placeholder p {
-  margin: 0.5rem 0;
-  font-size: 1rem;
 }
 
 @media (max-width: 740px) {

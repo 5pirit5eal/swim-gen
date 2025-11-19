@@ -11,9 +11,12 @@ import {
   type PromptGenerationResponse,
   type QueryRequest,
   type RAGResponse,
+  type UpsertPlanRequest,
+  type UpsertPlanResponse,
   ApiEndpoints,
 } from '@/types'
 import i18n from '@/plugins/i18n'
+import { useAuthStore } from '@/stores/auth'
 
 export function formatError(error: { message?: string; details?: string }): string {
   return `${error.message}: ${error.details ?? i18n.global.t('errors.unknown_error')}`
@@ -29,15 +32,32 @@ class ApiClient {
     this.baseUrl = baseUrl
   }
 
-  /**
-   * Check API health status
-   */
-  async checkHealth(): Promise<ApiResult<HealthCheckResponse>> {
+  private async _getAuthToken(): Promise<string | null> {
+    const authStore = useAuthStore()
+    return authStore.session?.access_token ?? null
+  }
+
+  private async _fetch<T>(
+    endpoint: string,
+    options: RequestInit,
+    timeout: number,
+    authenticated = false,
+  ): Promise<ApiResult<T>> {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), this.DEFAULT_TIMEOUT_MS)
+      const timeoutId = setTimeout(() => controller.abort(), timeout)
 
-      const response = await fetch(`${this.baseUrl}/${ApiEndpoints.HEALTH}`, {
+      const headers = new Headers(options.headers)
+      if (authenticated) {
+        const token = await this._getAuthToken()
+        if (token) {
+          headers.set('Authorization', `Bearer ${token}`)
+        }
+      }
+
+      const response = await fetch(`${this.baseUrl}/${endpoint}`, {
+        ...options,
+        headers,
         signal: controller.signal,
       })
 
@@ -47,14 +67,18 @@ class ApiClient {
         return {
           success: false,
           error: {
-            message: i18n.global.t('errors.health_check_failed'),
+            message: i18n.global.t('errors.api_request_failed', { endpoint }),
             status: response.status,
             details: response.statusText,
           },
         }
       }
 
-      const data = await response.text()
+      const contentType = response.headers.get('content-type')
+      const data =
+        contentType && contentType.includes('application/json')
+          ? await response.json()
+          : await response.text()
       return {
         success: true,
         data,
@@ -65,10 +89,20 @@ class ApiClient {
         error: {
           message: error instanceof Error ? error.message : i18n.global.t('errors.unknown_error'),
           status: 0,
-          details: i18n.global.t('errors.connection_failed'),
+          details:
+            error instanceof Error && error.name === 'AbortError'
+              ? i18n.global.t('errors.timeout', { time: timeout / 1000 })
+              : i18n.global.t('errors.connection_failed'),
         },
       }
     }
+  }
+
+  /**
+   * Check API health status
+   */
+  async checkHealth(): Promise<ApiResult<HealthCheckResponse>> {
+    return this._fetch(ApiEndpoints.HEALTH, {}, this.DEFAULT_TIMEOUT_MS)
   }
 
   /**
@@ -77,138 +111,63 @@ class ApiClient {
   async generatePrompt(
     request: PromptGenerationRequest,
   ): Promise<ApiResult<PromptGenerationResponse>> {
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), this.PROMPT_TIMEOUT_MS)
-
-      const response = await fetch(`${this.baseUrl}/${ApiEndpoints.PROMPT}`, {
+    return this._fetch(
+      ApiEndpoints.PROMPT,
+      {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
-        signal: controller.signal,
-      })
-
-      clearTimeout(timeoutId)
-
-      if (!response.ok) {
-        return {
-          success: false,
-          error: {
-            message: i18n.global.t('errors.failed_to_generate_prompt'),
-            status: response.status,
-            details: response.statusText,
-          },
-        }
-      }
-
-      const data = await response.json()
-      return {
-        success: true,
-        data,
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          message: error instanceof Error ? error.message : i18n.global.t('errors.unknown_error'),
-          status: 0,
-          details:
-            error instanceof Error && error.name === 'AbortError'
-              ? i18n.global.t('errors.timeout', { time: this.PROMPT_TIMEOUT_MS / 1000 })
-              : i18n.global.t('errors.connection_failed'),
-        },
-      }
-    }
+      },
+      this.PROMPT_TIMEOUT_MS,
+    )
   }
 
   /**
    * Query for training plans (may take up to 60 seconds)
    */
   async query(request: QueryRequest): Promise<ApiResult<RAGResponse>> {
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), this.QUERY_TIMEOUT_MS)
-
-      const response = await fetch(`${this.baseUrl}/${ApiEndpoints.QUERY}`, {
+    return this._fetch(
+      ApiEndpoints.QUERY,
+      {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
-        signal: controller.signal,
-      })
-
-      clearTimeout(timeoutId)
-
-      if (!response.ok) {
-        return {
-          success: false,
-          error: {
-            message: i18n.global.t('errors.training_plan_failed'),
-            status: response.status,
-            details: response.statusText,
-          },
-        }
-      }
-
-      const data = await response.json()
-      return {
-        success: true,
-        data,
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          message: error instanceof Error ? error.message : i18n.global.t('errors.unknown_error'),
-          status: 0,
-          details:
-            error instanceof Error && error.name === 'AbortError'
-              ? i18n.global.t('errors.timeout', { time: this.QUERY_TIMEOUT_MS / 1000 })
-              : i18n.global.t('errors.connection_failed'),
-        },
-      }
-    }
+      },
+      this.QUERY_TIMEOUT_MS,
+      true,
+    )
   }
 
   /**
    * Export training plan as PDF
    */
   async exportPDF(request: PlanToPDFRequest): Promise<ApiResult<PlanToPDFResponse>> {
-    try {
-      const response = await fetch(`${this.baseUrl}/${ApiEndpoints.EXPORT_PDF}`, {
+    return this._fetch(
+      ApiEndpoints.EXPORT_PDF,
+      {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
-      })
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
 
-      if (!response.ok) {
-        return {
-          success: false,
-          error: {
-            message: i18n.global.t('errors.failed_to_export_plan'),
-            status: response.status,
-            details: response.statusText,
-          },
-        }
-      }
-
-      const data = await response.json()
-      return {
-        success: true,
-        data,
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          message: error instanceof Error ? error.message : 'Network error',
-          status: 0,
-          details:
-            error instanceof Error && error.name === 'AbortError'
-              ? i18n.global.t('errors.timeout', { time: this.DEFAULT_TIMEOUT_MS / 1000 })
-              : i18n.global.t('errors.connection_failed'),
-        },
-      }
-    }
+  /**
+   * Upsert (create or update) a training plan
+   */
+  async upsertPlan(plan: UpsertPlanRequest): Promise<ApiResult<UpsertPlanResponse>> {
+    return this._fetch(
+      ApiEndpoints.UPSERT_PLAN,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(plan),
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
   }
 }
 

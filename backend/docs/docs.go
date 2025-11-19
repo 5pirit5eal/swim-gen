@@ -21,6 +21,11 @@ const docTemplate = `{
     "paths": {
         "/add": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Upload and store a new user created swim training plan in the RAG system",
                 "consumes": [
                     "application/json"
@@ -29,7 +34,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plans"
+                    "Donation"
                 ],
                 "summary": "Donate a new training plan",
                 "parameters": [
@@ -67,6 +72,11 @@ const docTemplate = `{
         },
         "/export-pdf": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Generate and download a PDF version of a training plan",
                 "consumes": [
                     "application/json"
@@ -75,7 +85,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "export"
+                    "Training Plans"
                 ],
                 "summary": "Export training plan to PDF",
                 "parameters": [
@@ -121,7 +131,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "prompt"
+                    "Training Plans"
                 ],
                 "summary": "Generate a prompt for the LLM",
                 "parameters": [
@@ -164,20 +174,20 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "Health"
                 ],
                 "summary": "Comprehensive health check",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.HealthStatus"
+                            "$ref": "#/definitions/models.HealthStatus"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/server.HealthStatus"
+                            "$ref": "#/definitions/models.HealthStatus"
                         }
                     }
                 }
@@ -190,7 +200,7 @@ const docTemplate = `{
                     "text/plain"
                 ],
                 "tags": [
-                    "health"
+                    "Health"
                 ],
                 "summary": "Basic health check",
                 "responses": {
@@ -205,6 +215,11 @@ const docTemplate = `{
         },
         "/query": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Query the RAG system for relevant training plans based on input",
                 "consumes": [
                     "application/json"
@@ -213,7 +228,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "query"
+                    "Training Plans"
                 ],
                 "summary": "Query training plans",
                 "parameters": [
@@ -256,7 +271,7 @@ const docTemplate = `{
                     "text/plain"
                 ],
                 "tags": [
-                    "scraping"
+                    "Web Scraping"
                 ],
                 "summary": "Scrape training plans from web",
                 "parameters": [
@@ -289,6 +304,57 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/upsert-plan": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an existing training plan if it belongs to the user, or insert a new one",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training Plans"
+                ],
+                "summary": "Update or insert a training plan into a user's history",
+                "parameters": [
+                    {
+                        "description": "Request to upsert a training plan",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpsertPlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plan ID of the upserted training plan",
+                        "schema": {
+                            "$ref": "#/definitions/models.UpsertPlanResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -296,8 +362,7 @@ const docTemplate = `{
             "description": "Request payload for donating a swim training plan to the system",
             "type": "object",
             "required": [
-                "table",
-                "user_id"
+                "table"
             ],
             "properties": {
                 "description": {
@@ -323,14 +388,11 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Advanced Freestyle Training"
-                },
-                "user_id": {
-                    "type": "string",
-                    "example": "user123"
                 }
             }
         },
         "models.GeneratePromptRequest": {
+            "description": "Request payload for generating a prompt for swim training plan creation",
             "type": "object",
             "required": [
                 "language"
@@ -347,11 +409,33 @@ const docTemplate = `{
             }
         },
         "models.GeneratedPromptResponse": {
+            "description": "Response containing the generated prompt for swim training plan creation",
             "type": "object",
             "properties": {
                 "prompt": {
                     "type": "string",
                     "example": "Generate a swim training plan for improving freestyle technique"
+                }
+            }
+        },
+        "models.HealthStatus": {
+            "description": "Health status of the service and its components",
+            "type": "object",
+            "properties": {
+                "components": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "schema_version": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
                 }
             }
         },
@@ -397,6 +481,11 @@ const docTemplate = `{
                     "description": "LargeFont indicates if the PDF should use a larger font size",
                     "type": "boolean",
                     "example": true
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the training plan to be exported",
+                    "type": "string",
+                    "example": "plan_123"
                 },
                 "table": {
                     "description": "A structured training plan table containing exercise rows",
@@ -470,6 +559,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "A comprehensive training plan for improving freestyle technique"
                 },
+                "plan_id": {
+                    "description": "PlanID is the identifier of the training plan",
+                    "type": "string",
+                    "example": "plan_123"
+                },
                 "table": {
                     "description": "A structured training plan table containing exercise rows",
                     "type": "array",
@@ -517,25 +611,54 @@ const docTemplate = `{
                 }
             }
         },
-        "server.HealthStatus": {
+        "models.UpsertPlanRequest": {
+            "description": "Request payload for upserting a swim training plan to the system",
             "type": "object",
+            "required": [
+                "description",
+                "table",
+                "title"
+            ],
             "properties": {
-                "components": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
+                "description": {
+                    "type": "string",
+                    "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the training plan to be upserted",
+                    "type": "string",
+                    "example": "plan_123"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
                     }
                 },
-                "schema_version": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "timestamp": {
-                    "type": "string"
+                "title": {
+                    "type": "string",
+                    "example": "Advanced Freestyle Training"
                 }
             }
+        },
+        "models.UpsertPlanResponse": {
+            "description": "Response containing the upserted swim training plan",
+            "type": "object",
+            "properties": {
+                "plan_id": {
+                    "type": "string",
+                    "example": "plan_123"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and the JWT.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     },
     "externalDocs": {

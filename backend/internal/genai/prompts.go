@@ -10,6 +10,7 @@ indem du sie selektierst, kombinierst, mischst, oder umformulierst, um sie an di
 Ziehe dabei auch die konfigurierte Poollänge in Betracht: %s. Die Standard-Poollänge ist 25m.
 Achte darauf, dass die Gesamtdistanz des Trainingsplans zu der Anfrage des Schwimmers passt.
 Erhöhe die Anzahl der Wiederholungen, oder die Distanz der einzelnen Wiederholungen, um die Gesamtdistanz anzupassen.
+Der Titel des Trainingsplans sollte humorvoll, einprägsam und kurz sein. Wortspiele sind willkommen. Füge nicht die Angefragte Gesamtlänge in den Titel ein.
 Bei der Erstellung der kurzen Beschreibung gehe nur auf die Eigenschaften des Trainingsplans ein.
 Nutze eine freundliche und motivierende Sprache. Grüße nicht den Schwimmer.
 Für den Schwimmer ist nicht relevant, ob der Plan aus mehreren oder einem anderen Trainingsplan erstellt wurde.

@@ -431,8 +431,7 @@ async function handlePromptGeneration() {
 
 .form-textarea:focus {
   outline: none;
-  border-color: var(--color-border-hover);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 2px var(--color-shadow);
 }
 
 .form-textarea:disabled {
@@ -443,11 +442,11 @@ async function handlePromptGeneration() {
 .form-hint {
   margin-top: 0.5rem;
   font-size: 0.875rem;
-  color: var(--color-text-light);
+  color: var(--color-heading);
 }
 
 .text-warning {
-  color: #dc2626;
+  color: var(--color-error);
   font-weight: 600;
 }
 
@@ -487,7 +486,7 @@ async function handlePromptGeneration() {
 
 .error-message {
   background: #fef2f2;
-  color: #dc2626;
+  color: var(--color-error);
   padding: 0.75rem;
   border-radius: 0.25rem;
   border: 1px solid #fecaca;
@@ -542,7 +541,7 @@ async function handlePromptGeneration() {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  color: var(--color-text-light);
+  color: var(--color-text);
 }
 
 @media (max-width: 768px) {
@@ -628,7 +627,6 @@ async function handlePromptGeneration() {
 
 .clear-filters-btn:hover:not(:disabled) {
   background: var(--color-background);
-  color: var(--color-text-light);
 }
 
 .clear-filters-btn:disabled {

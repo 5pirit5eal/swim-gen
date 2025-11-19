@@ -35,6 +35,7 @@ export interface QueryRequest {
 
 // Backend API RAGResponse structure
 export interface RAGResponse {
+  plan_id?: string
   title: string
   description: string
   table: Row[]
@@ -42,6 +43,7 @@ export interface RAGResponse {
 
 // Backend API PlanToPDFRequest structure
 export interface PlanToPDFRequest {
+  plan_id?: string
   title: string
   description: string
   table: Row[]
@@ -60,7 +62,20 @@ export interface DonatePlanRequest {
   title: string
   description: string
   table: Row[]
-  user_id: string
+  language: string
+}
+
+// Backend API UpsertPlanRequest structure
+export interface UpsertPlanRequest {
+  plan_id?: string
+  title: string
+  description: string
+  table: Row[]
+}
+
+// Backend API UpsertPlanResponse structure
+export interface UpsertPlanResponse {
+  plan_id: string
 }
 
 // Backend filter structure (matching the Pydantic model)

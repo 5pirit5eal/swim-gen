@@ -63,9 +63,13 @@ function resetExportState() {
 }
 
 // Toggle editing and always clear any previously generated PDF URL
-function toggleEditing() {
+async function toggleEditing() {
   isEditing.value = !isEditing.value
   resetExportState()
+  if (!isEditing.value) {
+    // Upsert the current plan when done editing
+    await trainingStore.upsertCurrentPlan()
+  }
 }
 
 // Stop editing the current cell and save the changes
@@ -427,13 +431,13 @@ async function handleExport() {
 .training-plan-display {
   margin: 2rem auto;
   background: var(--color-background-soft);
-  border-radius: 0.5rem;
+  border-radius: 8px;
   border: 1px solid var(--color-border);
 }
 
 .plan-container {
   background: var(--color-background);
-  border-radius: 0.5rem;
+  border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -448,8 +452,10 @@ async function handleExport() {
   color: white;
   padding: 2rem;
   text-align: center;
-  border-top-right-radius: 0.5rem;
-  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
+  outline: 1px solid var(--color-primary);
+  border: 2px solid var(--color-primary);
 }
 
 .plan-title {
@@ -566,7 +572,7 @@ async function handleExport() {
 .editable-area {
   width: 100%;
   padding: 0.25rem;
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--color-shadow);
   border-radius: 0.25rem;
   background-color: var(--color-background);
   color: var(--color-text);
@@ -579,13 +585,18 @@ async function handleExport() {
 .editable-small {
   width: 70%;
   text-align: center;
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--color-shadow);
   border-radius: 0.25rem;
   background-color: var(--color-background);
   color: var(--color-text);
   font-family: inherit;
   font-size: inherit;
   box-sizing: border-box;
+}
+
+.editable-area:focus,
+.editable-small:focus {
+  outline: 2px solid var(--color-primary);
 }
 
 .anchor-cell {

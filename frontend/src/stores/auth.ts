@@ -4,52 +4,24 @@ import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/plugins/supabase'
 
 export const useAuthStore = defineStore('auth', () => {
+  // --- STATE ---
   const session = ref<Session | null>(null)
   const user = ref<User | null>(null)
-
-  supabase.auth.getSession().then(({ data }) => {
-    session.value = data.session
-  })
-
-  supabase.auth.getUser().then(({ data }) => {
-    user.value = data.user ?? null
-  })
 
   supabase.auth.onAuthStateChange((event, newSession) => {
     session.value = newSession
     user.value = newSession?.user ?? null
   })
 
-  async function getSession() {
-    if (session.value) return
-    const { data, error } = await supabase.auth.refreshSession()
-    if (error) {
-      console.error('Error fetching session:', error)
-      return
-    }
-    session.value = data.session ?? null
-  }
+  // --- COMPUTED ---
 
-  async function getUser() {
-    if (user.value) return
-    if (!session.value) await getSession()
-    const { data, error } = await supabase.auth.getUser()
-    if (error) {
-      console.error('Error fetching user:', error)
-      return
-    }
-    user.value = data.user ?? null
-  }
-
+  // --- ACTIONS ---
   async function signInWithPassword(email: string, password: string) {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
     if (error) throw error
-    console.log('Assigning session and user after signInWithPassword...')
-    getSession()
-    getUser()
     return data
   }
 
@@ -90,8 +62,6 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     session,
     user,
-    getSession,
-    getUser,
     signInWithPassword,
     signUp,
     signOut,

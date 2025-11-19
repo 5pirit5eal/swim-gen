@@ -3,7 +3,6 @@ package models
 // DonatePlanRequest represents the request body for donating a training plan
 // @Description Request payload for donating a swim training plan to the system
 type DonatePlanRequest struct {
-	UserID      string   `json:"user_id" example:"user123" binding:"required"`
 	Title       string   `json:"title,omitempty" example:"Advanced Freestyle Training"`
 	Description string   `json:"description,omitempty" example:"A comprehensive training plan for improving freestyle technique"`
 	Table       Table    `json:"table" binding:"required"`
@@ -26,21 +25,16 @@ type QueryRequest struct {
 // RAGResponse represents the response after a query to the RAG system
 // @Description Response containing a generated or selected swim training plan
 type RAGResponse struct {
+	PlanID      string `json:"plan_id,omitempty" example:"plan_123"` // PlanID is the identifier of the training plan
 	Title       string `json:"title" example:"Advanced Freestyle Training"`
 	Description string `json:"description" example:"A comprehensive training plan for improving freestyle technique"`
 	Table       Table  `json:"table"`
 }
 
-// ChooseResponse represents the response when a plan is chosen rather than generated
-// @Description Response when selecting an existing plan from the system
-type ChooseResponse struct {
-	Idx         int    `json:"index" example:"1"`
-	Description string `json:"description" example:"Selected plan based on your requirements"`
-}
-
 // PlanToPDFRequest represents the request for PDF export
 // @Description Request payload for exporting a training plan to PDF format
 type PlanToPDFRequest struct {
+	PlanID      string   `json:"plan_id,omitempty" example:"plan_123"` // PlanID identifies the training plan to be exported
 	Title       string   `json:"title" example:"Advanced Freestyle Training" binding:"required"`
 	Description string   `json:"description" example:"A comprehensive training plan for improving freestyle technique" binding:"required"`
 	Table       Table    `json:"table" binding:"required"`
@@ -55,10 +49,38 @@ type PlanToPDFResponse struct {
 	URI string `json:"uri" example:"https://storage.googleapis.com/bucket/plans/plan_123.pdf"`
 }
 
+// GeneratePromptRequest represents the request for prompt generation
+// @Description Request payload for generating a prompt for swim training plan creation
 type GeneratePromptRequest struct {
 	Language Language `json:"language" example:"en" binding:"required"`
 }
 
+// GeneratedPromptResponse represents the response containing the generated prompt
+// @Description Response containing the generated prompt for swim training plan creation
 type GeneratedPromptResponse struct {
 	Prompt string `json:"prompt" example:"Generate a swim training plan for improving freestyle technique"`
+}
+
+// HealthStatus represents the health status of the service and its components
+// @Description Health status of the service and its components
+type HealthStatus struct {
+	Status        string            `json:"status"`
+	Timestamp     string            `json:"timestamp"`
+	Components    map[string]string `json:"components"`
+	SchemaVersion int               `json:"schema_version,omitempty"`
+}
+
+// UpsertPlanRequest represents the request payload for upserting a training plan
+// @Description Request payload for upserting a swim training plan to the system
+type UpsertPlanRequest struct {
+	PlanID      string `json:"plan_id,omitempty" example:"plan_123"` // PlanID identifies the training plan to be upserted
+	Title       string `json:"title" example:"Advanced Freestyle Training" binding:"required"`
+	Description string `json:"description" example:"A comprehensive training plan for improving freestyle technique" binding:"required"`
+	Table       Table  `json:"table" binding:"required"`
+}
+
+// UpsertPlanResponse represents the response after upserting a training plan
+// @Description Response containing the upserted swim training plan
+type UpsertPlanResponse struct {
+	PlanID string `json:"plan_id" example:"plan_123"`
 }

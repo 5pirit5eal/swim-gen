@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/5pirit5eal/swim-gen/internal/rag"
 	"github.com/go-chi/httplog/v2"
 	"github.com/google/uuid"
+	"github.com/supabase-community/supabase-go"
 )
 
 type RAGService struct {
@@ -20,6 +22,8 @@ type RAGService struct {
 	ctx context.Context
 	// Database client used for storing and querying documents
 	db *rag.RAGDB
+	// Supabase client for authentication
+	auth *supabase.Client
 	// Configuration for the RAG server
 	cfg config.Config
 }
@@ -36,12 +40,20 @@ func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) 
 		return nil, err
 	}
 
-	slog.Info("Creating database connection successfully")
+	slog.Info("Created database connection successfully")
+
+	auth, err := supabase.NewClient(cfg.SB.ApiUrl, cfg.SB.AnonKey, nil)
+	if err != nil {
+		fmt.Println("Failed to initialize the client: ", err)
+	}
+
+	slog.Info("Initialized Supabase client successfully")
 
 	return &RAGService{
-		ctx: ctx,
-		cfg: cfg,
-		db:  db,
+		ctx:  ctx,
+		cfg:  cfg,
+		db:   db,
+		auth: auth,
 	}, nil
 }
 
@@ -61,13 +73,14 @@ func (rs *RAGService) Close() {
 // database, and responds with a success message.
 // @Summary Donate a new training plan
 // @Description Upload and store a new user created swim training plan in the RAG system
-// @Tags plans
+// @Tags Donation
 // @Accept json
 // @Produce json
 // @Param plan body models.DonatePlanRequest true "Training plan data"
 // @Success 200 {string} string "Plan added successfully"
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
 // @Router /add [post]
 func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
@@ -118,7 +131,7 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 
 	// Create a donated plan
 	plan := &models.DonatedPlan{
-		UserID:      dpr.UserID,
+		UserID:      req.Context().Value(models.UserIdCtxKey).(string),
 		PlanID:      uuid.NewString(),
 		CreatedAt:   time.Now().Format(time.DateTime),
 		Title:       desc.Title,
@@ -145,13 +158,14 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 // It parses the request, queries the RAG, generating or choosing a plan, and returns the result as JSON.
 // @Summary Query training plans
 // @Description Query the RAG system for relevant training plans based on input
-// @Tags query
+// @Tags Training Plans
 // @Accept json
 // @Produce json
 // @Param query body models.QueryRequest true "Query parameters"
 // @Success 200 {object} models.RAGResponse "Query results"
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
 // @Router /query [post]
 func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
@@ -174,6 +188,14 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	userId := req.Context().Value(models.UserIdCtxKey).(string)
+	if userId != "" && p.PlanID != "" {
+		logger.Info("Adding plan to user history", "user_id", userId, "plan_id", p.PlanID)
+		err = rs.db.AddPlanToHistory(req.Context(), p, userId)
+		if err != nil {
+			logger.Error("Failed to add plan to user history", httplog.ErrAttr(err))
+		}
+	}
 
 	// Recalculate the sums of the rows to be sure they are correct
 	p.Table.UpdateSum()
@@ -181,6 +203,7 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Convert to response payload
 	answer := &models.RAGResponse{
+		PlanID:      p.PlanID,
 		Title:       p.Title,
 		Description: p.Description,
 		Table:       p.Table,
@@ -195,13 +218,14 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 // PlanToPDFHandler handles the Plan to PDF export request.
 // @Summary Export training plan to PDF
 // @Description Generate and download a PDF version of a training plan
-// @Tags export
+// @Tags Training Plans
 // @Accept json
 // @Produce json
 // @Param plan body models.PlanToPDFRequest true "Training plan data to export"
 // @Success 200 {object} models.PlanToPDFResponse "PDF export response with URI"
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
 // @Router /export-pdf [post]
 func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
@@ -213,6 +237,14 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	// Increment the export count for the user profile if UserID is provided
+	if qr.PlanID != "" {
+		err = rs.db.IncrementExportCount(req.Context(), req.Context().Value(models.UserIdCtxKey).(string), qr.PlanID)
+		if err != nil {
+			logger.Error("Failed to increment export count", httplog.ErrAttr(err))
+		}
 	}
 
 	// Convert the table to PDF
@@ -252,7 +284,7 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 // It uses the GoogleGenAIClient to generate a prompt based on the provided language.
 // @Summary Generate a prompt for the LLM
 // @Description Generate a prompt for the LLM based on the provided language
-// @Tags prompt
+// @Tags Training Plans
 // @Accept json
 // @Produce json
 // @Param request body models.GeneratePromptRequest true "Request to generate a prompt"
@@ -283,6 +315,57 @@ func (rs *RAGService) GeneratePromptHandler(w http.ResponseWriter, req *http.Req
 	response := &models.GeneratedPromptResponse{Prompt: prompt}
 	logger.Info("Prompt generated successfully")
 	if err := models.WriteResponseJSON(w, http.StatusOK, response); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+// UpsertPlan upserts a plan into the users history.
+// If the plan exists and belongs to the user, it updates the plan.
+// Otherwise it inserts a new plan for the user.
+// @Summary Update or insert a training plan into a user's history
+// @Description Update an existing training plan if it belongs to the user, or insert a new one
+// @Tags Training Plans
+// @Accept json
+// @Produce json
+// @Param request body models.UpsertPlanRequest true "Request to upsert a training plan"
+// @Success 200 {object} models.UpsertPlanResponse "Plan ID of the upserted training plan"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /upsert-plan [post]
+func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Upserting plan into the database...")
+	upr := &models.UpsertPlanRequest{}
+
+	err := models.GetRequestJSON(req, upr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userId := req.Context().Value(models.UserIdCtxKey).(string)
+	if userId == "" {
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+	logger.Debug("Upserting plan into db")
+	resp, err := rs.db.UpsertPlan(req.Context(), models.Plan{
+		PlanID:      upr.PlanID,
+		Title:       upr.Title,
+		Description: upr.Description,
+		Table:       upr.Table,
+	}, userId)
+	if err != nil {
+		logger.Error("Failed to upsert plan in the database", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the plan ID
+	answer := &models.UpsertPlanResponse{PlanID: resp}
+	logger.Info("Plan upserted successfully", "plan_id", resp)
+	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }

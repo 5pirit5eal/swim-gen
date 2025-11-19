@@ -251,7 +251,8 @@
     "failed_to_generate_plan": "Failed to generate plan",
     "failed_to_export_plan": "Failed to export training plan to PDF.",
     "timeout": "Request timed out after {time} seconds. Please try again.",
-    "connection_failed": "Failed to connect to the server. Please check your internet connection and try again."
+    "connection_failed": "Failed to connect to the server. Please check your internet connection and try again.",
+    "api_request_failed": "API request failed for {endpoint}"
   },
   "login": {
     "login": "Login",
@@ -312,5 +313,18 @@
     "backstroke": "Backstroke",
     "butterfly": "Butterfly",
     "individual_medley": "Individual Medley"
+  },
+  "sidebar": {
+    "history": "Your Plans",
+    "generated": "Generated Plans",
+    "generated_placeholder": "No generated plans yet.",
+    "donated": "Uploaded Plans",
+    "donated_placeholder": "No plans uploaded yet.",
+    "shared": "Shared Plans",
+    "shared_placeholder": "No plans shared with you yet."
+  },
+  "labels": {
+    "created_at": "Created at",
+    "updated_at": "Updated at"
   }
 }

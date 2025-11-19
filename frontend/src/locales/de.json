@@ -254,7 +254,8 @@
     "failed_to_generate_plan": "Plan konnte nicht generiert werden",
     "failed_to_export_plan": "Trainingsplan konnte nicht als PDF exportiert werden.",
     "timeout": "Die Anfrage wurde nach {time} Sekunden abgebrochen. Bitte versuche es erneut.",
-    "connection_failed": "Verbindung zum Server fehlgeschlagen. Bitte überprüfe deine Internetverbindung und versuche es erneut."
+    "connection_failed": "Verbindung zum Server fehlgeschlagen. Bitte überprüfe deine Internetverbindung und versuche es erneut.",
+    "api_request_failed": "API-Anfrage für {endpoint} fehlgeschlagen"
   },
   "login": {
     "login": "Anmelden",
@@ -315,5 +316,18 @@
     "backstroke": "Rückenschwimmen",
     "butterfly": "Schmetterling",
     "individual_medley": "Lagen"
+  },
+  "sidebar": {
+    "history": "Deine Pläne",
+    "generated": "Generierte Pläne",
+    "generated_placeholder": "Noch keine Pläne generiert.",
+    "donated": "Hochgeladene Pläne",
+    "donated_placeholder": "Noch keine Pläne hochgeladen.",
+    "shared": "Geteilte Pläne",
+    "shared_placeholder": "Noch keine Pläne mit dir geteilt."
+  },
+  "labels": {
+    "created_at": "Erstellt am",
+    "updated_at": "Aktualisiert am"
   }
 }
