@@ -1,3 +1,10 @@
+## [2.1.0](https://github.com/5pirit5eal/swim-gen/compare/v2.0.0...v2.1.0) (2025-11-19)
+
+### Features
+
+* removed mcp support and did some cleanup ([ca4137d](https://github.com/5pirit5eal/swim-gen/commit/ca4137d7f59beb59c94ca0c8d86523c45615487a))
+* removed mcp support and did some cleanup ([#118](https://github.com/5pirit5eal/swim-gen/issues/118)) ([d45fec5](https://github.com/5pirit5eal/swim-gen/commit/d45fec5e1cb49167d1c04ec0b680993c1503f370))
+
 ## [2.0.0](https://github.com/5pirit5eal/swim-gen/compare/v1.14.0...v2.0.0) (2025-11-19)
 
 ### ⚠ BREAKING CHANGES
