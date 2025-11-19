@@ -2,6 +2,8 @@
 
 This directory contains the infrastructure-as-code (IaC) definitions for deploying the Swim RAG application to Google Cloud Platform (GCP).
 
+If you want to know how to run the application, checkout [frontend/README.md](../frontend/README.md)
+
 ## Tooling
 
 The infrastructure is managed using **OpenTofu**. All configurations are written in the Terraform language.
@@ -16,7 +18,7 @@ There are two environments defined:
 Each environment has two main stages:
 
 - `0-infra`: Core infrastructure components like networking, IAM, and secrets.
-- `1-services`: The application services (frontend, backend, BFF, MCP server).
+- `1-services`: The application services (frontend, backend, BFF).
 
 ## Frontend build environment variables
 
@@ -46,11 +48,14 @@ export VITE_IMPRESSUM_EMAIL="hello@example.com"
 
 # then build the frontend docker image from the repo root
 cd frontend
-docker build --build-arg VITE_IMPRESSUM_NAME="$VITE_IMPRESSUM_NAME" \
-  --build-arg VITE_IMPRESSUM_ADDRESS="$VITE_IMPRESSUM_ADDRESS" \
-  --build-arg VITE_IMPRESSUM_CITY="$VITE_IMPRESSUM_CITY" \
-  --build-arg VITE_IMPRESSUM_PHONE="$VITE_IMPRESSUM_PHONE" \
-  --build-arg VITE_IMPRESSUM_EMAIL="$VITE_IMPRESSUM_EMAIL" \
+docker build --build-arg VITE_IMPRESSUM_NAME=$VITE_IMPRESSUM_NAME \
+  --build-arg VITE_IMPRESSUM_ADDRESS=$VITE_IMPRESSUM_ADDRESS \
+  --build-arg VITE_IMPRESSUM_CITY=$VITE_IMPRESSUM_CITY \
+  --build-arg VITE_IMPRESSUM_PHONE=$VITE_IMPRESSUM_PHONE \
+  --build-arg VITE_IMPRESSUM_EMAIL=$VITE_IMPRESSUM_EMAIL \
+  --build-arg VITE_SITE_URL=$VITE_SITE_URL \
+  --build-arg VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
+  --build-arg VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
   .
 ```
 
@@ -145,6 +150,4 @@ tofu apply
 
 ## Database Deployment
 
-The projects relies on a postgres database for storing and retrieving training plans and user data. The database instance is provided in the `0-infra` stage. The database users, roles and grants (permissions) are setup as part of the `1-services` stage. This is necessary, as the infrastructure is a prerequisite to the database access.  The following diagram shows the permission structure:
-
-<img src="./db-diagram.png">
+The projects relies on a postgres database for storing and retrieving training plans and user data. The database instance is provided in the `0-infra` stage.

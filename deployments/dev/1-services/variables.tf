@@ -72,7 +72,3 @@ variable "frontend_image_tag" {
   type    = string
   default = "latest"
 }
-variable "mcp_server_image_tag" {
-  type    = string
-  default = "latest"
-}

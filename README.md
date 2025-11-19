@@ -11,27 +11,12 @@ The web application is hosted in Google Cloud. The following components are invo
 3. Backend-for-Frontend (BFF) hosted in Cloud Run implemented in **Node.js**
 4. Backend hosted in Cloud Run implemented in **Go** and **Langchaingo**
 5. PostgreSQL database (managed) with **pgvector**
-6. An **MCP Server** implemented in **Python** to expose backend functionality to other clients.
 
 ```plaintext
 +----------------+      HTTPS     +----------------+      HTTPS     +-----------------+      HTTPS     +-----------------+      +------------+
 | User's Browser | -------------> | Frontend       | -------------> | BFF (Node.js)   | -------------> | Backend (Go)    | <--> | PostgreSQL |
 | (Vue.js)       |                | (Cloud Run)    |                | (Cloud Run)     |                | (Cloud Run)     |      | (pgvector) |
 +----------------+                +----------------+                +-----------------+                +-----------------+      +------------+
-                                                                                                               ^
-                                                                                                               | HTTP
-                                                                                                               |
-                                                                                                       +-----------------+
-                                                                                                       | MCP Server (Py) |
-                                                                                                       | (Cloud Run)     |
-                                                                                                       +-----------------+
-                                                                                                                ^
-                                                                                                                | MCP
-                                                                                                                |
-                                                                                                        +----------------+
-                                                                                                        | MCP Client     |
-                                                                                                        | (e.g. Chatbot) |
-                                                                                                        +----------------+
 ```
 
 ## Roadmap
@@ -104,8 +89,3 @@ The next version takes lessons learned in v1 into consideration and adds user au
   - Number of plans exported
   - Number of plans donated
   - Comparative statistics with other user behaviour
-
-## Side-Quest
-
-- **MCP-Server**:
-  - Connecting other chat interfaces to the functionality of the Go Backend
