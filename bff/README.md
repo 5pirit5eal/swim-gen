@@ -7,8 +7,28 @@ This service acts as a Backend-for-Frontend for the Swim Gen Frontend applicatio
 The primary responsibilities of this service are:
 
 1. **Proxying Requests**: It forwards API requests from the frontend to the appropriate backend service.
-2. **Authentication**: It securely handles service-to-service authentication. It injects a Google Cloud identity token into requests sent to the Go backend, ensuring that the backend is only accessible by this BFF service and not directly from the public internet.
-3. **Simplifying the Frontend**: It abstracts away the details of backend service discovery and authentication from the client-side application.
+2. **Dual Authentication Handling**:
+   - **User Authentication**: Passes through the user's Supabase access token from the frontend's `Authorization` header to the backend for user identification and authorization.
+   - **Service-to-Service Authentication**: Adds a Google Cloud Identity token (via `X-Serverless-Authorization` header) for Cloud Run service-to-service authentication, ensuring the backend is only accessible by this BFF service and not directly from the public internet.
+3. **Rate Limiting**: Protects the backend by applying rate limiting to API requests.
+4. **CORS Management**: Handles Cross-Origin Resource Sharing (CORS) configuration to allow only authorized frontend origins.
+5. **Simplifying the Frontend**: Abstracts away the details of backend service discovery and authentication from the client-side application.
+
+## Authentication Flow
+
+### User Authentication (Supabase)
+
+- Frontend sends user's Supabase access token in the `Authorization: Bearer <token>` header
+- BFF passes this header through to the backend unchanged
+- Backend verifies the Supabase token and extracts user identity
+- Anonymous requests (no Authorization header) are also supported
+
+### Service-to-Service Authentication (Google Cloud Run)
+
+- When deployed to Cloud Run, the BFF adds a Google Identity token to the `X-Serverless-Authorization` header
+- This token is obtained using the `google-auth-library` package
+- Cloud Run verifies this token to authenticate the BFF service
+- In development mode (`NODE_ENV=development`), this token is skipped for local testing
 
 ## Tech Stack
 

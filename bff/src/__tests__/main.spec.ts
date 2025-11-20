@@ -27,9 +27,10 @@ describe("BFF Server", () => {
   describe("API Proxy", () => {
     it("should proxy POST requests to the backend with auth headers", async () => {
       process.env.NODE_ENV = "test";
-      // Mock getAuthHeaders to provide Authorization header
+      // Mock getAuthHeaders to provide both user auth and Google Identity token
       vi.spyOn(authModule, "getAuthHeaders").mockResolvedValue({
-        Authorization: "Bearer mocked-token",
+        Authorization: "Bearer user-supabase-token",
+        "X-Serverless-Authorization": "Bearer google-identity-token",
       });
 
       // Mock Axios
@@ -39,17 +40,22 @@ describe("BFF Server", () => {
       });
 
       const requestBody = { query: "test" };
-      const response = await request(app).post("/api/query").send(requestBody);
+      const response = await request(app)
+        .post("/api/query")
+        .set("Authorization", "Bearer user-supabase-token")
+        .send(requestBody);
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ success: true, message: "Backend response" });
 
+      expect(authModule.getAuthHeaders).toHaveBeenCalledWith("Bearer user-supabase-token");
       expect(axios).toHaveBeenCalledWith({
         method: "POST",
         url: `${process.env.BACKEND_URL}/query`,
         data: requestBody,
         headers: {
-          Authorization: "Bearer mocked-token",
+          Authorization: "Bearer user-supabase-token",
+          "X-Serverless-Authorization": "Bearer google-identity-token",
           "Content-Type": "application/json",
         },
       });
@@ -69,6 +75,7 @@ describe("BFF Server", () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ ok: true });
 
+      expect(authModule.getAuthHeaders).toHaveBeenCalledWith(undefined);
       expect(axios).toHaveBeenCalledWith({
         method: "POST",
         url: `${process.env.BACKEND_URL}/ping`,
@@ -82,7 +89,8 @@ describe("BFF Server", () => {
     it("should handle errors from the backend", async () => {
       process.env.NODE_ENV = "test";
       vi.spyOn(authModule, "getAuthHeaders").mockResolvedValue({
-        Authorization: "Bearer mocked-token",
+        Authorization: "Bearer user-token",
+        "X-Serverless-Authorization": "Bearer google-token",
       });
 
       vi.mocked(axios).mockRejectedValue({
@@ -92,10 +100,40 @@ describe("BFF Server", () => {
         },
       });
 
-      const response = await request(app).post("/api/some-endpoint").send({});
+      const response = await request(app)
+        .post("/api/some-endpoint")
+        .set("Authorization", "Bearer user-token")
+        .send({});
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({ message: "Internal Server Error" });
+    });
+
+    it("should handle anonymous requests without user Authorization header", async () => {
+      process.env.NODE_ENV = "test";
+      // Mock getAuthHeaders to return only Google Identity token for anonymous requests
+      vi.spyOn(authModule, "getAuthHeaders").mockResolvedValue({
+        "X-Serverless-Authorization": "Bearer google-identity-token",
+      });
+
+      vi.mocked(axios).mockResolvedValue({
+        status: 200,
+        data: { success: true },
+      });
+
+      const response = await request(app).post("/api/public-endpoint").send({ data: "test" });
+
+      expect(response.status).toBe(200);
+      expect(authModule.getAuthHeaders).toHaveBeenCalledWith(undefined);
+      expect(axios).toHaveBeenCalledWith({
+        method: "POST",
+        url: `${process.env.BACKEND_URL}/public-endpoint`,
+        data: { data: "test" },
+        headers: {
+          "X-Serverless-Authorization": "Bearer google-identity-token",
+          "Content-Type": "application/json",
+        },
+      });
     });
   });
 

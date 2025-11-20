@@ -1,28 +1,50 @@
 import { GoogleAuth } from "google-auth-library";
 
-// Google Auth setup
+// Initialize Google Auth client once at module level for better performance
 const auth = new GoogleAuth();
 
-export async function getAuthHeaders(): Promise<Record<string, string>> {
+/**
+ * Build headers for backend request with dual authentication:
+ * 1. Pass through user's Authorization header from frontend (Supabase token)
+ * 2. Add Google Identity token for Cloud Run service-to-service authentication
+ *
+ * @param userAuthHeader - The Authorization header from the frontend request (optional)
+ * @returns Headers object with both user auth and service-to-service auth
+ */
+export async function getAuthHeaders(
+  userAuthHeader?: string
+): Promise<Record<string, string>> {
   const backendUrl = process.env.BACKEND_URL;
-  // For local development against a local backend, we might not have a token.
-  // The NODE_ENV check allows skipping auth.
-  if (!backendUrl || process.env.NODE_ENV === "development") {
-    console.log("Skipping auth for local development.");
-    return {} as Record<string, string>;
+  const headers: Record<string, string> = {};
+
+  // Pass through user's Authorization header if present
+  if (userAuthHeader) {
+    headers["Authorization"] = userAuthHeader;
   }
 
-  console.log(`Fetching token for backend: ${backendUrl}`);
+  // For local development, skip Google Identity token
+  if (!backendUrl || process.env.NODE_ENV === "development") {
+    console.log("Skipping Google Identity auth for local development.");
+    return headers;
+  }
+
+  // Add Google Identity token for Cloud Run service-to-service authentication
+  // The backend (if running on Cloud Run) will verify this token
+  console.log(`Fetching Google Identity token for backend: ${backendUrl}`);
   try {
     const client = await auth.getIdTokenClient(backendUrl);
-    const headers = await client.getRequestHeaders();
-    const authorizationHeader = headers.get("Authorization");
-    if (!authorizationHeader) {
+    const googleHeaders = await client.getRequestHeaders();
+    const googleAuthHeader = googleHeaders.get("Authorization");
+    if (!googleAuthHeader) {
       throw new Error("Authorization header not found in response from Google Auth.");
     }
-    return { Authorization: authorizationHeader } as Record<string, string>;
+    // Add Google Identity token as X-Serverless-Authorization
+    // This keeps it separate from the user's Supabase token
+    headers["X-Serverless-Authorization"] = googleAuthHeader;
   } catch (error) {
-    console.error("Failed to get auth token:", error);
+    console.error("Failed to get Google Identity token:", error);
     throw new Error("Failed to authenticate with backend service.");
   }
+
+  return headers;
 }
