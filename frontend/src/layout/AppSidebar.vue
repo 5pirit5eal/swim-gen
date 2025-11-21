@@ -2,18 +2,15 @@
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useSharedPlanStore } from '@/stores/sharedPlan'
-import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
-import type { RAGResponse } from '@/types'
+import type { RAGResponse, SharedHistoryItem } from '@/types'
 import { useRouter } from 'vue-router'
-import { watch } from 'vue'
 import IconHourglass from '@/components/icons/IconHourglass.vue'
 import IconHeart from '@/components/icons/IconHeart.vue'
 import IconCross from '@/components/icons/IconCross.vue'
 
 const trainingPlanStore = useTrainingPlanStore()
 const sharedPlanStore = useSharedPlanStore()
-const authStore = useAuthStore()
 const sidebarStore = useSidebarStore()
 const { t } = useI18n()
 const router = useRouter()
@@ -23,16 +20,11 @@ function loadPlan(plan: RAGResponse) {
   sidebarStore.close()
   router.push('/')
 }
-
-watch(
-  () => authStore.user,
-  async (user) => {
-    if (user) {
-      await sharedPlanStore.fetchSharedHistory()
-    }
-  },
-  { immediate: true }
-)
+async function loadSharedPlan(plan: SharedHistoryItem) {
+  await sharedPlanStore.loadPlanFromHistory(plan)
+  sidebarStore.close()
+  router.push('/shared/')
+}
 </script>
 
 <template>
@@ -75,7 +67,7 @@ watch(
         <ul v-else class="plan-list">
           <li v-for="item in sharedPlanStore.sharedHistory" :key="item.created_at">
             <div class="plan-item-main">
-              <div class="plan-title" @click="item.plan && loadPlan(item.plan)">
+              <div class="plan-title" @click="item.plan && loadSharedPlan(item)">
                 <span>{{ item.plan?.title || 'Unknown Plan' }}</span>
               </div>
             </div>

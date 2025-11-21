@@ -25,6 +25,11 @@ const router = createRouter({
       name: 'shared',
       component: () => import('@/views/SharedView.vue'),
     },
+    {
+      path: '/shared',
+      name: 'shared_empty',
+      component: () => import('@/views/SharedView.vue'),
+    },
   ],
 })
 
