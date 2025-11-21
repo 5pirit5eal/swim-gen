@@ -71,11 +71,7 @@ func (db *RAGDB) UpsertPlan(ctx context.Context, plan models.Plan, userID string
 		logger.Error("Error starting transaction", httplog.ErrAttr(err))
 		return "", fmt.Errorf("failed to start transaction: %w", err)
 	}
-	defer func() {
-		if err := tx.Rollback(ctx); err != nil {
-			logger.Error("Error rolling back transaction", httplog.ErrAttr(err))
-		}
-	}()
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	// Add the plan to the plans table
 	logger.Debug("Upserting plan into plans table")
@@ -133,11 +129,7 @@ func (db *RAGDB) AddPlanToHistory(ctx context.Context, plan *models.Plan, userID
 		logger.Error("Error starting transaction", httplog.ErrAttr(err))
 		return fmt.Errorf("error starting transaction: %w", err)
 	}
-	defer func() {
-		if err := ts.Rollback(ctx); err != nil {
-			logger.Error("Error rolling back transaction", httplog.ErrAttr(err))
-		}
-	}()
+	defer func() { _ = ts.Rollback(ctx) }()
 
 	// Insert the plan into the plans table
 	if _, err := ts.Exec(ctx, fmt.Sprintf(`
@@ -163,4 +155,39 @@ func (db *RAGDB) AddPlanToHistory(ctx context.Context, plan *models.Plan, userID
 
 	logger.Info("Plan added to user history successfully", "user_id", userID, "plan_id", plan.PlanID)
 	return nil
+}
+
+func (db *RAGDB) SharePlan(ctx context.Context, planID, userID string, method models.SharingMethod) (string, error) {
+	logger := httplog.LogEntry(ctx)
+
+	// Calculate a short uuid for the shared plan based on planID and userID
+	urlHash := uuid.NewSHA1(uuid.NameSpaceURL, []byte(planID+userID)).String()
+
+	switch method {
+	case models.SharingMethodLink:
+		// Insert the shared plan into the shared_plans table
+		row := db.Conn.QueryRow(ctx,
+			fmt.Sprintf(`
+                INSERT INTO %s (user_id, plan_id, url_hash)
+                VALUES ($1, $2, $3)
+                ON CONFLICT (plan_id) DO UPDATE
+                SET url_hash = %s.url_hash
+                RETURNING url_hash
+            `, "shared_plans", "shared_plans"),
+			userID, planID, urlHash,
+		)
+		err := row.Scan(&urlHash)
+		if err != nil {
+			logger.Error("Error sharing plan", httplog.ErrAttr(err))
+			return "", fmt.Errorf("failed to share plan: %w", err)
+		}
+
+		logger.Info("Plan shared successfully", "plan_id", planID, "user_id", userID, "url_hash", urlHash)
+		return urlHash, nil
+	case models.SharingMethodEmail:
+		// proceed
+		return "", fmt.Errorf("email sharing not implemented yet")
+	default:
+		return "", fmt.Errorf("unsupported sharing method: %s", method)
+	}
 }

@@ -20,6 +20,11 @@ const router = createRouter({
       component: () => import('@/views/ProfileView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/shared/:urlHash',
+      name: 'shared',
+      component: () => import('@/views/SharedView.vue'),
+    },
   ],
 })
 

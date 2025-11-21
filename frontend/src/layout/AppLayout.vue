@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppHeader from './AppHeader.vue' // Necessary for v2
+import AppHeader from './AppHeader.vue'
 import AppFooter from './AppFooter.vue'
 import Sidebar from './AppSidebar.vue'
 import { useSidebarStore } from '@/stores/sidebar'

@@ -172,7 +172,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -232,11 +232,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     table.splice(newIndex, 0, movedRow)
   }
 
-  function clearPlan() {
-    currentPlan.value = null
-    error.value = null
-  }
-
   function clearError() {
     error.value = null
   }
@@ -258,7 +253,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     addRow,
     removeRow,
     moveRow,
-    clearPlan,
     clearError,
     fetchHistory,
     upsertCurrentPlan,

@@ -13,6 +13,8 @@ import {
   type RAGResponse,
   type UpsertPlanRequest,
   type UpsertPlanResponse,
+  type ShareUrlRequest,
+  type ShareUrlResponse,
   ApiEndpoints,
 } from '@/types'
 import i18n from '@/plugins/i18n'
@@ -164,6 +166,22 @@ class ApiClient {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(plan),
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Create a shareable URL for a training plan
+   */
+  async createShareUrl(request: ShareUrlRequest): Promise<ApiResult<ShareUrlResponse>> {
+    return this._fetch(
+      ApiEndpoints.SHARE,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
       },
       this.DEFAULT_TIMEOUT_MS,
       true,

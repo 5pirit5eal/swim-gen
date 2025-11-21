@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import BaseModal from '@/components/ui/BaseModal.vue'
-import PrivacyPolicy from '../legal/PrivacyPolicy.vue'
-import TermsOfService from '../legal/TermsOfService.vue'
-import LegalImpressum from '../legal/LegalImpressum.vue'
+import PrivacyPolicy from '@/components/legal/PrivacyPolicy.vue'
+import TermsOfService from '@/components/legal/TermsOfService.vue'
+import LegalImpressum from '@/components/legal/LegalImpressum.vue'
 import IconHeart from '@/components/icons/IconHeart.vue'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -32,17 +32,17 @@ const { t } = useI18n()
             <li>
               <a href="#privacy" id="privacy-policy" @click="showPrivacyPolicyModal = true">{{
                 t('footer.privacy_policy')
-              }}</a>
+                }}</a>
             </li>
             <li>
               <a href="#terms" id="tos" @click="showTermsOfServiceModal = true">{{
                 t('footer.terms_of_service')
-              }}</a>
+                }}</a>
             </li>
             <li>
               <a href="#impressum" id="impress" @click.prevent="showImpressumModal = true">{{
                 t('footer.impressum')
-              }}</a>
+                }}</a>
             </li>
           </ul>
         </div>
@@ -53,12 +53,12 @@ const { t } = useI18n()
             <li>
               <a href="https://github.com/5pirit5eal/swim-gen" target="_blank" rel="noopener">{{
                 t('footer.github')
-              }}</a>
+                }}</a>
             </li>
             <li>
               <a href="https://github.com/5pirit5eal/swim-gen" target="_blank" rel="noopener">{{
                 t('footer.roadmap')
-              }}</a>
+                }}</a>
             </li>
             <li>
               <a href="https://buymeacoffee.com/spiritseal" target="_blank" rel="noopener">

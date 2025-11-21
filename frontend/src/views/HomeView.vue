@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import TrainingPlanForm from '@/components/forms/TrainingPlanForm.vue'
 import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
+import { useTrainingPlanStore } from '@/stores/trainingPlan'
+import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
-// Header component for the swim training plan generator
-// Currently minimal for V1 (single page), expandable for V2
 
+const trainingStore = useTrainingPlanStore()
+const authStore = useAuthStore()
 const { t } = useI18n()
 </script>
 
@@ -21,7 +23,7 @@ const { t } = useI18n()
       <!-- Main content -->
       <section>
         <TrainingPlanForm />
-        <TrainingPlanDisplay />
+        <TrainingPlanDisplay :store="trainingStore" :show-share-button="!!authStore.user" />
       </section>
     </div>
   </div>

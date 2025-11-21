@@ -16,6 +16,7 @@ export type {
   Filter,
   UpsertPlanRequest,
   UpsertPlanResponse,
+  PlanStore,
 } from './training'
 
 // Export filter option constants
@@ -53,3 +54,12 @@ export type { Profile } from './profile'
 
 // Export miscellaneous types
 export type { HistoryMetadata } from './misc'
+
+// Export all shared-plan-related types
+export type {
+  SharedPlan,
+  SharedHistoryItem,
+  ShareUrlRequest,
+  ShareUrlResponse,
+  SharedPlanData,
+} from './shared'

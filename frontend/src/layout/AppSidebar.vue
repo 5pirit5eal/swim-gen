@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useSidebarStore } from '@/stores/sidebar'
+import { useSharedPlanStore } from '@/stores/sharedPlan'
+import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
 import type { RAGResponse } from '@/types'
 import { useRouter } from 'vue-router'
+import { watch } from 'vue'
 import IconHourglass from '@/components/icons/IconHourglass.vue'
 import IconHeart from '@/components/icons/IconHeart.vue'
 import IconCross from '@/components/icons/IconCross.vue'
 
 const trainingPlanStore = useTrainingPlanStore()
+const sharedPlanStore = useSharedPlanStore()
+const authStore = useAuthStore()
 const sidebarStore = useSidebarStore()
 const { t } = useI18n()
 const router = useRouter()
@@ -18,6 +23,16 @@ function loadPlan(plan: RAGResponse) {
   sidebarStore.close()
   router.push('/')
 }
+
+watch(
+  () => authStore.user,
+  async (user) => {
+    if (user) {
+      await sharedPlanStore.fetchSharedHistory()
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -37,10 +52,7 @@ function loadPlan(plan: RAGResponse) {
         <ul v-else class="plan-list">
           <li v-for="plan in trainingPlanStore.planHistory" :key="plan.plan_id">
             <div class="plan-item-main">
-              <div
-                class="status-icon-container"
-                @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)"
-              >
+              <div class="status-icon-container" @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)">
                 <IconHeart v-if="plan.keep_forever" class="status-icon" />
                 <IconHourglass v-else class="status-icon" />
               </div>
@@ -57,7 +69,18 @@ function loadPlan(plan: RAGResponse) {
       </section>
       <section>
         <h3>{{ t('sidebar.shared') }}</h3>
-        <p>{{ t('sidebar.shared_placeholder') }}</p>
+        <p v-if="sharedPlanStore.sharedHistory.length === 0">
+          {{ t('sidebar.shared_placeholder') }}
+        </p>
+        <ul v-else class="plan-list">
+          <li v-for="item in sharedPlanStore.sharedHistory" :key="item.created_at">
+            <div class="plan-item-main">
+              <div class="plan-title" @click="item.plan && loadPlan(item.plan)">
+                <span>{{ item.plan?.title || 'Unknown Plan' }}</span>
+              </div>
+            </div>
+          </li>
+        </ul>
       </section>
     </div>
   </aside>

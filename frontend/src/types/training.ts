@@ -41,6 +41,18 @@ export interface RAGResponse {
   table: Row[]
 }
 
+// Generic PlanStore interface for TrainingPlanDisplay component
+export interface PlanStore {
+  currentPlan: RAGResponse | null
+  hasPlan: boolean
+  isLoading: boolean
+  upsertCurrentPlan: () => Promise<void>
+  updatePlanRow: (rowIndex: number, field: keyof Row, value: string | number) => void
+  addRow: (rowIndex: number) => void
+  removeRow: (rowIndex: number) => void
+  moveRow: (rowIndex: number, direction: 'up' | 'down') => void
+}
+
 // Backend API PlanToPDFRequest structure
 export interface PlanToPDFRequest {
   plan_id?: string
@@ -86,20 +98,20 @@ export interface Filter {
   delfin?: boolean // Butterfly swimming technique
   lagen?: boolean // Individual medley swimming
   schwierigkeitsgrad?:
-    | 'Nichtschwimmer'
-    | 'Anfaenger'
-    | 'Fortgeschritten'
-    | 'Leistungsschwimmer'
-    | 'Top-Athlet'
+  | 'Nichtschwimmer'
+  | 'Anfaenger'
+  | 'Fortgeschritten'
+  | 'Leistungsschwimmer'
+  | 'Top-Athlet'
   trainingstyp?:
-    | 'Techniktraining'
-    | 'Leistungstest'
-    | 'Grundlagenausdauer'
-    | 'Recovery'
-    | 'Kurzstrecken'
-    | 'Langstrecken'
-    | 'Atemmangel'
-    | 'Wettkampfvorbereitung'
+  | 'Techniktraining'
+  | 'Leistungstest'
+  | 'Grundlagenausdauer'
+  | 'Recovery'
+  | 'Kurzstrecken'
+  | 'Langstrecken'
+  | 'Atemmangel'
+  | 'Wettkampfvorbereitung'
 }
 
 // Helper type for difficulty options
