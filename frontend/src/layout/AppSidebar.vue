@@ -54,7 +54,10 @@ async function loadSharedPlan(plan: SharedHistoryItem) {
         <ul v-else class="plan-list">
           <li v-for="plan in trainingPlanStore.planHistory" :key="plan.plan_id">
             <div class="plan-item-main">
-              <div class="status-icon-container" @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)">
+              <div
+                class="status-icon-container"
+                @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)"
+              >
                 <IconHeart v-if="plan.keep_forever" class="status-icon" />
                 <IconHourglass v-else class="status-icon" />
               </div>
