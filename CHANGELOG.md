@@ -1,3 +1,17 @@
+## [2.2.0](https://github.com/5pirit5eal/swim-gen/compare/v2.1.0...v2.2.0) (2025-11-23)
+
+### Features
+
+* added icons to buttons, did some styling and ensured all apis work ([006639f](https://github.com/5pirit5eal/swim-gen/commit/006639f6eff494cbacb5a31b14098402b695a729))
+* added sharing options, refactored display table and added sharing view ([e6bc6b0](https://github.com/5pirit5eal/swim-gen/commit/e6bc6b08b89ee9a86925816e312836f8f5e92e94))
+* load shared plans from history ([0b5993a](https://github.com/5pirit5eal/swim-gen/commit/0b5993a62486c8c950b7a8df420290d2613d019c))
+* make the view scroll down ([02bd88a](https://github.com/5pirit5eal/swim-gen/commit/02bd88a7713d0957eec11e804ea891b0c4c537e2))
+
+### Bug Fixes
+
+* add the auth flow to the bff ([9115c86](https://github.com/5pirit5eal/swim-gen/commit/9115c869244987d5e8c8400d653f2dae1f7f67df))
+* added build args to compose yml ([ae0e110](https://github.com/5pirit5eal/swim-gen/commit/ae0e1100aa5880a6c6b88fd26724828a840ce8b7))
+
 ## [2.1.0](https://github.com/5pirit5eal/swim-gen/compare/v2.0.0...v2.1.0) (2025-11-19)
 
 ### Features
