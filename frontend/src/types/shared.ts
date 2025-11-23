@@ -15,7 +15,7 @@ export interface SharedHistoryItem {
     share_method: string
     shared_by: string
     created_at: string
-    plan?: RAGResponse
+    plan: RAGResponse
 }
 
 export interface ShareUrlRequest {

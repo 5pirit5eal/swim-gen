@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
+import { useSharedPlanStore } from '@/stores/sharedPlan'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -10,6 +11,7 @@ import { toast } from 'vue3-toastify'
 const { t } = useI18n()
 const auth = useAuthStore()
 const trainingPlanStore = useTrainingPlanStore()
+const sharedPlanStore = useSharedPlanStore()
 const sidebarStore = useSidebarStore()
 const router = useRouter()
 const route = useRoute()
@@ -40,6 +42,7 @@ async function handleLogin() {
   try {
     await auth.signInWithPassword(email.value, password.value)
     await trainingPlanStore.fetchHistory()
+    await sharedPlanStore.fetchSharedHistory()
     sidebarStore.open()
     toast.success(t('login.loginSuccess'))
     router.push('/')
@@ -86,6 +89,7 @@ async function handleSignUp() {
     try {
       response = await auth.signInWithPassword(email.value, password.value)
       await trainingPlanStore.fetchHistory()
+      await sharedPlanStore.fetchSharedHistory()
       sidebarStore.open()
       toast.success(t('login.userExistsLoginSuccess'))
       router.push('/')
@@ -112,13 +116,7 @@ async function handleSignUp() {
       <form @submit.prevent="isSignUp ? handleSignUp() : handleLogin()">
         <div class="form-group" v-if="isSignUp">
           <label for="username">{{ t('login.username') }}*</label>
-          <input
-            id="username"
-            type="text"
-            :placeholder="t('login.username')"
-            v-model="username"
-            required
-          />
+          <input id="username" type="text" :placeholder="t('login.username')" v-model="username" required />
         </div>
         <div class="form-group">
           <label for="email">{{ t('login.email') }}*</label>
@@ -126,13 +124,7 @@ async function handleSignUp() {
         </div>
         <div class="form-group">
           <label for="password">{{ t('login.password') }}*</label>
-          <input
-            id="password"
-            type="password"
-            :placeholder="t('login.password')"
-            v-model="password"
-            required
-          />
+          <input id="password" type="password" :placeholder="t('login.password')" v-model="password" required />
         </div>
         <div class="switch-form">
           <router-link v-if="isSignUp" to="/login">{{ t('login.haveAccount') }}</router-link>

@@ -1,8 +1,9 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
-import type { ShareUrlRequest, SharedPlanData, SharedHistoryItem, Row } from '@/types'
+import type { ShareUrlRequest, SharedPlanData, SharedHistoryItem, Row, RAGResponse } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
+import router from '@/router'
 import { supabase } from '@/plugins/supabase'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
@@ -34,6 +35,12 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
 
   // --- ACTIONS ---
 
+  // Required by the PlanStore interface, but not applicable for shared plans
+  async function toggleKeepForever() {
+    // No-op
+    return
+  }
+
   // Creates a shareable URL for a plan
   async function createShareUrl(request: ShareUrlRequest): Promise<string | null> {
     isLoading.value = true
@@ -53,20 +60,19 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   }
 
   // Fetches a shared plan by its hash
-  async function fetchSharedPlanByHash(hash: string) {
+  async function fetchSharedPlanByHash(hash: string): Promise<string | null> {
     isLoading.value = true
     error.value = null
-    sharedPlan.value = null
     isForked.value = false
 
+    // Check if we are loading a plan from history
     if (hash === '' && sharedPlan.value !== null) {
-      // Check if we are loading a plan from history
       isLoading.value = false
-      return
+      return null
     } else if (hash === '') {
       error.value = i18n.global.t('errors.fetch_shared_plan_failed')
       isLoading.value = false
-      return
+      return null
     }
 
     try {
@@ -80,6 +86,33 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
       if (sharedPlanError) throw sharedPlanError
       if (!sharedPlanData) throw new Error('Plan not found')
 
+      // Check if the plan is already loaded
+      if (
+        sharedPlan.value &&
+        sharedPlan.value.plan.plan_id === sharedPlanData.plan_id &&
+        sharedPlan.value.sharer_id === sharedPlanData.user_id
+      ) {
+        isLoading.value = false
+        return null
+      }
+
+      // Check if the user is trying to load their own shared plan
+      if (authStore.user && sharedPlanData.user_id === authStore.user.id) {
+        const trainingPlanStore = useTrainingPlanStore()
+        if (!trainingPlanStore.planHistory.length) {
+          await trainingPlanStore.fetchHistory()
+        }
+        const ownPlan = trainingPlanStore.planHistory.find(
+          (plan) => plan.plan_id === sharedPlanData.plan_id
+        )
+        if (ownPlan) {
+          trainingPlanStore.loadPlanFromHistory(ownPlan)
+          isLoading.value = false
+          router.push('/')
+          return "own_plan"
+        }
+      }
+
       // 2. Fetch the plan details
       const { data: planData, error: planError } = await supabase
         .from('plans')
@@ -91,7 +124,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
       if (!planData) throw new Error('Plan details not found')
 
       // 3. Fetch the sharer's username (if available)
-      let sharerUsername = 'Unknown User'
+      let sharerUsername = i18n.global.t('shared.unknown_user')
       if (sharedPlanData.user_id) {
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
@@ -100,7 +133,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
           .single()
 
         if (!profileError && profileData) {
-          sharerUsername = profileData.username || 'Unknown User'
+          sharerUsername = profileData.username || i18n.global.t('shared.unknown_user')
         }
       }
 
@@ -115,9 +148,10 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         sharer_id: sharedPlanData.user_id,
       }
 
-      // Add to history if user is logged in
+      // Add to history if user is logged in and the plan is not their own
       if (authStore.user) {
         await addPlanToHistory(sharedPlanData.plan_id, sharedPlanData.user_id)
+        await fetchSharedHistory()
       }
 
     } catch (e) {
@@ -126,6 +160,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     } finally {
       isLoading.value = false
     }
+    return null
   }
 
   // Fetches the user's shared plan history
@@ -139,6 +174,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         .select('user_id, plan_id, share_method, shared_by, created_at')
         .eq('user_id', authStore.user.id)
         .order('created_at', { ascending: false })
+        .limit(50)
 
       if (historyError) throw historyError
 
@@ -151,8 +187,15 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
           .select('plan_id, title, description, plan_table')
           .in('plan_id', planIds)
 
+
+        if (plansData === null) {
+          sharedHistory.value = []
+          console.info('No plans data found for shared history')
+          return
+        }
+
         // Create a map for easier lookup
-        const plansMap = new Map()
+        const plansMap = new Map<string, { plan_id: string; title: string; description: string; plan_table: Row[] }>()
         if (plansData) {
           plansData.forEach((plan) => {
             plansMap.set(plan.plan_id, plan)
@@ -160,24 +203,30 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         }
 
         // Combine history items with plan details
-        sharedHistory.value = historyData.map((item) => {
+        const rawSharedPlanHistory = historyData.map((item) => {
           const planData = plansMap.get(item.plan_id)
+          if (!planData) {
+            console.warn(`Plan data not found for plan_id: ${item.plan_id}`)
+            return undefined
+          }
           return {
             user_id: item.user_id,
             plan_id: item.plan_id,
             share_method: item.share_method,
             shared_by: item.shared_by,
             created_at: item.created_at,
-            plan: planData
-              ? {
-                plan_id: planData.plan_id,
-                title: planData.title,
-                description: planData.description,
-                table: planData.plan_table,
-              }
-              : undefined,
+            plan: {
+              plan_id: planData.plan_id,
+              title: planData.title,
+              description: planData.description,
+              table: planData.plan_table,
+            } as RAGResponse,
           }
         })
+        // Filter out any undefined entries due to missing plan data
+        sharedHistory.value = rawSharedPlanHistory.filter(
+          (item): item is SharedHistoryItem => item !== undefined
+        )
       }
     } catch (e) {
       console.error(e)
@@ -188,8 +237,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   }
 
   // Load plan from history
-  async function loadPlanFromHistory(plan: SharedHistoryItem) {
-    console.log('Loading plan from history:', plan)
+  async function loadPlanFromHistory(item: SharedHistoryItem) {
     isLoading.value = true
     error.value = null
     sharedPlan.value = null
@@ -200,22 +248,17 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('username')
-        .eq('user_id', plan.shared_by)
+        .eq('user_id', item.shared_by)
         .single()
 
       if (profileError) throw profileError
       if (!profileData) throw new Error('User not found')
-      if (!plan.plan) throw new Error('Plan details not found')
+      if (!item.plan) throw new Error('Plan details not found')
 
       sharedPlan.value = {
-        plan: {
-          plan_id: plan.plan_id,
-          title: plan.plan.title,
-          description: plan.plan.description,
-          table: plan.plan.table,
-        },
-        sharer_username: profileData.username || 'Unknown User',
-        sharer_id: plan.user_id,
+        plan: item.plan,
+        sharer_username: profileData.username || i18n.global.t('shared.unknown_user'),
+        sharer_id: item.user_id,
       }
     } catch (e) {
       console.error(e)
@@ -236,7 +279,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         .select('plan_id')
         .eq('user_id', authStore.user.id)
         .eq('plan_id', planId)
-        .single()
+        .maybeSingle()
 
       if (!existing) {
         await supabase.from('shared_history').insert({
@@ -347,9 +390,8 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         sharedPlan.value.plan.plan_id = result.data.plan_id
         isForked.value = true
 
-
-        const trainingPlanStore = useTrainingPlanStore()
         // Refresh history to show the new plan there
+        const trainingPlanStore = useTrainingPlanStore()
         await trainingPlanStore.fetchHistory()
       }
     } else {
@@ -368,13 +410,14 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     currentPlan,
     hasPlan,
     // Actions
+    toggleKeepForever,
     createShareUrl,
     fetchSharedPlanByHash,
     fetchSharedHistory,
     loadPlanFromHistory,
     addPlanToHistory,
     clear,
-    // Table Manipulations
+    // Table Manipulation Actions
     updatePlanRow,
     addRow,
     removeRow,

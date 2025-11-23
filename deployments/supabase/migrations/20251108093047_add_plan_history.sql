@@ -84,17 +84,15 @@ select cron.schedule(
     'clean-up-old-plans',
     '0 0 * * *', -- Every day at midnight
     $$
-    begin
-        -- Delete history entries older than 30 days
-        delete from public.history where created_at < now() - interval '30 days' and keep_forever = false;
+      -- Delete history entries older than 30 days
+      delete from public.history where created_at < now() - interval '30 days' and keep_forever = false;
 
-        -- Delete plans that are not referenced anymore
-        delete from public.plans p
-        where not exists (select 1 from public.history h where h.plan_id = p.plan_id)
-          and not exists (select 1 from public.donations d where d.plan_id = p.plan_id)
-          and not exists (select 1 from public.feedback f where f.plan_id = p.plan_id)
-          and not exists (select 1 from public.scraped s where s.plan_id = p.plan_id);
-    end;
+      -- Delete plans that are not referenced anymore
+      delete from public.plans p
+      where not exists (select 1 from public.history h where h.plan_id = p.plan_id)
+        and not exists (select 1 from public.donations d where d.plan_id = p.plan_id)
+        and not exists (select 1 from public.feedback f where f.plan_id = p.plan_id)
+        and not exists (select 1 from public.scraped s where s.plan_id = p.plan_id);
     $$
 );
 
@@ -103,10 +101,8 @@ select cron.schedule(
     'reset-monthly-generations',
     '0 0 1 * *', -- Every month on the 1st at midnight
     $$
-    begin
-        update public.profiles
-        set monthly_generations = 0;
-    end;
+      update public.profiles
+      set monthly_generations = 0;
     $$
 );
 

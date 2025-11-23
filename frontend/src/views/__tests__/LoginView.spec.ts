@@ -5,6 +5,11 @@ import { toast } from 'vue3-toastify'
 import LoginView from '../LoginView.vue'
 import { useAuthStore } from '@/stores/auth'
 
+const { mockPush, mockRoute } = vi.hoisted(() => ({
+  mockPush: vi.fn(),
+  mockRoute: { query: {} as Record<string, string> },
+}))
+
 // Mock dependencies
 vi.mock('@/plugins/supabase', () => ({
   supabase: {
@@ -16,15 +21,28 @@ vi.mock('@/plugins/supabase', () => ({
       signUp: vi.fn(),
       signOut: vi.fn(),
     },
+    from: vi.fn().mockReturnThis(),
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+    single: vi.fn().mockResolvedValue({ data: null, error: null }),
   },
 }))
-const mockPush = vi.fn()
-const mockRoute = { query: {} }
+
 vi.mock('vue-router', () => ({
   useRouter: () => ({
     push: mockPush,
   }),
   useRoute: () => mockRoute,
+}))
+vi.mock('@/router', () => ({
+  default: {
+    push: mockPush,
+    replace: mockPush,
+  },
 }))
 
 vi.mock('vue-i18n', () => ({
@@ -122,7 +140,7 @@ describe('LoginView.vue', () => {
       },
     })
     const auth = useAuthStore()
-    ;(auth.signInWithPassword as Mock).mockRejectedValue(new Error('Invalid login credentials'))
+      ; (auth.signInWithPassword as Mock).mockRejectedValue(new Error('Invalid login credentials'))
 
     await wrapper.find('input#email').setValue('test@example.com')
     await wrapper.find('input#password').setValue('password')
@@ -142,7 +160,7 @@ describe('LoginView.vue', () => {
       },
     })
     const auth = useAuthStore()
-    ;(auth.signUp as Mock).mockResolvedValue({ user: { identities: [{}] } })
+      ; (auth.signUp as Mock).mockResolvedValue({ user: { identities: [{}] } })
 
     await wrapper.find('input#username').setValue('newuser')
     await wrapper.find('input#email').setValue('new@example.com')
@@ -165,12 +183,16 @@ describe('LoginView.vue', () => {
       },
     })
     const auth = useAuthStore()
-    ;(auth.signUp as Mock).mockResolvedValue({ user: { identities: [] } })
+      ; (auth.signUp as Mock).mockResolvedValue({ user: { identities: [] } })
+      ; (auth.signInWithPassword as Mock).mockResolvedValue(undefined)
 
     await wrapper.find('input#username').setValue('existinguser')
     await wrapper.find('input#email').setValue('existing@example.com')
     await wrapper.find('input#password').setValue('password')
     await wrapper.find('form').trigger('submit.prevent')
+
+    // Wait for promises
+    await new Promise(resolve => setTimeout(resolve, 100))
 
     expect(auth.signInWithPassword).toHaveBeenCalledWith('existing@example.com', 'password')
     expect(toast.success).toHaveBeenCalledWith('login.userExistsLoginSuccess')

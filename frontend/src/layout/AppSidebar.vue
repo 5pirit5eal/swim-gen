@@ -18,7 +18,9 @@ const router = useRouter()
 function loadPlan(plan: RAGResponse) {
   trainingPlanStore.loadPlanFromHistory(plan)
   sidebarStore.close()
-  router.push('/')
+
+  // Navigate to home view if not there already
+  if (router.currentRoute.value.path !== '/') router.push('/')
 }
 async function loadSharedPlan(plan: SharedHistoryItem) {
   await sharedPlanStore.loadPlanFromHistory(plan)
@@ -65,10 +67,10 @@ async function loadSharedPlan(plan: SharedHistoryItem) {
           {{ t('sidebar.shared_placeholder') }}
         </p>
         <ul v-else class="plan-list">
-          <li v-for="item in sharedPlanStore.sharedHistory" :key="item.created_at">
+          <li v-for="item in sharedPlanStore.sharedHistory" :key="item.plan_id">
             <div class="plan-item-main">
-              <div class="plan-title" @click="item.plan && loadSharedPlan(item)">
-                <span>{{ item.plan?.title || 'Unknown Plan' }}</span>
+              <div class="plan-title" @click="loadSharedPlan(item)">
+                <span>{{ item.plan.title }}</span>
               </div>
             </div>
           </li>

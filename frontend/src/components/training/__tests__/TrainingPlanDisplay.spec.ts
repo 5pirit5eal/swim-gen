@@ -37,6 +37,9 @@ describe('TrainingPlanDisplay.vue', () => {
       global: {
         plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
       },
+      props: {
+        store: useTrainingPlanStore(),
+      },
     })
 
     // Check for the placeholder text
@@ -47,6 +50,9 @@ describe('TrainingPlanDisplay.vue', () => {
     const wrapper = mount(TrainingPlanDisplay, {
       global: {
         plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+      },
+      props: {
+        store: useTrainingPlanStore(),
       },
     })
     const store = useTrainingPlanStore()
@@ -65,13 +71,16 @@ describe('TrainingPlanDisplay.vue', () => {
         global: {
           plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
         },
+        props: {
+          store: useTrainingPlanStore(),
+        },
       })
       const store = useTrainingPlanStore()
       store.currentPlan = JSON.parse(JSON.stringify(mockPlan)) // Deep copy
       await wrapper.vm.$nextTick() // Wait for the DOM to update
 
       // Enable editing
-      await wrapper.find('button.export-btn').trigger('click')
+      await wrapper.find('button.edit-btn').trigger('click')
       // @ts-expect-error: isEditing is not typed on the wrapper vm
       expect(wrapper.vm.isEditing).toBe(true)
 
@@ -93,13 +102,16 @@ describe('TrainingPlanDisplay.vue', () => {
         global: {
           plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
         },
+        props: {
+          store: useTrainingPlanStore(),
+        },
       })
       const store = useTrainingPlanStore()
       store.currentPlan = JSON.parse(JSON.stringify(mockPlan)) // Deep copy
       await wrapper.vm.$nextTick() // Wait for the DOM to update
 
       // Enable editing
-      await wrapper.find('button.export-btn').trigger('click')
+      await wrapper.find('button.edit-btn').trigger('click')
 
       // Find the first Amount cell and click to start editing
       const amountCell = wrapper.find('tbody tr:first-child td:first-child')

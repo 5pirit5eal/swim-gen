@@ -323,11 +323,25 @@
     "generated_placeholder": "Noch keine Pläne generiert.",
     "donated": "Hochgeladene Pläne",
     "donated_placeholder": "Noch keine Pläne hochgeladen.",
-    "shared": "Geteilte Pläne",
+    "shared": "Mit Dir Geteilte Pläne",
     "shared_placeholder": "Noch keine Pläne mit dir geteilt."
   },
   "labels": {
     "created_at": "Erstellt am",
     "updated_at": "Aktualisiert am"
+  },
+  "share": {
+    "fetching_url": "Generiere Freigabe-Link...",
+    "copy": "Link kopieren",
+    "show_url": "Teile diesen Link, um mit anderen diesen Trainingsplan zu teilen:",
+    "share_plan": "Plan teilen"
+  },
+  "shared": {
+    "loading": "Lade geteilten Trainingsplan...",
+    "hero_title": "Geteilter Trainingsplan",
+    "hero_description": "Du siehst einen Trainingsplan, der von {username} geteilt wurde.\nDu kannst diesen Plan bearbeiten, für die Nutzung am Becken exportieren oder basierend auf deinen eigenen Anforderungen einen Neuen generieren. Änderungen sind nur für dich sichtbar und werden nicht zurück an {username} gesendet.",
+    "no_plan_toast": "Der Plan konnte nicht gefunden werden.\n{error}",
+    "register_to_save": "Melde dich an, um diesen Plan zu speichern und zu bearbeiten!",
+    "unknown_user": "Unbekannter Nutzer"
   }
 }

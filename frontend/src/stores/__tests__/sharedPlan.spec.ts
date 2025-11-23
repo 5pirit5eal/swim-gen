@@ -28,6 +28,7 @@ vi.mock('@/plugins/supabase', () => ({
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockReturnThis(),
         insert: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
     },
 }))
 
@@ -195,7 +196,8 @@ describe('sharedPlan Store', () => {
                     return {
                         select: vi.fn().mockReturnThis(),
                         eq: vi.fn().mockReturnThis(),
-                        order: vi.fn().mockResolvedValue({ data: mockHistory, error: null }),
+                        order: vi.fn().mockReturnThis(),
+                        limit: vi.fn().mockResolvedValue({ data: mockHistory, error: null }),
                     }
                 }
                 if (tableName === 'plans') {

@@ -7,11 +7,15 @@ import { useSidebarStore } from '@/stores/sidebar'
 import i18n from '@/plugins/i18n'
 
 const push = vi.fn()
-vi.mock('vue-router', () => ({
-  useRouter: vi.fn(() => ({
-    push,
-  })),
-}))
+vi.mock('vue-router', async (importOriginal) => {
+  const actual = await importOriginal() as typeof import('vue-router')
+  return {
+    ...actual,
+    useRouter: vi.fn(() => ({
+      push,
+    })),
+  }
+})
 
 describe('AppSidebar.vue', () => {
   beforeEach(() => {

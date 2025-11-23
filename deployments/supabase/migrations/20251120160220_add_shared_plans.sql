@@ -1,7 +1,7 @@
 -- Create table 'shared_plans' to manage user-shared plans with reference to plans table
 create table shared_plans (
-  user_id uuid not null references auth.users on delete cascade primary key,
-  plan_id uuid not null references plans on delete cascade,
+  plan_id uuid not null references plans on delete cascade primary key,
+  user_id uuid not null references auth.users on delete cascade,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   url_hash uuid not null default gen_random_uuid(),
@@ -43,7 +43,7 @@ create table shared_history (
   user_id uuid not null references auth.users on delete cascade,
   plan_id uuid not null references plans on delete cascade,
   share_method text not null default 'link', -- e.g., 'link', 'email'
-  shared_by uuid not null references shared_plans(user_id) on delete cascade,
+  shared_by uuid not null references auth.users on delete cascade,
   created_at timestamptz not null default now(),
   primary key (user_id, plan_id)
 );

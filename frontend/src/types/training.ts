@@ -46,6 +46,7 @@ export interface PlanStore {
   currentPlan: RAGResponse | null
   hasPlan: boolean
   isLoading: boolean
+  toggleKeepForever: (plan_id: string) => Promise<void>
   upsertCurrentPlan: () => Promise<void>
   updatePlanRow: (rowIndex: number, field: keyof Row, value: string | number) => void
   addRow: (rowIndex: number) => void

@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
+import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 import { useSharedPlanStore } from '@/stores/sharedPlan'
 import { storeToRefs } from 'pinia'
-import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
+import { onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
+import { toast } from 'vue3-toastify'
 
+const { t } = useI18n()
 const route = useRoute()
+const router = useRouter()
 const sharedPlanStore = useSharedPlanStore()
 
 const { sharedPlan, isLoading, error } = storeToRefs(sharedPlanStore)
@@ -13,41 +17,93 @@ const { sharedPlan, isLoading, error } = storeToRefs(sharedPlanStore)
 onMounted(async () => {
   const urlHash = route.params.urlHash
   if (typeof urlHash === 'string') {
-    await sharedPlanStore.fetchSharedPlanByHash(urlHash)
+    if (await sharedPlanStore.fetchSharedPlanByHash(urlHash)) return
+    if (sharedPlan.value === null) {
+      noPlanFound()
+    }
+  } else if (typeof urlHash === 'undefined' && sharedPlan.value === null) {
+    noPlanFound()
   }
 })
 
 onUnmounted(() => {
   sharedPlanStore.clear()
 })
+
+function noPlanFound() {
+  toast.error(t('shared.no_plan_toast', { error: error.value || '' }))
+  router.push('/')
+}
 </script>
 
 <template>
   <div class="shared-view">
     <div v-if="isLoading" class="loading-state">
       <div class="loading-spinner"></div>
-      <p>Loading shared plan...</p>
-    </div>
-    <div v-else-if="error" class="error-state">
-      <p>{{ error }}</p>
+      <p>{{ t('shared.loading') }}</p>
     </div>
     <div v-else-if="sharedPlan">
-      <div class="shared-info">
-        <p>Shared by: <strong>{{ sharedPlan.sharer_username }}</strong></p>
+      <div class="container">
+        <section class="hero">
+          <h1>{{ t('shared.hero_title') }}</h1>
+          <p class="hero-description">
+            {{ t('shared.hero_description', { username: sharedPlan.sharer_username }) }}
+          </p>
+        </section>
+
+        <!-- Main content -->
+        <section>
+          <TrainingPlanDisplay :store="sharedPlanStore" :show-share-button="false" />
+        </section>
       </div>
-      <TrainingPlanDisplay :store="sharedPlanStore" :show-share-button="false" />
-    </div>
-    <div v-else class="no-plan">
-      <p>Plan not found.</p>
     </div>
   </div>
 </template>
 
 <style scoped>
 .shared-view {
-  padding: 2rem;
+  padding: 0.25rem 0 2rem 0;
+}
+
+.container {
   max-width: 1080px;
   margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.hero {
+  text-align: center;
+  background-color: var(--color-transparent);
+  backdrop-filter: blur(2px);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 2rem auto;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: 1rem;
+}
+
+.hero-description {
+  font-size: 1.25rem;
+  color: var(--color-heading);
+  font-weight: 500;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+@media (max-width: 740px) {
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+  }
 }
 
 .loading-state,
@@ -64,14 +120,7 @@ onUnmounted(() => {
 }
 
 .error-state {
-  color: red;
-}
-
-.shared-info {
-  text-align: center;
-  margin-bottom: 1rem;
-  color: var(--color-text);
-  font-size: 1.1rem;
+  color: var(--color-error);
 }
 
 .loading-spinner {
