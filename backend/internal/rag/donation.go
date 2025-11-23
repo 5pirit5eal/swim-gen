@@ -2,13 +2,11 @@ package rag
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
-	"github.com/jackc/pgx/v5"
 	"github.com/tmc/langchaingo/schema"
 )
 
@@ -34,11 +32,7 @@ func (db *RAGDB) AddDonatedPlan(ctx context.Context, donation *models.DonatedPla
 		logger.Error("Error beginning transaction", httplog.ErrAttr(err))
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer func() {
-		if err := tx.Rollback(ctx); err != nil && !errors.Is(err, pgx.ErrTxClosed) {
-			logger.Error("error rolling back transaction", httplog.ErrAttr(err))
-		}
-	}()
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	// Add the plan to the plans table
 	_, err = tx.Exec(ctx, fmt.Sprintf(`

@@ -113,6 +113,23 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     }
   }
 
+  // Lets the user keep a plan forever, does nothing if the plan is already kept forever
+  async function keepForever(planId: string) {
+    if (!userStore.user) {
+      console.log('User is not available.')
+      return
+    }
+    const metadataEntry = historyMetadata.value.find((entry) => entry.plan_id === planId)
+    if (!metadataEntry) {
+      console.log('Plan metadata not found.')
+      return
+    }
+    if (metadataEntry.keep_forever) {
+      return
+    }
+    await toggleKeepForever(planId)
+  }
+
   // Generates a new training plan
   async function generatePlan(request: QueryRequest): Promise<boolean> {
     isLoading.value = true
@@ -232,13 +249,14 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     table.splice(newIndex, 0, movedRow)
   }
 
-  function clearPlan() {
-    currentPlan.value = null
+  function clearError() {
     error.value = null
   }
 
-  function clearError() {
+  function clear() {
+    currentPlan.value = null
     error.value = null
+    isLoading.value = false
   }
 
   return {
@@ -258,11 +276,12 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     addRow,
     removeRow,
     moveRow,
-    clearPlan,
     clearError,
+    clear,
     fetchHistory,
     upsertCurrentPlan,
     loadPlanFromHistory,
+    keepForever,
     toggleKeepForever,
   }
 })

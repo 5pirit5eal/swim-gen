@@ -1,22 +1,36 @@
 <script setup lang="ts">
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useSidebarStore } from '@/stores/sidebar'
+import { useSharedPlanStore } from '@/stores/sharedPlan'
 import { useI18n } from 'vue-i18n'
-import type { RAGResponse } from '@/types'
+import type { HistoryMetadata, RAGResponse, SharedHistoryItem } from '@/types'
 import { useRouter } from 'vue-router'
 import IconHourglass from '@/components/icons/IconHourglass.vue'
 import IconHeart from '@/components/icons/IconHeart.vue'
 import IconCross from '@/components/icons/IconCross.vue'
 
 const trainingPlanStore = useTrainingPlanStore()
+const sharedPlanStore = useSharedPlanStore()
 const sidebarStore = useSidebarStore()
 const { t } = useI18n()
 const router = useRouter()
 
-function loadPlan(plan: RAGResponse) {
-  trainingPlanStore.loadPlanFromHistory(plan)
-  sidebarStore.close()
-  router.push('/')
+function loadPlan(plan: RAGResponse & HistoryMetadata) {
+  trainingPlanStore.loadPlanFromHistory({
+    plan_id: plan.plan_id,
+    title: plan.title,
+    description: plan.description,
+    table: plan.table,
+  })
+  if (window.innerWidth <= 768) sidebarStore.close()
+
+  // Navigate to home view if not there already
+  if (router.currentRoute.value.path !== '/') router.push('/')
+}
+async function loadSharedPlan(plan: SharedHistoryItem) {
+  await sharedPlanStore.loadPlanFromHistory(plan)
+  if (window.innerWidth <= 768) sidebarStore.close()
+  router.push('/shared/')
 }
 </script>
 
@@ -30,7 +44,10 @@ function loadPlan(plan: RAGResponse) {
     </div>
     <div class="sidebar-content">
       <section>
-        <h3>{{ t('sidebar.generated') }}</h3>
+        <div class="section-header">
+          <h3>{{ t('sidebar.generated') }}</h3>
+          <div v-if="trainingPlanStore.isFetchingHistory" class="loading-spinner"></div>
+        </div>
         <p v-if="trainingPlanStore.planHistory.length === 0">
           {{ t('sidebar.generated_placeholder') }}
         </p>
@@ -52,12 +69,26 @@ function loadPlan(plan: RAGResponse) {
         </ul>
       </section>
       <section>
-        <h3>{{ t('sidebar.donated') }}</h3>
-        <p>{{ t('sidebar.donated_placeholder') }}</p>
+        <div class="section-header">
+          <h3>{{ t('sidebar.shared') }}</h3>
+          <div v-if="sharedPlanStore.isFetchingHistory" class="loading-spinner"></div>
+        </div>
+        <p v-if="sharedPlanStore.sharedHistory.length === 0">
+          {{ t('sidebar.shared_placeholder') }}
+        </p>
+        <ul v-else class="plan-list">
+          <li v-for="item in sharedPlanStore.sharedHistory" :key="item.plan_id">
+            <div class="plan-item-main">
+              <div class="plan-title" @click="loadSharedPlan(item)">
+                <span>{{ item.plan.title }}</span>
+              </div>
+            </div>
+          </li>
+        </ul>
       </section>
       <section>
-        <h3>{{ t('sidebar.shared') }}</h3>
-        <p>{{ t('sidebar.shared_placeholder') }}</p>
+        <h3>{{ t('sidebar.donated') }}</h3>
+        <p>{{ t('sidebar.donated_placeholder') }}</p>
       </section>
     </div>
   </aside>
@@ -190,6 +221,37 @@ function loadPlan(plan: RAGResponse) {
 .status-icon:hover {
   stroke: var(--color-primary-hover);
   stroke-width: 3px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.section-header h3 {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-border);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {

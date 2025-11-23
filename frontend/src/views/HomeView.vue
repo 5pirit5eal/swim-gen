@@ -1,11 +1,43 @@
 <script setup lang="ts">
 import TrainingPlanForm from '@/components/forms/TrainingPlanForm.vue'
 import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
+import { useTrainingPlanStore } from '@/stores/trainingPlan'
+import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
-// Header component for the swim training plan generator
-// Currently minimal for V1 (single page), expandable for V2
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
+const trainingStore = useTrainingPlanStore()
+const authStore = useAuthStore()
 const { t } = useI18n()
+
+const planDisplayContainer = ref<HTMLDivElement | null>(null)
+
+function scrollToPlan() {
+  if (planDisplayContainer.value) {
+    nextTick(() => {
+      planDisplayContainer.value?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' })
+    })
+  }
+}
+
+watch(
+  () => trainingStore.currentPlan,
+  (newPlan) => {
+    if (newPlan) {
+      scrollToPlan()
+    }
+  },
+)
+
+onMounted(() => {
+  if (trainingStore.currentPlan) {
+    scrollToPlan()
+  }
+})
+
+onUnmounted(() => {
+  trainingStore.clear()
+})
 </script>
 
 <template>
@@ -21,7 +53,9 @@ const { t } = useI18n()
       <!-- Main content -->
       <section>
         <TrainingPlanForm />
-        <TrainingPlanDisplay />
+        <div ref="planDisplayContainer">
+          <TrainingPlanDisplay :store="trainingStore" :show-share-button="!!authStore.user" />
+        </div>
       </section>
     </div>
   </div>
@@ -40,7 +74,6 @@ const { t } = useI18n()
 
 .hero {
   text-align: center;
-  margin-bottom: 2rem;
   background-color: var(--color-transparent);
   backdrop-filter: blur(2px);
   border-radius: 8px;

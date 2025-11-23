@@ -315,16 +315,32 @@
     "individual_medley": "Individual Medley"
   },
   "sidebar": {
-    "history": "Your Plans",
-    "generated": "Generated Plans",
+    "history": "Your plans",
+    "generated": "Generated plans",
     "generated_placeholder": "No generated plans yet.",
-    "donated": "Uploaded Plans",
+    "donated": "Uploaded plans",
     "donated_placeholder": "No plans uploaded yet.",
-    "shared": "Shared Plans",
+    "shared": "Plans shared with you",
     "shared_placeholder": "No plans shared with you yet."
   },
   "labels": {
     "created_at": "Created at",
     "updated_at": "Updated at"
+  },
+  "share": {
+    "fetching_url": "Fetching shareable URL...",
+    "show_url": "Share this URL to share your training plan:",
+    "copy": "Copy Link",
+    "copied": "Copied!",
+    "share_plan": "Share Plan"
+  },
+  "shared": {
+    "loading": "Loading shared training plan...",
+    "hero_title": "Shared Training Plan",
+    "hero_description_one": "You are viewing a training plan shared by ",
+    "hero_description_two": ". You can edit this plan, export it for use at the pool, or generate a new one based on your own needs. Edits are saved in your history and not fed back to {username}.",
+    "no_plan_toast": "The shared plan could not be found.\n{error}",
+    "register_to_save": "Register an account or login to save and manage this shared training plans.",
+    "unknown_user": "Unknown User"
   }
 }

@@ -369,3 +369,48 @@ func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }
+
+// SharePlanHandler handles the request to share a training plan.
+// It generates a shareable url_hash or processes email sharing based on the method provided.
+// @Summary Share a training plan
+// @Description Share a training plan via link or email. Email sharing is not implemented yet.
+// @Tags Training Plans
+// @Accept json
+// @Produce json
+// @Param request body models.SharePlanRequest true "Request to share a training plan"
+// @Success 200 {object} models.SharePlanResponse "Share plan response with URI"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /share-plan [post]
+func (rs *RAGService) SharePlanHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Sharing plan...")
+	spr := &models.SharePlanRequest{}
+
+	err := models.GetRequestJSON(req, spr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userId := req.Context().Value(models.UserIdCtxKey).(string)
+	if userId == "" {
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+
+	url_hash, err := rs.db.SharePlan(req.Context(), spr.PlanID, userId, spr.Method)
+	if err != nil {
+		logger.Error("Failed to share plan", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the shareable URI
+	answer := &models.SharePlanResponse{URLHash: url_hash}
+	logger.Info("Plan shared successfully", "uri", url_hash)
+	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}

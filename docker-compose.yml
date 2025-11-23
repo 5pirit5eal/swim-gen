@@ -33,8 +33,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
     ports:
       - "5173:80"
+    env_file:
+      - ./frontend/.env.production
     environment:
       - BFF_APP_API_URL=http://bff:8081
       - PORT=80

@@ -1,21 +1,27 @@
 locals {
   backend_env_variables = {
-    PROJECT_ID       = var.project_id
-    REGION           = var.region
-    DB_NAME          = var.supabase.dbname
-    DB_HOST          = var.supabase.host
-    DB_PORT          = var.supabase.port
-    DB_USER          = var.supabase.user
-    DB_PASS_LOCATION = var.secret_version_ids.dbpassword_root
-    EMBEDDING_MODEL  = var.embedding_model
-    EMBEDDING_NAME   = var.embedding_name
-    EMBEDDING_SIZE   = var.embedding_size
-    MODEL            = var.model
-    SMALL_MODEL      = var.small_model # fixed key (was SMALl_MODEL)
-    LOG_LEVEL        = var.log_level
-    BUCKET_NAME      = var.bucket_name
-    SIGNING_SA       = var.iam.pdf_export.email
+    PROJECT_ID        = var.project_id
+    REGION            = var.region
+    DB_NAME           = var.supabase.dbname
+    DB_HOST           = var.supabase.host
+    DB_PORT           = var.supabase.port
+    DB_USER           = var.supabase.user
+    DB_PASS_LOCATION  = var.secret_version_ids.dbpassword_root
+    EMBEDDING_MODEL   = var.embedding_model
+    EMBEDDING_NAME    = var.embedding_name
+    EMBEDDING_SIZE    = var.embedding_size
+    MODEL             = var.model
+    SMALL_MODEL       = var.small_model # fixed key (was SMALl_MODEL)
+    LOG_LEVEL         = var.log_level
+    BUCKET_NAME       = var.bucket_name
+    SIGNING_SA        = var.iam.pdf_export.email
+    SUPABASE_URL      = "https://${var.supabase.id}.supabase.co"
+    SUPABASE_ANON_KEY = data.supabase_apikeys.development_keys.anon_key
   }
+}
+
+data "supabase_apikeys" "development_keys" {
+  project_ref = var.supabase.id
 }
 
 data "google_artifact_registry_docker_image" "backend_image" {

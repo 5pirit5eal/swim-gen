@@ -147,6 +147,7 @@ func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Confi
 		r.Get("/scrape", ragServer.ScrapeHandler)
 		r.Post("/export-pdf", ragServer.PlanToPDFHandler)
 		r.Post("/upsert-plan", ragServer.UpsertPlanHandler)
+		r.Post("/share-plan", ragServer.SharePlanHandler)
 		r.Get("/swagger/*", httpSwagger.Handler(
 			httpSwagger.URL("0.0.0.0:"+cmp.Or(cfg.Port, "8080")+basePath+"swagger/doc.json"),
 			httpSwagger.DeepLinking(true)),

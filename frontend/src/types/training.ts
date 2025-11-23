@@ -41,6 +41,19 @@ export interface RAGResponse {
   table: Row[]
 }
 
+// Generic PlanStore interface for TrainingPlanDisplay component
+export interface PlanStore {
+  currentPlan: RAGResponse | null
+  hasPlan: boolean
+  isLoading: boolean
+  keepForever: (plan_id: string) => Promise<void>
+  upsertCurrentPlan: () => Promise<void>
+  updatePlanRow: (rowIndex: number, field: keyof Row, value: string | number) => void
+  addRow: (rowIndex: number) => void
+  removeRow: (rowIndex: number) => void
+  moveRow: (rowIndex: number, direction: 'up' | 'down') => void
+}
+
 // Backend API PlanToPDFRequest structure
 export interface PlanToPDFRequest {
   plan_id?: string

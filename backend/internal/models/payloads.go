@@ -84,3 +84,16 @@ type UpsertPlanRequest struct {
 type UpsertPlanResponse struct {
 	PlanID string `json:"plan_id" example:"plan_123"`
 }
+
+// SharePlanRequest represents the request payload for sharing a training plan
+// @Description Request payload for sharing a swim training plan
+type SharePlanRequest struct {
+	PlanID string        `json:"plan_id" example:"plan_123" binding:"required"` // PlanID identifies the training plan to be shared
+	Method SharingMethod `json:"method" example:"link" binding:"required"`      // Method specifies the sharing method, e.g., 'link' or 'email'
+}
+
+// SharePlanResponse represents the response after sharing a training plan
+// @Description Response containing the sharing details of the swim training plan
+type SharePlanResponse struct {
+	URLHash string `json:"url_hash" example:"abc123"` // URLHash is the hash to access the shared training plan
+}

@@ -17,8 +17,11 @@ app.use(express.json());
 
 // Enable CORS
 const corsOptions = {
-  origin: process.env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL || false, // Disable CORS if FRONTEND_URL not set
+  credentials: true, // Allow cookies and authorization headers
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 app.use(cors(corsOptions));
 
@@ -46,7 +49,11 @@ async function proxyRequest(req: express.Request, res: express.Response) {
   console.log(`Proxying request: ${method} ${originalUrl} -> ${targetUrl}`);
 
   try {
-    const authHeaders = await authModule.getAuthHeaders();
+    // Extract user's Authorization header from the request (if present)
+    const userAuthHeader = req.headers.authorization;
+
+    // Get auth headers (includes user auth passthrough + Google Identity token)
+    const authHeaders = await authModule.getAuthHeaders(userAuthHeader);
 
     const response = await axios({
       method,

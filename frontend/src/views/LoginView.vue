@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
+import { useSharedPlanStore } from '@/stores/sharedPlan'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -10,6 +11,7 @@ import { toast } from 'vue3-toastify'
 const { t } = useI18n()
 const auth = useAuthStore()
 const trainingPlanStore = useTrainingPlanStore()
+const sharedPlanStore = useSharedPlanStore()
 const sidebarStore = useSidebarStore()
 const router = useRouter()
 const route = useRoute()
@@ -40,6 +42,7 @@ async function handleLogin() {
   try {
     await auth.signInWithPassword(email.value, password.value)
     await trainingPlanStore.fetchHistory()
+    await sharedPlanStore.fetchSharedHistory()
     sidebarStore.open()
     toast.success(t('login.loginSuccess'))
     router.push('/')
@@ -86,6 +89,7 @@ async function handleSignUp() {
     try {
       response = await auth.signInWithPassword(email.value, password.value)
       await trainingPlanStore.fetchHistory()
+      await sharedPlanStore.fetchSharedHistory()
       sidebarStore.open()
       toast.success(t('login.userExistsLoginSuccess'))
       router.push('/')
