@@ -305,6 +305,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/share-plan": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Share a training plan via link or email. Email sharing is not implemented yet.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training Plans"
+                ],
+                "summary": "Share a training plan",
+                "parameters": [
+                    {
+                        "description": "Request to share a training plan",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SharePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Share plan response with URI",
+                        "schema": {
+                            "$ref": "#/definitions/models.SharePlanResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/upsert-plan": {
             "post": {
                 "security": [
@@ -610,6 +661,52 @@ const docTemplate = `{
                     "example": 400
                 }
             }
+        },
+        "models.SharePlanRequest": {
+            "description": "Request payload for sharing a swim training plan",
+            "type": "object",
+            "required": [
+                "method",
+                "plan_id"
+            ],
+            "properties": {
+                "method": {
+                    "description": "Method specifies the sharing method, e.g., 'link' or 'email'",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.SharingMethod"
+                        }
+                    ],
+                    "example": "link"
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the training plan to be shared",
+                    "type": "string",
+                    "example": "plan_123"
+                }
+            }
+        },
+        "models.SharePlanResponse": {
+            "description": "Response containing the sharing details of the swim training plan",
+            "type": "object",
+            "properties": {
+                "url_hash": {
+                    "description": "URLHash is the hash to access the shared training plan",
+                    "type": "string",
+                    "example": "abc123"
+                }
+            }
+        },
+        "models.SharingMethod": {
+            "type": "string",
+            "enum": [
+                "link",
+                "email"
+            ],
+            "x-enum-varnames": [
+                "SharingMethodLink",
+                "SharingMethodEmail"
+            ]
         },
         "models.UpsertPlanRequest": {
             "description": "Request payload for upserting a swim training plan to the system",
