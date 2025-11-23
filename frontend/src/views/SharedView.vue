@@ -47,7 +47,8 @@ function noPlanFound() {
         <section class="hero">
           <h1>{{ t('shared.hero_title') }}</h1>
           <p class="hero-description">
-            {{ t('shared.hero_description', { username: sharedPlan.sharer_username }) }}
+            {{ t('shared.hero_description_one') }}<strong>{{ sharedPlan.sharer_username }}</strong>
+            {{ t('shared.hero_description_two', { username: sharedPlan.sharer_username }) }}
           </p>
         </section>
 
@@ -94,6 +95,11 @@ function noPlanFound() {
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
+}
+
+.hero-description strong {
+  font-weight: 900;
+  color: var(--color-primary);
 }
 
 @media (max-width: 740px) {

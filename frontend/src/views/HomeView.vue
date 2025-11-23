@@ -4,7 +4,7 @@ import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const trainingStore = useTrainingPlanStore()
 const authStore = useAuthStore()
@@ -33,6 +33,10 @@ onMounted(() => {
   if (trainingStore.currentPlan) {
     scrollToPlan()
   }
+})
+
+onUnmounted(() => {
+  trainingStore.clear()
 })
 </script>
 

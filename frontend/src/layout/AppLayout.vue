@@ -68,9 +68,13 @@ const sidebarStore = useSidebarStore()
   z-index: 1;
 }
 
-@media (min-width: 1024px) {
+@media (max-width: 1024px) {
   .main-content {
-    padding: 0 2rem;
+    padding: 0 1rem;
+  }
+
+  .content-wrapper.sidebar-open {
+    margin-left: 100px;
   }
 }
 

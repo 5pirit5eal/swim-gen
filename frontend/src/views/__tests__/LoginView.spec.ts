@@ -140,7 +140,7 @@ describe('LoginView.vue', () => {
       },
     })
     const auth = useAuthStore()
-      ; (auth.signInWithPassword as Mock).mockRejectedValue(new Error('Invalid login credentials'))
+    ;(auth.signInWithPassword as Mock).mockRejectedValue(new Error('Invalid login credentials'))
 
     await wrapper.find('input#email').setValue('test@example.com')
     await wrapper.find('input#password').setValue('password')
@@ -160,7 +160,7 @@ describe('LoginView.vue', () => {
       },
     })
     const auth = useAuthStore()
-      ; (auth.signUp as Mock).mockResolvedValue({ user: { identities: [{}] } })
+    ;(auth.signUp as Mock).mockResolvedValue({ user: { identities: [{}] } })
 
     await wrapper.find('input#username').setValue('newuser')
     await wrapper.find('input#email').setValue('new@example.com')
@@ -183,8 +183,8 @@ describe('LoginView.vue', () => {
       },
     })
     const auth = useAuthStore()
-      ; (auth.signUp as Mock).mockResolvedValue({ user: { identities: [] } })
-      ; (auth.signInWithPassword as Mock).mockResolvedValue(undefined)
+    ;(auth.signUp as Mock).mockResolvedValue({ user: { identities: [] } })
+    ;(auth.signInWithPassword as Mock).mockResolvedValue(undefined)
 
     await wrapper.find('input#username').setValue('existinguser')
     await wrapper.find('input#email').setValue('existing@example.com')
@@ -192,7 +192,7 @@ describe('LoginView.vue', () => {
     await wrapper.find('form').trigger('submit.prevent')
 
     // Wait for promises
-    await new Promise(resolve => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 100))
 
     expect(auth.signInWithPassword).toHaveBeenCalledWith('existing@example.com', 'password')
     expect(toast.success).toHaveBeenCalledWith('login.userExistsLoginSuccess')

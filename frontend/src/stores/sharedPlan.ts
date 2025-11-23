@@ -15,6 +15,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   const sharedPlan = ref<SharedPlanData | null>(null)
   const sharedHistory = ref<SharedHistoryItem[]>([])
   const isLoading = ref(false)
+  const isFetchingHistory = ref(false)
   const error = ref<string | null>(null)
   const shareUrl = ref<string | null>(null)
   const isForked = ref(false)
@@ -30,13 +31,13 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         await fetchSharedHistory()
       }
     },
-    { immediate: true }
+    { immediate: true },
   )
 
   // --- ACTIONS ---
 
   // Required by the PlanStore interface, but not applicable for shared plans
-  async function toggleKeepForever() {
+  async function keepForever() {
     // No-op
     return
   }
@@ -103,13 +104,13 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
           await trainingPlanStore.fetchHistory()
         }
         const ownPlan = trainingPlanStore.planHistory.find(
-          (plan) => plan.plan_id === sharedPlanData.plan_id
+          (plan) => plan.plan_id === sharedPlanData.plan_id,
         )
         if (ownPlan) {
           trainingPlanStore.loadPlanFromHistory(ownPlan)
           isLoading.value = false
           router.push('/')
-          return "own_plan"
+          return 'own_plan'
         }
       }
 
@@ -153,7 +154,6 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         await addPlanToHistory(sharedPlanData.plan_id, sharedPlanData.user_id)
         await fetchSharedHistory()
       }
-
     } catch (e) {
       console.error(e)
       error.value = i18n.global.t('errors.fetch_shared_plan_failed')
@@ -167,7 +167,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   async function fetchSharedHistory() {
     if (!authStore.user) return
 
-    isLoading.value = true
+    isFetchingHistory.value = true
     try {
       const { data: historyData, error: historyError } = await supabase
         .from('shared_history')
@@ -187,7 +187,6 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
           .select('plan_id, title, description, plan_table')
           .in('plan_id', planIds)
 
-
         if (plansData === null) {
           sharedHistory.value = []
           console.info('No plans data found for shared history')
@@ -195,7 +194,10 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         }
 
         // Create a map for easier lookup
-        const plansMap = new Map<string, { plan_id: string; title: string; description: string; plan_table: Row[] }>()
+        const plansMap = new Map<
+          string,
+          { plan_id: string; title: string; description: string; plan_table: Row[] }
+        >()
         if (plansData) {
           plansData.forEach((plan) => {
             plansMap.set(plan.plan_id, plan)
@@ -225,14 +227,14 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         })
         // Filter out any undefined entries due to missing plan data
         sharedHistory.value = rawSharedPlanHistory.filter(
-          (item): item is SharedHistoryItem => item !== undefined
+          (item): item is SharedHistoryItem => item !== undefined,
         )
       }
     } catch (e) {
       console.error(e)
       // Don't set global error for history fetch failure to avoid blocking UI
     } finally {
-      isLoading.value = false
+      isFetchingHistory.value = false
     }
   }
 
@@ -290,7 +292,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         })
       }
     } catch (e) {
-      console.error("Failed to add to history", e)
+      console.error('Failed to add to history', e)
     }
   }
 
@@ -306,7 +308,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-        ; (row[field] as string | number) = value
+      ;(row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -404,13 +406,14 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     sharedPlan,
     sharedHistory,
     isLoading,
+    isFetchingHistory,
     error,
     shareUrl,
     // Computed
     currentPlan,
     hasPlan,
     // Actions
-    toggleKeepForever,
+    keepForever,
     createShareUrl,
     fetchSharedPlanByHash,
     fetchSharedHistory,

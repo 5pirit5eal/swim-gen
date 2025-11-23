@@ -113,6 +113,23 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     }
   }
 
+  // Lets the user keep a plan forever, does nothing if the plan is already kept forever
+  async function keepForever(planId: string) {
+    if (!userStore.user) {
+      console.log('User is not available.')
+      return
+    }
+    const metadataEntry = historyMetadata.value.find((entry) => entry.plan_id === planId)
+    if (!metadataEntry) {
+      console.log('Plan metadata not found.')
+      return
+    }
+    if (metadataEntry.keep_forever) {
+      return
+    }
+    await toggleKeepForever(planId)
+  }
+
   // Generates a new training plan
   async function generatePlan(request: QueryRequest): Promise<boolean> {
     isLoading.value = true
@@ -172,7 +189,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-        ; (row[field] as string | number) = value
+      ;(row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -236,6 +253,12 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     error.value = null
   }
 
+  function clear() {
+    currentPlan.value = null
+    error.value = null
+    isLoading.value = false
+  }
+
   return {
     // State
     currentPlan,
@@ -254,9 +277,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     removeRow,
     moveRow,
     clearError,
+    clear,
     fetchHistory,
     upsertCurrentPlan,
     loadPlanFromHistory,
+    keepForever,
     toggleKeepForever,
   }
 })

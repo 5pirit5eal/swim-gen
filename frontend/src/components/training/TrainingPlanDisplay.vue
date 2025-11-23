@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import ExportPlanButton from '@/components/buttons/ButtonExportPlan.vue'
 import SharePlanButton from '@/components/buttons/ButtonSharePlan.vue'
+import IconEdit from '@/components/icons/IconEdit.vue'
+import IconCheck from '@/components/icons/IconCheck.vue'
 import BaseTableAction from '@/components/ui/BaseTableAction.vue'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
 import type { Row, PlanStore } from '@/types'
@@ -293,6 +295,8 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   <div v-if="store.hasPlan && store.currentPlan && !store.isLoading" class="button-section">
     <!-- Edit Action -->
     <button @click="toggleEditing" class="edit-btn">
+      <IconCheck v-if="isEditing" class="icon" />
+      <IconEdit v-else class="icon" />
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
     </button>
     <div class="gap"></div>
@@ -607,13 +611,36 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   background: var(--color-primary);
   color: white;
   border: none;
-  padding: 0.75rem 2rem;
+  padding: 0.75rem 1rem;
   border-radius: 0.25rem;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
   min-width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 740px) {
+  .edit-btn {
+    /* width: 100%;
+    min-width: 10%; */
+    padding: 0.5rem 1rem;
+    overflow-wrap: break-word;
+    font-size: 0.8rem;
+  }
+}
+
+.edit-btn:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
 }
 
 .gap {

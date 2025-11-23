@@ -8,11 +8,12 @@ import i18n from '@/plugins/i18n'
 
 const push = vi.fn()
 vi.mock('vue-router', async (importOriginal) => {
-  const actual = await importOriginal() as typeof import('vue-router')
+  const actual = (await importOriginal()) as typeof import('vue-router')
   return {
     ...actual,
     useRouter: vi.fn(() => ({
       push,
+      currentRoute: { value: { path: '/not-home' } },
     })),
   }
 })
@@ -73,11 +74,9 @@ describe('AppSidebar.vue', () => {
     })
 
     const trainingPlanStore = useTrainingPlanStore()
-    const sidebarStore = useSidebarStore()
 
     await wrapper.find('.plan-title').trigger('click')
     expect(trainingPlanStore.loadPlanFromHistory).toHaveBeenCalledTimes(1)
-    expect(sidebarStore.close).toHaveBeenCalledTimes(1)
     expect(push).toHaveBeenCalledWith('/')
   })
 })

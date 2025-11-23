@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useExportStore } from '@/stores/export'
+import IconDownload from '@/components/icons/IconDownload.vue'
 import type { PlanToPDFRequest, PlanStore } from '@/types'
 import { useI18n } from 'vue-i18n'
 
@@ -23,7 +24,7 @@ watch(
   () => {
     resetExportState()
   },
-  { deep: true }
+  { deep: true },
 )
 
 // Reset export if options change
@@ -79,9 +80,11 @@ async function handleExport() {
         {{ t('display.exporting') }}
       </template>
       <template v-else-if="exportPhase === 'done'">
+        <IconDownload class="icon" />
         {{ t('display.open_pdf') }}
       </template>
       <template v-else>
+        <IconDownload class="icon" />
         {{ t('display.export_pdf') }}
       </template>
     </button>
@@ -110,13 +113,17 @@ async function handleExport() {
   background: var(--color-primary);
   color: white;
   border: none;
-  padding: 0.75rem 2rem;
+  padding: 0.75rem 1rem;
   border-radius: 0.25rem;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
   min-width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 @media (max-width: 740px) {
@@ -125,6 +132,7 @@ async function handleExport() {
     min-width: 10%;
     padding: 0.5rem 1rem;
     overflow-wrap: break-word;
+    font-size: 0.8rem;
   }
 }
 
@@ -137,9 +145,9 @@ async function handleExport() {
   cursor: not-allowed;
 }
 
-.gap {
-  flex: 2;
-  display: flex;
+.icon {
+  width: 24px;
+  height: 24px;
 }
 
 .export-actions {
@@ -152,13 +160,14 @@ async function handleExport() {
   flex: 3;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
-  min-width: 0;
+  min-width: 140px;
 }
 
 .dropdown-container {
   flex: 1;
   display: flex;
   position: static;
+  min-width: 20px
 }
 
 .export-actions .dropdown-toggle {
