@@ -11,9 +11,7 @@ const auth = new GoogleAuth();
  * @param userAuthHeader - The Authorization header from the frontend request (optional)
  * @returns Headers object with both user auth and service-to-service auth
  */
-export async function getAuthHeaders(
-  userAuthHeader?: string
-): Promise<Record<string, string>> {
+export async function getAuthHeaders(userAuthHeader?: string): Promise<Record<string, string>> {
   const backendUrl = process.env.BACKEND_URL;
   const headers: Record<string, string> = {};
 
