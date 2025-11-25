@@ -204,6 +204,10 @@ func (s *MemoryStore) DeleteMessage(ctx context.Context, messageID string) error
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
+
+	return nil
+}
+
 // DeleteMessagesAfter deletes the given message and all subsequent messages in the conversation.
 func (s *MemoryStore) DeleteMessagesAfter(ctx context.Context, messageID string) error {
 	tx, err := s.db.Begin(ctx)
@@ -255,8 +259,6 @@ func (s *MemoryStore) DeleteMessagesAfter(ctx context.Context, messageID string)
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return nil
-}
 	return nil
 }
 
