@@ -1,4 +1,4 @@
-package memory
+package rag
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 
 const MemoryTableName = "memory"
 
-type Store interface {
+type Memory interface {
 	AddMessage(ctx context.Context, planID, userID string, role models.Role, content string, previousMessageID *string, planSnapshot *models.Plan) (*models.Message, error)
 	GetConversation(ctx context.Context, planID string) ([]models.Message, error)
 	GetLastMessage(ctx context.Context, q pgxscan.Querier, planID string) (*models.Message, error)
@@ -27,10 +27,10 @@ type MemoryStore struct {
 	db *pgxpool.Pool
 }
 
-// Ensure MemoryStore implements Store
-var _ Store = (*MemoryStore)(nil)
+// Ensure MemoryStore implements Memory
+var _ Memory = (*MemoryStore)(nil)
 
-func NewMemoryStore(db *pgxpool.Pool) Store {
+func NewMemoryStore(db *pgxpool.Pool) *MemoryStore {
 	return &MemoryStore{db: db}
 }
 
@@ -83,6 +83,23 @@ func (s *MemoryStore) AddMessage(ctx context.Context, planID, userID string, rol
 		_, err = tx.Exec(ctx, updateQuery, newMessageID, *previousMessageID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to update previous message: %w", err)
+		}
+	}
+
+	// If a valid plan snapshot is provided, update the plan table
+	if planSnapshot != nil {
+		upsertPlanQuery := fmt.Sprintf(`
+			INSERT INTO %s (plan_id, title, description, plan_table)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT (plan_id) DO UPDATE
+			SET title = EXCLUDED.title,
+				description = EXCLUDED.description,
+				plan_table = EXCLUDED.plan_table,
+				updated_at = now()
+		`, PlanTableName)
+		_, err = tx.Exec(ctx, upsertPlanQuery, planID, planSnapshot.Title, planSnapshot.Description, planSnapshot.Table)
+		if err != nil {
+			return nil, fmt.Errorf("failed to upsert plan: %w", err)
 		}
 	}
 

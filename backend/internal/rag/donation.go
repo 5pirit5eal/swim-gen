@@ -10,6 +10,8 @@ import (
 	"github.com/tmc/langchaingo/schema"
 )
 
+const DonatedPlanTable string = "donations"
+
 // Add donated plan to the database
 func (db *RAGDB) AddDonatedPlan(ctx context.Context, donation *models.DonatedPlan, meta *models.Metadata) error {
 	logger := httplog.LogEntry(ctx)
