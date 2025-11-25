@@ -116,3 +116,21 @@ type ChatResponsePayload struct {
 	Table       Table  `json:"table,omitempty"`                                                                                 // Table containing the training plan details
 	Response    string `json:"response" example:"I've made the plan more challenging by adding butterfly sets"`                 // Response is the conversational AI response explaining changes
 }
+
+// DeleteMessageRequest represents the request payload for deleting a single message
+// @Description Request payload for deleting a single message from conversation history
+type DeleteMessageRequest struct {
+	MessageID string `json:"message_id" example:"msg_123" binding:"required"` // MessageID identifies the message to delete
+}
+
+// DeleteMessagesAfterRequest represents the request payload for deleting a message and all subsequent messages
+// @Description Request payload for deleting a message and all subsequent messages in the conversation
+type DeleteMessagesAfterRequest struct {
+	MessageID string `json:"message_id" example:"msg_123" binding:"required"` // MessageID identifies the message from which to delete (inclusive)
+}
+
+// DeleteConversationRequest represents the request payload for deleting an entire conversation
+// @Description Request payload for deleting an entire conversation and all its messages
+type DeleteConversationRequest struct {
+	PlanID string `json:"plan_id" example:"plan_123" binding:"required"` // PlanID identifies the conversation to delete
+}

@@ -257,6 +257,159 @@
                 }
             }
         },
+        "/memory/conversation": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete all messages in a conversation for a specific plan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Memory"
+                ],
+                "summary": "Delete an entire conversation",
+                "parameters": [
+                    {
+                        "description": "Request to delete a conversation",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeleteConversationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Conversation deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/memory/message": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a specific message from the conversation history while maintaining the linked list integrity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Memory"
+                ],
+                "summary": "Delete a single message from conversation",
+                "parameters": [
+                    {
+                        "description": "Request to delete a message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeleteMessageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/memory/messages-after": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a message and all messages that follow it in the conversation, allowing conversation branching",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Memory"
+                ],
+                "summary": "Delete a message and all subsequent messages",
+                "parameters": [
+                    {
+                        "description": "Request to delete messages from a point",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeleteMessagesAfterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Messages deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/query": {
             "post": {
                 "security": [
@@ -514,6 +667,48 @@
                     "description": "Title of the training plan",
                     "type": "string",
                     "example": "Advanced Freestyle Training"
+                }
+            }
+        },
+        "models.DeleteConversationRequest": {
+            "description": "Request payload for deleting an entire conversation and all its messages",
+            "type": "object",
+            "required": [
+                "plan_id"
+            ],
+            "properties": {
+                "plan_id": {
+                    "description": "PlanID identifies the conversation to delete",
+                    "type": "string",
+                    "example": "plan_123"
+                }
+            }
+        },
+        "models.DeleteMessageRequest": {
+            "description": "Request payload for deleting a single message from conversation history",
+            "type": "object",
+            "required": [
+                "message_id"
+            ],
+            "properties": {
+                "message_id": {
+                    "description": "MessageID identifies the message to delete",
+                    "type": "string",
+                    "example": "msg_123"
+                }
+            }
+        },
+        "models.DeleteMessagesAfterRequest": {
+            "description": "Request payload for deleting a message and all subsequent messages in the conversation",
+            "type": "object",
+            "required": [
+                "message_id"
+            ],
+            "properties": {
+                "message_id": {
+                    "description": "MessageID identifies the message from which to delete (inclusive)",
+                    "type": "string",
+                    "example": "msg_123"
                 }
             }
         },

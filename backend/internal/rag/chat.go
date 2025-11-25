@@ -7,7 +7,6 @@ import (
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/go-chi/httplog/v2"
-	"github.com/google/uuid"
 	"github.com/tmc/langchaingo/schema"
 )
 
@@ -22,10 +21,10 @@ func (db *RAGDB) ChatWithContext(
 	logger := httplog.LogEntry(ctx)
 	logger.Info("Starting chat interaction", "plan_id", planID, "user_id", userID)
 
-	// Generate planID if not provided (new conversation)
+	// Require planID - application flow ensures plan exists before chat
 	if planID == "" {
-		planID = uuid.New().String()
-		logger.Debug("Generated new plan_id for conversation", "plan_id", planID)
+		logger.Error("Missing required plan_id for chat interaction")
+		return nil, nil, fmt.Errorf("plan_id is required for chat interaction")
 	}
 
 	// 1. Retrieve conversation history (limited by config)
@@ -42,17 +41,16 @@ func (db *RAGDB) ChatWithContext(
 		logger.Debug("Applied history limit", "total_messages", len(conversation), "limit", db.cfg.Chat.HistoryLimit)
 	}
 
-	// 2. Get current plan state (if exists)
+	// 2. Get current plan state
 	var currentPlan *models.Plan
-	if len(conversation) > 0 {
-		// Plan exists in database
-		plan, err := db.GetPlan(ctx, planID, SourceOptionPlan)
-		if err == nil {
-			currentPlan = plan.Plan()
-			logger.Debug("Retrieved existing plan", "plan_id", planID, "title", currentPlan.Title)
-		} else {
-			logger.Debug("No existing plan found", "plan_id", planID)
-		}
+	plan, err := db.GetPlan(ctx, planID, SourceOptionPlan)
+	if err == nil {
+		currentPlan = plan.Plan()
+		logger.Debug("Retrieved existing plan", "plan_id", planID, "title", currentPlan.Title)
+	} else {
+		// If plan doesn't exist, this is an invalid state or id
+		logger.Error("Plan not found despite existing conversation", "plan_id", planID, httplog.ErrAttr(err))
+		return nil, nil, fmt.Errorf("plan must exist for chat interaction: %w", err)
 	}
 
 	// 3. Build context

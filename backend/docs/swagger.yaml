@@ -46,6 +46,37 @@ definitions:
         example: Advanced Freestyle Training
         type: string
     type: object
+  models.DeleteConversationRequest:
+    description: Request payload for deleting an entire conversation and all its messages
+    properties:
+      plan_id:
+        description: PlanID identifies the conversation to delete
+        example: plan_123
+        type: string
+    required:
+    - plan_id
+    type: object
+  models.DeleteMessageRequest:
+    description: Request payload for deleting a single message from conversation history
+    properties:
+      message_id:
+        description: MessageID identifies the message to delete
+        example: msg_123
+        type: string
+    required:
+    - message_id
+    type: object
+  models.DeleteMessagesAfterRequest:
+    description: Request payload for deleting a message and all subsequent messages
+      in the conversation
+    properties:
+      message_id:
+        description: MessageID identifies the message from which to delete (inclusive)
+        example: msg_123
+        type: string
+    required:
+    - message_id
+    type: object
   models.DonatePlanRequest:
     description: Request payload for donating a swim training plan to the system
     properties:
@@ -459,6 +490,104 @@ paths:
       summary: Basic health check
       tags:
       - Health
+  /memory/conversation:
+    delete:
+      consumes:
+      - application/json
+      description: Delete all messages in a conversation for a specific plan
+      parameters:
+      - description: Request to delete a conversation
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteConversationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Conversation deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete an entire conversation
+      tags:
+      - Memory
+  /memory/message:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific message from the conversation history while maintaining
+        the linked list integrity
+      parameters:
+      - description: Request to delete a message
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Message deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete a single message from conversation
+      tags:
+      - Memory
+  /memory/messages-after:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a message and all messages that follow it in the conversation,
+        allowing conversation branching
+      parameters:
+      - description: Request to delete messages from a point
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteMessagesAfterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Messages deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete a message and all subsequent messages
+      tags:
+      - Memory
   /query:
     post:
       consumes:
