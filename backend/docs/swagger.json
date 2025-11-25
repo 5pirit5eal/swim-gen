@@ -63,6 +63,57 @@
                 }
             }
         },
+        "/chat": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Have a conversation with the AI trainer to create, modify, or get information about training plans",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Chat with AI to create or refine training plans",
+                "parameters": [
+                    {
+                        "description": "Chat request with message and optional plan ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ChatRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful chat response with updated plan",
+                        "schema": {
+                            "$ref": "#/definitions/models.ChatResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/export-pdf": {
             "post": {
                 "security": [
@@ -298,6 +349,57 @@
                 }
             }
         },
+        "/share-plan": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Share a training plan via link or email. Email sharing is not implemented yet.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training Plans"
+                ],
+                "summary": "Share a training plan",
+                "parameters": [
+                    {
+                        "description": "Request to share a training plan",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SharePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Share plan response with URI",
+                        "schema": {
+                            "$ref": "#/definitions/models.SharePlanResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/upsert-plan": {
             "post": {
                 "security": [
@@ -351,6 +453,70 @@
         }
     },
     "definitions": {
+        "models.ChatRequest": {
+            "description": "Request payload for conversational training plan creation and refinement",
+            "type": "object",
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "language": {
+                    "description": "Language specifies the language for the response",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Language"
+                        }
+                    ],
+                    "example": "en"
+                },
+                "message": {
+                    "description": "Message is the user's input to the chat",
+                    "type": "string",
+                    "example": "Make it more challenging"
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the conversation/plan (optional for new conversations)",
+                    "type": "string",
+                    "example": "plan_123"
+                },
+                "pool_length": {
+                    "description": "PoolLength specifies the pool length for the training plan"
+                }
+            }
+        },
+        "models.ChatResponsePayload": {
+            "description": "Response containing the updated plan and conversational response",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "Description of the training plan",
+                    "type": "string",
+                    "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the conversation/plan",
+                    "type": "string",
+                    "example": "plan_123"
+                },
+                "response": {
+                    "description": "Response is the conversational AI response explaining changes",
+                    "type": "string",
+                    "example": "I've made the plan more challenging by adding butterfly sets"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "description": "Title of the training plan",
+                    "type": "string",
+                    "example": "Advanced Freestyle Training"
+                }
+            }
+        },
         "models.DonatePlanRequest": {
             "description": "Request payload for donating a swim training plan to the system",
             "type": "object",
@@ -603,6 +769,52 @@
                     "example": 400
                 }
             }
+        },
+        "models.SharePlanRequest": {
+            "description": "Request payload for sharing a swim training plan",
+            "type": "object",
+            "required": [
+                "method",
+                "plan_id"
+            ],
+            "properties": {
+                "method": {
+                    "description": "Method specifies the sharing method, e.g., 'link' or 'email'",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.SharingMethod"
+                        }
+                    ],
+                    "example": "link"
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the training plan to be shared",
+                    "type": "string",
+                    "example": "plan_123"
+                }
+            }
+        },
+        "models.SharePlanResponse": {
+            "description": "Response containing the sharing details of the swim training plan",
+            "type": "object",
+            "properties": {
+                "url_hash": {
+                    "description": "URLHash is the hash to access the shared training plan",
+                    "type": "string",
+                    "example": "abc123"
+                }
+            }
+        },
+        "models.SharingMethod": {
+            "type": "string",
+            "enum": [
+                "link",
+                "email"
+            ],
+            "x-enum-varnames": [
+                "SharingMethodLink",
+                "SharingMethodEmail"
+            ]
         },
         "models.UpsertPlanRequest": {
             "description": "Request payload for upserting a swim training plan to the system",

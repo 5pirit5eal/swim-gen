@@ -1,5 +1,51 @@
 basePath: /
 definitions:
+  models.ChatRequest:
+    description: Request payload for conversational training plan creation and refinement
+    properties:
+      language:
+        allOf:
+        - $ref: '#/definitions/models.Language'
+        description: Language specifies the language for the response
+        example: en
+      message:
+        description: Message is the user's input to the chat
+        example: Make it more challenging
+        type: string
+      plan_id:
+        description: PlanID identifies the conversation/plan (optional for new conversations)
+        example: plan_123
+        type: string
+      pool_length:
+        description: PoolLength specifies the pool length for the training plan
+    required:
+    - message
+    type: object
+  models.ChatResponsePayload:
+    description: Response containing the updated plan and conversational response
+    properties:
+      description:
+        description: Description of the training plan
+        example: A comprehensive training plan for improving freestyle technique
+        type: string
+      plan_id:
+        description: PlanID identifies the conversation/plan
+        example: plan_123
+        type: string
+      response:
+        description: Response is the conversational AI response explaining changes
+        example: I've made the plan more challenging by adding butterfly sets
+        type: string
+      table:
+        description: A structured training plan table containing exercise rows
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
+      title:
+        description: Title of the training plan
+        example: Advanced Freestyle Training
+        type: string
+    type: object
   models.DonatePlanRequest:
     description: Request payload for donating a swim training plan to the system
     properties:
@@ -180,6 +226,38 @@ definitions:
         example: 400
         type: integer
     type: object
+  models.SharePlanRequest:
+    description: Request payload for sharing a swim training plan
+    properties:
+      method:
+        allOf:
+        - $ref: '#/definitions/models.SharingMethod'
+        description: Method specifies the sharing method, e.g., 'link' or 'email'
+        example: link
+      plan_id:
+        description: PlanID identifies the training plan to be shared
+        example: plan_123
+        type: string
+    required:
+    - method
+    - plan_id
+    type: object
+  models.SharePlanResponse:
+    description: Response containing the sharing details of the swim training plan
+    properties:
+      url_hash:
+        description: URLHash is the hash to access the shared training plan
+        example: abc123
+        type: string
+    type: object
+  models.SharingMethod:
+    enum:
+    - link
+    - email
+    type: string
+    x-enum-varnames:
+    - SharingMethodLink
+    - SharingMethodEmail
   models.UpsertPlanRequest:
     description: Request payload for upserting a swim training plan to the system
     properties:
@@ -255,6 +333,39 @@ paths:
       summary: Donate a new training plan
       tags:
       - Donation
+  /chat:
+    post:
+      consumes:
+      - application/json
+      description: Have a conversation with the AI trainer to create, modify, or get
+        information about training plans
+      parameters:
+      - description: Chat request with message and optional plan ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful chat response with updated plan
+          schema:
+            $ref: '#/definitions/models.ChatResponsePayload'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Chat with AI to create or refine training plans
+      tags:
+      - Chat
   /export-pdf:
     post:
       consumes:
@@ -407,6 +518,39 @@ paths:
       summary: Scrape training plans from web
       tags:
       - Web Scraping
+  /share-plan:
+    post:
+      consumes:
+      - application/json
+      description: Share a training plan via link or email. Email sharing is not implemented
+        yet.
+      parameters:
+      - description: Request to share a training plan
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SharePlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Share plan response with URI
+          schema:
+            $ref: '#/definitions/models.SharePlanResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Share a training plan
+      tags:
+      - Training Plans
   /upsert-plan:
     post:
       consumes:

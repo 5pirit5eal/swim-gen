@@ -13,22 +13,12 @@ import (
 
 const MemoryTableName = "memory"
 
-type Memory interface {
-	AddMessage(ctx context.Context, planID, userID string, role models.Role, content string, previousMessageID *string, planSnapshot *models.Plan) (*models.Message, error)
-	GetConversation(ctx context.Context, planID string) ([]models.Message, error)
-	GetLastMessage(ctx context.Context, q pgxscan.Querier, planID string) (*models.Message, error)
-	DeleteConversation(ctx context.Context, planID string) error
-	DeleteMessage(ctx context.Context, messageID string) error
-	UpdateMessage(ctx context.Context, messageID, content string, planSnapshot *models.Plan) error
-	DeleteMessagesAfter(ctx context.Context, messageID string) error
-}
-
 type MemoryStore struct {
 	db *pgxpool.Pool
 }
 
 // Ensure MemoryStore implements Memory
-var _ Memory = (*MemoryStore)(nil)
+var _ models.Memory = (*MemoryStore)(nil)
 
 func NewMemoryStore(db *pgxpool.Pool) *MemoryStore {
 	return &MemoryStore{db: db}

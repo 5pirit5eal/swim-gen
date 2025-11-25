@@ -9,6 +9,7 @@ import (
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"github.com/5pirit5eal/swim-gen/internal/config"
 	"github.com/5pirit5eal/swim-gen/internal/genai"
+	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tmc/langchaingo/embeddings"
@@ -20,7 +21,7 @@ const CollectionTableName string = "embedders"
 type RAGDB struct {
 	Conn   pgvector.PGXConn
 	Store  *pgvector.Store
-	Memory Memory
+	Memory models.Memory
 	Client *genai.GoogleGenAIClient
 	cfg    config.Config
 }

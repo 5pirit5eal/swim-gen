@@ -97,3 +97,22 @@ type SharePlanRequest struct {
 type SharePlanResponse struct {
 	URLHash string `json:"url_hash" example:"abc123"` // URLHash is the hash to access the shared training plan
 }
+
+// ChatRequest represents the request payload for chat-based plan refinement
+// @Description Request payload for conversational training plan creation and refinement
+type ChatRequest struct {
+	PlanID     string   `json:"plan_id,omitempty" example:"plan_123"`                          // PlanID identifies the conversation/plan (optional for new conversations)
+	Message    string   `json:"message" example:"Make it more challenging" binding:"required"` // Message is the user's input to the chat
+	Language   Language `json:"language,omitempty" example:"en"`                               // Language specifies the language for the response
+	PoolLength any      `json:"pool_length,omitempty" validate:"oneof=25 50 Freiwasser"`       // PoolLength specifies the pool length for the training plan
+}
+
+// ChatResponsePayload represents the response from a chat interaction
+// @Description Response containing the updated plan and conversational response
+type ChatResponsePayload struct {
+	PlanID      string `json:"plan_id" example:"plan_123"`                                                                      // PlanID identifies the conversation/plan
+	Title       string `json:"title,omitempty" example:"Advanced Freestyle Training"`                                           // Title of the training plan
+	Description string `json:"description,omitempty" example:"A comprehensive training plan for improving freestyle technique"` // Description of the training plan
+	Table       Table  `json:"table,omitempty"`                                                                                 // Table containing the training plan details
+	Response    string `json:"response" example:"I've made the plan more challenging by adding butterfly sets"`                 // Response is the conversational AI response explaining changes
+}
