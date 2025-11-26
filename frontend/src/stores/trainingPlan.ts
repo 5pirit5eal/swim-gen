@@ -1,6 +1,6 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
-import type { QueryRequest, RAGResponse, Row, HistoryMetadata } from '@/types'
+import type { QueryRequest, RAGResponse, Row, HistoryMetadata, Message } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { supabase } from '@/plugins/supabase'
@@ -14,6 +14,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   const error = ref<string | null>(null)
   const generationHistory = ref<RAGResponse[]>([])
   const historyMetadata = ref<HistoryMetadata[]>([])
+  const conversation = ref<Message[]>([])
   const userStore = useAuthStore()
 
   // --- COMPUTED ---
@@ -189,7 +190,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -257,6 +258,39 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     currentPlan.value = null
     error.value = null
     isLoading.value = false
+    conversation.value = []
+  }
+
+  // Fetches the conversation history for a plan
+  async function fetchConversation(planId: string) {
+    if (!userStore.user) return
+
+    const { data, error: fetchError } = await apiClient.getConversation(planId)
+    if (fetchError) {
+      console.error(fetchError)
+      return
+    }
+
+    if (data !== null && Array.isArray(data)) {
+      // We need to map the backend message type to a frontend friendly type if needed
+      // For now assuming the types match or we use the backend type directly
+      // You might need to add a 'conversation' state property to the store
+      conversation.value = data
+    } else {
+      conversation.value = []
+    }
+  }
+
+  // Saves a snapshot to user history
+  async function saveSnapshot(plan: RAGResponse) {
+    if (!userStore.user) return
+
+    const result = await apiClient.addPlanToHistory(plan)
+    if (result.success) {
+      await fetchHistory()
+    } else {
+      console.error('Failed to save snapshot:', result.error)
+    }
   }
 
   return {
@@ -267,6 +301,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     error,
     generationHistory,
     historyMetadata,
+    conversation,
     // Computed
     hasPlan,
     planHistory,
@@ -283,5 +318,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     loadPlanFromHistory,
     keepForever,
     toggleKeepForever,
+    fetchConversation,
+    saveSnapshot,
   }
 })

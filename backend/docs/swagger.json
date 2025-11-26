@@ -63,6 +63,58 @@
                 }
             }
         },
+        "/add-plan-to-history": {
+            "post": {
+                "description": "Add an existing plan to the authenticated user's history",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training Plans"
+                ],
+                "summary": "Add a plan to user history",
+                "parameters": [
+                    {
+                        "description": "Plan to add to history",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Plan"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.AddPlanToHistoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/chat": {
             "post": {
                 "security": [
@@ -258,6 +310,53 @@
             }
         },
         "/memory/conversation": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get the full conversation history for a specific plan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Memory"
+                ],
+                "summary": "Get conversation history",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Plan ID",
+                        "name": "plan_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Conversation history",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetConversationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -606,6 +705,20 @@
         }
     },
     "definitions": {
+        "models.AddPlanToHistoryResponse": {
+            "description": "Response containing the new plan ID and a success message",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Plan added to history successfully"
+                },
+                "plan_id": {
+                    "type": "string",
+                    "example": "plan_123"
+                }
+            }
+        },
         "models.ChatRequest": {
             "description": "Request payload for conversational training plan creation and refinement",
             "type": "object",
@@ -772,6 +885,19 @@
                 }
             }
         },
+        "models.GetConversationResponse": {
+            "description": "Response containing the conversation history",
+            "type": "object",
+            "properties": {
+                "conversation": {
+                    "description": "Conversation history",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.MessagePayload"
+                    }
+                }
+            }
+        },
         "models.HealthStatus": {
             "description": "Health status of the service and its components",
             "type": "object",
@@ -803,6 +929,62 @@
                 "LanguageEN",
                 "LanguageDE"
             ]
+        },
+        "models.MessagePayload": {
+            "description": "Snapshot of a training plan",
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "Table containing the training plan details",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "next_message_id": {
+                    "type": "string"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "plan_snapshot": {
+                    "$ref": "#/definitions/models.RAGResponse"
+                },
+                "previous_message_id": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/models.Role"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Plan": {
+            "description": "A swim training plan with title, description, and structured table",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "planID": {
+                    "type": "string"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
         },
         "models.PlanToPDFRequest": {
             "description": "Request payload for exporting a training plan to PDF format",
@@ -930,6 +1112,17 @@
                     "example": "Advanced Freestyle Training"
                 }
             }
+        },
+        "models.Role": {
+            "type": "string",
+            "enum": [
+                "user",
+                "ai"
+            ],
+            "x-enum-varnames": [
+                "RoleUser",
+                "RoleAI"
+            ]
         },
         "models.Row": {
             "description": "A single exercise entry with amount, distance, breaks, content, intensity and total volume",

@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // DonatePlanRequest represents the request body for donating a training plan
 // @Description Request payload for donating a swim training plan to the system
 type DonatePlanRequest struct {
@@ -117,6 +119,26 @@ type ChatResponsePayload struct {
 	Response    string `json:"response" example:"I've made the plan more challenging by adding butterfly sets"`                 // Response is the conversational AI response explaining changes
 }
 
+// PlanSnapshot represents a snapshot of a training plan
+// @Description Snapshot of a training plan
+type MessagePayload struct {
+	ID                string       `json:"id" db:"id"`
+	PlanID            string       `json:"plan_id" db:"plan_id"`
+	UserID            string       `json:"user_id" db:"user_id"`
+	Role              Role         `json:"role" db:"role"`
+	Content           string       `json:"content" db:"content"`
+	PreviousMessageID *string      `json:"previous_message_id" db:"previous_message_id"`
+	NextMessageID     *string      `json:"next_message_id" db:"next_message_id"`
+	PlanSnapshot      *RAGResponse `json:"plan_snapshot" db:"plan_snapshot"`
+	CreatedAt         time.Time    `json:"created_at" db:"created_at"` // Table containing the training plan details
+}
+
+// GetConversationResponse represents the response from a conversation history request
+// @Description Response containing the conversation history
+type GetConversationResponse struct {
+	Conversation []MessagePayload `json:"conversation"` // Conversation history
+}
+
 // DeleteMessageRequest represents the request payload for deleting a single message
 // @Description Request payload for deleting a single message from conversation history
 type DeleteMessageRequest struct {
@@ -133,4 +155,11 @@ type DeleteMessagesAfterRequest struct {
 // @Description Request payload for deleting an entire conversation and all its messages
 type DeleteConversationRequest struct {
 	PlanID string `json:"plan_id" example:"plan_123" binding:"required"` // PlanID identifies the conversation to delete
+}
+
+// AddPlanToHistoryResponse represents the response after adding a plan to history
+// @Description Response containing the new plan ID and a success message
+type AddPlanToHistoryResponse struct {
+	Message string `json:"message" example:"Plan added to history successfully"`
+	PlanID  string `json:"plan_id" example:"plan_123"`
 }

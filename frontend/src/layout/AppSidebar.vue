@@ -8,6 +8,7 @@ import { useRouter } from 'vue-router'
 import IconHourglass from '@/components/icons/IconHourglass.vue'
 import IconHeart from '@/components/icons/IconHeart.vue'
 import IconCross from '@/components/icons/IconCross.vue'
+import IconPlus from '@/components/icons/IconPlus.vue'
 
 const trainingPlanStore = useTrainingPlanStore()
 const sharedPlanStore = useSharedPlanStore()
@@ -15,22 +16,26 @@ const sidebarStore = useSidebarStore()
 const { t } = useI18n()
 const router = useRouter()
 
-function loadPlan(plan: RAGResponse & HistoryMetadata) {
-  trainingPlanStore.loadPlanFromHistory({
-    plan_id: plan.plan_id,
-    title: plan.title,
-    description: plan.description,
-    table: plan.table,
-  })
+async function loadPlan(plan: RAGResponse & HistoryMetadata) {
   if (window.innerWidth <= 768) sidebarStore.close()
 
-  // Navigate to home view if not there already
-  if (router.currentRoute.value.path !== '/') router.push('/')
+  // Load plan and fetch conversation before navigation
+  trainingPlanStore.loadPlanFromHistory(plan)
+  await trainingPlanStore.fetchConversation(plan.plan_id)
+
+  router.push(`/plan/${plan.plan_id}`)
 }
+
 async function loadSharedPlan(plan: SharedHistoryItem) {
   await sharedPlanStore.loadPlanFromHistory(plan)
   if (window.innerWidth <= 768) sidebarStore.close()
   router.push('/shared/')
+}
+
+function createNewPlan() {
+  trainingPlanStore.clear()
+  if (window.innerWidth <= 768) sidebarStore.close()
+  router.push('/')
 }
 </script>
 
@@ -43,6 +48,10 @@ async function loadSharedPlan(plan: SharedHistoryItem) {
       <h3>{{ t('sidebar.history') }}</h3>
     </div>
     <div class="sidebar-content">
+      <button @click="createNewPlan" class="create-new-btn">
+        <IconPlus class="icon-small" />
+        {{ t('sidebar.create_new') }}
+      </button>
       <section>
         <div class="section-header">
           <h3>{{ t('sidebar.generated') }}</h3>
@@ -54,10 +63,7 @@ async function loadSharedPlan(plan: SharedHistoryItem) {
         <ul v-else class="plan-list">
           <li v-for="plan in trainingPlanStore.planHistory" :key="plan.plan_id">
             <div class="plan-item-main">
-              <div
-                class="status-icon-container"
-                @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)"
-              >
+              <div class="status-icon-container" @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)">
                 <IconHeart v-if="plan.keep_forever" class="status-icon" />
                 <IconHourglass v-else class="status-icon" />
               </div>
@@ -148,6 +154,32 @@ async function loadSharedPlan(plan: SharedHistoryItem) {
 
 .sidebar-content section {
   margin-bottom: 1.5rem;
+}
+
+.create-new-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.create-new-btn:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.icon-small {
+  width: 18px;
+  height: 18px;
 }
 
 .sidebar-content section h3 {

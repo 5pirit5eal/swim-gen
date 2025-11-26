@@ -18,6 +18,7 @@ import {
   ApiEndpoints,
 } from '@/types'
 import i18n from '@/plugins/i18n'
+import type { Message } from '@/types'
 import { useAuthStore } from '@/stores/auth'
 
 export function formatError(error: { message?: string; details?: string }): string {
@@ -182,6 +183,36 @@ class ApiClient {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Get conversation history for a plan
+   */
+  async getConversation(planId: string): Promise<ApiResult<Message[]>> {
+    return this._fetch(
+      `${ApiEndpoints.CONVERSATION}?plan_id=${planId}`,
+      {
+        method: 'GET',
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Add a plan to user history
+   */
+  async addPlanToHistory(plan: RAGResponse): Promise<ApiResult<{ message: string; plan_id: string }>> {
+    return this._fetch(
+      ApiEndpoints.ADD_PLAN_TO_HISTORY,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(plan),
       },
       this.DEFAULT_TIMEOUT_MS,
       true,

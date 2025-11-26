@@ -321,7 +321,8 @@
     "donated": "Uploaded plans",
     "donated_placeholder": "No plans uploaded yet.",
     "shared": "Plans shared with you",
-    "shared_placeholder": "No plans shared with you yet."
+    "shared_placeholder": "No plans shared with you yet.",
+    "create_new": "Create New Plan"
   },
   "labels": {
     "created_at": "Created at",
@@ -333,6 +334,21 @@
     "copy": "Copy Link",
     "copied": "Copied!",
     "share_plan": "Share Plan"
+  },
+  "interaction": {
+    "save_to_history": "Add to History",
+    "snapshot_saved": "Snapshot added to history!",
+    "not_found": "Plan not found.",
+    "conversation_history": "Conversation History",
+    "no_messages": "No messages in this conversation yet.",
+    "you": "You",
+    "ai": "AI",
+    "hide_plan": "Hide Plan",
+    "show_plan": "Show Plan",
+    "current_plan": "Current Plan",
+    "metadata": "Metadata",
+    "created_at": "Created At",
+    "updated_at": "Updated At"
   },
   "shared": {
     "loading": "Loading shared training plan...",

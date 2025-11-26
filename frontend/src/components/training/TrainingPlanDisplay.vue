@@ -5,7 +5,7 @@ import IconEdit from '@/components/icons/IconEdit.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import BaseTableAction from '@/components/ui/BaseTableAction.vue'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
-import type { Row, PlanStore } from '@/types'
+import type { Row, PlanStore, RAGResponse } from '@/types'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -13,9 +13,11 @@ const props = withDefaults(
   defineProps<{
     store: PlanStore
     showShareButton?: boolean
+    planOverride?: RAGResponse | null
   }>(),
   {
     showShareButton: false,
+    planOverride: undefined,
   },
 )
 
@@ -26,15 +28,17 @@ const isEditing = ref(false)
 const editingCell = ref<{ rowIndex: number; field: keyof Row } | null>(null)
 
 const exerciseRows = computed(() => {
-  if (!props.store.currentPlan?.table) return []
+  const plan = props.planOverride || props.store.currentPlan
+  if (!plan?.table) return []
   // All rows except the last one (which should be the total)
-  return props.store.currentPlan.table.slice(0, -1)
+  return plan.table.slice(0, -1)
 })
 
 const totalRow = computed(() => {
-  if (!props.store.currentPlan?.table) return null
+  const plan = props.planOverride || props.store.currentPlan
+  if (!plan?.table) return null
   // The last row should be the total
-  const table = props.store.currentPlan.table
+  const table = plan.table
   return table.length > 0 ? table[table.length - 1] : null
 })
 
@@ -98,12 +102,27 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
       <div class="loading-spinner"></div>
       <p>{{ t('display.generating_plan_message') }}</p>
     </div>
-    <div v-else-if="store.hasPlan && store.currentPlan" class="plan-container">
+    <div v-else-if="store.hasPlan && (store.currentPlan || planOverride)" class="plan-container">
       <!-- Header -->
       <header class="plan-header">
-        <h2 class="plan-title">{{ store.currentPlan.title }}</h2>
-        <div class="plan-description">
-          {{ store.currentPlan.description }}
+        <div v-if="isEditing" class="edit-header">
+          <input
+            v-model="store.currentPlan!.title"
+            class="edit-title"
+            :placeholder="t('display.plan_title')"
+          />
+          <textarea
+            v-model="store.currentPlan!.description"
+            class="edit-description"
+            :placeholder="t('display.plan_description')"
+            rows="3"
+          ></textarea>
+        </div>
+        <div v-else>
+          <h2 class="plan-title">{{ (planOverride || store.currentPlan)?.title }}</h2>
+          <div class="plan-description">
+            {{ (planOverride || store.currentPlan)?.description }}
+          </div>
         </div>
       </header>
 
@@ -383,6 +402,46 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   font-size: 1rem;
   line-height: 1.6;
   opacity: 0.95;
+}
+
+.edit-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.edit-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  text-align: center;
+}
+
+.edit-title::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.edit-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.edit-description::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .table-container {

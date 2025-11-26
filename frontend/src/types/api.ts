@@ -35,6 +35,8 @@ export enum ApiEndpoints {
   SCRAPE = 'scrape',
   UPSERT_PLAN = 'upsert-plan',
   SHARE = 'share-plan',
+  CONVERSATION = 'memory/conversation',
+  ADD_PLAN_TO_HISTORY = 'add-plan-to-history',
 }
 
 // Form validation types

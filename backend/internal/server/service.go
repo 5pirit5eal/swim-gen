@@ -370,6 +370,59 @@ func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request
 	}
 }
 
+// AddPlanToHistoryHandler handles the request to add an existing plan to a user's history.
+// This is used when a user wants to save a plan snapshot from conversation history.
+// @Summary Add a plan to user history
+// @Description Add an existing plan to the authenticated user's history
+// @Tags Training Plans
+// @Accept json
+// @Produce json
+// @Param request body models.Plan true "Plan to add to history"
+// @Success 200 {object} models.AddPlanToHistoryResponse
+// @Failure 400 {string} string "Bad request"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Internal server error"
+// @Router /add-plan-to-history [post]
+func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Adding plan to user history...")
+
+	// Parse request body
+	var plan models.Plan
+	err := models.GetRequestJSON(req, &plan)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userID := req.Context().Value(models.UserIdCtxKey).(string)
+	if userID == "" {
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+
+	// Generate a new PlanID for the snapshot
+	plan.PlanID = uuid.NewString()
+
+	// Add to user history
+	err = rs.db.AddPlanToHistory(req.Context(), &plan, userID)
+	if err != nil {
+		logger.Error("Failed to add plan to user history", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with success and the new PlanID
+	response := models.AddPlanToHistoryResponse{
+		Message: "Plan added to history successfully",
+		PlanID:  plan.PlanID,
+	}
+	logger.Info("Plan added to history successfully", "plan_id", plan.PlanID)
+	if err := models.WriteResponseJSON(w, http.StatusOK, response); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
 // SharePlanHandler handles the request to share a training plan.
 // It generates a shareable url_hash or processes email sharing based on the method provided.
 // @Summary Share a training plan

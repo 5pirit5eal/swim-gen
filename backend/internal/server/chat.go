@@ -74,7 +74,7 @@ func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Build response
 	response := models.ChatResponsePayload{
-		PlanID:   updatedPlan.PlanID,
+		PlanID:   chatReq.PlanID,
 		Response: aiMessage.Content,
 	}
 

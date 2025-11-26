@@ -1,5 +1,15 @@
 basePath: /
 definitions:
+  models.AddPlanToHistoryResponse:
+    description: Response containing the new plan ID and a success message
+    properties:
+      message:
+        example: Plan added to history successfully
+        type: string
+      plan_id:
+        example: plan_123
+        type: string
+    type: object
   models.ChatRequest:
     description: Request payload for conversational training plan creation and refinement
     properties:
@@ -116,6 +126,15 @@ definitions:
         example: Generate a swim training plan for improving freestyle technique
         type: string
     type: object
+  models.GetConversationResponse:
+    description: Response containing the conversation history
+    properties:
+      conversation:
+        description: Conversation history
+        items:
+          $ref: '#/definitions/models.MessagePayload'
+        type: array
+    type: object
   models.HealthStatus:
     description: Health status of the service and its components
     properties:
@@ -138,6 +157,44 @@ definitions:
     x-enum-varnames:
     - LanguageEN
     - LanguageDE
+  models.MessagePayload:
+    description: Snapshot of a training plan
+    properties:
+      content:
+        type: string
+      created_at:
+        description: Table containing the training plan details
+        type: string
+      id:
+        type: string
+      next_message_id:
+        type: string
+      plan_id:
+        type: string
+      plan_snapshot:
+        $ref: '#/definitions/models.RAGResponse'
+      previous_message_id:
+        type: string
+      role:
+        $ref: '#/definitions/models.Role'
+      user_id:
+        type: string
+    type: object
+  models.Plan:
+    description: A swim training plan with title, description, and structured table
+    properties:
+      description:
+        type: string
+      planID:
+        type: string
+      table:
+        description: A structured training plan table containing exercise rows
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
+      title:
+        type: string
+    type: object
   models.PlanToPDFRequest:
     description: Request payload for exporting a training plan to PDF format
     properties:
@@ -231,6 +288,14 @@ definitions:
         example: Advanced Freestyle Training
         type: string
     type: object
+  models.Role:
+    enum:
+    - user
+    - ai
+    type: string
+    x-enum-varnames:
+    - RoleUser
+    - RoleAI
   models.Row:
     description: A single exercise entry with amount, distance, breaks, content, intensity
       and total volume
@@ -364,6 +429,40 @@ paths:
       summary: Donate a new training plan
       tags:
       - Donation
+  /add-plan-to-history:
+    post:
+      consumes:
+      - application/json
+      description: Add an existing plan to the authenticated user's history
+      parameters:
+      - description: Plan to add to history
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Plan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AddPlanToHistoryResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Add a plan to user history
+      tags:
+      - Training Plans
   /chat:
     post:
       consumes:
@@ -520,6 +619,36 @@ paths:
       security:
       - BearerAuth: []
       summary: Delete an entire conversation
+      tags:
+      - Memory
+    get:
+      consumes:
+      - application/json
+      description: Get the full conversation history for a specific plan
+      parameters:
+      - description: Plan ID
+        in: query
+        name: plan_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Conversation history
+          schema:
+            $ref: '#/definitions/models.GetConversationResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get conversation history
       tags:
       - Memory
   /memory/message:

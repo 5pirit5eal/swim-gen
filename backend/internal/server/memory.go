@@ -159,3 +159,72 @@ func (rs *RAGService) DeleteConversationHandler(w http.ResponseWriter, req *http
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }
+
+// GetConversationHandler handles the retrieval of the conversation history for a plan.
+// @Summary Get conversation history
+// @Description Get the full conversation history for a specific plan
+// @Tags Memory
+// @Accept json
+// @Produce json
+// @Param plan_id query string true "Plan ID"
+// @Success 200 {array} models.MessagePayload "Conversation history"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /memory/conversation [get]
+func (rs *RAGService) GetConversationHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Getting conversation history...")
+
+	// Get authenticated user ID
+	userID, ok := req.Context().Value(models.UserIdCtxKey).(string)
+	if !ok || userID == "" {
+		logger.Error("User ID not found in context")
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+
+	planID := req.URL.Query().Get("plan_id")
+	if planID == "" {
+		http.Error(w, "plan_id is required", http.StatusBadRequest)
+		return
+	}
+
+	messages, err := rs.db.Memory.GetConversation(req.Context(), planID)
+	if err != nil {
+		logger.Error("Failed to get conversation", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Convert messages to MessagePayloads
+	var messagePayloads []models.MessagePayload
+	for _, msg := range messages {
+		msgPayload := models.MessagePayload{
+			ID:                msg.ID,
+			PlanID:            msg.PlanID,
+			UserID:            msg.UserID,
+			Role:              msg.Role,
+			Content:           msg.Content,
+			PreviousMessageID: msg.PreviousMessageID,
+			NextMessageID:     msg.NextMessageID,
+			PlanSnapshot:      nil,
+			CreatedAt:         msg.CreatedAt,
+		}
+		if msg.PlanSnapshot != nil {
+			msgPayload.PlanSnapshot = &models.RAGResponse{
+				Title:       msg.PlanSnapshot.Title,
+				Description: msg.PlanSnapshot.Description,
+				PlanID:      msg.PlanSnapshot.PlanID,
+				Table:       msg.PlanSnapshot.Table,
+			}
+		}
+		messagePayloads = append(messagePayloads, msgPayload)
+
+	}
+
+	logger.Info("Conversation retrieved successfully", "plan_id", planID, "count", len(messages))
+	if err := models.WriteResponseJSON(w, http.StatusOK, messagePayloads); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
