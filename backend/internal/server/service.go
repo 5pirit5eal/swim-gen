@@ -194,6 +194,19 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		err = rs.db.AddPlanToHistory(req.Context(), p, userId)
 		if err != nil {
 			logger.Error("Failed to add plan to user history", httplog.ErrAttr(err))
+		} else {
+			// Add the initial conversation to the memory
+			// 1. User message
+			userMsg, err := rs.db.Memory.AddMessage(req.Context(), p.PlanID, userId, models.RoleUser, qr.Content, nil, nil)
+			if err != nil {
+				logger.Error("Failed to add user message to memory", httplog.ErrAttr(err))
+			} else {
+				// 2. AI message with plan snapshot
+				_, err = rs.db.Memory.AddMessage(req.Context(), p.PlanID, userId, models.RoleAI, p.Description, &userMsg.ID, p)
+				if err != nil {
+					logger.Error("Failed to add AI message to memory", httplog.ErrAttr(err))
+				}
+			}
 		}
 	}
 

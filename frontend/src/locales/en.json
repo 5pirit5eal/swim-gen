@@ -5,6 +5,18 @@
     "hero_title": "AI-Powered Swimming Training Plans",
     "hero_description": "Generate personalized training plans for swimmers, triathletes, and coaches. Just describe what you're looking for, and our system will create a custom training for you."
   },
+  "home": {
+    "banner": {
+      "not_logged_in": {
+        "text": "If you want to save a future plan or use interactive editing create an account or log in.",
+        "button": "Login"
+      },
+      "logged_in": {
+        "text": "To view this plan in your history and use interactive refinement click here.",
+        "button": "Interactive Refinement"
+      }
+    }
+  },
   "header": {
     "home": "Home",
     "about": "About",

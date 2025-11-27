@@ -6,7 +6,7 @@ import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useAuthStore } from '@/stores/auth'
 import type { RAGResponse, Message } from '@/types'
 import { storeToRefs } from 'pinia'
-import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
@@ -22,7 +22,6 @@ const { currentPlan, isLoading, isFetchingConversation, error, conversation, his
 // Track which messages have expanded plan snapshots
 const expandedSnapshots = ref<Set<string>>(new Set())
 const chatInput = ref('')
-const chatMessagesContainer = ref<HTMLElement | null>(null)
 const displayedMessages = ref<Message[]>([])
 
 // Layout & Tabs
@@ -43,14 +42,12 @@ watch(
         displayedMessages.value.push(msg)
         await new Promise(resolve => setTimeout(resolve, 150)) // 150ms delay for smooth transition
       }
-      await scrollToBottom()
     } else if (newVal.length > displayedMessages.value.length) {
       // New message(s) added
       const newMessages = newVal.slice(displayedMessages.value.length)
       for (const msg of newMessages) {
         displayedMessages.value.push(msg)
       }
-      await scrollToBottom()
     } else {
       // Reset or other change, just sync
       displayedMessages.value = [...newVal]
@@ -83,14 +80,6 @@ async function handleSendMessage() {
   const message = chatInput.value
   chatInput.value = ''
   await trainingStore.sendMessage(message)
-  await scrollToBottom()
-}
-
-async function scrollToBottom() {
-  await nextTick()
-  if (chatMessagesContainer.value) {
-    chatMessagesContainer.value.scrollTop = chatMessagesContainer.value.scrollHeight
-  }
 }
 
 async function initializeView() {
@@ -122,7 +111,6 @@ async function initializeView() {
   }
 
   await trainingStore.fetchConversation(planId)
-  await scrollToBottom()
 }
 
 onMounted(async () => {
@@ -173,100 +161,90 @@ onMounted(() => {
       </div>
 
       <!-- Plan Tab -->
-      <div class="column">
-        <Transition name="fade">
-          <div class="column-content" v-show="activeTab === 'plan'">
-            <!-- Current Plan Display -->
-            <section class="current-plan-section">
-              <div v-if="isLoading" class="loading-state">
-                <div class="loading-spinner"></div>
-                <p>{{ t('shared.loading') }}</p>
-              </div>
-              <TrainingPlanDisplay v-else :store="trainingStore" :show-share-button="true" />
-            </section>
+      <Transition name="fade">
+        <div class="tab-content" v-show="activeTab === 'plan'">
+          <!-- Current Plan Display -->
+          <section>
+            <div v-if="isLoading" class="loading-state">
+              <div class="loading-spinner"></div>
+              <p>{{ t('shared.loading') }}</p>
+            </div>
+            <TrainingPlanDisplay v-else :store="trainingStore" :show-share-button="true" />
+          </section>
 
-            <!-- Metadata Section -->
-            <section v-if="planMetadata" class="metadata-section">
-              <h3>{{ t('interaction.metadata') }}</h3>
-              <div class="metadata-grid">
-                <div class="metadata-item">
-                  <span class="label">{{ t('interaction.created_at') }}</span>
-                  <span class="value">{{ new Date(planMetadata.created_at).toLocaleString() }}</span>
-                </div>
-                <div class="metadata-item">
-                  <span class="label">{{ t('interaction.updated_at') }}</span>
-                  <span class="value">{{ new Date(planMetadata.updated_at).toLocaleString() }}</span>
-                </div>
+          <!-- Metadata Section -->
+          <section v-if="planMetadata" class="metadata-section">
+            <h3>{{ t('interaction.metadata') }}</h3>
+            <div class="metadata-grid">
+              <div class="metadata-item">
+                <span class="label">{{ t('interaction.created_at') }}</span>
+                <span class="value">{{ new Date(planMetadata.created_at).toLocaleString() }}</span>
               </div>
-            </section>
-          </div>
-        </Transition>
-      </div>
+              <div class="metadata-item">
+                <span class="label">{{ t('interaction.updated_at') }}</span>
+                <span class="value">{{ new Date(planMetadata.updated_at).toLocaleString() }}</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </Transition>
 
       <!-- Chat Tab -->
-      <div class="column">
-        <Transition name="fade">
-          <div class="column-content chat-container" v-show="activeTab === 'chat'">
-            <!-- Chat Messages Area -->
-            <div class="chat-messages" ref="chatMessagesContainer">
-              <div v-if="displayedMessages.length === 0 && !isFetchingConversation" class="empty-chat">
-                <p>{{ t('interaction.no_messages') }}</p>
-              </div>
-              <TransitionGroup name="message">
-                <div v-for="message in displayedMessages" :key="message.id"
-                  :class="['message', `message-${message.role}`]">
-                  <div class="message-header">
-                    <span class="message-role">{{
-                      message.role === 'user' ? (authStore.user?.user_metadata?.username || t('interaction.you')) :
-                        t('interaction.ai')
+      <Transition name="fade">
+        <div class="tab-content chat-container" v-show="activeTab === 'chat'">
+          <!-- Chat Messages Area -->
+          <div class="chat-messages">
+            <div v-if="displayedMessages.length === 0 && !isFetchingConversation" class="empty-chat">
+              <p>{{ t('interaction.no_messages') }}</p>
+            </div>
+            <TransitionGroup name="message">
+              <div v-for="message in displayedMessages" :key="message.id"
+                :class="['message', `message-${message.role}`]">
+                <div class="message-header">
+                  <span class="message-role">{{
+                    message.role === 'user' ? (authStore.user?.user_metadata?.username || t('interaction.you')) :
+                      t('interaction.ai')
+                  }}</span>
+                  <span class="message-time">{{
+                    new Date(message.created_at).toLocaleString()
                     }}</span>
-                    <span class="message-time">{{
-                      new Date(message.created_at).toLocaleString()
-                      }}</span>
-                  </div>
+                </div>
 
-                  <div class="message-content">
-                    {{ message.content }}
-                  </div>
+                <div class="message-content">
+                  {{ message.content }}
+                </div>
 
-                  <!-- Plan Snapshot (for AI messages) -->
-                  <div v-if="message.plan_snapshot && message.role === 'ai'" class="snapshot-container">
-                    <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
-                      <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
-                      {{ isExpanded(message.id) ? t('interaction.hide_plan') : t('interaction.show_plan') }}
-                    </button>
+                <!-- Plan Snapshot (for AI messages) -->
+                <div v-if="message.plan_snapshot && message.role === 'ai'" class="snapshot-container">
+                  <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
+                    <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
+                    {{ isExpanded(message.id) ? t('interaction.hide_plan') : t('interaction.show_plan') }}
+                  </button>
 
-                    <div v-if="isExpanded(message.id)" class="snapshot-content">
-                      <SimplePlanDisplay :title="message.plan_snapshot.title"
-                        :description="message.plan_snapshot.description" :table="message.plan_snapshot.table"
-                        :plan-id="message.plan_snapshot.plan_id" @save="handleSaveSnapshot" />
-                    </div>
+                  <div v-if="isExpanded(message.id)" class="snapshot-content">
+                    <SimplePlanDisplay :title="message.plan_snapshot.title"
+                      :description="message.plan_snapshot.description" :table="message.plan_snapshot.table"
+                      :plan-id="message.plan_snapshot.plan_id" @save="handleSaveSnapshot" />
                   </div>
                 </div>
-              </TransitionGroup>
-            </div>
-
-            <!-- Chat Input Area -->
-            <div class="chat-input-wrapper">
-              <label class="input-label">{{ t('form.describe_training_needs') }}</label>
-              <form @submit.prevent="handleSendMessage" class="chat-form">
-                <input v-model="chatInput" type="text"
-                  :placeholder="t('interaction.chat_placeholder', 'Nachricht eingeben...')" class="chat-input"
-                  :disabled="isLoading" />
-                <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
-                  <IconSend class="send-icon" />
-                </button>
-              </form>
-            </div>
+              </div>
+            </TransitionGroup>
           </div>
-        </Transition>
-      </div>
 
-    </div>
-
-    <div v-else-if="isLoading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>{{ t('shared.loading') }}</p>
+          <!-- Chat Input Area -->
+          <div class="chat-input-wrapper">
+            <label class="input-label">{{ t('form.describe_training_needs') }}</label>
+            <form @submit.prevent="handleSendMessage" class="chat-form">
+              <input v-model="chatInput" type="text"
+                :placeholder="t('interaction.chat_placeholder', 'Nachricht eingeben...')" class="chat-input"
+                :disabled="isLoading" />
+              <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
+                <IconSend class="send-icon" />
+              </button>
+            </form>
+          </div>
+        </div>
+      </Transition>
     </div>
 
     <div v-else class="error-state">
@@ -300,7 +278,7 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.column-content {
+.tab-content {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -495,7 +473,7 @@ onMounted(() => {
 }
 
 .message-ai {
-  border-left: 3px solid var(--color-secondary, #6366f1);
+  border-left: 3px solid var(--color-primary-hover);
   align-self: flex-start;
   margin-right: 10%;
   border-bottom-left-radius: 0;

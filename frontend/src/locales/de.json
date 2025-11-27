@@ -6,6 +6,18 @@
     "hero_title": "KI-Generierte Schwimmpläne",
     "hero_description": "Generiere personalisierte Trainingspläne für Schwimmer, Triathleten und Trainer. Beschreibe einfach, was du suchst, und unserer System erstellt ein individuelles Training für dich."
   },
+  "home": {
+    "banner": {
+      "not_logged_in": {
+        "text": "Wenn du einen zukünftigen Plan speichern oder interaktive Bearbeitung nutzen möchtest, erstelle ein Konto oder melde dich an.",
+        "button": "Anmelden"
+      },
+      "logged_in": {
+        "text": "Um diesen Plan in deinem Verlauf anzuzeigen und interaktive Verfeinerung zu nutzen, klicke hier.",
+        "button": "Interaktive Verfeinerung"
+      }
+    }
+  },
   "header": {
     "home": "Startseite",
     "about": "Über uns",
