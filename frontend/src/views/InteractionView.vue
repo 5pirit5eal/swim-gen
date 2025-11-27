@@ -17,13 +17,16 @@ const router = useRouter()
 const trainingStore = useTrainingPlanStore()
 const authStore = useAuthStore()
 
-const { currentPlan, isLoading, error, conversation, historyMetadata } = storeToRefs(trainingStore)
+const { currentPlan, isLoading, isFetchingConversation, error, conversation, historyMetadata } = storeToRefs(trainingStore)
 
 // Track which messages have expanded plan snapshots
 const expandedSnapshots = ref<Set<string>>(new Set())
 const chatInput = ref('')
-const chatInputSection = ref<HTMLElement | null>(null)
+const chatMessagesContainer = ref<HTMLElement | null>(null)
 const displayedMessages = ref<Message[]>([])
+
+// Layout & Tabs
+const activeTab = ref<'plan' | 'chat'>('plan')
 
 watch(
   () => conversation.value,
@@ -40,13 +43,14 @@ watch(
         displayedMessages.value.push(msg)
         await new Promise(resolve => setTimeout(resolve, 150)) // 150ms delay for smooth transition
       }
-      await scrollToChatInput()
+      await scrollToBottom()
     } else if (newVal.length > displayedMessages.value.length) {
       // New message(s) added
       const newMessages = newVal.slice(displayedMessages.value.length)
       for (const msg of newMessages) {
         displayedMessages.value.push(msg)
       }
+      await scrollToBottom()
     } else {
       // Reset or other change, just sync
       displayedMessages.value = [...newVal]
@@ -79,12 +83,13 @@ async function handleSendMessage() {
   const message = chatInput.value
   chatInput.value = ''
   await trainingStore.sendMessage(message)
+  await scrollToBottom()
 }
 
-async function scrollToChatInput() {
+async function scrollToBottom() {
   await nextTick()
-  if (chatInputSection.value) {
-    chatInputSection.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  if (chatMessagesContainer.value) {
+    chatMessagesContainer.value.scrollTop = chatMessagesContainer.value.scrollHeight
   }
 }
 
@@ -117,11 +122,15 @@ async function initializeView() {
   }
 
   await trainingStore.fetchConversation(planId)
-  await scrollToChatInput()
+  await scrollToBottom()
 }
 
 onMounted(async () => {
   await initializeView()
+})
+
+onUnmounted(() => {
+  trainingStore.clear()
 })
 
 watch(
@@ -137,8 +146,6 @@ watch(
   }
 )
 
-
-
 const planMetadata = ref<{ plan_id: string; created_at: string; updated_at: string } | undefined>()
 
 function getMetadata() {
@@ -149,86 +156,112 @@ function getMetadata() {
 onMounted(() => {
   planMetadata.value = getMetadata()
 })
-onUnmounted(() => {
-  trainingStore.clear()
-})
 </script>
 
 <template>
   <div class="interaction-view">
-    <div v-if="currentPlan" class="container">
-      <!-- Chat Messages -->
-      <section v-if="displayedMessages.length !== 0" class="chat-section">
-        <div class="messages">
-          <TransitionGroup name="message">
-            <div v-for="message in displayedMessages" :key="message.id" :class="['message', `message-${message.role}`]">
-              <div class="message-header">
-                <span class="message-role">{{
-                  message.role === 'user' ? (authStore.user?.user_metadata?.username || t('interaction.you')) :
-                    t('interaction.ai')
-                }}</span>
-                <span class="message-time">{{
-                  new Date(message.created_at).toLocaleString()
-                }}</span>
+    <div v-if="currentPlan" class="layout-container">
+
+      <!-- Tab Switcher -->
+      <div class="tab-switcher">
+        <button class="tab-button" :class="{ active: activeTab === 'plan' }" @click="activeTab = 'plan'">
+          {{ t('interaction.plan_tab') }}
+        </button>
+        <button class="tab-button" :class="{ active: activeTab === 'chat' }" @click="activeTab = 'chat'">
+          {{ t('interaction.conversation_tab') }}
+        </button>
+      </div>
+
+      <!-- Plan Tab -->
+      <div class="column">
+        <Transition name="fade">
+          <div class="column-content" v-show="activeTab === 'plan'">
+            <!-- Current Plan Display -->
+            <section class="current-plan-section">
+              <div v-if="isLoading" class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>{{ t('shared.loading') }}</p>
               </div>
+              <TrainingPlanDisplay v-else :store="trainingStore" :show-share-button="true" />
+            </section>
 
-              <div class="message-content">
-                {{ message.content }}
-              </div>
-
-              <!-- Plan Snapshot (for AI messages) -->
-              <div v-if="message.plan_snapshot && message.role === 'ai'" class="snapshot-container">
-                <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
-                  <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
-                  {{ isExpanded(message.id) ? t('interaction.hide_plan') : t('interaction.show_plan') }}
-                </button>
-
-                <div v-if="isExpanded(message.id)" class="snapshot-content">
-                  <SimplePlanDisplay :title="message.plan_snapshot.title"
-                    :description="message.plan_snapshot.description" :table="message.plan_snapshot.table"
-                    :plan-id="message.plan_snapshot.plan_id" @save="handleSaveSnapshot" />
+            <!-- Metadata Section -->
+            <section v-if="planMetadata" class="metadata-section">
+              <h3>{{ t('interaction.metadata') }}</h3>
+              <div class="metadata-grid">
+                <div class="metadata-item">
+                  <span class="label">{{ t('interaction.created_at') }}</span>
+                  <span class="value">{{ new Date(planMetadata.created_at).toLocaleString() }}</span>
+                </div>
+                <div class="metadata-item">
+                  <span class="label">{{ t('interaction.updated_at') }}</span>
+                  <span class="value">{{ new Date(planMetadata.updated_at).toLocaleString() }}</span>
                 </div>
               </div>
+            </section>
+          </div>
+        </Transition>
+      </div>
+
+      <!-- Chat Tab -->
+      <div class="column">
+        <Transition name="fade">
+          <div class="column-content chat-container" v-show="activeTab === 'chat'">
+            <!-- Chat Messages Area -->
+            <div class="chat-messages" ref="chatMessagesContainer">
+              <div v-if="displayedMessages.length === 0 && !isFetchingConversation" class="empty-chat">
+                <p>{{ t('interaction.no_messages') }}</p>
+              </div>
+              <TransitionGroup name="message">
+                <div v-for="message in displayedMessages" :key="message.id"
+                  :class="['message', `message-${message.role}`]">
+                  <div class="message-header">
+                    <span class="message-role">{{
+                      message.role === 'user' ? (authStore.user?.user_metadata?.username || t('interaction.you')) :
+                        t('interaction.ai')
+                    }}</span>
+                    <span class="message-time">{{
+                      new Date(message.created_at).toLocaleString()
+                      }}</span>
+                  </div>
+
+                  <div class="message-content">
+                    {{ message.content }}
+                  </div>
+
+                  <!-- Plan Snapshot (for AI messages) -->
+                  <div v-if="message.plan_snapshot && message.role === 'ai'" class="snapshot-container">
+                    <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
+                      <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
+                      {{ isExpanded(message.id) ? t('interaction.hide_plan') : t('interaction.show_plan') }}
+                    </button>
+
+                    <div v-if="isExpanded(message.id)" class="snapshot-content">
+                      <SimplePlanDisplay :title="message.plan_snapshot.title"
+                        :description="message.plan_snapshot.description" :table="message.plan_snapshot.table"
+                        :plan-id="message.plan_snapshot.plan_id" @save="handleSaveSnapshot" />
+                    </div>
+                  </div>
+                </div>
+              </TransitionGroup>
             </div>
-          </TransitionGroup>
-        </div>
-      </section>
 
-      <!-- Current Plan Display -->
-      <section class="current-plan-section">
-        <div v-if="isLoading" class="loading-state">
-          <div class="loading-spinner"></div>
-          <p>{{ t('shared.loading') }}</p>
-        </div>
-        <TrainingPlanDisplay v-else :store="trainingStore" :show-share-button="true" />
-      </section>
-
-      <!-- Chat Input -->
-      <section class="chat-input-section" ref="chatInputSection">
-        <form @submit.prevent="handleSendMessage" class="chat-form">
-          <input v-model="chatInput" type="text"
-            :placeholder="t('interaction.chat_placeholder', 'Nachricht eingeben...')" class="chat-input"
-            :disabled="isLoading" />
-          <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
-            <IconSend class="send-icon" />
-          </button>
-        </form>
-      </section>
-
-      <!-- Metadata Section -->
-      <section v-if="planMetadata" class="metadata-section">
-        <h3>{{ t('interaction.metadata') }}</h3>
-        <div class="metadata-grid">
-          <div class="metadata-item">
-            <span class="label">{{ t('interaction.created_at') }}</span>
-            <span class="value">{{ new Date(planMetadata.created_at).toLocaleString() }}</span>
+            <!-- Chat Input Area -->
+            <div class="chat-input-wrapper">
+              <label class="input-label">{{ t('form.describe_training_needs') }}</label>
+              <form @submit.prevent="handleSendMessage" class="chat-form">
+                <input v-model="chatInput" type="text"
+                  :placeholder="t('interaction.chat_placeholder', 'Nachricht eingeben...')" class="chat-input"
+                  :disabled="isLoading" />
+                <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
+                  <IconSend class="send-icon" />
+                </button>
+              </form>
+            </div>
           </div>
-          <div class="metadata-item">
-            <span class="label">{{ t('interaction.updated_at') }}</span>
-            <span class="value">{{ new Date(planMetadata.updated_at).toLocaleString() }}</span>
-          </div>
-        </div>
-      </section>
+        </Transition>
+      </div>
+
     </div>
 
     <div v-else-if="isLoading" class="loading-state">
@@ -245,14 +278,107 @@ onUnmounted(() => {
 <style scoped>
 .interaction-view {
   padding: 0.25rem 0 1rem 0;
-}
-
-.container {
+  display: flex;
+  flex-direction: column;
   max-width: 1080px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  margin: auto;
 }
 
+.layout-container {
+  margin: auto;
+  padding: 0 1rem;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.column-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* Chat Specific Styles */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 500px;
+  background: var(--color-background-soft);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chat-input-wrapper {
+  padding: 1rem;
+  background: var(--color-background);
+  border-top: 1px solid var(--color-border);
+}
+
+.input-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-soft);
+  margin-bottom: 0.5rem;
+}
+
+.tab-switcher {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  position: relative;
+  z-index: 10;
+}
+
+.tab-button {
+  background: color-mix(in srgb, var(--color-background), transparent 40%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  cursor: pointer;
+  border-radius: 24px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+.tab-button:hover {
+  background: color-mix(in srgb, var(--color-background), transparent 20%);
+  transform: translateY(-1px);
+}
+
+.tab-button.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary), transparent 70%);
+}
+
+/* Existing Styles Refined */
 .loading-state,
 .error-state {
   text-align: center;
@@ -314,14 +440,11 @@ onUnmounted(() => {
   }
 }
 
-.chat-section,
-.current-plan-section,
-.metadata-section,
-.chat-input-section {
-  margin-bottom: 2rem;
-}
-
-.chat-section {
+.metadata-section {
+  padding: 1.5rem;
+  background: var(--color-background-soft);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
   margin-top: 2rem;
 }
 
@@ -331,18 +454,34 @@ onUnmounted(() => {
   color: var(--color-heading);
 }
 
-.messages {
+.metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.metadata-item {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.25rem;
+}
+
+.metadata-item .label {
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+.metadata-item .value {
+  font-weight: 500;
+  color: var(--color-text);
 }
 
 .message {
-  background: var(--color-background-soft);
+  background: var(--color-background);
   border-radius: 8px;
   padding: 1rem;
   border: 1px solid var(--color-border);
-  max-width: 80%;
+  max-width: 90%;
   position: relative;
   transition: all 0.3s ease;
 }
@@ -350,14 +489,15 @@ onUnmounted(() => {
 .message-user {
   border-left: 3px solid var(--color-primary);
   align-self: flex-end;
-  margin-left: 20%;
+  margin-left: 10%;
   border-bottom-right-radius: 0;
+  background: var(--color-background-mute);
 }
 
 .message-ai {
   border-left: 3px solid var(--color-secondary, #6366f1);
   align-self: flex-start;
-  margin-right: 20%;
+  margin-right: 10%;
   border-bottom-left-radius: 0;
 }
 
@@ -376,7 +516,8 @@ onUnmounted(() => {
 }
 
 .message-time {
-  color: var(--color-text);
+  color: var(--color-text-soft);
+  font-size: 0.75rem;
 }
 
 .message-content {
@@ -418,43 +559,9 @@ onUnmounted(() => {
   margin-top: 1rem;
 }
 
-.metadata-section {
-  padding: 1.5rem;
-  background: var(--color-background-soft);
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-}
-
-.metadata-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-.metadata-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.metadata-item .label {
-  font-size: 0.875rem;
-  color: var(--color-text-soft);
-}
-
-.metadata-item .value {
-  font-weight: 500;
-  color: var(--color-text);
-}
-
-/* Chat Input Styles */
 .chat-form {
   display: flex;
   gap: 1rem;
-  background: var(--color-background-soft);
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
 }
 
 .chat-input {
@@ -512,5 +619,15 @@ onUnmounted(() => {
 .message-leave-to {
   opacity: 0;
   transform: translateY(20px);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

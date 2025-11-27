@@ -17,12 +17,9 @@ const { t } = useI18n()
 const router = useRouter()
 
 async function loadPlan(plan: RAGResponse & HistoryMetadata) {
-  if (window.innerWidth <= 768) sidebarStore.close()
-
   // Load plan and fetch conversation before navigation
-  trainingPlanStore.loadPlanFromHistory(plan)
-  await trainingPlanStore.fetchConversation(plan.plan_id)
-
+  await trainingPlanStore.loadPlanFromHistory(plan)
+  if (window.innerWidth <= 768) sidebarStore.close()
   router.push(`/plan/${plan.plan_id}`)
 }
 

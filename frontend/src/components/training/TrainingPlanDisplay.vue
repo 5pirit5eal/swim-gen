@@ -106,17 +106,9 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
       <!-- Header -->
       <header class="plan-header">
         <div v-if="isEditing" class="edit-header">
-          <input
-            v-model="store.currentPlan!.title"
-            class="edit-title"
-            :placeholder="t('display.plan_title')"
-          />
-          <textarea
-            v-model="store.currentPlan!.description"
-            class="edit-description"
-            :placeholder="t('display.plan_description')"
-            rows="3"
-          ></textarea>
+          <input v-model="store.currentPlan!.title" class="edit-title" :placeholder="t('display.plan_title')" />
+          <textarea v-model="store.currentPlan!.description" class="edit-description"
+            :placeholder="t('display.plan_description')" rows="3"></textarea>
         </div>
         <div v-else>
           <h2 class="plan-title">{{ (planOverride || store.currentPlan)?.title }}</h2>
@@ -242,75 +234,39 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
               <tr class="exercise-row">
                 <!-- Amount Cell -->
                 <td @click="startEditing(index, 'Amount')" class="anchor-cell">
-                  <BaseTableAction
-                    v-if="isEditing"
-                    :is-first="index === 0"
-                    :is-last="index === exerciseRows.length - 1"
-                    @add="handleAddRow(index)"
-                    @remove="handleRemoveRow(index)"
-                    @move-up="handleMoveRow(index, 'up')"
-                    @move-down="handleMoveRow(index, 'down')"
-                  />
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Amount"
-                    @blur="stopEditing($event, index, 'Amount')"
-                    @keyup.enter="stopEditing($event, index, 'Amount')"
-                    class="editable-small"
-                  />
+                  <BaseTableAction v-if="isEditing" :is-first="index === 0" :is-last="index === exerciseRows.length - 1"
+                    @add="handleAddRow(index)" @remove="handleRemoveRow(index)" @move-up="handleMoveRow(index, 'up')"
+                    @move-down="handleMoveRow(index, 'down')" />
+                  <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Amount"
+                    @blur="stopEditing($event, index, 'Amount')" @keyup.enter="stopEditing($event, index, 'Amount')"
+                    class="editable-small" />
                   <span v-else>{{ row.Amount }}</span>
                 </td>
                 <td>{{ row.Multiplier }}</td>
                 <!-- Distance Cell -->
                 <td @click="startEditing(index, 'Distance')">
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Distance"
-                    @blur="stopEditing($event, index, 'Distance')"
-                    @keyup.enter="stopEditing($event, index, 'Distance')"
-                    class="editable-small"
-                  />
+                  <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Distance"
+                    @blur="stopEditing($event, index, 'Distance')" @keyup.enter="stopEditing($event, index, 'Distance')"
+                    class="editable-small" />
                   <span v-else>{{ row.Distance }}</span>
                 </td>
                 <!-- Intensity Cell -->
                 <td @click="startEditing(index, 'Break')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Break"
-                    @blur="stopEditing($event, index, 'Break')"
-                    @keyup.enter="stopEditing($event, index, 'Break')"
-                    class="editable-small"
-                  />
+                  <input type="text" v-if="isEditing" :value="row.Break" @blur="stopEditing($event, index, 'Break')"
+                    @keyup.enter="stopEditing($event, index, 'Break')" class="editable-small" />
                   <span v-else>{{ row.Break }}</span>
                 </td>
                 <!-- Content Cell -->
                 <td class="content-cell" @click="startEditing(index, 'Content')">
-                  <textarea
-                    v-if="isEditing"
-                    :value="row.Content"
-                    @blur="stopEditing($event, index, 'Content')"
-                    @keyup.enter="stopEditing($event, index, 'Content')"
-                    class="editable-area"
-                  ></textarea>
+                  <textarea v-if="isEditing" :value="row.Content" @blur="stopEditing($event, index, 'Content')"
+                    @keyup.enter="stopEditing($event, index, 'Content')" class="editable-area"></textarea>
                   <span v-else>{{ row.Content }}</span>
                 </td>
                 <!-- Intensity Cell -->
                 <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Intensity"
+                  <input type="text" v-if="isEditing" :value="row.Intensity"
                     @blur="stopEditing($event, index, 'Intensity')"
-                    @keyup.enter="stopEditing($event, index, 'Intensity')"
-                    class="editable-small"
-                  />
+                    @keyup.enter="stopEditing($event, index, 'Intensity')" class="editable-small" />
                   <span v-else>{{ row.Intensity }}</span>
                 </td>
                 <td class="total-cell">{{ row.Sum }}</td>
@@ -363,7 +319,6 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
 
 <style scoped>
 .training-plan-display {
-  margin: 2rem auto;
   background: var(--color-background-soft);
   border-radius: 8px;
   border: 1px solid var(--color-border);
@@ -373,6 +328,7 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   background: var(--color-background);
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
 }
 
 @media (max-width: 740px) {
@@ -509,8 +465,8 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   }
 }
 
-.exercise-table td > span,
-.exercise-table td > textarea {
+.exercise-table td>span,
+.exercise-table td>textarea {
   display: block;
 }
 
@@ -699,6 +655,7 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   padding: 1.5rem;
   background: var(--color-background-soft);
   text-align: center;
+  margin-top: 1rem;
 }
 
 .edit-btn {

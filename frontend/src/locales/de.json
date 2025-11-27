@@ -347,6 +347,8 @@
     "no_messages": "Noch keine Nachrichten in dieser Konversation.",
     "you": "Du",
     "ai": "Swim Gen",
+    "conversation_tab": "Interaktive Verfeinerung",
+    "plan_tab": "Trainingsplan",
     "hide_plan": "Plan verbergen",
     "show_plan": "Plan anzeigen",
     "metadata": "Metadaten",

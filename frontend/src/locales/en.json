@@ -344,6 +344,8 @@
     "no_messages": "No messages in this conversation yet.",
     "you": "You",
     "ai": "Swim Gen",
+    "conversation_tab": "Interactive Refinement",
+    "plan_tab": "Training Plan",
     "hide_plan": "Hide Plan",
     "show_plan": "Show Plan",
     "metadata": "Metadata",

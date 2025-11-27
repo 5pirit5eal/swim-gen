@@ -11,6 +11,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   const currentPlan = ref<RAGResponse | null>(null)
   const isLoading = ref(false)
   const isFetchingHistory = ref(false)
+  const isFetchingConversation = ref(false)
   const error = ref<string | null>(null)
   const generationHistory = ref<RAGResponse[]>([])
   const historyMetadata = ref<HistoryMetadata[]>([])
@@ -181,7 +182,10 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   }
 
   // Loads a plan from history into the editor
-  function loadPlanFromHistory(plan: RAGResponse) {
+  async function loadPlanFromHistory(plan: RAGResponse) {
+    if (!userStore.user) return
+    if (!plan.plan_id) return
+    await fetchConversation(plan.plan_id)
     currentPlan.value = JSON.parse(JSON.stringify(plan)) // Deep copy to prevent accidental edits
   }
 
@@ -264,6 +268,8 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   // Fetches the conversation history for a plan
   async function fetchConversation(planId: string) {
     if (!userStore.user) return
+    isFetchingConversation.value = true
+    conversation.value = []
 
     const { data, error: fetchError } = await apiClient.getConversation(planId)
     if (fetchError) {
@@ -279,6 +285,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     } else {
       conversation.value = []
     }
+    isFetchingConversation.value = false
   }
 
   // Saves a snapshot to user history
@@ -361,6 +368,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     currentPlan,
     isLoading,
     isFetchingHistory,
+    isFetchingConversation,
     error,
     generationHistory,
     historyMetadata,

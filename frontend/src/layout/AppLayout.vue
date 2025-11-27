@@ -61,7 +61,6 @@ const sidebarStore = useSidebarStore()
 }
 
 .main-content {
-  margin-block: auto;
   container-type: inherit;
   padding: 0 2rem;
   position: relative;

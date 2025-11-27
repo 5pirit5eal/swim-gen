@@ -52,7 +52,7 @@ onUnmounted(() => {
 
       <!-- Main content -->
       <section>
-        <TrainingPlanForm />
+        <TrainingPlanForm class="training-plan-form" />
         <div ref="planDisplayContainer">
           <TrainingPlanDisplay :store="trainingStore" :show-share-button="!!authStore.user" />
         </div>
@@ -70,6 +70,10 @@ onUnmounted(() => {
   max-width: 1080px;
   margin: 0 auto;
   padding: 0 1rem;
+}
+
+.training-plan-form {
+  margin: 2rem auto;
 }
 
 .hero {
