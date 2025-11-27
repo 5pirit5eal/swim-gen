@@ -345,7 +345,7 @@ function autoResize(event: Event) {
 .plan-container {
   background: var(--color-background);
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px var(--color-shadow);
 }
 
 @media (max-width: 740px) {
@@ -390,31 +390,37 @@ function autoResize(event: Event) {
   font-size: 1.5rem;
   font-weight: 700;
   padding: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--color-background-soft);
+  color: var(--color-text);
   text-align: center;
 }
 
 .edit-title::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text);
 }
 
 .edit-description {
   font-size: 1rem;
   line-height: 1.6;
   padding: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--color-background-soft);
+  color: var(--color-text);
   font-family: inherit;
   resize: vertical;
 }
 
 .edit-description::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text);
+}
+
+.edit-title:focus,
+.edit-description:focus {
+  outline: 2px solid var(--color-text);
+  border: 1px solid var(--color-primary);
 }
 
 .table-container {
