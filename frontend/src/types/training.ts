@@ -133,3 +133,20 @@ export const TRAINING_TYPE_OPTIONS = [
   { value: 'Atemmangel', label: 'form.training_type_breath_control' },
   { value: 'Wettkampfvorbereitung', label: 'form.training_type_race_preparation' },
 ] as const
+
+// Chat API Request structure
+export interface ChatRequest {
+  plan_id?: string
+  message: string
+  language?: string
+  pool_length?: 25 | 50 | 'Freiwasser'
+}
+
+// Chat API Response structure
+export interface ChatResponsePayload {
+  plan_id: string
+  response: string
+  title?: string
+  description?: string
+  table?: Row[]
+}

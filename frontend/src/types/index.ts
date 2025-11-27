@@ -17,6 +17,8 @@ export type {
   UpsertPlanRequest,
   UpsertPlanResponse,
   PlanStore,
+  ChatRequest,
+  ChatResponsePayload,
 } from './training'
 
 // Export filter option constants

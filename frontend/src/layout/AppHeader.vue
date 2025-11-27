@@ -2,6 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useSidebarStore } from '@/stores/sidebar'
+import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { toast } from 'vue3-toastify'
 import { useRouter } from 'vue-router'
 import IconMenu from '@/components/icons/IconMenu.vue'
@@ -12,11 +13,13 @@ const { t } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
 const sidebarStore = useSidebarStore()
+const trainingStore = useTrainingPlanStore()
 
 async function handleLogout() {
   try {
     await auth.signOut()
     toast.success(t('login.logoutSuccess'))
+    trainingStore.clear()
     router.push('/')
     sidebarStore.close()
   } catch (error) {

@@ -15,6 +15,8 @@ import {
   type UpsertPlanResponse,
   type ShareUrlRequest,
   type ShareUrlResponse,
+  type ChatRequest,
+  type ChatResponsePayload,
   ApiEndpoints,
 } from '@/types'
 import i18n from '@/plugins/i18n'
@@ -215,6 +217,22 @@ class ApiClient {
         body: JSON.stringify(plan),
       },
       this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Send a chat message to the AI
+   */
+  async chat(request: ChatRequest): Promise<ApiResult<ChatResponsePayload>> {
+    return this._fetch(
+      ApiEndpoints.CHAT,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      },
+      this.QUERY_TIMEOUT_MS,
       true,
     )
   }

@@ -6,12 +6,9 @@ import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
-import { useRouter } from 'vue-router'
-
 const trainingStore = useTrainingPlanStore()
 const authStore = useAuthStore()
 const { t } = useI18n()
-const router = useRouter()
 
 const planDisplayContainer = ref<HTMLDivElement | null>(null)
 

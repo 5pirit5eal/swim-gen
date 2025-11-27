@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 import SimplePlanDisplay from '@/components/training/SimplePlanDisplay.vue'
+import IconSend from '@/components/icons/IconSend.vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useAuthStore } from '@/stores/auth'
-import type { RAGResponse } from '@/types'
+import type { RAGResponse, Message } from '@/types'
 import { storeToRefs } from 'pinia'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
@@ -20,6 +21,40 @@ const { currentPlan, isLoading, error, conversation, historyMetadata } = storeTo
 
 // Track which messages have expanded plan snapshots
 const expandedSnapshots = ref<Set<string>>(new Set())
+const chatInput = ref('')
+const chatInputSection = ref<HTMLElement | null>(null)
+const displayedMessages = ref<Message[]>([])
+
+watch(
+  () => conversation.value,
+  async (newVal) => {
+    if (newVal.length === 0) {
+      displayedMessages.value = []
+      return
+    }
+
+    // If we have a fresh load (displayedMessages is empty but newVal has many)
+    if (displayedMessages.value.length === 0 && newVal.length > 0) {
+      // Staggered load
+      for (const msg of newVal) {
+        displayedMessages.value.push(msg)
+        await new Promise(resolve => setTimeout(resolve, 150)) // 150ms delay for smooth transition
+      }
+      await scrollToChatInput()
+    } else if (newVal.length > displayedMessages.value.length) {
+      // New message(s) added
+      const newMessages = newVal.slice(displayedMessages.value.length)
+      for (const msg of newMessages) {
+        displayedMessages.value.push(msg)
+      }
+    } else {
+      // Reset or other change, just sync
+      displayedMessages.value = [...newVal]
+    }
+  },
+  { deep: true }
+)
+
 
 function toggleSnapshot(messageId: string) {
   if (expandedSnapshots.value.has(messageId)) {
@@ -36,6 +71,21 @@ function isExpanded(messageId: string): boolean {
 function handleSaveSnapshot(plan: RAGResponse) {
   trainingStore.saveSnapshot(plan)
   toast.success(t('interaction.snapshot_saved'))
+}
+
+async function handleSendMessage() {
+  if (!chatInput.value.trim()) return
+
+  const message = chatInput.value
+  chatInput.value = ''
+  await trainingStore.sendMessage(message)
+}
+
+async function scrollToChatInput() {
+  await nextTick()
+  if (chatInputSection.value) {
+    chatInputSection.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
 }
 
 async function initializeView() {
@@ -67,6 +117,7 @@ async function initializeView() {
   }
 
   await trainingStore.fetchConversation(planId)
+  await scrollToChatInput()
 }
 
 onMounted(async () => {
@@ -86,6 +137,8 @@ watch(
   }
 )
 
+
+
 const planMetadata = ref<{ plan_id: string; created_at: string; updated_at: string } | undefined>()
 
 function getMetadata() {
@@ -103,57 +156,63 @@ onUnmounted(() => {
 
 <template>
   <div class="interaction-view">
-    <div v-if="isLoading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>{{ t('shared.loading') }}</p>
-    </div>
-
-    <div v-else-if="currentPlan" class="container">
+    <div v-if="currentPlan" class="container">
       <!-- Chat Messages -->
-      <section class="chat-section">
-        <h2>{{ t('interaction.conversation_history') }}</h2>
+      <section v-if="displayedMessages.length !== 0" class="chat-section">
+        <div class="messages">
+          <TransitionGroup name="message">
+            <div v-for="message in displayedMessages" :key="message.id" :class="['message', `message-${message.role}`]">
+              <div class="message-header">
+                <span class="message-role">{{
+                  message.role === 'user' ? (authStore.user?.user_metadata?.username || t('interaction.you')) :
+                    t('interaction.ai')
+                }}</span>
+                <span class="message-time">{{
+                  new Date(message.created_at).toLocaleString()
+                }}</span>
+              </div>
 
-        <div v-if="conversation.length === 0" class="no-messages">
-          <p>{{ t('interaction.no_messages') }}</p>
-        </div>
+              <div class="message-content">
+                {{ message.content }}
+              </div>
 
-        <div v-else class="messages">
-          <div v-for="message in conversation" :key="message.id" :class="['message', `message-${message.role}`]">
-            <div class="message-header">
-              <span class="message-role">{{
-                message.role === 'user' ? (authStore.user?.user_metadata?.username || t('interaction.you')) :
-                  t('interaction.ai')
-              }}</span>
-              <span class="message-time">{{
-                new Date(message.created_at).toLocaleString()
-              }}</span>
-            </div>
+              <!-- Plan Snapshot (for AI messages) -->
+              <div v-if="message.plan_snapshot && message.role === 'ai'" class="snapshot-container">
+                <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
+                  <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
+                  {{ isExpanded(message.id) ? t('interaction.hide_plan') : t('interaction.show_plan') }}
+                </button>
 
-            <div class="message-content">
-              {{ message.content }}
-            </div>
-
-            <!-- Plan Snapshot (for AI messages) -->
-            <div v-if="message.plan_snapshot && message.role === 'ai'" class="snapshot-container">
-              <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
-                <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
-                {{ isExpanded(message.id) ? t('interaction.hide_plan') : t('interaction.show_plan') }}
-              </button>
-
-              <div v-if="isExpanded(message.id)" class="snapshot-content">
-                <SimplePlanDisplay :title="message.plan_snapshot.title" :description="message.plan_snapshot.description"
-                  :table="message.plan_snapshot.table" :plan-id="message.plan_snapshot.plan_id"
-                  @save="handleSaveSnapshot" />
+                <div v-if="isExpanded(message.id)" class="snapshot-content">
+                  <SimplePlanDisplay :title="message.plan_snapshot.title"
+                    :description="message.plan_snapshot.description" :table="message.plan_snapshot.table"
+                    :plan-id="message.plan_snapshot.plan_id" @save="handleSaveSnapshot" />
+                </div>
               </div>
             </div>
-          </div>
+          </TransitionGroup>
         </div>
       </section>
 
       <!-- Current Plan Display -->
       <section class="current-plan-section">
-        <h2>{{ t('interaction.current_plan') }}</h2>
-        <TrainingPlanDisplay :store="trainingStore" :show-share-button="true" />
+        <div v-if="isLoading" class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>{{ t('shared.loading') }}</p>
+        </div>
+        <TrainingPlanDisplay v-else :store="trainingStore" :show-share-button="true" />
+      </section>
+
+      <!-- Chat Input -->
+      <section class="chat-input-section" ref="chatInputSection">
+        <form @submit.prevent="handleSendMessage" class="chat-form">
+          <input v-model="chatInput" type="text"
+            :placeholder="t('interaction.chat_placeholder', 'Nachricht eingeben...')" class="chat-input"
+            :disabled="isLoading" />
+          <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
+            <IconSend class="send-icon" />
+          </button>
+        </form>
       </section>
 
       <!-- Metadata Section -->
@@ -172,6 +231,11 @@ onUnmounted(() => {
       </section>
     </div>
 
+    <div v-else-if="isLoading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>{{ t('shared.loading') }}</p>
+    </div>
+
     <div v-else class="error-state">
       <p>{{ error || t('interaction.not_found') }}</p>
     </div>
@@ -180,7 +244,7 @@ onUnmounted(() => {
 
 <style scoped>
 .interaction-view {
-  padding: 0.25rem 0 2rem 0;
+  padding: 0.25rem 0 1rem 0;
 }
 
 .container {
@@ -252,15 +316,13 @@ onUnmounted(() => {
 
 .chat-section,
 .current-plan-section,
-.metadata-section {
+.metadata-section,
+.chat-input-section {
   margin-bottom: 2rem;
 }
 
-.chat-section h2,
-.current-plan-section h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: var(--color-heading);
+.chat-section {
+  margin-top: 2rem;
 }
 
 .metadata-section h3 {
@@ -275,26 +337,28 @@ onUnmounted(() => {
   gap: 1rem;
 }
 
-.no-messages {
-  text-align: center;
-  padding: 2rem;
-  color: var(--color-text);
-  font-style: italic;
-}
-
 .message {
   background: var(--color-background-soft);
   border-radius: 8px;
   padding: 1rem;
   border: 1px solid var(--color-border);
+  max-width: 80%;
+  position: relative;
+  transition: all 0.3s ease;
 }
 
 .message-user {
   border-left: 3px solid var(--color-primary);
+  align-self: flex-end;
+  margin-left: 20%;
+  border-bottom-right-radius: 0;
 }
 
 .message-ai {
   border-left: 3px solid var(--color-secondary, #6366f1);
+  align-self: flex-start;
+  margin-right: 20%;
+  border-bottom-left-radius: 0;
 }
 
 .message-header {
@@ -303,6 +367,7 @@ onUnmounted(() => {
   align-items: center;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
+  gap: 1rem;
 }
 
 .message-role {
@@ -311,7 +376,7 @@ onUnmounted(() => {
 }
 
 .message-time {
-  color: var(--color-text-soft);
+  color: var(--color-text);
 }
 
 .message-content {
@@ -380,5 +445,72 @@ onUnmounted(() => {
 .metadata-item .value {
   font-weight: 500;
   color: var(--color-text);
+}
+
+/* Chat Input Styles */
+.chat-form {
+  display: flex;
+  gap: 1rem;
+  background: var(--color-background-soft);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.chat-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-shadow);
+}
+
+.send-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.send-button:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  transform: scale(1.05);
+}
+
+.send-icon {
+  transform: rotate(45deg) translateX(-2px) translateY(1px);
+}
+
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Transitions */
+.message-enter-active,
+.message-leave-active {
+  transition: all 0.5s ease;
+}
+
+.message-enter-from,
+.message-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 </style>

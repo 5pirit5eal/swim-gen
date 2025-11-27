@@ -69,6 +69,8 @@
   },
   "display": {
     "generating_plan_message": "Dein Trainingsplan wird generiert...",
+    "plan_title": "Kein Title angegeben.",
+    "plan_description": "Keine Beschreibung angegeben.",
     "amount": "Anzahl",
     "amount_tooltip": "Anzahl der Wiederholungen für die Übung.",
     "distance": "Distanz (m)",
@@ -342,16 +344,15 @@
     "save_to_history": "In \"Deine Pläne\" speichern",
     "snapshot_saved": "Snapshot in \"Deine Pläne\" gespeichert!",
     "not_found": "Plan nicht gefunden.",
-    "conversation_history": "Konversationsverlauf",
     "no_messages": "Noch keine Nachrichten in dieser Konversation.",
     "you": "Du",
-    "ai": "KI",
+    "ai": "Swim Gen",
     "hide_plan": "Plan verbergen",
     "show_plan": "Plan anzeigen",
-    "current_plan": "Aktueller Plan",
     "metadata": "Metadaten",
     "created_at": "Erstellt am",
-    "updated_at": "Aktualisiert am"
+    "updated_at": "Aktualisiert am",
+    "chat_placeholder": "Nachricht eingeben..."
   },
   "shared": {
     "loading": "Lade geteilten Trainingsplan...",

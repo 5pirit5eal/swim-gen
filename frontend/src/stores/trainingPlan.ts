@@ -293,6 +293,69 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     }
   }
 
+  // Sends a message to the AI
+  async function sendMessage(message: string) {
+    if (!currentPlan.value?.plan_id || !userStore.user) return
+
+    // Optimistic update: add user message
+    const userMsg: Message = {
+      id: crypto.randomUUID(),
+      role: 'user',
+      content: message,
+      created_at: new Date().toISOString(),
+      plan_id: currentPlan.value.plan_id,
+      user_id: userStore.user.id,
+      previous_message_id: null,
+      next_message_id: null,
+    }
+    conversation.value.push(userMsg)
+
+    isLoading.value = true
+    error.value = null
+
+    const result = await apiClient.chat({
+      plan_id: currentPlan.value.plan_id,
+      message: message,
+    })
+
+    if (result.success && result.data) {
+      // Add AI response
+      const aiMsg: Message = {
+        id: crypto.randomUUID(),
+        role: 'ai',
+        content: result.data.response,
+        created_at: new Date().toISOString(),
+        plan_id: currentPlan.value.plan_id,
+        user_id: userStore.user.id,
+        previous_message_id: null,
+        next_message_id: null,
+        plan_snapshot: result.data.table ? {
+          plan_id: result.data.plan_id,
+          title: result.data.title || '',
+          description: result.data.description || '',
+          table: result.data.table
+        } : undefined
+      }
+      conversation.value.push(aiMsg)
+
+      // Update current plan if changed
+      if (result.data.table) {
+        currentPlan.value = {
+          ...currentPlan.value,
+          title: result.data.title || currentPlan.value.title,
+          description: result.data.description || currentPlan.value.description,
+          table: result.data.table,
+          plan_id: result.data.plan_id
+        }
+        recalculateTotalSum()
+        await fetchHistory()
+      }
+    } else {
+      error.value = result.error ? formatError(result.error) : i18n.global.t('errors.unknown_error')
+    }
+    isLoading.value = false
+  }
+
   return {
     // State
     currentPlan,
@@ -320,5 +383,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     toggleKeepForever,
     fetchConversation,
     saveSnapshot,
+    sendMessage,
   }
 })

@@ -68,6 +68,8 @@
   },
   "display": {
     "generating_plan_message": "Generating your training plan...",
+    "plan_title": "No title provided.",
+    "plan_description": "No description provided.",
     "amount": "Amount",
     "amount_tooltip": "Number of repetitions for the exercise.",
     "distance": "Distance (m)",
@@ -339,16 +341,15 @@
     "save_to_history": "Add to History",
     "snapshot_saved": "Snapshot added to history!",
     "not_found": "Plan not found.",
-    "conversation_history": "Conversation History",
     "no_messages": "No messages in this conversation yet.",
     "you": "You",
-    "ai": "AI",
+    "ai": "Swim Gen",
     "hide_plan": "Hide Plan",
     "show_plan": "Show Plan",
-    "current_plan": "Current Plan",
     "metadata": "Metadata",
     "created_at": "Created At",
-    "updated_at": "Updated At"
+    "updated_at": "Updated At",
+    "chat_placeholder": "Type a message..."
   },
   "shared": {
     "loading": "Loading shared training plan...",
