@@ -77,6 +77,6 @@ describe('AppSidebar.vue', () => {
 
     await wrapper.find('.plan-title').trigger('click')
     expect(trainingPlanStore.loadPlanFromHistory).toHaveBeenCalledTimes(1)
-    expect(push).toHaveBeenCalledWith('/')
+    expect(push).toHaveBeenCalledWith('/plan/1')
   })
 })

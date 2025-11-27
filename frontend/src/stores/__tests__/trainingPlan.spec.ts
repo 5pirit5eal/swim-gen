@@ -16,6 +16,7 @@ vi.mock('@/api/client', async (importOriginal) => {
     apiClient: {
       query: vi.fn(),
       upsertPlan: vi.fn(),
+      getConversation: vi.fn(),
     },
     formatError: vi.fn((error) => `${error.message}: ${error.details}`),
   }
@@ -417,7 +418,7 @@ describe('trainingPlan Store', () => {
     })
 
     it('handles error when fetching history plan IDs', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
       mockedSupabase.from.mockReturnValue({
         select: vi.fn().mockReturnThis(),
         order: vi.fn().mockReturnThis(),
@@ -436,7 +437,7 @@ describe('trainingPlan Store', () => {
     it('handles error when fetching plan details', async () => {
       const store = useTrainingPlanStore()
       const mockHistory = [{ plan_id: 'plan-1' }]
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
 
       mockedSupabase.from.mockImplementation((tableName: string) => {
         if (tableName === 'history') {
@@ -532,7 +533,7 @@ describe('trainingPlan Store', () => {
         error: { status: 500, message: 'Server Error', details: 'UPSERT_FAILED' },
       }
       mockedApiUpsert.mockResolvedValue(mockErrorResponse)
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
 
       await store.upsertCurrentPlan()
 
@@ -541,14 +542,23 @@ describe('trainingPlan Store', () => {
       consoleErrorSpy.mockRestore()
     })
 
-    it('loads a plan from history and ensures it is a deep copy', () => {
+    it('loads a plan from history and ensures it is a deep copy', async () => {
       const store = useTrainingPlanStore()
       const planFromHistory = createMockPlan()
+      planFromHistory.plan_id = 'test-plan-id'
       store.generationHistory = [planFromHistory]
 
-      store.loadPlanFromHistory(planFromHistory)
+      // Mock the getConversation call that loadPlanFromHistory makes
+      const mockedGetConversation = apiClient.getConversation as Mock
+      mockedGetConversation.mockResolvedValue({ data: [], error: null })
 
-      expect(store.currentPlan).toEqual(planFromHistory)
+      await store.loadPlanFromHistory(planFromHistory)
+
+      // The currentPlan will have _id fields added by ensureRowIds, so we check the important fields
+      expect(store.currentPlan).toBeTruthy()
+      expect(store.currentPlan?.title).toBe(planFromHistory.title)
+      expect(store.currentPlan?.description).toBe(planFromHistory.description)
+      expect(store.currentPlan?.table.length).toBe(planFromHistory.table.length)
       // Verify it's a deep copy by modifying the loaded plan
       store.updatePlanRow(0, 'Amount', 99)
       expect(store.currentPlan?.table[0].Amount).toBe(99)
@@ -611,7 +621,7 @@ describe('trainingPlan Store', () => {
         { plan_id: planId, keep_forever: false, created_at: '', updated_at: '' },
       ]
       const dbError = new Error('Update failed')
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
 
       mockedSupabase.from.mockImplementation((tableName: string) => {
         if (tableName === 'history') {

@@ -95,6 +95,21 @@ function handleRemoveRow(index: number) {
 function handleMoveRow(index: number, direction: 'up' | 'down') {
   props.store.moveRow(index, direction)
 }
+
+// Auto-resize directive for textarea
+const vAutoResize = {
+  mounted: (el: HTMLTextAreaElement) => {
+    el.style.height = 'auto'
+    el.style.height = el.scrollHeight + 'px'
+    el.style.overflowY = 'hidden'
+  }
+}
+
+function autoResize(event: Event) {
+  const target = event.target as HTMLTextAreaElement
+  target.style.height = 'auto'
+  target.style.height = target.scrollHeight + 'px'
+}
 </script>
 
 <template>
@@ -107,8 +122,9 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
       <!-- Header -->
       <header class="plan-header">
         <div v-if="isEditing" class="edit-header">
-          <input v-model="store.currentPlan!.title" class="edit-title" :placeholder="t('display.plan_title')" />
-          <textarea v-model="store.currentPlan!.description" class="edit-description"
+          <input v-model="store.currentPlan!.title" class="edit-title" v-auto-resize
+            :placeholder="t('display.plan_title')" />
+          <textarea v-model="store.currentPlan!.description" v-auto-resize class="edit-description"
             :placeholder="t('display.plan_description')" rows="3"></textarea>
         </div>
         <div v-else>
@@ -260,7 +276,8 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
                 <!-- Content Cell -->
                 <td class="content-cell" @click="startEditing(index, 'Content')">
                   <textarea v-if="isEditing" :value="row.Content" @blur="stopEditing($event, index, 'Content')"
-                    @keyup.enter="stopEditing($event, index, 'Content')" class="editable-area"></textarea>
+                    @keyup.enter="stopEditing($event, index, 'Content')" @input="autoResize" v-auto-resize
+                    class="editable-area"></textarea>
                   <span v-else>{{ row.Content }}</span>
                 </td>
                 <!-- Intensity Cell -->

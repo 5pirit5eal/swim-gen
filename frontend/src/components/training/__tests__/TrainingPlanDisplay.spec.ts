@@ -19,6 +19,7 @@ describe('TrainingPlanDisplay.vue', () => {
         Content: 'Warm-up',
         Intensity: 'Easy',
         Sum: 100,
+        _id: 'test-id-1',
       },
       {
         Amount: 1,
@@ -28,6 +29,7 @@ describe('TrainingPlanDisplay.vue', () => {
         Content: 'Total',
         Intensity: '',
         Sum: 100,
+        _id: 'test-id-2',
       },
     ],
   }
@@ -81,15 +83,14 @@ describe('TrainingPlanDisplay.vue', () => {
 
       // Enable editing
       await wrapper.find('button.edit-btn').trigger('click')
+      await wrapper.vm.$nextTick() // Wait for DOM update
       // @ts-expect-error: isEditing is not typed on the wrapper vm
       expect(wrapper.vm.isEditing).toBe(true)
 
-      // Find the first Amount cell and click to start editing
-      const amountCell = wrapper.find('tbody tr:first-child td:first-child')
-      await amountCell.trigger('click')
-
-      // Find the input, set a new value, and trigger blur
-      const input = amountCell.find('input')
+      // Find all inputs and get the first one (Amount column)
+      const inputs = wrapper.findAll('.anchor-cell input')
+      expect(inputs.length).toBeGreaterThan(0)
+      const input = inputs[0]
       await input.setValue('5')
       await input.trigger('blur')
 
@@ -112,13 +113,12 @@ describe('TrainingPlanDisplay.vue', () => {
 
       // Enable editing
       await wrapper.find('button.edit-btn').trigger('click')
+      await wrapper.vm.$nextTick() // Wait for DOM update
 
-      // Find the first Amount cell and click to start editing
-      const amountCell = wrapper.find('tbody tr:first-child td:first-child')
-      await amountCell.trigger('click')
-
-      // Find the input, set an invalid value, and trigger blur
-      const input = amountCell.find('input')
+      // Find all inputs and get the first one (Amount column)
+      const inputs = wrapper.findAll('.anchor-cell input')
+      expect(inputs.length).toBeGreaterThan(0)
+      const input = inputs[0]
       await input.setValue('abc')
       await input.trigger('blur')
 
