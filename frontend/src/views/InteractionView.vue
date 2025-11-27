@@ -259,11 +259,11 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   max-width: 1080px;
-  margin: auto;
+  margin: 0 auto;
 }
 
 .layout-container {
-  margin: auto;
+  margin: 0 auto;
   padding: 0 1rem;
   width: 100%;
   height: 100%;
@@ -271,18 +271,10 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.column {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
 .tab-content {
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
 }
 
 /* Chat Specific Styles */
@@ -294,7 +286,6 @@ onMounted(() => {
   background: var(--color-background-soft);
   border-radius: 12px;
   border: 1px solid var(--color-border);
-  overflow: hidden;
 }
 
 .chat-messages {

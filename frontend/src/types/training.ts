@@ -22,6 +22,7 @@ export interface Row {
   Intensity: string
   Multiplier: string
   Sum: number
+  _id?: string // Frontend-only unique identifier for list transitions
 }
 
 // Backend API QueryRequest structure

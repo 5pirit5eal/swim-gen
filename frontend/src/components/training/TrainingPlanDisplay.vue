@@ -75,7 +75,8 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
     } else {
       // Revert to the original value if input is invalid
       const originalRow = props.store.currentPlan?.table[rowIndex]
-      newValue = originalRow ? originalRow[field] : 0
+      const val = originalRow ? originalRow[field] : 0
+      newValue = val !== undefined ? val : 0
     }
   }
   props.store.updatePlanRow(rowIndex, field, newValue)
@@ -229,8 +230,8 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
               </th>
             </tr>
           </thead>
-          <tbody>
-            <template v-for="(row, index) in exerciseRows" :key="index">
+          <TransitionGroup tag="tbody" name="list">
+            <template v-for="(row, index) in exerciseRows" :key="row._id || index">
               <tr class="exercise-row">
                 <!-- Amount Cell -->
                 <td @click="startEditing(index, 'Amount')" class="anchor-cell">
@@ -281,7 +282,7 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
                 <strong>{{ totalRow.Sum }} m</strong>
               </td>
             </tr>
-          </tbody>
+          </TransitionGroup>
         </table>
       </div>
 
@@ -699,4 +700,22 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   flex: 2;
   display: flex;
 }
+
+/* List Transitions */
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.4s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* Ensure the leaving item is taken out of flow so others can move */
+/* Note: position: absolute on table rows can be tricky, but often needed for smooth 'move' during 'leave' */
+/* If this breaks table layout during animation, remove the absolute positioning */
+/* .list-leave-active { position: absolute; } */
 </style>

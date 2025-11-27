@@ -141,6 +141,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
     if (result.success && result.data) {
       currentPlan.value = result.data
+      ensureRowIds(currentPlan.value.table)
       recalculateTotalSum()
       await fetchHistory() // Refresh history after generating a new plan
       isLoading.value = false
@@ -187,6 +188,9 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     if (!plan.plan_id) return
     await fetchConversation(plan.plan_id)
     currentPlan.value = JSON.parse(JSON.stringify(plan)) // Deep copy to prevent accidental edits
+    if (currentPlan.value) {
+      ensureRowIds(currentPlan.value.table)
+    }
   }
 
   // --- Plan Table Manipulations ---
@@ -221,6 +225,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         Intensity: '',
         Multiplier: 'x',
         Sum: 0,
+        _id: crypto.randomUUID(),
       }
       currentPlan.value.table.splice(rowIndex, 0, newRow)
       recalculateTotalSum()
@@ -354,6 +359,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
           table: result.data.table,
           plan_id: result.data.plan_id
         }
+        ensureRowIds(currentPlan.value.table)
         recalculateTotalSum()
         await fetchHistory()
       }
@@ -361,6 +367,14 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       error.value = result.error ? formatError(result.error) : i18n.global.t('errors.unknown_error')
     }
     isLoading.value = false
+  }
+
+  function ensureRowIds(table: Row[]) {
+    table.forEach(row => {
+      if (!row._id) {
+        row._id = crypto.randomUUID()
+      }
+    })
   }
 
   return {
