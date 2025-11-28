@@ -388,7 +388,7 @@ function autoResize(event: Event) {
 
 .plan-container {
   background: var(--color-background);
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 2px 10px var(--color-shadow);
 }
 
@@ -403,8 +403,8 @@ function autoResize(event: Event) {
   color: white;
   padding: 2rem;
   text-align: center;
-  border-top-right-radius: 11px;
-  border-top-left-radius: 11px;
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
   outline: 1px solid var(--color-primary);
   border: 2px solid var(--color-primary);
 }
@@ -435,7 +435,7 @@ function autoResize(event: Event) {
   font-weight: 700;
   padding: 0.5rem;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 8px;
   background: var(--color-background-soft);
   color: var(--color-text);
   text-align: center;
@@ -450,7 +450,7 @@ function autoResize(event: Event) {
   line-height: 1.6;
   padding: 0.5rem;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 8px;
   background: var(--color-background-soft);
   color: var(--color-text);
   font-family: inherit;
@@ -570,7 +570,7 @@ function autoResize(event: Event) {
   width: 100%;
   padding: 0.25rem;
   border: 1px solid var(--color-shadow);
-  border-radius: 0.25rem;
+  border-radius: 8px;
   background-color: var(--color-background);
   color: var(--color-text);
   font-family: inherit;
@@ -583,7 +583,7 @@ function autoResize(event: Event) {
   width: 70%;
   text-align: center;
   border: 1px solid var(--color-shadow);
-  border-radius: 0.25rem;
+  border-radius: 8px;
   background-color: var(--color-background);
   color: var(--color-text);
   font-family: inherit;
@@ -631,14 +631,14 @@ function autoResize(event: Event) {
   padding-right: 1rem;
   background: var(--color-background-soft);
   gap: 3rem;
-  border-bottom-right-radius: 0.5rem;
-  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
 }
 
 .summary-item {
   background: var(--color-background);
   padding: 1rem;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   text-align: center;
   flex: 1;
   border: 1px solid var(--color-border);

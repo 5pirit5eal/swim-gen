@@ -118,7 +118,7 @@ async function handleLogout() {
   background-color: var(--color-transparent);
   backdrop-filter: blur(3px);
   padding: 0.25rem 0.75rem;
-  border-radius: 0.375rem;
+  border-radius: 8px;
   transition:
     padding 0.3s ease,
     gap 0.3s ease;
@@ -163,7 +163,7 @@ async function handleLogout() {
   background-color: var(--color-transparent);
   backdrop-filter: blur(2px);
   padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+  border-radius: 8px;
   margin-left: 0.5rem;
 }
 

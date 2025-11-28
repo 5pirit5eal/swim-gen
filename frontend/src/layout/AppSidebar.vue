@@ -167,7 +167,7 @@ function createNewPlan() {
   background-color: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   transition: background-color 0.2s;
@@ -232,7 +232,7 @@ function createNewPlan() {
   color: var(--color-heading);
   cursor: pointer;
   padding: 0.5rem;
-  border-radius: 0.25rem;
+  border-radius: 8px;
 }
 
 .plan-title:hover {
