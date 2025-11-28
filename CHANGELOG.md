@@ -1,3 +1,27 @@
+## [2.3.0](https://github.com/5pirit5eal/swim-gen/compare/v2.2.0...v2.3.0) (2025-11-28)
+
+### Features
+
+* 94 add chat interaction for logged in users for adaptation of results ([#124](https://github.com/5pirit5eal/swim-gen/issues/124)) ([e810589](https://github.com/5pirit5eal/swim-gen/commit/e810589d10159b3e12661e417b5ae71cf44aef4e))
+* added animations to training plan display edit ([38d8328](https://github.com/5pirit5eal/swim-gen/commit/38d832871137c02e2f896523b69b39d7b5aab8be))
+* added chat endpoint and did some manual tests ([47ad03c](https://github.com/5pirit5eal/swim-gen/commit/47ad03cdb85f37c8a7132b635b5b6b016b7346ab))
+* added conversation history store ([4ef8120](https://github.com/5pirit5eal/swim-gen/commit/4ef8120e97c29a44490cda2efa74be96a23897af))
+* added endpoints for delete ops ([184fb43](https://github.com/5pirit5eal/swim-gen/commit/184fb43978a18c6b2a00f05f7387a0ee3f0cc0ee))
+* added other operations for conversation management ([81d7e1d](https://github.com/5pirit5eal/swim-gen/commit/81d7e1d879f4ae8eb13f6c130801e404bbd39b26))
+* added some fixes to backend and a basic interaction view ([b0957b8](https://github.com/5pirit5eal/swim-gen/commit/b0957b896917e9dc01a37f79142feb3498747351))
+* aligned styling across new views ([37ba479](https://github.com/5pirit5eal/swim-gen/commit/37ba4793184c00a98acc7da051c902f0de6121a1))
+* changed the interactive view to tab based ([290d621](https://github.com/5pirit5eal/swim-gen/commit/290d621497bac9f20f4f02120dedf01eb91f8d8d))
+* renamed tabs and added a call to action in home page ([dc6b5d3](https://github.com/5pirit5eal/swim-gen/commit/dc6b5d3548eacaf20ebc1485efe78eaddbab1e83))
+* setup chat interaction ([8649e13](https://github.com/5pirit5eal/swim-gen/commit/8649e13768af346123fa5f98536678d6008e1b10))
+* updated the styling of the edit of title and description ([56cf215](https://github.com/5pirit5eal/swim-gen/commit/56cf21575e8878174ccc384aec19a423044ce361))
+
+### Bug Fixes
+
+* fixed formatting error ([64eb0e1](https://github.com/5pirit5eal/swim-gen/commit/64eb0e136c359c521cbfdbcc37b2863b3a6ce2a9))
+* fixed tests that broke ([ac4f7ef](https://github.com/5pirit5eal/swim-gen/commit/ac4f7ef094c8fd26c16cd9a5820705c42712c179))
+* removed planOverride from the training plan display ([6f5f7dc](https://github.com/5pirit5eal/swim-gen/commit/6f5f7dc5886fac4bab8f4f64ad04e071ecee9c28))
+* removed unnecessary margin ([50188c9](https://github.com/5pirit5eal/swim-gen/commit/50188c91548429d7794a8f9af3b67d846687a957))
+
 ## [2.2.0](https://github.com/5pirit5eal/swim-gen/compare/v2.1.0...v2.2.0) (2025-11-23)
 
 ### Features
