@@ -1,5 +1,31 @@
 basePath: /
 definitions:
+  models.AddPlanToHistoryRequest:
+    description: Request payload for adding a plan to the authenticated user's history
+    properties:
+      description:
+        description: Description of the plan
+        example: A comprehensive training plan for improving freestyle technique
+        type: string
+      plan_id:
+        description: PlanID identifies the plan to add to history
+        example: plan_123
+        type: string
+      table:
+        description: A structured training plan table containing exercise rows
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
+      title:
+        description: Title of the plan
+        example: Advanced Freestyle Training
+        type: string
+    required:
+    - description
+    - plan_id
+    - table
+    - title
+    type: object
   models.AddPlanToHistoryResponse:
     description: Response containing the new plan ID and a success message
     properties:
@@ -126,15 +152,6 @@ definitions:
         example: Generate a swim training plan for improving freestyle technique
         type: string
     type: object
-  models.GetConversationResponse:
-    description: Response containing the conversation history
-    properties:
-      conversation:
-        description: Conversation history
-        items:
-          $ref: '#/definitions/models.MessagePayload'
-        type: array
-    type: object
   models.HealthStatus:
     description: Health status of the service and its components
     properties:
@@ -178,21 +195,6 @@ definitions:
       role:
         $ref: '#/definitions/models.Role'
       user_id:
-        type: string
-    type: object
-  models.Plan:
-    description: A swim training plan with title, description, and structured table
-    properties:
-      description:
-        type: string
-      planID:
-        type: string
-      table:
-        description: A structured training plan table containing exercise rows
-        items:
-          $ref: '#/definitions/models.Row'
-        type: array
-      title:
         type: string
     type: object
   models.PlanToPDFRequest:
@@ -433,14 +435,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: Add an existing plan to the authenticated user's history
+      description: Add a plan to the authenticated user's history with a new id
       parameters:
       - description: Plan to add to history
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Plan'
+          $ref: '#/definitions/models.AddPlanToHistoryRequest'
       produces:
       - application/json
       responses:
@@ -637,7 +639,9 @@ paths:
         "200":
           description: Conversation history
           schema:
-            $ref: '#/definitions/models.GetConversationResponse'
+            items:
+              $ref: '#/definitions/models.MessagePayload'
+            type: array
         "400":
           description: Bad request
           schema:

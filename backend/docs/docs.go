@@ -72,7 +72,7 @@ const docTemplate = `{
         },
         "/add-plan-to-history": {
             "post": {
-                "description": "Add an existing plan to the authenticated user's history",
+                "description": "Add a plan to the authenticated user's history with a new id",
                 "consumes": [
                     "application/json"
                 ],
@@ -90,7 +90,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Plan"
+                            "$ref": "#/definitions/models.AddPlanToHistoryRequest"
                         }
                     }
                 ],
@@ -347,7 +347,10 @@ const docTemplate = `{
                     "200": {
                         "description": "Conversation history",
                         "schema": {
-                            "$ref": "#/definitions/models.GetConversationResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.MessagePayload"
+                            }
                         }
                     },
                     "400": {
@@ -712,6 +715,40 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.AddPlanToHistoryRequest": {
+            "description": "Request payload for adding a plan to the authenticated user's history",
+            "type": "object",
+            "required": [
+                "description",
+                "plan_id",
+                "table",
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "description": "Description of the plan",
+                    "type": "string",
+                    "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the plan to add to history",
+                    "type": "string",
+                    "example": "plan_123"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "description": "Title of the plan",
+                    "type": "string",
+                    "example": "Advanced Freestyle Training"
+                }
+            }
+        },
         "models.AddPlanToHistoryResponse": {
             "description": "Response containing the new plan ID and a success message",
             "type": "object",
@@ -892,19 +929,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.GetConversationResponse": {
-            "description": "Response containing the conversation history",
-            "type": "object",
-            "properties": {
-                "conversation": {
-                    "description": "Conversation history",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.MessagePayload"
-                    }
-                }
-            }
-        },
         "models.HealthStatus": {
             "description": "Health status of the service and its components",
             "type": "object",
@@ -967,28 +991,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/models.Role"
                 },
                 "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Plan": {
-            "description": "A swim training plan with title, description, and structured table",
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "planID": {
-                    "type": "string"
-                },
-                "table": {
-                    "description": "A structured training plan table containing exercise rows",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Row"
-                    }
-                },
-                "title": {
                     "type": "string"
                 }
             }
