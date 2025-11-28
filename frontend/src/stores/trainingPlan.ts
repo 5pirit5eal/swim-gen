@@ -165,11 +165,15 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       console.log('No current plan to upsert.')
       return
     }
+    // Strip _id from table rows before sending to backend
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const tableWithoutIds = currentPlan.value.table.map(({ _id, ...rest }) => rest)
+
     const result = await apiClient.upsertPlan({
       plan_id: currentPlan.value.plan_id,
       title: currentPlan.value.title,
       description: currentPlan.value.description,
-      table: currentPlan.value.table,
+      table: tableWithoutIds,
     })
     if (result.success && result.data) {
       await fetchHistory() // Refresh history after upserting
@@ -198,7 +202,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-        ; (row[field] as string | number) = value
+      ;(row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -275,6 +279,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     if (!userStore.user) return
     isFetchingConversation.value = true
     conversation.value = []
+    console.log('Fetching conversation for plan:', planId)
 
     const { data, error: fetchError } = await apiClient.getConversation(planId)
     if (fetchError) {
@@ -341,12 +346,14 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         user_id: userStore.user.id,
         previous_message_id: null,
         next_message_id: null,
-        plan_snapshot: result.data.table ? {
-          plan_id: result.data.plan_id,
-          title: result.data.title || '',
-          description: result.data.description || '',
-          table: result.data.table
-        } : undefined
+        plan_snapshot: result.data.table
+          ? {
+              plan_id: result.data.plan_id,
+              title: result.data.title || '',
+              description: result.data.description || '',
+              table: result.data.table,
+            }
+          : undefined,
       }
       conversation.value.push(aiMsg)
 
@@ -357,7 +364,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
           title: result.data.title || currentPlan.value.title,
           description: result.data.description || currentPlan.value.description,
           table: result.data.table,
-          plan_id: result.data.plan_id
+          plan_id: result.data.plan_id,
         }
         ensureRowIds(currentPlan.value.table)
         recalculateTotalSum()
@@ -370,7 +377,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   }
 
   function ensureRowIds(table: Row[]) {
-    table.forEach(row => {
+    table.forEach((row) => {
       if (!row._id) {
         row._id = crypto.randomUUID()
       }

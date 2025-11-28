@@ -13,8 +13,8 @@
         "button": "Anmelden"
       },
       "logged_in": {
-        "text": "Um diesen Plan in deinem Verlauf anzuzeigen und interaktive Verfeinerung zu nutzen, klicke hier.",
-        "button": "Interaktive Verfeinerung"
+        "text": "Um diesen Plan in deinem Verlauf anzuzeigen und interaktive Bearbeitung zu nutzen, klicke hier:",
+        "button": "Interaktive Bearbeitung"
       }
     }
   },
@@ -124,7 +124,7 @@
     "exercise_sets": "Übungssätze",
     "no_plan_placeholder": "Noch kein Trainingsplan generiert. Verwende das obige Formular, um einen zu erstellen!",
     "done_editing": "Bearbeitung beenden",
-    "refine_plan": "Plan verfeinern",
+    "refine_plan": "Plan bearbeiten",
     "export_pdf": "PDF exportieren",
     "exporting": "Exportiert...",
     "open_pdf": "PDF öffnen",
@@ -359,14 +359,15 @@
     "no_messages": "Noch keine Nachrichten in dieser Konversation.",
     "you": "Du",
     "ai": "Swim Gen",
-    "conversation_tab": "Interaktive Verfeinerung",
+    "conversation_tab": "Interaktive Bearbeitung",
     "plan_tab": "Trainingsplan",
     "hide_plan": "Plan verbergen",
     "show_plan": "Plan anzeigen",
     "metadata": "Metadaten",
     "created_at": "Erstellt am",
     "updated_at": "Aktualisiert am",
-    "chat_placeholder": "Nachricht eingeben..."
+    "chat_placeholder": "Nachricht eingeben...",
+    "describe_changes": "Beschreibe hier deine gewünschte Änderung"
   },
   "shared": {
     "loading": "Lade geteilten Trainingsplan...",
@@ -375,6 +376,7 @@
     "hero_description_two": " geteilt wurde.\nDu kannst diesen Plan bearbeiten, für die Nutzung am Becken exportieren oder basierend auf deinen eigenen Anforderungen einen Neuen generieren. Änderungen werden in deiner Historie gespeichert und nicht zurück an {username} gesendet.",
     "no_plan_toast": "Der Plan konnte nicht gefunden werden.\n{error}",
     "register_to_save": "Melde dich an, um diesen Plan zu speichern und zu bearbeiten!",
-    "unknown_user": "Unbekannter Nutzer"
+    "unknown_user": "Unbekannter Nutzer",
+    "start_conversation": "Interaktives Bearbeiten starten"
   }
 }

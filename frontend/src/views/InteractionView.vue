@@ -17,7 +17,8 @@ const router = useRouter()
 const trainingStore = useTrainingPlanStore()
 const authStore = useAuthStore()
 
-const { currentPlan, isLoading, isFetchingConversation, error, conversation, historyMetadata } = storeToRefs(trainingStore)
+const { currentPlan, isLoading, isFetchingConversation, error, conversation, historyMetadata } =
+  storeToRefs(trainingStore)
 
 // Track which messages have expanded plan snapshots
 const expandedSnapshots = ref<Set<string>>(new Set())
@@ -40,7 +41,7 @@ watch(
       // Staggered load
       for (const msg of newVal) {
         displayedMessages.value.push(msg)
-        await new Promise(resolve => setTimeout(resolve, 150)) // 150ms delay for smooth transition
+        await new Promise((resolve) => setTimeout(resolve, 150)) // 150ms delay for smooth transition
       }
     } else if (newVal.length > displayedMessages.value.length) {
       // New message(s) added
@@ -53,9 +54,8 @@ watch(
       displayedMessages.value = [...newVal]
     }
   },
-  { deep: true }
+  { deep: true },
 )
-
 
 function toggleSnapshot(messageId: string) {
   if (expandedSnapshots.value.has(messageId)) {
@@ -91,7 +91,7 @@ async function initializeView() {
   }
 
   // If the plan is already loaded in the store and matches the route, we don't need to do anything
-  if (currentPlan.value?.plan_id === planId && conversation.value.length > 0) {
+  if (currentPlan.value?.plan_id === planId) {
     return
   }
 
@@ -109,12 +109,11 @@ async function initializeView() {
     router.push('/')
     return
   }
-
-  await trainingStore.fetchConversation(planId)
 }
 
 onMounted(async () => {
   await initializeView()
+  window.scrollTo(0, 0)
 })
 
 onUnmounted(() => {
@@ -131,7 +130,7 @@ watch(
       // Update metadata for the new plan
       planMetadata.value = getMetadata()
     }
-  }
+  },
 )
 
 const planMetadata = ref<{ plan_id: string; created_at: string; updated_at: string } | undefined>()
@@ -149,13 +148,20 @@ onMounted(() => {
 <template>
   <div class="interaction-view">
     <div v-if="currentPlan" class="layout-container">
-
       <!-- Tab Switcher -->
       <div class="tab-switcher">
-        <button class="tab-button" :class="{ active: activeTab === 'plan' }" @click="activeTab = 'plan'">
+        <button
+          class="tab-button"
+          :class="{ active: activeTab === 'plan' }"
+          @click="activeTab = 'plan'"
+        >
           {{ t('interaction.plan_tab') }}
         </button>
-        <button class="tab-button" :class="{ active: activeTab === 'chat' }" @click="activeTab = 'chat'">
+        <button
+          class="tab-button"
+          :class="{ active: activeTab === 'chat' }"
+          @click="activeTab = 'chat'"
+        >
           {{ t('interaction.conversation_tab') }}
         </button>
       </div>
@@ -194,20 +200,27 @@ onMounted(() => {
         <div class="tab-content chat-container" v-show="activeTab === 'chat'">
           <!-- Chat Messages Area -->
           <div class="chat-messages">
-            <div v-if="displayedMessages.length === 0 && !isFetchingConversation" class="empty-chat">
+            <div
+              v-if="displayedMessages.length === 0 && !isFetchingConversation"
+              class="empty-chat"
+            >
               <p>{{ t('interaction.no_messages') }}</p>
             </div>
             <TransitionGroup name="message">
-              <div v-for="message in displayedMessages" :key="message.id"
-                :class="['message', `message-${message.role}`]">
+              <div
+                v-for="message in displayedMessages"
+                :key="message.id"
+                :class="['message', `message-${message.role}`]"
+              >
                 <div class="message-header">
                   <span class="message-role">{{
-                    message.role === 'user' ? (authStore.user?.user_metadata?.username || t('interaction.you')) :
-                      t('interaction.ai')
+                    message.role === 'user'
+                      ? authStore.user?.user_metadata?.username || t('interaction.you')
+                      : t('interaction.ai')
                   }}</span>
                   <span class="message-time">{{
                     new Date(message.created_at).toLocaleString()
-                    }}</span>
+                  }}</span>
                 </div>
 
                 <div class="message-content">
@@ -215,16 +228,27 @@ onMounted(() => {
                 </div>
 
                 <!-- Plan Snapshot (for AI messages) -->
-                <div v-if="message.plan_snapshot && message.role === 'ai'" class="snapshot-container">
+                <div
+                  v-if="message.plan_snapshot && message.role === 'ai'"
+                  class="snapshot-container"
+                >
                   <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
                     <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
-                    {{ isExpanded(message.id) ? t('interaction.hide_plan') : t('interaction.show_plan') }}
+                    {{
+                      isExpanded(message.id)
+                        ? t('interaction.hide_plan')
+                        : t('interaction.show_plan')
+                    }}
                   </button>
 
                   <div v-if="isExpanded(message.id)" class="snapshot-content">
-                    <SimplePlanDisplay :title="message.plan_snapshot.title"
-                      :description="message.plan_snapshot.description" :table="message.plan_snapshot.table"
-                      :plan-id="message.plan_snapshot.plan_id" @save="handleSaveSnapshot" />
+                    <SimplePlanDisplay
+                      :title="message.plan_snapshot.title"
+                      :description="message.plan_snapshot.description"
+                      :table="message.plan_snapshot.table"
+                      :plan-id="message.plan_snapshot.plan_id"
+                      @save="handleSaveSnapshot"
+                    />
                   </div>
                 </div>
               </div>
@@ -233,11 +257,15 @@ onMounted(() => {
 
           <!-- Chat Input Area -->
           <div class="chat-input-wrapper">
-            <label class="input-label">{{ t('form.describe_training_needs') }}</label>
+            <label class="input-label">{{ t('interaction.describe_changes') }}</label>
             <form @submit.prevent="handleSendMessage" class="chat-form">
-              <input v-model="chatInput" type="text"
-                :placeholder="t('interaction.chat_placeholder', 'Nachricht eingeben...')" class="chat-input"
-                :disabled="isLoading" />
+              <input
+                v-model="chatInput"
+                type="text"
+                :placeholder="t('interaction.chat_placeholder')"
+                class="chat-input"
+                :disabled="isLoading"
+              />
               <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
                 <IconSend class="send-icon" />
               </button>
@@ -284,7 +312,7 @@ onMounted(() => {
   height: 100%;
   min-height: 500px;
   background: var(--color-background-soft);
-  border-radius: 12px;
+  border-radius: 8px;
   border: 1px solid var(--color-border);
 }
 
@@ -297,24 +325,10 @@ onMounted(() => {
   gap: 1rem;
 }
 
-.chat-input-wrapper {
-  padding: 1rem;
-  background: var(--color-background);
-  border-top: 1px solid var(--color-border);
-}
-
-.input-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-soft);
-  margin-bottom: 0.5rem;
-}
-
 .tab-switcher {
   display: flex;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
   padding: 0.5rem 0;
   position: relative;
   z-index: 10;
@@ -325,7 +339,7 @@ onMounted(() => {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--color-border);
-  padding: 0.5rem 1.5rem;
+  padding: 0.75rem 1.75rem;
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-text);
@@ -358,7 +372,7 @@ onMounted(() => {
   border-radius: 8px;
   border: 1px solid var(--color-border);
   margin: 2rem auto;
-  max-width: 600px;
+  max-width: 1080px;
 }
 
 .loading-spinner {
@@ -414,7 +428,7 @@ onMounted(() => {
   background: var(--color-background-soft);
   border-radius: 8px;
   border: 1px solid var(--color-border);
-  margin-top: 2rem;
+  margin: 1rem 0;
 }
 
 .metadata-section h3 {
@@ -446,7 +460,7 @@ onMounted(() => {
 }
 
 .message {
-  background: var(--color-background);
+  background: var(--color-background-mute);
   border-radius: 8px;
   padding: 1rem;
   border: 1px solid var(--color-border);
@@ -456,15 +470,15 @@ onMounted(() => {
 }
 
 .message-user {
-  border-left: 3px solid var(--color-primary);
+  border-right: 3px solid var(--color-primary-hover);
   align-self: flex-end;
   margin-left: 10%;
   border-bottom-right-radius: 0;
-  background: var(--color-background-mute);
+  background: var(--color-background);
 }
 
 .message-ai {
-  border-left: 3px solid var(--color-primary-hover);
+  border-left: 3px solid var(--color-primary);
   align-self: flex-start;
   margin-right: 10%;
   border-bottom-left-radius: 0;
@@ -509,7 +523,7 @@ onMounted(() => {
   color: var(--color-primary);
   border: 1px solid var(--color-primary);
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
@@ -533,11 +547,27 @@ onMounted(() => {
   gap: 1rem;
 }
 
+.chat-input-wrapper {
+  padding: 1rem;
+  background: var(--color-background-soft);
+  border-top: 1px solid var(--color-border);
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.input-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-heading);
+  margin-bottom: 0.5rem;
+}
+
 .chat-input {
   flex: 1;
   padding: 0.75rem 1rem;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 8px;
   background: var(--color-background);
   color: var(--color-text);
   font-size: 1rem;

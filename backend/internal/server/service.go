@@ -188,8 +188,14 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	// Recalculate the sums of the rows to be sure they are correct
+	p.Table.UpdateSum()
+	logger.Debug("Updated the table sums...", "sum", p.Table[len(p.Table)-1].Sum)
+
 	userId := req.Context().Value(models.UserIdCtxKey).(string)
-	if userId != "" && p.PlanID != "" {
+	if userId != "" {
+		// Add a plan id to the newly created plan
+		p.PlanID = uuid.NewString()
 		logger.Info("Adding plan to user history", "user_id", userId, "plan_id", p.PlanID)
 		err = rs.db.AddPlanToHistory(req.Context(), p, userId)
 		if err != nil {
@@ -209,10 +215,6 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 			}
 		}
 	}
-
-	// Recalculate the sums of the rows to be sure they are correct
-	p.Table.UpdateSum()
-	logger.Debug("Updated the table sums...", "sum", p.Table[len(p.Table)-1].Sum)
 
 	// Convert to response payload
 	answer := &models.RAGResponse{
@@ -383,14 +385,14 @@ func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request
 	}
 }
 
-// AddPlanToHistoryHandler handles the request to add an existing plan to a user's history.
-// This is used when a user wants to save a plan snapshot from conversation history.
+// AddPlanToHistoryHandler handles the request to add a new plan to a user's history.
+// This is used when a user wants to save a plan snapshot from conversation history with a new PlanID.
 // @Summary Add a plan to user history
-// @Description Add an existing plan to the authenticated user's history
+// @Description Add a plan to the authenticated user's history with a new id
 // @Tags Training Plans
 // @Accept json
 // @Produce json
-// @Param request body models.Plan true "Plan to add to history"
+// @Param request body models.AddPlanToHistoryRequest true "Plan to add to history"
 // @Success 200 {object} models.AddPlanToHistoryResponse
 // @Failure 400 {string} string "Bad request"
 // @Failure 401 {string} string "Unauthorized"
@@ -401,7 +403,7 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 	logger.Info("Adding plan to user history...")
 
 	// Parse request body
-	var plan models.Plan
+	var plan models.AddPlanToHistoryRequest
 	err := models.GetRequestJSON(req, &plan)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -418,7 +420,7 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 	plan.PlanID = uuid.NewString()
 
 	// Add to user history
-	err = rs.db.AddPlanToHistory(req.Context(), &plan, userID)
+	err = rs.db.AddPlanToHistory(req.Context(), plan.Plan(), userID)
 	if err != nil {
 		logger.Error("Failed to add plan to user history", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)

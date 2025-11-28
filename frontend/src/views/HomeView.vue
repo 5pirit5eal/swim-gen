@@ -70,11 +70,15 @@ onUnmounted(() => {
           <div v-if="trainingStore.currentPlan" class="cta-banner">
             <div v-if="!authStore.user" class="cta-content">
               <p>{{ t('home.banner.not_logged_in.text') }}</p>
-              <button @click="navigateToLogin" class="cta-button">{{ t('home.banner.not_logged_in.button') }}</button>
+              <button @click="navigateToLogin" class="cta-button">
+                {{ t('home.banner.not_logged_in.button') }}
+              </button>
             </div>
             <div v-else class="cta-content">
               <p>{{ t('home.banner.logged_in.text') }}</p>
-              <button @click="navigateToInteraction" class="cta-button">{{ t('home.banner.logged_in.button') }}</button>
+              <button @click="navigateToInteraction" class="cta-button">
+                {{ t('home.banner.logged_in.button') }}
+              </button>
             </div>
           </div>
         </div>
@@ -163,7 +167,7 @@ onUnmounted(() => {
   background-color: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;

@@ -143,6 +143,7 @@ async function handleLogout() {
   margin: 0;
   font-size: 1.5rem;
   color: var(--color-heading);
+  text-wrap: nowrap;
 }
 
 .logo-link:hover .logo-icon,

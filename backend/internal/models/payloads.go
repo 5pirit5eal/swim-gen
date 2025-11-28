@@ -157,6 +157,24 @@ type DeleteConversationRequest struct {
 	PlanID string `json:"plan_id" example:"plan_123" binding:"required"` // PlanID identifies the conversation to delete
 }
 
+// AddPlanToHistoryRequest represents the request payload for adding a plan to history
+// @Description Request payload for adding a plan to the authenticated user's history
+type AddPlanToHistoryRequest struct {
+	PlanID      string `json:"plan_id" example:"plan_123" binding:"required"`                                                            // PlanID identifies the plan to add to history
+	Title       string `json:"title" example:"Advanced Freestyle Training" binding:"required"`                                           // Title of the plan
+	Description string `json:"description" example:"A comprehensive training plan for improving freestyle technique" binding:"required"` // Description of the plan
+	Table       Table  `json:"table" binding:"required"`                                                                                 // Table containing the plan details
+}
+
+func (a *AddPlanToHistoryRequest) Plan() *Plan {
+	return &Plan{
+		PlanID:      a.PlanID,
+		Title:       a.Title,
+		Description: a.Description,
+		Table:       a.Table,
+	}
+}
+
 // AddPlanToHistoryResponse represents the response after adding a plan to history
 // @Description Response containing the new plan ID and a success message
 type AddPlanToHistoryResponse struct {

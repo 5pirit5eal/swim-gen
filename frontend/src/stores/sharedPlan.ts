@@ -148,6 +148,9 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         sharer_username: sharerUsername,
         sharer_id: sharedPlanData.user_id,
       }
+      if (sharedPlan.value?.plan) {
+        ensureRowIds(sharedPlan.value.plan.table)
+      }
 
       // Add to history if user is logged in and the plan is not their own
       if (authStore.user) {
@@ -262,6 +265,9 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         sharer_username: profileData.username || i18n.global.t('shared.unknown_user'),
         sharer_id: item.user_id,
       }
+      if (sharedPlan.value?.plan) {
+        ensureRowIds(sharedPlan.value.plan.table)
+      }
     } catch (e) {
       console.error(e)
       error.value = i18n.global.t('errors.fetch_shared_plan_failed')
@@ -335,6 +341,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         Intensity: '',
         Multiplier: 'x',
         Sum: 0,
+        _id: crypto.randomUUID(),
       }
       currentPlan.value.table.splice(rowIndex, 0, newRow)
       recalculateTotalSum()
@@ -379,11 +386,15 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     // If not yet forked, strip the plan_id to create a new plan
     const planIdToUse = isForked.value ? currentPlan.value.plan_id : undefined
 
+    // Strip _id from table rows before sending to backend
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const tableWithoutIds = currentPlan.value.table.map(({ _id, ...rest }) => rest)
+
     const result = await apiClient.upsertPlan({
       plan_id: planIdToUse,
       title: currentPlan.value.title,
       description: currentPlan.value.description,
-      table: currentPlan.value.table,
+      table: tableWithoutIds,
     })
 
     if (result.success && result.data) {
@@ -401,6 +412,14 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     }
   }
 
+  function ensureRowIds(table: Row[]) {
+    table.forEach((row) => {
+      if (!row._id) {
+        row._id = crypto.randomUUID()
+      }
+    })
+  }
+
   return {
     // State
     sharedPlan,
@@ -409,6 +428,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     isFetchingHistory,
     error,
     shareUrl,
+    isForked,
     // Computed
     currentPlan,
     hasPlan,

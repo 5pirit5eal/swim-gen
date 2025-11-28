@@ -208,7 +208,9 @@ class ApiClient {
   /**
    * Add a plan to user history
    */
-  async addPlanToHistory(plan: RAGResponse): Promise<ApiResult<{ message: string; plan_id: string }>> {
+  async addPlanToHistory(
+    plan: RAGResponse,
+  ): Promise<ApiResult<{ message: string; plan_id: string }>> {
     return this._fetch(
       ApiEndpoints.ADD_PLAN_TO_HISTORY,
       {

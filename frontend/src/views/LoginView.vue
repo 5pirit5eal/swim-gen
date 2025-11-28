@@ -191,13 +191,13 @@ label {
 input {
   padding: 0.75rem;
   border: 1px solid var(--color-border);
-  border-radius: 0.375rem;
+  border-radius: 8px;
 }
 
 button {
   padding: 0.75rem;
   border: none;
-  border-radius: 0.375rem;
+  border-radius: 8px;
   background-color: var(--color-primary);
   color: white;
   cursor: pointer;
