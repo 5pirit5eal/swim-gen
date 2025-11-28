@@ -35,7 +35,7 @@ func (gc *GoogleGenAIClient) ChatRefine(
 	var contextStr string
 	if len(contextDocs) > 0 {
 		for i, doc := range contextDocs {
-			contextStr += fmt.Sprintf("Plan %d:\\n%s\\n\\n", i+1, doc.PageContent)
+			contextStr += fmt.Sprintf("Plan %d:\n%s\n\n", i+1, doc.PageContent)
 		}
 	} else {
 		contextStr = "Keine Referenzpläne verfügbar."

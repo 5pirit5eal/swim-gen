@@ -20,6 +20,8 @@ const authStore = useAuthStore()
 const { currentPlan, isLoading, isFetchingConversation, error, conversation, historyMetadata } =
   storeToRefs(trainingStore)
 
+const planMetadata = ref<{ plan_id: string; created_at: string; updated_at: string } | undefined>()
+
 // Track which messages have expanded plan snapshots
 const expandedSnapshots = ref<Set<string>>(new Set())
 const chatInput = ref('')
@@ -111,8 +113,14 @@ async function initializeView() {
   }
 }
 
+function getMetadata() {
+  const planId = route.params.id as string
+  return historyMetadata.value.find((m) => m.plan_id === planId)
+}
+
 onMounted(async () => {
   await initializeView()
+  planMetadata.value = getMetadata()
   window.scrollTo(0, 0)
 })
 
@@ -132,17 +140,6 @@ watch(
     }
   },
 )
-
-const planMetadata = ref<{ plan_id: string; created_at: string; updated_at: string } | undefined>()
-
-function getMetadata() {
-  const planId = route.params.id as string
-  return historyMetadata.value.find((m) => m.plan_id === planId)
-}
-
-onMounted(() => {
-  planMetadata.value = getMetadata()
-})
 </script>
 
 <template>

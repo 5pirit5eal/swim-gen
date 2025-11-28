@@ -5,7 +5,7 @@ import IconEdit from '@/components/icons/IconEdit.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import BaseTableAction from '@/components/ui/BaseTableAction.vue'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
-import type { Row, PlanStore, RAGResponse } from '@/types'
+import type { Row, PlanStore } from '@/types'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -13,11 +13,9 @@ const props = withDefaults(
   defineProps<{
     store: PlanStore
     showShareButton?: boolean
-    planOverride?: RAGResponse | null
   }>(),
   {
     showShareButton: false,
-    planOverride: undefined,
   },
 )
 
@@ -28,14 +26,14 @@ const isEditing = ref(false)
 const editingCell = ref<{ rowIndex: number; field: keyof Row } | null>(null)
 
 const exerciseRows = computed(() => {
-  const plan = props.planOverride || props.store.currentPlan
+  const plan = props.store.currentPlan
   if (!plan?.table) return []
   // All rows except the last one (which should be the total)
   return plan.table.slice(0, -1)
 })
 
 const totalRow = computed(() => {
-  const plan = props.planOverride || props.store.currentPlan
+  const plan = props.store.currentPlan
   if (!plan?.table) return null
   // The last row should be the total
   const table = plan.table
@@ -118,7 +116,7 @@ function autoResize(event: Event) {
       <div class="loading-spinner"></div>
       <p>{{ t('display.generating_plan_message') }}</p>
     </div>
-    <div v-else-if="store.hasPlan && (store.currentPlan || planOverride)" class="plan-container">
+    <div v-else-if="store.hasPlan && store.currentPlan" class="plan-container">
       <!-- Header -->
       <header class="plan-header">
         <div v-if="isEditing" class="edit-header">
@@ -137,9 +135,9 @@ function autoResize(event: Event) {
           ></textarea>
         </div>
         <div v-else>
-          <h2 class="plan-title">{{ (planOverride || store.currentPlan)?.title }}</h2>
+          <h2 class="plan-title">{{ store.currentPlan?.title }}</h2>
           <div class="plan-description">
-            {{ (planOverride || store.currentPlan)?.description }}
+            {{ store.currentPlan?.description }}
           </div>
         </div>
       </header>

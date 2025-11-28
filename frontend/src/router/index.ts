@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -41,8 +42,18 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
   const auth = useAuthStore()
-  while (!auth.hasInitialized) {
-    await new Promise((resolve) => setTimeout(resolve, 10))
+  if (!auth.hasInitialized) {
+    await new Promise<void>((resolve) => {
+      const unwatch = watch(
+        () => auth.hasInitialized,
+        (isInitialized) => {
+          if (isInitialized) {
+            unwatch()
+            resolve()
+          }
+        },
+      )
+    })
   }
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
 
@@ -61,7 +72,6 @@ router.beforeEach(async (to, from) => {
     }
   } else if (to.name === 'login' && auth.user) {
     console.log('User is already logged in, redirecting to home.')
-    await new Promise((resolve) => setTimeout(resolve, 5000))
     return { name: 'home' }
   }
 })
