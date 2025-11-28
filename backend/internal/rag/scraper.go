@@ -18,6 +18,8 @@ import (
 	"github.com/tmc/langchaingo/schema"
 )
 
+const ScrapedTableName string = "scraped"
+
 // URLMap is a thread-safe map to store URLs that have already been visited
 // and to prevent duplicate scraping of the same URL.
 type URLMap struct {

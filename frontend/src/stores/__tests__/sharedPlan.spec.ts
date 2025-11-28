@@ -14,23 +14,42 @@ vi.mock('@/api/client', async (importOriginal) => {
     ...actual,
     apiClient: {
       createShareUrl: vi.fn(),
+      upsertPlan: vi.fn(),
     },
     formatError: vi.fn((error) => `${error.message}: ${error.details}`),
   }
 })
 
-vi.mock('@/plugins/supabase', () => ({
-  supabase: {
-    from: vi.fn().mockReturnThis(),
-    select: vi.fn().mockReturnThis(),
-    order: vi.fn().mockReturnThis(),
-    in: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    single: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-  },
-}))
+vi.mock('@/plugins/supabase', () => {
+  const mockSupabase = {
+    from: vi.fn(),
+    select: vi.fn(),
+    order: vi.fn(),
+    in: vi.fn(),
+    eq: vi.fn(),
+    single: vi.fn(),
+    insert: vi.fn(),
+    limit: vi.fn(),
+    update: vi.fn(),
+    maybeSingle: vi.fn(),
+  }
+
+  // Setup chaining
+  mockSupabase.from.mockReturnValue(mockSupabase)
+  mockSupabase.select.mockReturnValue(mockSupabase)
+  mockSupabase.order.mockReturnValue(mockSupabase)
+  mockSupabase.in.mockReturnValue(mockSupabase)
+  mockSupabase.eq.mockReturnValue(mockSupabase)
+  mockSupabase.single.mockReturnValue(mockSupabase)
+  mockSupabase.insert.mockReturnValue(mockSupabase)
+  mockSupabase.limit.mockReturnValue(mockSupabase)
+  mockSupabase.update.mockReturnValue(mockSupabase)
+  mockSupabase.maybeSingle.mockReturnValue(mockSupabase)
+
+  return {
+    supabase: mockSupabase,
+  }
+})
 
 vi.mock('@/stores/auth', () => ({
   useAuthStore: vi.fn(() => ({
@@ -38,8 +57,17 @@ vi.mock('@/stores/auth', () => ({
   })),
 }))
 
+vi.mock('@/stores/trainingPlan', () => ({
+  useTrainingPlanStore: vi.fn(() => ({
+    fetchHistory: vi.fn(),
+    planHistory: [],
+    loadPlanFromHistory: vi.fn(),
+  })),
+}))
+
 // --- Mock Casts ---
 const mockedApiCreateShareUrl = apiClient.createShareUrl as Mock
+const mockedApiUpsertPlan = apiClient.upsertPlan as Mock
 const mockedSupabase = supabase as unknown as {
   from: Mock
   select: Mock
@@ -48,6 +76,9 @@ const mockedSupabase = supabase as unknown as {
   eq: Mock
   single: Mock
   insert: Mock
+  limit: Mock
+  update: Mock
+  maybeSingle: Mock
 }
 const mockedAuthStore = useAuthStore as unknown as Mock
 
@@ -58,6 +89,18 @@ describe('sharedPlan Store', () => {
     mockedAuthStore.mockReturnValue({
       user: { id: 'test-user-id' },
     })
+
+    // Restore default chaining
+    mockedSupabase.from.mockReturnValue(mockedSupabase)
+    mockedSupabase.select.mockReturnValue(mockedSupabase)
+    mockedSupabase.order.mockReturnValue(mockedSupabase)
+    mockedSupabase.in.mockReturnValue(mockedSupabase)
+    mockedSupabase.eq.mockReturnValue(mockedSupabase)
+    mockedSupabase.single.mockReturnValue(mockedSupabase)
+    mockedSupabase.insert.mockReturnValue(mockedSupabase)
+    mockedSupabase.limit.mockReturnValue(mockedSupabase)
+    mockedSupabase.update.mockReturnValue(mockedSupabase)
+    mockedSupabase.maybeSingle.mockReturnValue(mockedSupabase)
   })
 
   it('verify initial state', () => {
@@ -214,6 +257,35 @@ describe('sharedPlan Store', () => {
       expect(store.sharedHistory).toHaveLength(1)
       expect(store.sharedHistory[0].plan?.title).toBe('Plan 1')
       expect(store.isLoading).toBe(false)
+    })
+  })
+
+  describe('upsertCurrentPlan', () => {
+    it('upserts plan and returns new plan_id', async () => {
+      const store = useSharedPlanStore()
+      // Setup initial state
+      store.sharedPlan = {
+        plan: {
+          plan_id: 'old-id',
+          title: 'Test',
+          description: 'Desc',
+          table: [],
+        },
+        sharer_username: 'User',
+        sharer_id: 'sharer-id',
+      }
+      store.isForked = false
+
+      const mockResponse = {
+        success: true,
+        data: { plan_id: 'new-id' },
+      }
+      mockedApiUpsertPlan.mockResolvedValue(mockResponse)
+
+      await store.upsertCurrentPlan()
+
+      expect(store.sharedPlan?.plan.plan_id).toBe('new-id')
+      expect(store.isForked).toBe(true)
     })
   })
 })

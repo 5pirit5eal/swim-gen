@@ -316,7 +316,7 @@ function getExperienceLabel(value: string) {
 .delete-card {
   background: var(--color-background-soft);
   padding: 2rem;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   border: 1px solid var(--color-border);
 }
 
@@ -369,7 +369,7 @@ function getExperienceLabel(value: string) {
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -416,7 +416,7 @@ function getExperienceLabel(value: string) {
 .select-input {
   padding: 0.5rem;
   border: 1px solid var(--color-border);
-  border-radius: 0.25rem;
+  border-radius: 8px;
   font-family: inherit;
   font-size: 0.9rem;
   background: var(--color-background-soft);
@@ -442,7 +442,7 @@ function getExperienceLabel(value: string) {
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -493,7 +493,7 @@ function getExperienceLabel(value: string) {
 
 .progress-bar {
   background-color: var(--color-border);
-  border-radius: 0.25rem;
+  border-radius: 8px;
   height: 0.5rem;
   margin-top: 0.5rem;
   width: 200%;
@@ -503,7 +503,7 @@ function getExperienceLabel(value: string) {
 .progress {
   background-color: var(--color-primary);
   height: 100%;
-  border-radius: 0.25rem;
+  border-radius: 8px;
 }
 
 .delete-card {
@@ -521,7 +521,7 @@ function getExperienceLabel(value: string) {
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;

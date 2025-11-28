@@ -431,6 +431,7 @@ async function handlePromptGeneration() {
 
 .form-textarea:focus {
   outline: none;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-shadow);
 }
 

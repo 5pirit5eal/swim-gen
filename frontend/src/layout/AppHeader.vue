@@ -2,6 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useSidebarStore } from '@/stores/sidebar'
+import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { toast } from 'vue3-toastify'
 import { useRouter } from 'vue-router'
 import IconMenu from '@/components/icons/IconMenu.vue'
@@ -12,11 +13,13 @@ const { t } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
 const sidebarStore = useSidebarStore()
+const trainingStore = useTrainingPlanStore()
 
 async function handleLogout() {
   try {
     await auth.signOut()
     toast.success(t('login.logoutSuccess'))
+    trainingStore.clear()
     router.push('/')
     sidebarStore.close()
   } catch (error) {
@@ -115,7 +118,7 @@ async function handleLogout() {
   background-color: var(--color-transparent);
   backdrop-filter: blur(3px);
   padding: 0.25rem 0.75rem;
-  border-radius: 0.375rem;
+  border-radius: 8px;
   transition:
     padding 0.3s ease,
     gap 0.3s ease;
@@ -140,6 +143,7 @@ async function handleLogout() {
   margin: 0;
   font-size: 1.5rem;
   color: var(--color-heading);
+  text-wrap: nowrap;
 }
 
 .logo-link:hover .logo-icon,
@@ -159,7 +163,7 @@ async function handleLogout() {
   background-color: var(--color-transparent);
   backdrop-filter: blur(2px);
   padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+  border-radius: 8px;
   margin-left: 0.5rem;
 }
 

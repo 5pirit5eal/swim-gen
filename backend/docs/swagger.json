@@ -63,6 +63,109 @@
                 }
             }
         },
+        "/add-plan-to-history": {
+            "post": {
+                "description": "Add a plan to the authenticated user's history with a new id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training Plans"
+                ],
+                "summary": "Add a plan to user history",
+                "parameters": [
+                    {
+                        "description": "Plan to add to history",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AddPlanToHistoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.AddPlanToHistoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/chat": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Have a conversation with the AI trainer to create, modify, or get information about training plans",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Chat with AI to create or refine training plans",
+                "parameters": [
+                    {
+                        "description": "Chat request with message and optional plan ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ChatRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful chat response with updated plan",
+                        "schema": {
+                            "$ref": "#/definitions/models.ChatResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/export-pdf": {
             "post": {
                 "security": [
@@ -199,6 +302,209 @@
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/memory/conversation": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get the full conversation history for a specific plan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Memory"
+                ],
+                "summary": "Get conversation history",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Plan ID",
+                        "name": "plan_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Conversation history",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.MessagePayload"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete all messages in a conversation for a specific plan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Memory"
+                ],
+                "summary": "Delete an entire conversation",
+                "parameters": [
+                    {
+                        "description": "Request to delete a conversation",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeleteConversationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Conversation deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/memory/message": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a specific message from the conversation history while maintaining the linked list integrity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Memory"
+                ],
+                "summary": "Delete a single message from conversation",
+                "parameters": [
+                    {
+                        "description": "Request to delete a message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeleteMessageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/memory/messages-after": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a message and all messages that follow it in the conversation, allowing conversation branching",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Memory"
+                ],
+                "summary": "Delete a message and all subsequent messages",
+                "parameters": [
+                    {
+                        "description": "Request to delete messages from a point",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeleteMessagesAfterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Messages deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "type": "string"
                         }
@@ -402,6 +708,160 @@
         }
     },
     "definitions": {
+        "models.AddPlanToHistoryRequest": {
+            "description": "Request payload for adding a plan to the authenticated user's history",
+            "type": "object",
+            "required": [
+                "description",
+                "plan_id",
+                "table",
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "description": "Description of the plan",
+                    "type": "string",
+                    "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the plan to add to history",
+                    "type": "string",
+                    "example": "plan_123"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "description": "Title of the plan",
+                    "type": "string",
+                    "example": "Advanced Freestyle Training"
+                }
+            }
+        },
+        "models.AddPlanToHistoryResponse": {
+            "description": "Response containing the new plan ID and a success message",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Plan added to history successfully"
+                },
+                "plan_id": {
+                    "type": "string",
+                    "example": "plan_123"
+                }
+            }
+        },
+        "models.ChatRequest": {
+            "description": "Request payload for conversational training plan creation and refinement",
+            "type": "object",
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "language": {
+                    "description": "Language specifies the language for the response",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Language"
+                        }
+                    ],
+                    "example": "en"
+                },
+                "message": {
+                    "description": "Message is the user's input to the chat",
+                    "type": "string",
+                    "example": "Make it more challenging"
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the conversation/plan (optional for new conversations)",
+                    "type": "string",
+                    "example": "plan_123"
+                },
+                "pool_length": {
+                    "description": "PoolLength specifies the pool length for the training plan"
+                }
+            }
+        },
+        "models.ChatResponsePayload": {
+            "description": "Response containing the updated plan and conversational response",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "Description of the training plan",
+                    "type": "string",
+                    "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "plan_id": {
+                    "description": "PlanID identifies the conversation/plan",
+                    "type": "string",
+                    "example": "plan_123"
+                },
+                "response": {
+                    "description": "Response is the conversational AI response explaining changes",
+                    "type": "string",
+                    "example": "I've made the plan more challenging by adding butterfly sets"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "description": "Title of the training plan",
+                    "type": "string",
+                    "example": "Advanced Freestyle Training"
+                }
+            }
+        },
+        "models.DeleteConversationRequest": {
+            "description": "Request payload for deleting an entire conversation and all its messages",
+            "type": "object",
+            "required": [
+                "plan_id"
+            ],
+            "properties": {
+                "plan_id": {
+                    "description": "PlanID identifies the conversation to delete",
+                    "type": "string",
+                    "example": "plan_123"
+                }
+            }
+        },
+        "models.DeleteMessageRequest": {
+            "description": "Request payload for deleting a single message from conversation history",
+            "type": "object",
+            "required": [
+                "message_id"
+            ],
+            "properties": {
+                "message_id": {
+                    "description": "MessageID identifies the message to delete",
+                    "type": "string",
+                    "example": "msg_123"
+                }
+            }
+        },
+        "models.DeleteMessagesAfterRequest": {
+            "description": "Request payload for deleting a message and all subsequent messages in the conversation",
+            "type": "object",
+            "required": [
+                "message_id"
+            ],
+            "properties": {
+                "message_id": {
+                    "description": "MessageID identifies the message from which to delete (inclusive)",
+                    "type": "string",
+                    "example": "msg_123"
+                }
+            }
+        },
         "models.DonatePlanRequest": {
             "description": "Request payload for donating a swim training plan to the system",
             "type": "object",
@@ -493,6 +953,40 @@
                 "LanguageEN",
                 "LanguageDE"
             ]
+        },
+        "models.MessagePayload": {
+            "description": "Snapshot of a training plan",
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "Table containing the training plan details",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "next_message_id": {
+                    "type": "string"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "plan_snapshot": {
+                    "$ref": "#/definitions/models.RAGResponse"
+                },
+                "previous_message_id": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/models.Role"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
         },
         "models.PlanToPDFRequest": {
             "description": "Request payload for exporting a training plan to PDF format",
@@ -620,6 +1114,17 @@
                     "example": "Advanced Freestyle Training"
                 }
             }
+        },
+        "models.Role": {
+            "type": "string",
+            "enum": [
+                "user",
+                "ai"
+            ],
+            "x-enum-varnames": [
+                "RoleUser",
+                "RoleAI"
+            ]
         },
         "models.Row": {
             "description": "A single exercise entry with amount, distance, breaks, content, intensity and total volume",

@@ -6,6 +6,18 @@
     "hero_title": "KI-Generierte Schwimmpläne",
     "hero_description": "Generiere personalisierte Trainingspläne für Schwimmer, Triathleten und Trainer. Beschreibe einfach, was du suchst, und unserer System erstellt ein individuelles Training für dich."
   },
+  "home": {
+    "banner": {
+      "not_logged_in": {
+        "text": "Wenn du einen zukünftigen Plan speichern oder interaktive Bearbeitung nutzen möchtest, erstelle ein Konto oder melde dich an.",
+        "button": "Anmelden"
+      },
+      "logged_in": {
+        "text": "Um diesen Plan in deinem Verlauf anzuzeigen und interaktive Bearbeitung zu nutzen, klicke hier:",
+        "button": "Interaktive Bearbeitung"
+      }
+    }
+  },
   "header": {
     "home": "Startseite",
     "about": "Über uns",
@@ -69,6 +81,8 @@
   },
   "display": {
     "generating_plan_message": "Dein Trainingsplan wird generiert...",
+    "plan_title": "Kein Title angegeben.",
+    "plan_description": "Keine Beschreibung angegeben.",
     "amount": "Anzahl",
     "amount_tooltip": "Anzahl der Wiederholungen für die Übung.",
     "distance": "Distanz (m)",
@@ -110,7 +124,7 @@
     "exercise_sets": "Übungssätze",
     "no_plan_placeholder": "Noch kein Trainingsplan generiert. Verwende das obige Formular, um einen zu erstellen!",
     "done_editing": "Bearbeitung beenden",
-    "refine_plan": "Plan verfeinern",
+    "refine_plan": "Plan bearbeiten",
     "export_pdf": "PDF exportieren",
     "exporting": "Exportiert...",
     "open_pdf": "PDF öffnen",
@@ -324,7 +338,8 @@
     "donated": "Hochgeladene Pläne",
     "donated_placeholder": "Noch keine Pläne hochgeladen.",
     "shared": "Mit Dir Geteilte Pläne",
-    "shared_placeholder": "Noch keine Pläne mit dir geteilt."
+    "shared_placeholder": "Noch keine Pläne mit dir geteilt.",
+    "create_new": "Neuen Plan erstellen"
   },
   "labels": {
     "created_at": "Erstellt am",
@@ -337,6 +352,23 @@
     "show_url": "Teile diesen Link, um mit anderen diesen Trainingsplan zu teilen:",
     "share_plan": "Plan teilen"
   },
+  "interaction": {
+    "save_to_history": "In \"Deine Pläne\" speichern",
+    "snapshot_saved": "Snapshot in \"Deine Pläne\" gespeichert!",
+    "not_found": "Plan nicht gefunden.",
+    "no_messages": "Noch keine Nachrichten in dieser Konversation.",
+    "you": "Du",
+    "ai": "Swim Gen",
+    "conversation_tab": "Interaktive Bearbeitung",
+    "plan_tab": "Trainingsplan",
+    "hide_plan": "Plan verbergen",
+    "show_plan": "Plan anzeigen",
+    "metadata": "Metadaten",
+    "created_at": "Erstellt am",
+    "updated_at": "Aktualisiert am",
+    "chat_placeholder": "Nachricht eingeben...",
+    "describe_changes": "Beschreibe hier deine gewünschte Änderung"
+  },
   "shared": {
     "loading": "Lade geteilten Trainingsplan...",
     "hero_title": "Geteilter Trainingsplan",
@@ -344,6 +376,7 @@
     "hero_description_two": " geteilt wurde.\nDu kannst diesen Plan bearbeiten, für die Nutzung am Becken exportieren oder basierend auf deinen eigenen Anforderungen einen Neuen generieren. Änderungen werden in deiner Historie gespeichert und nicht zurück an {username} gesendet.",
     "no_plan_toast": "Der Plan konnte nicht gefunden werden.\n{error}",
     "register_to_save": "Melde dich an, um diesen Plan zu speichern und zu bearbeiten!",
-    "unknown_user": "Unbekannter Nutzer"
+    "unknown_user": "Unbekannter Nutzer",
+    "start_conversation": "Interaktives Bearbeiten starten"
   }
 }

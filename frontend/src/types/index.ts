@@ -17,6 +17,8 @@ export type {
   UpsertPlanRequest,
   UpsertPlanResponse,
   PlanStore,
+  ChatRequest,
+  ChatResponsePayload,
 } from './training'
 
 // Export filter option constants
@@ -54,6 +56,7 @@ export type { Profile } from './profile'
 
 // Export miscellaneous types
 export type { HistoryMetadata } from './misc'
+export type { Message, Role } from './message'
 
 // Export all shared-plan-related types
 export type {

@@ -5,6 +5,18 @@
     "hero_title": "AI-Powered Swimming Training Plans",
     "hero_description": "Generate personalized training plans for swimmers, triathletes, and coaches. Just describe what you're looking for, and our system will create a custom training for you."
   },
+  "home": {
+    "banner": {
+      "not_logged_in": {
+        "text": "If you want to save a future plan or use interactive editing create an account or log in.",
+        "button": "Login"
+      },
+      "logged_in": {
+        "text": "To view this plan in your history and use interactive editing click here:",
+        "button": "Interactive Editing"
+      }
+    }
+  },
   "header": {
     "home": "Home",
     "about": "About",
@@ -68,6 +80,8 @@
   },
   "display": {
     "generating_plan_message": "Generating your training plan...",
+    "plan_title": "No title provided.",
+    "plan_description": "No description provided.",
     "amount": "Amount",
     "amount_tooltip": "Number of repetitions for the exercise.",
     "distance": "Distance (m)",
@@ -321,7 +335,8 @@
     "donated": "Uploaded plans",
     "donated_placeholder": "No plans uploaded yet.",
     "shared": "Plans shared with you",
-    "shared_placeholder": "No plans shared with you yet."
+    "shared_placeholder": "No plans shared with you yet.",
+    "create_new": "Create New Plan"
   },
   "labels": {
     "created_at": "Created at",
@@ -334,6 +349,23 @@
     "copied": "Copied!",
     "share_plan": "Share Plan"
   },
+  "interaction": {
+    "save_to_history": "Add to History",
+    "snapshot_saved": "Snapshot added to history!",
+    "not_found": "Plan not found.",
+    "no_messages": "No messages in this conversation yet.",
+    "you": "You",
+    "ai": "Swim Gen",
+    "conversation_tab": "Interactive Editing",
+    "plan_tab": "Training Plan",
+    "hide_plan": "Hide Plan",
+    "show_plan": "Show Plan",
+    "metadata": "Metadata",
+    "created_at": "Created At",
+    "updated_at": "Updated At",
+    "chat_placeholder": "Type a message...",
+    "describe_changes": "Describe your desired changes"
+  },
   "shared": {
     "loading": "Loading shared training plan...",
     "hero_title": "Shared Training Plan",
@@ -341,6 +373,7 @@
     "hero_description_two": ". You can edit this plan, export it for use at the pool, or generate a new one based on your own needs. Edits are saved in your history and not fed back to {username}.",
     "no_plan_toast": "The shared plan could not be found.\n{error}",
     "register_to_save": "Register an account or login to save and manage this shared training plans.",
-    "unknown_user": "Unknown User"
+    "unknown_user": "Unknown User",
+    "start_conversation": "Start Interactive Editing"
   }
 }

@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // DonatePlanRequest represents the request body for donating a training plan
 // @Description Request payload for donating a swim training plan to the system
 type DonatePlanRequest struct {
@@ -96,4 +98,86 @@ type SharePlanRequest struct {
 // @Description Response containing the sharing details of the swim training plan
 type SharePlanResponse struct {
 	URLHash string `json:"url_hash" example:"abc123"` // URLHash is the hash to access the shared training plan
+}
+
+// ChatRequest represents the request payload for chat-based plan refinement
+// @Description Request payload for conversational training plan creation and refinement
+type ChatRequest struct {
+	PlanID     string   `json:"plan_id,omitempty" example:"plan_123"`                          // PlanID identifies the conversation/plan (optional for new conversations)
+	Message    string   `json:"message" example:"Make it more challenging" binding:"required"` // Message is the user's input to the chat
+	Language   Language `json:"language,omitempty" example:"en"`                               // Language specifies the language for the response
+	PoolLength any      `json:"pool_length,omitempty" validate:"oneof=25 50 Freiwasser"`       // PoolLength specifies the pool length for the training plan
+}
+
+// ChatResponsePayload represents the response from a chat interaction
+// @Description Response containing the updated plan and conversational response
+type ChatResponsePayload struct {
+	PlanID      string `json:"plan_id" example:"plan_123"`                                                                      // PlanID identifies the conversation/plan
+	Title       string `json:"title,omitempty" example:"Advanced Freestyle Training"`                                           // Title of the training plan
+	Description string `json:"description,omitempty" example:"A comprehensive training plan for improving freestyle technique"` // Description of the training plan
+	Table       Table  `json:"table,omitempty"`                                                                                 // Table containing the training plan details
+	Response    string `json:"response" example:"I've made the plan more challenging by adding butterfly sets"`                 // Response is the conversational AI response explaining changes
+}
+
+// PlanSnapshot represents a snapshot of a training plan
+// @Description Snapshot of a training plan
+type MessagePayload struct {
+	ID                string       `json:"id" db:"id"`
+	PlanID            string       `json:"plan_id" db:"plan_id"`
+	UserID            string       `json:"user_id" db:"user_id"`
+	Role              Role         `json:"role" db:"role"`
+	Content           string       `json:"content" db:"content"`
+	PreviousMessageID *string      `json:"previous_message_id" db:"previous_message_id"`
+	NextMessageID     *string      `json:"next_message_id" db:"next_message_id"`
+	PlanSnapshot      *RAGResponse `json:"plan_snapshot" db:"plan_snapshot"`
+	CreatedAt         time.Time    `json:"created_at" db:"created_at"` // Table containing the training plan details
+}
+
+// GetConversationResponse represents the response from a conversation history request
+// @Description Response containing the conversation history
+type GetConversationResponse struct {
+	Conversation []MessagePayload `json:"conversation"` // Conversation history
+}
+
+// DeleteMessageRequest represents the request payload for deleting a single message
+// @Description Request payload for deleting a single message from conversation history
+type DeleteMessageRequest struct {
+	MessageID string `json:"message_id" example:"msg_123" binding:"required"` // MessageID identifies the message to delete
+}
+
+// DeleteMessagesAfterRequest represents the request payload for deleting a message and all subsequent messages
+// @Description Request payload for deleting a message and all subsequent messages in the conversation
+type DeleteMessagesAfterRequest struct {
+	MessageID string `json:"message_id" example:"msg_123" binding:"required"` // MessageID identifies the message from which to delete (inclusive)
+}
+
+// DeleteConversationRequest represents the request payload for deleting an entire conversation
+// @Description Request payload for deleting an entire conversation and all its messages
+type DeleteConversationRequest struct {
+	PlanID string `json:"plan_id" example:"plan_123" binding:"required"` // PlanID identifies the conversation to delete
+}
+
+// AddPlanToHistoryRequest represents the request payload for adding a plan to history
+// @Description Request payload for adding a plan to the authenticated user's history
+type AddPlanToHistoryRequest struct {
+	PlanID      string `json:"plan_id" example:"plan_123" binding:"required"`                                                            // PlanID identifies the plan to add to history
+	Title       string `json:"title" example:"Advanced Freestyle Training" binding:"required"`                                           // Title of the plan
+	Description string `json:"description" example:"A comprehensive training plan for improving freestyle technique" binding:"required"` // Description of the plan
+	Table       Table  `json:"table" binding:"required"`                                                                                 // Table containing the plan details
+}
+
+func (a *AddPlanToHistoryRequest) Plan() *Plan {
+	return &Plan{
+		PlanID:      a.PlanID,
+		Title:       a.Title,
+		Description: a.Description,
+		Table:       a.Table,
+	}
+}
+
+// AddPlanToHistoryResponse represents the response after adding a plan to history
+// @Description Response containing the new plan ID and a success message
+type AddPlanToHistoryResponse struct {
+	Message string `json:"message" example:"Plan added to history successfully"`
+	PlanID  string `json:"plan_id" example:"plan_123"`
 }

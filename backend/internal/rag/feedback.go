@@ -9,6 +9,8 @@ import (
 	"github.com/go-chi/httplog/v2"
 )
 
+const FeedbackTable string = "feedback"
+
 // Add user feedback for an existing plan to the database
 func (db *RAGDB) AddFeedback(ctx context.Context, feedback *models.Feedback) error {
 	logger := httplog.LogEntry(ctx)

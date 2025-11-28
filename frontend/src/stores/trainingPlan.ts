@@ -1,6 +1,6 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
-import type { QueryRequest, RAGResponse, Row, HistoryMetadata } from '@/types'
+import type { QueryRequest, RAGResponse, Row, HistoryMetadata, Message } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { supabase } from '@/plugins/supabase'
@@ -11,9 +11,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   const currentPlan = ref<RAGResponse | null>(null)
   const isLoading = ref(false)
   const isFetchingHistory = ref(false)
+  const isFetchingConversation = ref(false)
   const error = ref<string | null>(null)
   const generationHistory = ref<RAGResponse[]>([])
   const historyMetadata = ref<HistoryMetadata[]>([])
+  const conversation = ref<Message[]>([])
   const userStore = useAuthStore()
 
   // --- COMPUTED ---
@@ -139,6 +141,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
     if (result.success && result.data) {
       currentPlan.value = result.data
+      ensureRowIds(currentPlan.value.table)
       recalculateTotalSum()
       await fetchHistory() // Refresh history after generating a new plan
       isLoading.value = false
@@ -162,11 +165,15 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       console.log('No current plan to upsert.')
       return
     }
+    // Strip _id from table rows before sending to backend
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const tableWithoutIds = currentPlan.value.table.map(({ _id, ...rest }) => rest)
+
     const result = await apiClient.upsertPlan({
       plan_id: currentPlan.value.plan_id,
       title: currentPlan.value.title,
       description: currentPlan.value.description,
-      table: currentPlan.value.table,
+      table: tableWithoutIds,
     })
     if (result.success && result.data) {
       await fetchHistory() // Refresh history after upserting
@@ -180,8 +187,14 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   }
 
   // Loads a plan from history into the editor
-  function loadPlanFromHistory(plan: RAGResponse) {
+  async function loadPlanFromHistory(plan: RAGResponse) {
+    if (!userStore.user) return
+    if (!plan.plan_id) return
+    await fetchConversation(plan.plan_id)
     currentPlan.value = JSON.parse(JSON.stringify(plan)) // Deep copy to prevent accidental edits
+    if (currentPlan.value) {
+      ensureRowIds(currentPlan.value.table)
+    }
   }
 
   // --- Plan Table Manipulations ---
@@ -216,6 +229,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         Intensity: '',
         Multiplier: 'x',
         Sum: 0,
+        _id: crypto.randomUUID(),
       }
       currentPlan.value.table.splice(rowIndex, 0, newRow)
       recalculateTotalSum()
@@ -257,6 +271,117 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     currentPlan.value = null
     error.value = null
     isLoading.value = false
+    conversation.value = []
+  }
+
+  // Fetches the conversation history for a plan
+  async function fetchConversation(planId: string) {
+    if (!userStore.user) return
+    isFetchingConversation.value = true
+    conversation.value = []
+    console.log('Fetching conversation for plan:', planId)
+
+    const { data, error: fetchError } = await apiClient.getConversation(planId)
+    if (fetchError) {
+      console.error(fetchError)
+      return
+    }
+
+    if (data !== null && Array.isArray(data)) {
+      // We need to map the backend message type to a frontend friendly type if needed
+      // For now assuming the types match or we use the backend type directly
+      // You might need to add a 'conversation' state property to the store
+      conversation.value = data
+    } else {
+      conversation.value = []
+    }
+    isFetchingConversation.value = false
+  }
+
+  // Saves a snapshot to user history
+  async function saveSnapshot(plan: RAGResponse) {
+    if (!userStore.user) return
+
+    const result = await apiClient.addPlanToHistory(plan)
+    if (result.success) {
+      await fetchHistory()
+    } else {
+      console.error('Failed to save snapshot:', result.error)
+    }
+  }
+
+  // Sends a message to the AI
+  async function sendMessage(message: string) {
+    if (!currentPlan.value?.plan_id || !userStore.user) return
+
+    // Optimistic update: add user message
+    const userMsg: Message = {
+      id: crypto.randomUUID(),
+      role: 'user',
+      content: message,
+      created_at: new Date().toISOString(),
+      plan_id: currentPlan.value.plan_id,
+      user_id: userStore.user.id,
+      previous_message_id: null,
+      next_message_id: null,
+    }
+    conversation.value.push(userMsg)
+
+    isLoading.value = true
+    error.value = null
+
+    const result = await apiClient.chat({
+      plan_id: currentPlan.value.plan_id,
+      message: message,
+    })
+
+    if (result.success && result.data) {
+      // Add AI response
+      const aiMsg: Message = {
+        id: crypto.randomUUID(),
+        role: 'ai',
+        content: result.data.response,
+        created_at: new Date().toISOString(),
+        plan_id: currentPlan.value.plan_id,
+        user_id: userStore.user.id,
+        previous_message_id: null,
+        next_message_id: null,
+        plan_snapshot: result.data.table
+          ? {
+              plan_id: result.data.plan_id,
+              title: result.data.title || '',
+              description: result.data.description || '',
+              table: result.data.table,
+            }
+          : undefined,
+      }
+      conversation.value.push(aiMsg)
+
+      // Update current plan if changed
+      if (result.data.table) {
+        currentPlan.value = {
+          ...currentPlan.value,
+          title: result.data.title || currentPlan.value.title,
+          description: result.data.description || currentPlan.value.description,
+          table: result.data.table,
+          plan_id: result.data.plan_id,
+        }
+        ensureRowIds(currentPlan.value.table)
+        recalculateTotalSum()
+        await fetchHistory()
+      }
+    } else {
+      error.value = result.error ? formatError(result.error) : i18n.global.t('errors.unknown_error')
+    }
+    isLoading.value = false
+  }
+
+  function ensureRowIds(table: Row[]) {
+    table.forEach((row) => {
+      if (!row._id) {
+        row._id = crypto.randomUUID()
+      }
+    })
   }
 
   return {
@@ -264,9 +389,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     currentPlan,
     isLoading,
     isFetchingHistory,
+    isFetchingConversation,
     error,
     generationHistory,
     historyMetadata,
+    conversation,
     // Computed
     hasPlan,
     planHistory,
@@ -283,5 +410,8 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     loadPlanFromHistory,
     keepForever,
     toggleKeepForever,
+    fetchConversation,
+    saveSnapshot,
+    sendMessage,
   }
 })

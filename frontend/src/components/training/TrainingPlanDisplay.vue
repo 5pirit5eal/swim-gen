@@ -26,15 +26,17 @@ const isEditing = ref(false)
 const editingCell = ref<{ rowIndex: number; field: keyof Row } | null>(null)
 
 const exerciseRows = computed(() => {
-  if (!props.store.currentPlan?.table) return []
+  const plan = props.store.currentPlan
+  if (!plan?.table) return []
   // All rows except the last one (which should be the total)
-  return props.store.currentPlan.table.slice(0, -1)
+  return plan.table.slice(0, -1)
 })
 
 const totalRow = computed(() => {
-  if (!props.store.currentPlan?.table) return null
+  const plan = props.store.currentPlan
+  if (!plan?.table) return null
   // The last row should be the total
-  const table = props.store.currentPlan.table
+  const table = plan.table
   return table.length > 0 ? table[table.length - 1] : null
 })
 
@@ -71,7 +73,8 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
     } else {
       // Revert to the original value if input is invalid
       const originalRow = props.store.currentPlan?.table[rowIndex]
-      newValue = originalRow ? originalRow[field] : 0
+      const val = originalRow ? originalRow[field] : 0
+      newValue = val !== undefined ? val : 0
     }
   }
   props.store.updatePlanRow(rowIndex, field, newValue)
@@ -90,6 +93,21 @@ function handleRemoveRow(index: number) {
 function handleMoveRow(index: number, direction: 'up' | 'down') {
   props.store.moveRow(index, direction)
 }
+
+// Auto-resize directive for textarea
+const vAutoResize = {
+  mounted: (el: HTMLTextAreaElement) => {
+    el.style.height = 'auto'
+    el.style.height = el.scrollHeight + 'px'
+    el.style.overflowY = 'hidden'
+  },
+}
+
+function autoResize(event: Event) {
+  const target = event.target as HTMLTextAreaElement
+  target.style.height = 'auto'
+  target.style.height = target.scrollHeight + 'px'
+}
 </script>
 
 <template>
@@ -101,9 +119,26 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
     <div v-else-if="store.hasPlan && store.currentPlan" class="plan-container">
       <!-- Header -->
       <header class="plan-header">
-        <h2 class="plan-title">{{ store.currentPlan.title }}</h2>
-        <div class="plan-description">
-          {{ store.currentPlan.description }}
+        <div v-if="isEditing" class="edit-header">
+          <input
+            v-model="store.currentPlan!.title"
+            class="edit-title"
+            v-auto-resize
+            :placeholder="t('display.plan_title')"
+          />
+          <textarea
+            v-model="store.currentPlan!.description"
+            v-auto-resize
+            class="edit-description"
+            :placeholder="t('display.plan_description')"
+            rows="3"
+          ></textarea>
+        </div>
+        <div v-else>
+          <h2 class="plan-title">{{ store.currentPlan?.title }}</h2>
+          <div class="plan-description">
+            {{ store.currentPlan?.description }}
+          </div>
         </div>
       </header>
 
@@ -218,8 +253,8 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
               </th>
             </tr>
           </thead>
-          <tbody>
-            <template v-for="(row, index) in exerciseRows" :key="index">
+          <TransitionGroup tag="tbody" name="list">
+            <template v-for="(row, index) in exerciseRows" :key="row._id || index">
               <tr class="exercise-row">
                 <!-- Amount Cell -->
                 <td @click="startEditing(index, 'Amount')" class="anchor-cell">
@@ -278,6 +313,8 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
                     :value="row.Content"
                     @blur="stopEditing($event, index, 'Content')"
                     @keyup.enter="stopEditing($event, index, 'Content')"
+                    @input="autoResize"
+                    v-auto-resize
                     class="editable-area"
                   ></textarea>
                   <span v-else>{{ row.Content }}</span>
@@ -306,7 +343,7 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
                 <strong>{{ totalRow.Sum }} m</strong>
               </td>
             </tr>
-          </tbody>
+          </TransitionGroup>
         </table>
       </div>
 
@@ -344,7 +381,6 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
 
 <style scoped>
 .training-plan-display {
-  margin: 2rem auto;
   background: var(--color-background-soft);
   border-radius: 8px;
   border: 1px solid var(--color-border);
@@ -353,7 +389,7 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
 .plan-container {
   background: var(--color-background);
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px var(--color-shadow);
 }
 
 @media (max-width: 740px) {
@@ -383,6 +419,52 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   font-size: 1rem;
   line-height: 1.6;
   opacity: 0.95;
+}
+
+.edit-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.edit-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-background-soft);
+  color: var(--color-text);
+  text-align: center;
+}
+
+.edit-title::placeholder {
+  color: var(--color-text);
+}
+
+.edit-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-background-soft);
+  color: var(--color-text);
+  font-family: inherit;
+  resize: vertical;
+}
+
+.edit-description::placeholder {
+  color: var(--color-text);
+}
+
+.edit-title:focus,
+.edit-description:focus {
+  outline: 2px solid var(--color-text);
+  border: 1px solid var(--color-primary);
 }
 
 .table-container {
@@ -488,7 +570,7 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   width: 100%;
   padding: 0.25rem;
   border: 1px solid var(--color-shadow);
-  border-radius: 0.25rem;
+  border-radius: 8px;
   background-color: var(--color-background);
   color: var(--color-text);
   font-family: inherit;
@@ -501,7 +583,7 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   width: 70%;
   text-align: center;
   border: 1px solid var(--color-shadow);
-  border-radius: 0.25rem;
+  border-radius: 8px;
   background-color: var(--color-background);
   color: var(--color-text);
   font-family: inherit;
@@ -549,14 +631,14 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   padding-right: 1rem;
   background: var(--color-background-soft);
   gap: 3rem;
-  border-bottom-right-radius: 0.5rem;
-  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
 }
 
 .summary-item {
   background: var(--color-background);
   padding: 1rem;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   text-align: center;
   flex: 1;
   border: 1px solid var(--color-border);
@@ -640,6 +722,7 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   padding: 1.5rem;
   background: var(--color-background-soft);
   text-align: center;
+  margin-top: 1rem;
 }
 
 .edit-btn {
@@ -653,7 +736,7 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  min-width: 160px;
+  min-width: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -662,10 +745,11 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
 
 @media (max-width: 740px) {
   .edit-btn {
-    /* width: 100%;
-    min-width: 10%; */
-    padding: 0.5rem 1rem;
-    overflow-wrap: break-word;
+    width: 100%;
+    min-width: 10%;
+    /* min-width: 80px; */
+    padding: 0.75rem 0.5rem;
+    overflow: hidden;
     font-size: 0.8rem;
   }
 }
@@ -683,4 +767,22 @@ function handleMoveRow(index: number, direction: 'up' | 'down') {
   flex: 2;
   display: flex;
 }
+
+/* List Transitions */
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.4s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* Ensure the leaving item is taken out of flow so others can move */
+/* Note: position: absolute on table rows can be tricky, but often needed for smooth 'move' during 'leave' */
+/* If this breaks table layout during animation, remove the absolute positioning */
+/* .list-leave-active { position: absolute; } */
 </style>

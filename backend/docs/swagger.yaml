@@ -1,5 +1,118 @@
 basePath: /
 definitions:
+  models.AddPlanToHistoryRequest:
+    description: Request payload for adding a plan to the authenticated user's history
+    properties:
+      description:
+        description: Description of the plan
+        example: A comprehensive training plan for improving freestyle technique
+        type: string
+      plan_id:
+        description: PlanID identifies the plan to add to history
+        example: plan_123
+        type: string
+      table:
+        description: A structured training plan table containing exercise rows
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
+      title:
+        description: Title of the plan
+        example: Advanced Freestyle Training
+        type: string
+    required:
+    - description
+    - plan_id
+    - table
+    - title
+    type: object
+  models.AddPlanToHistoryResponse:
+    description: Response containing the new plan ID and a success message
+    properties:
+      message:
+        example: Plan added to history successfully
+        type: string
+      plan_id:
+        example: plan_123
+        type: string
+    type: object
+  models.ChatRequest:
+    description: Request payload for conversational training plan creation and refinement
+    properties:
+      language:
+        allOf:
+        - $ref: '#/definitions/models.Language'
+        description: Language specifies the language for the response
+        example: en
+      message:
+        description: Message is the user's input to the chat
+        example: Make it more challenging
+        type: string
+      plan_id:
+        description: PlanID identifies the conversation/plan (optional for new conversations)
+        example: plan_123
+        type: string
+      pool_length:
+        description: PoolLength specifies the pool length for the training plan
+    required:
+    - message
+    type: object
+  models.ChatResponsePayload:
+    description: Response containing the updated plan and conversational response
+    properties:
+      description:
+        description: Description of the training plan
+        example: A comprehensive training plan for improving freestyle technique
+        type: string
+      plan_id:
+        description: PlanID identifies the conversation/plan
+        example: plan_123
+        type: string
+      response:
+        description: Response is the conversational AI response explaining changes
+        example: I've made the plan more challenging by adding butterfly sets
+        type: string
+      table:
+        description: A structured training plan table containing exercise rows
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
+      title:
+        description: Title of the training plan
+        example: Advanced Freestyle Training
+        type: string
+    type: object
+  models.DeleteConversationRequest:
+    description: Request payload for deleting an entire conversation and all its messages
+    properties:
+      plan_id:
+        description: PlanID identifies the conversation to delete
+        example: plan_123
+        type: string
+    required:
+    - plan_id
+    type: object
+  models.DeleteMessageRequest:
+    description: Request payload for deleting a single message from conversation history
+    properties:
+      message_id:
+        description: MessageID identifies the message to delete
+        example: msg_123
+        type: string
+    required:
+    - message_id
+    type: object
+  models.DeleteMessagesAfterRequest:
+    description: Request payload for deleting a message and all subsequent messages
+      in the conversation
+    properties:
+      message_id:
+        description: MessageID identifies the message from which to delete (inclusive)
+        example: msg_123
+        type: string
+    required:
+    - message_id
+    type: object
   models.DonatePlanRequest:
     description: Request payload for donating a swim training plan to the system
     properties:
@@ -61,6 +174,29 @@ definitions:
     x-enum-varnames:
     - LanguageEN
     - LanguageDE
+  models.MessagePayload:
+    description: Snapshot of a training plan
+    properties:
+      content:
+        type: string
+      created_at:
+        description: Table containing the training plan details
+        type: string
+      id:
+        type: string
+      next_message_id:
+        type: string
+      plan_id:
+        type: string
+      plan_snapshot:
+        $ref: '#/definitions/models.RAGResponse'
+      previous_message_id:
+        type: string
+      role:
+        $ref: '#/definitions/models.Role'
+      user_id:
+        type: string
+    type: object
   models.PlanToPDFRequest:
     description: Request payload for exporting a training plan to PDF format
     properties:
@@ -154,6 +290,14 @@ definitions:
         example: Advanced Freestyle Training
         type: string
     type: object
+  models.Role:
+    enum:
+    - user
+    - ai
+    type: string
+    x-enum-varnames:
+    - RoleUser
+    - RoleAI
   models.Row:
     description: A single exercise entry with amount, distance, breaks, content, intensity
       and total volume
@@ -287,6 +431,73 @@ paths:
       summary: Donate a new training plan
       tags:
       - Donation
+  /add-plan-to-history:
+    post:
+      consumes:
+      - application/json
+      description: Add a plan to the authenticated user's history with a new id
+      parameters:
+      - description: Plan to add to history
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddPlanToHistoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AddPlanToHistoryResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Add a plan to user history
+      tags:
+      - Training Plans
+  /chat:
+    post:
+      consumes:
+      - application/json
+      description: Have a conversation with the AI trainer to create, modify, or get
+        information about training plans
+      parameters:
+      - description: Chat request with message and optional plan ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful chat response with updated plan
+          schema:
+            $ref: '#/definitions/models.ChatResponsePayload'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Chat with AI to create or refine training plans
+      tags:
+      - Chat
   /export-pdf:
     post:
       consumes:
@@ -380,6 +591,136 @@ paths:
       summary: Basic health check
       tags:
       - Health
+  /memory/conversation:
+    delete:
+      consumes:
+      - application/json
+      description: Delete all messages in a conversation for a specific plan
+      parameters:
+      - description: Request to delete a conversation
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteConversationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Conversation deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete an entire conversation
+      tags:
+      - Memory
+    get:
+      consumes:
+      - application/json
+      description: Get the full conversation history for a specific plan
+      parameters:
+      - description: Plan ID
+        in: query
+        name: plan_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Conversation history
+          schema:
+            items:
+              $ref: '#/definitions/models.MessagePayload'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get conversation history
+      tags:
+      - Memory
+  /memory/message:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific message from the conversation history while maintaining
+        the linked list integrity
+      parameters:
+      - description: Request to delete a message
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Message deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete a single message from conversation
+      tags:
+      - Memory
+  /memory/messages-after:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a message and all messages that follow it in the conversation,
+        allowing conversation branching
+      parameters:
+      - description: Request to delete messages from a point
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteMessagesAfterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Messages deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete a message and all subsequent messages
+      tags:
+      - Memory
   /query:
     post:
       consumes:

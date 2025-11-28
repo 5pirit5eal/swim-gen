@@ -42,6 +42,11 @@ type Config struct {
 		Name           string `env:"BUCKET_NAME"`
 		ServiceAccount string `env:"SIGNING_SA"`
 	}
+
+	Chat struct {
+		HistoryLimit  int  `env:"CHAT_HISTORY_LIMIT" default:"10"`
+		UseRAGContext bool `env:"CHAT_USE_RAG_CONTEXT" default:"true"`
+	}
 }
 
 func LoadConfig(filename string, overwrite bool) (Config, error) {

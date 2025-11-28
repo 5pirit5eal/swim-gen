@@ -10,7 +10,10 @@ import (
 	"github.com/google/uuid"
 )
 
-const HistoryTableName string = "history"
+const (
+	HistoryTableName string = "history"
+	PlanTableName    string = "plans"
+)
 
 func (db *RAGDB) GetPlan(ctx context.Context, planID string, source SourceOption) (models.Planable, error) {
 	logger := httplog.LogEntry(ctx)

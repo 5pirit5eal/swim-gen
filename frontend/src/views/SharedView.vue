@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
+import IconSend from '@/components/icons/IconSend.vue'
 import { useSharedPlanStore } from '@/stores/sharedPlan'
+import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { storeToRefs } from 'pinia'
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, watch, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
@@ -14,7 +16,9 @@ const sharedPlanStore = useSharedPlanStore()
 
 const { sharedPlan, isLoading, error } = storeToRefs(sharedPlanStore)
 
-onMounted(async () => {
+const chatInput = ref('')
+
+async function initializeView() {
   const urlHash = route.params.urlHash
   if (typeof urlHash === 'string') {
     if (await sharedPlanStore.fetchSharedPlanByHash(urlHash)) return
@@ -24,40 +28,104 @@ onMounted(async () => {
   } else if (typeof urlHash === 'undefined' && sharedPlan.value === null) {
     noPlanFound()
   }
+}
+
+onMounted(async () => {
+  await initializeView()
 })
 
 onUnmounted(() => {
   sharedPlanStore.clear()
 })
 
+watch(
+  () => route.params.urlHash,
+  async (newHash) => {
+    if (newHash) {
+      await initializeView()
+    }
+  },
+)
+
 function noPlanFound() {
   toast.error(t('shared.no_plan_toast', { error: error.value || '' }))
   router.push('/')
+}
+
+// Starts a conversation by adding the plan to the history
+async function handleStartConversation() {
+  if (!chatInput.value.trim() || !sharedPlan.value?.plan) return
+
+  const message = chatInput.value
+  chatInput.value = ''
+
+  // 1. Import the shared plan as a new plan in the user's history
+  await sharedPlanStore.upsertCurrentPlan()
+
+  if (sharedPlan.value.plan && sharedPlan.value.plan.plan_id) {
+    const trainingPlanStore = useTrainingPlanStore()
+
+    // 2. Load the plan into the training plan store
+    // We pass the plan object which now has the new ID
+    await trainingPlanStore.loadPlanFromHistory(sharedPlan.value.plan)
+
+    // 3. Send the message
+    // We don't await this to allow immediate navigation while processing happens in background
+    trainingPlanStore.sendMessage(message).catch((err) => {
+      console.error('Failed to send initial message:', err)
+      toast.error(t('errors.send_message_failed'))
+    })
+
+    // 4. Navigate to the interaction view
+    router.push({ name: 'plan', params: { id: sharedPlan.value.plan.plan_id } })
+  } else {
+    toast.error(t('errors.generic'))
+  }
 }
 </script>
 
 <template>
   <div class="shared-view">
-    <div v-if="isLoading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>{{ t('shared.loading') }}</p>
-    </div>
-    <div v-else-if="sharedPlan">
-      <div class="container">
-        <section class="hero">
-          <h1>{{ t('shared.hero_title') }}</h1>
-          <p class="hero-description">
-            {{ t('shared.hero_description_one') }}<strong>{{ sharedPlan.sharer_username }}</strong>
-            {{ t('shared.hero_description_two', { username: sharedPlan.sharer_username }) }}
-          </p>
-        </section>
-
-        <!-- Main content -->
-        <section>
-          <TrainingPlanDisplay :store="sharedPlanStore" :show-share-button="false" />
-        </section>
+    <Transition name="fade">
+      <div v-if="isLoading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>{{ t('shared.loading') }}</p>
       </div>
-    </div>
+      <div v-else-if="sharedPlan">
+        <div class="container">
+          <section class="hero">
+            <h1>{{ t('shared.hero_title') }}</h1>
+            <p class="hero-description">
+              {{ t('shared.hero_description_one')
+              }}<strong>{{ sharedPlan.sharer_username }}</strong>
+              {{ t('shared.hero_description_two', { username: sharedPlan.sharer_username }) }}
+            </p>
+          </section>
+
+          <!-- Main content -->
+          <section class="training-plan">
+            <TrainingPlanDisplay :store="sharedPlanStore" :show-share-button="false" />
+          </section>
+
+          <!-- Chat Transition Area -->
+          <section class="chat-transition">
+            <label class="input-label">{{ t('shared.start_conversation') }}</label>
+            <form @submit.prevent="handleStartConversation" class="chat-form">
+              <input
+                v-model="chatInput"
+                type="text"
+                :placeholder="t('interaction.chat_placeholder')"
+                class="chat-input"
+                :disabled="isLoading"
+              />
+              <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
+                <IconSend class="send-icon" />
+              </button>
+            </form>
+          </section>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -123,6 +191,7 @@ function noPlanFound() {
   border-radius: 8px;
   border: 1px solid var(--color-border);
   margin: 2rem auto;
+  max-width: 1080px;
 }
 
 .error-state {
@@ -175,5 +244,85 @@ function noPlanFound() {
     right: 80px;
     left: 2px;
   }
+}
+
+.training-plan {
+  margin: 1rem auto;
+}
+
+.chat-transition {
+  background: var(--color-background-soft);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  padding: 1rem;
+}
+
+.input-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-heading);
+  margin-bottom: 0.5rem;
+}
+
+.chat-form {
+  display: flex;
+  gap: 1rem;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-shadow);
+}
+
+.send-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.send-button:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  transform: scale(1.05);
+}
+
+.send-icon {
+  transform: rotate(45deg) translateX(-2px) translateY(1px);
+}
+
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

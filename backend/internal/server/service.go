@@ -188,18 +188,33 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	// Recalculate the sums of the rows to be sure they are correct
+	p.Table.UpdateSum()
+	logger.Debug("Updated the table sums...", "sum", p.Table[len(p.Table)-1].Sum)
+
 	userId := req.Context().Value(models.UserIdCtxKey).(string)
-	if userId != "" && p.PlanID != "" {
+	if userId != "" {
+		// Add a plan id to the newly created plan
+		p.PlanID = uuid.NewString()
 		logger.Info("Adding plan to user history", "user_id", userId, "plan_id", p.PlanID)
 		err = rs.db.AddPlanToHistory(req.Context(), p, userId)
 		if err != nil {
 			logger.Error("Failed to add plan to user history", httplog.ErrAttr(err))
+		} else {
+			// Add the initial conversation to the memory
+			// 1. User message
+			userMsg, err := rs.db.Memory.AddMessage(req.Context(), p.PlanID, userId, models.RoleUser, qr.Content, nil, nil)
+			if err != nil {
+				logger.Error("Failed to add user message to memory", httplog.ErrAttr(err))
+			} else {
+				// 2. AI message with plan snapshot
+				_, err = rs.db.Memory.AddMessage(req.Context(), p.PlanID, userId, models.RoleAI, p.Description, &userMsg.ID, p)
+				if err != nil {
+					logger.Error("Failed to add AI message to memory", httplog.ErrAttr(err))
+				}
+			}
 		}
 	}
-
-	// Recalculate the sums of the rows to be sure they are correct
-	p.Table.UpdateSum()
-	logger.Debug("Updated the table sums...", "sum", p.Table[len(p.Table)-1].Sum)
 
 	// Convert to response payload
 	answer := &models.RAGResponse{
@@ -366,6 +381,59 @@ func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request
 	answer := &models.UpsertPlanResponse{PlanID: resp}
 	logger.Info("Plan upserted successfully", "plan_id", resp)
 	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+// AddPlanToHistoryHandler handles the request to add a new plan to a user's history.
+// This is used when a user wants to save a plan snapshot from conversation history with a new PlanID.
+// @Summary Add a plan to user history
+// @Description Add a plan to the authenticated user's history with a new id
+// @Tags Training Plans
+// @Accept json
+// @Produce json
+// @Param request body models.AddPlanToHistoryRequest true "Plan to add to history"
+// @Success 200 {object} models.AddPlanToHistoryResponse
+// @Failure 400 {string} string "Bad request"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Internal server error"
+// @Router /add-plan-to-history [post]
+func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Adding plan to user history...")
+
+	// Parse request body
+	var plan models.AddPlanToHistoryRequest
+	err := models.GetRequestJSON(req, &plan)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userID := req.Context().Value(models.UserIdCtxKey).(string)
+	if userID == "" {
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+
+	// Generate a new PlanID for the snapshot
+	plan.PlanID = uuid.NewString()
+
+	// Add to user history
+	err = rs.db.AddPlanToHistory(req.Context(), plan.Plan(), userID)
+	if err != nil {
+		logger.Error("Failed to add plan to user history", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with success and the new PlanID
+	response := models.AddPlanToHistoryResponse{
+		Message: "Plan added to history successfully",
+		PlanID:  plan.PlanID,
+	}
+	logger.Info("Plan added to history successfully", "plan_id", plan.PlanID)
+	if err := models.WriteResponseJSON(w, http.StatusOK, response); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }

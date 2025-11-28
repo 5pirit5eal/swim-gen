@@ -9,23 +9,19 @@ import (
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"github.com/5pirit5eal/swim-gen/internal/config"
 	"github.com/5pirit5eal/swim-gen/internal/genai"
+	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/vectorstores/pgvector"
 )
 
-const (
-	CollectionTableName string = "embedders"
-	PlanTableName       string = "plans"
-	ScrapedTableName    string = "scraped"
-	FeedbackTable       string = "feedback"
-	DonatedPlanTable    string = "donations"
-)
+const CollectionTableName string = "embedders"
 
 type RAGDB struct {
 	Conn   pgvector.PGXConn
 	Store  *pgvector.Store
+	Memory models.Memory
 	Client *genai.GoogleGenAIClient
 	cfg    config.Config
 }
@@ -76,30 +72,9 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 		return nil, err
 	}
 	slog.Info("Created langchaingo pgvector datastore successfully")
-	// Check that the tables exist
-	tx, err := conn.Begin(ctx)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = tx.Rollback(ctx) }()
-	if err := checkScrapedTableExists(ctx, tx); err != nil {
-		return nil, err
-	}
-	if err := checkPlanTableExists(ctx, tx); err != nil {
-		return nil, err
-	}
-	if err := checkFeedbackTableExists(ctx, tx); err != nil {
-		return nil, err
-	}
-	if err := checkDonatedPlanTableExists(ctx, tx); err != nil {
-		return nil, err
-	}
-	// Commit the transaction
-	if err := tx.Commit(ctx); err != nil {
-		return nil, err
-	}
-	slog.Info("All required tables exist")
-	return &RAGDB{Store: &store, Conn: conn, Client: client, cfg: cfg}, nil
+
+	memory := NewMemoryStore(conn)
+	return &RAGDB{Store: &store, Conn: conn, Client: client, cfg: cfg, Memory: memory}, nil
 }
 
 func (rag *RAGDB) Close() error {
@@ -133,70 +108,6 @@ func GetSecret(ctx context.Context, location string) (string, error) {
 	slog.Info("Got DB password from secret manager successfully")
 	// The secret payload is a byte array, so convert it to a string.
 	return string(secret.Payload.Data), nil
-}
-
-func checkScrapedTableExists(ctx context.Context, tx pgx.Tx) error {
-	var exists bool
-	err := tx.QueryRow(ctx,
-		`SELECT EXISTS (
-			SELECT FROM information_schema.tables
-			WHERE table_name = $1
-		)`, ScrapedTableName).Scan(&exists)
-	if err != nil {
-		return fmt.Errorf("failed to check if scraped table exists: %w", err)
-	}
-	if !exists {
-		return fmt.Errorf("scraped table '%s' does not exist, please run migrations", ScrapedTableName)
-	}
-	return nil
-}
-
-func checkPlanTableExists(ctx context.Context, tx pgx.Tx) error {
-	var exists bool
-	err := tx.QueryRow(ctx,
-		`SELECT EXISTS (
-			SELECT FROM information_schema.tables
-			WHERE table_name = $1
-		)`, PlanTableName).Scan(&exists)
-	if err != nil {
-		return fmt.Errorf("failed to check if plan table exists: %w", err)
-	}
-	if !exists {
-		return fmt.Errorf("plan table '%s' does not exist, please run migrations", PlanTableName)
-	}
-	return nil
-}
-
-func checkFeedbackTableExists(ctx context.Context, tx pgx.Tx) error {
-	var exists bool
-	err := tx.QueryRow(ctx,
-		`SELECT EXISTS (
-			SELECT FROM information_schema.tables
-			WHERE table_name = $1
-		)`, FeedbackTable).Scan(&exists)
-	if err != nil {
-		return fmt.Errorf("failed to check if feedback table exists: %w", err)
-	}
-	if !exists {
-		return fmt.Errorf("feedback table '%s' does not exist, please run migrations", FeedbackTable)
-	}
-	return nil
-}
-
-func checkDonatedPlanTableExists(ctx context.Context, tx pgx.Tx) error {
-	var exists bool
-	err := tx.QueryRow(ctx,
-		`SELECT EXISTS (
-			SELECT FROM information_schema.tables
-			WHERE table_name = $1
-		)`, DonatedPlanTable).Scan(&exists)
-	if err != nil {
-		return fmt.Errorf("failed to check if donated plan table exists: %w", err)
-	}
-	if !exists {
-		return fmt.Errorf("donated plan table '%s' does not exist, please run migrations", DonatedPlanTable)
-	}
-	return nil
 }
 
 func connect(ctx context.Context, cfg config.Config) (*pgxpool.Pool, error) {

@@ -126,7 +126,7 @@ async function handleExport() {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  min-width: 160px;
+  min-width: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -135,9 +135,8 @@ async function handleExport() {
 
 @media (max-width: 740px) {
   .export-btn {
-    width: 100%;
-    min-width: 10%;
-    padding: 0.5rem 1rem;
+    min-width: 90px;
+    padding: 0.25rem 0.5rem;
     overflow-wrap: break-word;
     font-size: 0.8rem;
   }
@@ -167,14 +166,12 @@ async function handleExport() {
   flex: 3;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
-  min-width: 140px;
 }
 
 .dropdown-container {
   flex: 1;
   display: flex;
   position: static;
-  min-width: 20px;
 }
 
 .export-actions .dropdown-toggle {

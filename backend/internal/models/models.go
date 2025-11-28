@@ -1,6 +1,12 @@
 package models
 
-import "time"
+import (
+	"encoding/json"
+	"fmt"
+	"time"
+
+	"github.com/invopop/jsonschema"
+)
 
 type UserProfile struct {
 	UserID             string    `db:"user_id"`
@@ -27,4 +33,23 @@ type Feedback struct {
 type ChoiceResult struct {
 	Idx         int    `json:"index" example:"1"`
 	Description string `json:"description" example:"Selected plan based on your requirements"`
+}
+
+// ChatResponse represents the structured response from a chat interaction
+// @Description Response containing both a training plan and conversational response from the chat system
+type ChatResponse struct {
+	Plan     *GeneratedPlan `json:"plan" jsonschema_description:"The training plan created or refined based on the conversation"`
+	Response string         `json:"response" jsonschema_description:"Conversational response explaining the plan or answering the user's question"`
+}
+
+// ChatResponseSchema generates the JSON schema for ChatResponse
+func ChatResponseSchema() (map[string]any, error) {
+	schema := jsonschema.Reflect(&ChatResponse{})
+
+	jsonSchema, err := json.Marshal(schema)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal JSON schema: %w", err)
+	}
+	var result map[string]any
+	return result, json.Unmarshal(jsonSchema, &result)
 }

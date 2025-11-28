@@ -16,6 +16,7 @@ vi.mock('@/api/client', async (importOriginal) => {
     apiClient: {
       query: vi.fn(),
       upsertPlan: vi.fn(),
+      getConversation: vi.fn(),
     },
     formatError: vi.fn((error) => `${error.message}: ${error.details}`),
   }
@@ -541,14 +542,23 @@ describe('trainingPlan Store', () => {
       consoleErrorSpy.mockRestore()
     })
 
-    it('loads a plan from history and ensures it is a deep copy', () => {
+    it('loads a plan from history and ensures it is a deep copy', async () => {
       const store = useTrainingPlanStore()
       const planFromHistory = createMockPlan()
+      planFromHistory.plan_id = 'test-plan-id'
       store.generationHistory = [planFromHistory]
 
-      store.loadPlanFromHistory(planFromHistory)
+      // Mock the getConversation call that loadPlanFromHistory makes
+      const mockedGetConversation = apiClient.getConversation as Mock
+      mockedGetConversation.mockResolvedValue({ data: [], error: null })
 
-      expect(store.currentPlan).toEqual(planFromHistory)
+      await store.loadPlanFromHistory(planFromHistory)
+
+      // The currentPlan will have _id fields added by ensureRowIds, so we check the important fields
+      expect(store.currentPlan).toBeTruthy()
+      expect(store.currentPlan?.title).toBe(planFromHistory.title)
+      expect(store.currentPlan?.description).toBe(planFromHistory.description)
+      expect(store.currentPlan?.table.length).toBe(planFromHistory.table.length)
       // Verify it's a deep copy by modifying the loaded plan
       store.updatePlanRow(0, 'Amount', 99)
       expect(store.currentPlan?.table[0].Amount).toBe(99)

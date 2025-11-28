@@ -122,10 +122,12 @@ async function copyUrl() {
 }
 
 @media (max-width: 740px) {
+  .share-container {
+    min-width: 90px;
+  }
+
   .share-btn {
-    width: 100%;
-    min-width: 10%;
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 0.5rem;
     overflow-wrap: break-word;
     font-size: 0.8rem;
   }
