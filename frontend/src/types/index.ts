@@ -19,6 +19,7 @@ export type {
   PlanStore,
   ChatRequest,
   ChatResponsePayload,
+  FeedbackRequest,
 } from './training'
 
 // Export filter option constants

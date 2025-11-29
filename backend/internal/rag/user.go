@@ -58,13 +58,21 @@ func (db *RAGDB) IncrementExportCount(ctx context.Context, userID, planID string
 		}
 	}()
 
-	// Update the export count for the user
+	// Update the export count for the user and set exported_at in history
 	if userID != "" {
 		if _, err := ts.Exec(ctx,
 			fmt.Sprintf(`UPDATE %s SET exports = exports + 1 WHERE user_id = $1`, ProfilesTableName),
 			userID); err != nil {
 			logger.Error("Error incrementing export count", httplog.ErrAttr(err))
 			return fmt.Errorf("error incrementing export count: %w", err)
+		}
+
+		// Update exported_at in history
+		if _, err := ts.Exec(ctx,
+			fmt.Sprintf(`UPDATE %s SET exported_at = now() WHERE user_id = $1 AND plan_id = $2`, HistoryTableName),
+			userID, planID); err != nil {
+			logger.Error("Error updating exported_at in history", httplog.ErrAttr(err))
+			return fmt.Errorf("error updating exported_at in history: %w", err)
 		}
 	}
 

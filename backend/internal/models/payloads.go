@@ -181,3 +181,13 @@ type AddPlanToHistoryResponse struct {
 	Message string `json:"message" example:"Plan added to history successfully"`
 	PlanID  string `json:"plan_id" example:"plan_123"`
 }
+
+// FeedbackRequest represents the request payload for submitting feedback
+// @Description Request payload for submitting feedback on a training plan
+type FeedbackRequest struct {
+	PlanID           string `json:"plan_id" example:"plan_123" binding:"required"`
+	Rating           int    `json:"rating" example:"5" binding:"required" validate:"min=1,max=5"`
+	WasSwam          bool   `json:"was_swam" example:"true"`
+	DifficultyRating int    `json:"difficulty_rating" example:"7" validate:"min=1,max=10"`
+	Comment          string `json:"comment,omitempty" example:"Great plan!"`
+}

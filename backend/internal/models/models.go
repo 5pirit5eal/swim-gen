@@ -22,12 +22,14 @@ type UserProfile struct {
 }
 
 type Feedback struct {
-	UserID    string    `db:"user_id"`
-	PlanID    string    `db:"plan_id"`
-	Rating    int       `db:"rating"`
-	Comment   string    `db:"comment"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	UserID           string    `db:"user_id"`
+	PlanID           string    `db:"plan_id"`
+	Rating           int       `db:"rating"`
+	WasSwam          bool      `db:"was_swam"`
+	DifficultyRating int       `db:"difficulty_rating"`
+	Comment          string    `db:"comment"`
+	CreatedAt        time.Time `db:"created_at"`
+	UpdatedAt        time.Time `db:"updated_at"`
 }
 
 type ChoiceResult struct {

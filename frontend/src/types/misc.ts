@@ -6,4 +6,7 @@ export interface HistoryMetadata {
   shared?: boolean
   shared_count?: number
   feedback_rating?: number
+  was_swam?: boolean
+  difficulty_rating?: number
+  exported_at?: string
 }

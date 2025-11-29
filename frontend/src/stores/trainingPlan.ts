@@ -1,6 +1,13 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
-import type { QueryRequest, RAGResponse, Row, HistoryMetadata, Message } from '@/types'
+import type {
+  QueryRequest,
+  RAGResponse,
+  Row,
+  HistoryMetadata,
+  Message,
+  FeedbackRequest,
+} from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { supabase } from '@/plugins/supabase'
@@ -58,7 +65,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     isFetchingHistory.value = true
     const { data, error } = await supabase
       .from('history')
-      .select('plan_id, keep_forever, created_at, updated_at')
+      .select('plan_id, keep_forever, created_at, updated_at, exported_at')
       .order('created_at', { ascending: false })
       .limit(50)
 
@@ -66,12 +73,31 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       console.error(error)
     } else if (data) {
       const planIds = data.map((entry) => entry.plan_id)
-      historyMetadata.value = data.map((entry) => ({
-        plan_id: entry.plan_id,
-        keep_forever: entry.keep_forever,
-        created_at: entry.created_at,
-        updated_at: entry.updated_at,
-      }))
+
+      // Fetch feedback for these plans
+      const { data: feedbackData, error: feedbackError } = await supabase
+        .from('feedback')
+        .select('plan_id, rating, was_swam, difficulty_rating')
+        .in('plan_id', planIds)
+        .eq('user_id', userStore.user.id)
+
+      if (feedbackError) {
+        console.error('Error fetching feedback:', feedbackError)
+      }
+
+      historyMetadata.value = data.map((entry) => {
+        const feedback = feedbackData?.find((f) => f.plan_id === entry.plan_id)
+        return {
+          plan_id: entry.plan_id,
+          keep_forever: entry.keep_forever,
+          created_at: entry.created_at,
+          updated_at: entry.updated_at,
+          exported_at: entry.exported_at,
+          feedback_rating: feedback?.rating,
+          was_swam: feedback?.was_swam,
+          difficulty_rating: feedback?.difficulty_rating,
+        }
+      })
 
       const { data: plansData, error: plansError } = await supabase
         .from('plans')
@@ -202,7 +228,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -348,11 +374,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         next_message_id: null,
         plan_snapshot: result.data.table
           ? {
-              plan_id: result.data.plan_id,
-              title: result.data.title || '',
-              description: result.data.description || '',
-              table: result.data.table,
-            }
+            plan_id: result.data.plan_id,
+            title: result.data.title || '',
+            description: result.data.description || '',
+            table: result.data.table,
+          }
           : undefined,
       }
       conversation.value.push(aiMsg)
@@ -374,6 +400,33 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       error.value = result.error ? formatError(result.error) : i18n.global.t('errors.unknown_error')
     }
     isLoading.value = false
+  }
+
+  // Submits feedback for a plan
+  async function submitFeedback(payload: FeedbackRequest): Promise<boolean> {
+    if (!userStore.user) return false
+
+    const result = await apiClient.submitFeedback({
+      plan_id: payload.plan_id,
+      rating: payload.rating,
+      was_swam: payload.was_swam,
+      difficulty_rating: payload.difficulty_rating,
+      comment: payload.comment
+    })
+
+    if (result.success) {
+      // Optimistically update history
+      const metadata = historyMetadata.value.find(p => p.plan_id === payload.plan_id)
+      if (metadata) {
+        metadata.feedback_rating = payload.rating
+        metadata.was_swam = payload.was_swam
+        metadata.difficulty_rating = payload.difficulty_rating
+      }
+      return true
+    } else {
+      console.error('Failed to submit feedback:', result.error)
+      return false
+    }
   }
 
   function ensureRowIds(table: Row[]) {
@@ -413,5 +466,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     fetchConversation,
     saveSnapshot,
     sendMessage,
+    submitFeedback,
   }
 })

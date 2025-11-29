@@ -150,6 +150,7 @@ func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Confi
 		r.Post("/upsert-plan", ragServer.UpsertPlanHandler)
 		r.Post("/add-plan-to-history", ragServer.AddPlanToHistoryHandler)
 		r.Post("/share-plan", ragServer.SharePlanHandler)
+		r.Post("/feedback", ragServer.FeedbackHandler)
 		// Memory management endpoints
 		r.Delete("/memory/message", ragServer.DeleteMessageHandler)
 		r.Delete("/memory/messages-after", ragServer.DeleteMessagesAfterHandler)

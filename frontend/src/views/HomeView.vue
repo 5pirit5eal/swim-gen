@@ -5,13 +5,12 @@ import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 
-const trainingStore = useTrainingPlanStore()
+const trainingPlanStore = useTrainingPlanStore()
 const authStore = useAuthStore()
 const { t } = useI18n()
 const router = useRouter()
-
 const planDisplayContainer = ref<HTMLDivElement | null>(null)
 
 function navigateToLogin() {
@@ -19,8 +18,8 @@ function navigateToLogin() {
 }
 
 function navigateToInteraction() {
-  if (trainingStore.currentPlan?.plan_id) {
-    router.push({ name: 'plan', params: { id: trainingStore.currentPlan.plan_id } })
+  if (trainingPlanStore.currentPlan?.plan_id) {
+    router.push({ name: 'plan', params: { id: trainingPlanStore.currentPlan.plan_id } })
   }
 }
 
@@ -32,8 +31,9 @@ function scrollToPlan() {
   }
 }
 
+
 watch(
-  () => trainingStore.currentPlan,
+  () => trainingPlanStore.currentPlan,
   (newPlan) => {
     if (newPlan) {
       scrollToPlan()
@@ -41,14 +41,10 @@ watch(
   },
 )
 
-onMounted(() => {
-  if (trainingStore.currentPlan) {
+onMounted(async () => {
+  if (trainingPlanStore.currentPlan) {
     scrollToPlan()
   }
-})
-
-onUnmounted(() => {
-  trainingStore.clear()
 })
 </script>
 
@@ -66,8 +62,8 @@ onUnmounted(() => {
       <section>
         <TrainingPlanForm class="training-plan-form" />
         <div ref="planDisplayContainer">
-          <TrainingPlanDisplay :store="trainingStore" :show-share-button="!!authStore.user" />
-          <div v-if="trainingStore.currentPlan" class="cta-banner">
+          <TrainingPlanDisplay :store="trainingPlanStore" :show-share-button="!!authStore.user" />
+          <div v-if="trainingPlanStore.currentPlan" class="cta-banner">
             <div v-if="!authStore.user" class="cta-content">
               <p>{{ t('home.banner.not_logged_in.text') }}</p>
               <button @click="navigateToLogin" class="cta-button">
@@ -84,6 +80,7 @@ onUnmounted(() => {
         </div>
       </section>
     </div>
+
   </div>
 </template>
 

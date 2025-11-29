@@ -343,7 +343,8 @@
   },
   "labels": {
     "created_at": "Erstellt am",
-    "updated_at": "Aktualisiert am"
+    "updated_at": "Aktualisiert",
+    "exported_at": "Exportiert"
   },
   "share": {
     "fetching_url": "Generiere Freigabe-Link...",
@@ -361,8 +362,9 @@
     "ai": "Swim Gen",
     "conversation_tab": "Interaktive Bearbeitung",
     "plan_tab": "Trainingsplan",
-    "hide_plan": "Plan verbergen",
     "show_plan": "Plan anzeigen",
+    "hide_plan": "Plan ausblenden",
+    "give_feedback": "Feedback geben",
     "metadata": "Metadaten",
     "created_at": "Erstellt am",
     "updated_at": "Aktualisiert am",
@@ -378,5 +380,23 @@
     "register_to_save": "Melde dich an, um diesen Plan zu speichern und zu bearbeiten!",
     "unknown_user": "Unbekannter Nutzer",
     "start_conversation": "Interaktives Bearbeiten starten"
+  },
+  "feedback": {
+    "title": "Wie war dein Training?",
+    "subtitle": "Feedback für: {plan}",
+    "thank_you": "Vielen Dank, dass du dir die Zeit nimmst, uns dein Feedback zu geben. Deine Rückmeldung hilft uns, die Trainingspläne für alle zu verbessern!",
+    "rating_label": "Gesamtbewertung",
+    "swam_label": "Ich bin diesen Plan geschwommen",
+    "difficulty_label": "Schwierigkeit",
+    "easy": "Leicht",
+    "hard": "Schwer",
+    "comment_label": "Kommentar",
+    "comment_placeholder": "Was hat dir gefallen? Was könnte besser sein?",
+    "disclaimer": "Dein Feedback wird genutzt um Swim Gen zu verbessern.",
+    "submit_success": "Danke für dein Feedback!"
+  },
+  "common": {
+    "submit": "Absenden",
+    "optional": "optional"
   }
 }

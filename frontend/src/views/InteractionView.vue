@@ -2,6 +2,7 @@
 import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 import SimplePlanDisplay from '@/components/training/SimplePlanDisplay.vue'
 import IconSend from '@/components/icons/IconSend.vue'
+import IconStar from '@/components/icons/IconStar.vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useAuthStore } from '@/stores/auth'
 import type { RAGResponse, Message } from '@/types'
@@ -10,6 +11,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
+import FeedbackForm from '@/components/forms/FeedbackForm.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -20,12 +22,13 @@ const authStore = useAuthStore()
 const { currentPlan, isLoading, isFetchingConversation, error, conversation, historyMetadata } =
   storeToRefs(trainingStore)
 
-const planMetadata = ref<{ plan_id: string; created_at: string; updated_at: string } | undefined>()
+const planMetadata = ref<{ plan_id: string; created_at: string; updated_at: string; exported_at?: string; feedback_rating?: number } | undefined>()
 
 // Track which messages have expanded plan snapshots
 const expandedSnapshots = ref<Set<string>>(new Set())
 const chatInput = ref('')
 const displayedMessages = ref<Message[]>([])
+const showFeedbackForm = ref(false)
 
 // Layout & Tabs
 const activeTab = ref<'plan' | 'chat'>('plan')
@@ -84,8 +87,27 @@ async function handleSendMessage() {
   await trainingStore.sendMessage(message)
 }
 
+async function handleFeedbackSubmit(payload: { rating: number; was_swam: boolean; difficulty_rating: number; comment?: string }) {
+  if (!currentPlan.value || !currentPlan.value.plan_id) return
+
+  const success = await trainingStore.submitFeedback({
+    plan_id: currentPlan.value.plan_id,
+    rating: payload.rating,
+    was_swam: payload.was_swam,
+    difficulty_rating: payload.difficulty_rating,
+    comment: payload.comment
+  })
+
+  if (success) {
+    toast.success(t('feedback.submit_success'))
+    showFeedbackForm.value = false
+    // Update metadata to reflect new rating
+    planMetadata.value = getMetadata()
+  }
+}
+
 async function initializeView() {
-  const planId = route.params.id as string
+  const planId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
   if (!planId) {
     console.log('No plan ID provided in route.')
     router.push('/')
@@ -147,18 +169,10 @@ watch(
     <div v-if="currentPlan" class="layout-container">
       <!-- Tab Switcher -->
       <div class="tab-switcher">
-        <button
-          class="tab-button"
-          :class="{ active: activeTab === 'plan' }"
-          @click="activeTab = 'plan'"
-        >
+        <button class="tab-button" :class="{ active: activeTab === 'plan' }" @click="activeTab = 'plan'">
           {{ t('interaction.plan_tab') }}
         </button>
-        <button
-          class="tab-button"
-          :class="{ active: activeTab === 'chat' }"
-          @click="activeTab = 'chat'"
-        >
+        <button class="tab-button" :class="{ active: activeTab === 'chat' }" @click="activeTab = 'chat'">
           {{ t('interaction.conversation_tab') }}
         </button>
       </div>
@@ -187,6 +201,22 @@ watch(
                 <span class="label">{{ t('interaction.updated_at') }}</span>
                 <span class="value">{{ new Date(planMetadata.updated_at).toLocaleString() }}</span>
               </div>
+              <div class="metadata-item" v-if="planMetadata.exported_at">
+                <span class="label">{{ t('interaction.exported_at') }}</span>
+                <span class="value">{{ new Date(planMetadata.exported_at).toLocaleString() }}</span>
+              </div>
+              <div class="metadata-item" v-if="planMetadata.feedback_rating">
+                <span class="label">{{ t('feedback.rating_label') }}</span>
+                <div class="rating-value-container">
+                  <span class="value">{{ planMetadata.feedback_rating }}</span>
+                  <IconStar class="rating-icon" />
+                </div>
+              </div>
+              <div class="metadata-item">
+                <button class="feedback-btn" @click="showFeedbackForm = true">
+                  {{ t('interaction.give_feedback') }}
+                </button>
+              </div>
             </div>
           </section>
         </div>
@@ -197,18 +227,12 @@ watch(
         <div class="tab-content chat-container" v-show="activeTab === 'chat'">
           <!-- Chat Messages Area -->
           <div class="chat-messages">
-            <div
-              v-if="displayedMessages.length === 0 && !isFetchingConversation"
-              class="empty-chat"
-            >
+            <div v-if="displayedMessages.length === 0 && !isFetchingConversation" class="empty-chat">
               <p>{{ t('interaction.no_messages') }}</p>
             </div>
             <TransitionGroup name="message">
-              <div
-                v-for="message in displayedMessages"
-                :key="message.id"
-                :class="['message', `message-${message.role}`]"
-              >
+              <div v-for="message in displayedMessages" :key="message.id"
+                :class="['message', `message-${message.role}`]">
                 <div class="message-header">
                   <span class="message-role">{{
                     message.role === 'user'
@@ -217,7 +241,7 @@ watch(
                   }}</span>
                   <span class="message-time">{{
                     new Date(message.created_at).toLocaleString()
-                  }}</span>
+                    }}</span>
                 </div>
 
                 <div class="message-content">
@@ -225,10 +249,7 @@ watch(
                 </div>
 
                 <!-- Plan Snapshot (for AI messages) -->
-                <div
-                  v-if="message.plan_snapshot && message.role === 'ai'"
-                  class="snapshot-container"
-                >
+                <div v-if="message.plan_snapshot && message.role === 'ai'" class="snapshot-container">
                   <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
                     <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
                     {{
@@ -239,13 +260,9 @@ watch(
                   </button>
 
                   <div v-if="isExpanded(message.id)" class="snapshot-content">
-                    <SimplePlanDisplay
-                      :title="message.plan_snapshot.title"
-                      :description="message.plan_snapshot.description"
-                      :table="message.plan_snapshot.table"
-                      :plan-id="message.plan_snapshot.plan_id"
-                      @save="handleSaveSnapshot"
-                    />
+                    <SimplePlanDisplay :title="message.plan_snapshot.title"
+                      :description="message.plan_snapshot.description" :table="message.plan_snapshot.table"
+                      :plan-id="message.plan_snapshot.plan_id" @save="handleSaveSnapshot" />
                   </div>
                 </div>
               </div>
@@ -256,13 +273,8 @@ watch(
           <div class="chat-input-wrapper">
             <label class="input-label">{{ t('interaction.describe_changes') }}</label>
             <form @submit.prevent="handleSendMessage" class="chat-form">
-              <input
-                v-model="chatInput"
-                type="text"
-                :placeholder="t('interaction.chat_placeholder')"
-                class="chat-input"
-                :disabled="isLoading"
-              />
+              <input v-model="chatInput" type="text" :placeholder="t('interaction.chat_placeholder')" class="chat-input"
+                :disabled="isLoading" />
               <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
                 <IconSend class="send-icon" />
               </button>
@@ -275,6 +287,9 @@ watch(
     <div v-else class="error-state">
       <p>{{ error || t('interaction.not_found') }}</p>
     </div>
+
+    <FeedbackForm :show="showFeedbackForm" :plan-title="currentPlan?.title || ''" @submit="handleFeedbackSubmit"
+      @close="showFeedbackForm = false" />
   </div>
 </template>
 
@@ -454,6 +469,35 @@ watch(
 .metadata-item .value {
   font-weight: 500;
   color: var(--color-text);
+}
+
+.rating-value-container {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-warning);
+}
+
+.rating-icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.feedback-btn {
+  background-color: var(--color-background-soft);
+  color: var(--color-success);
+  border: 2px solid var(--color-success);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  font-size: 0.875rem;
+  align-self: flex-start;
+}
+
+.feedback-btn:hover {
+  opacity: 0.9;
 }
 
 .message {

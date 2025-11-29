@@ -17,6 +17,7 @@ import {
   type ShareUrlResponse,
   type ChatRequest,
   type ChatResponsePayload,
+  type FeedbackRequest,
   ApiEndpoints,
 } from '@/types'
 import i18n from '@/plugins/i18n'
@@ -235,6 +236,22 @@ class ApiClient {
         body: JSON.stringify(request),
       },
       this.QUERY_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Submit feedback for a training plan
+   */
+  async submitFeedback(request: FeedbackRequest): Promise<ApiResult<string>> {
+    return this._fetch(
+      ApiEndpoints.FEEDBACK,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      },
+      this.DEFAULT_TIMEOUT_MS,
       true,
     )
   }

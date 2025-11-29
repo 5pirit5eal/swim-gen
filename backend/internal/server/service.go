@@ -482,3 +482,71 @@ func (rs *RAGService) SharePlanHandler(w http.ResponseWriter, req *http.Request)
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }
+
+// FeedbackHandler handles the request to submit feedback for a training plan.
+// @Summary Submit feedback for a training plan
+// @Description Submit a rating, was_swam status, and difficulty rating for a training plan
+// @Tags Feedback
+// @Accept json
+// @Produce json
+// @Param request body models.FeedbackRequest true "Feedback data"
+// @Success 200 {string} string "Feedback submitted successfully"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /feedback [post]
+func (rs *RAGService) FeedbackHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Submitting feedback...")
+
+	// Parse HTTP request from JSON.
+	fr := &models.FeedbackRequest{}
+	err := models.GetRequestJSON(req, fr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userId := req.Context().Value(models.UserIdCtxKey).(string)
+	if userId == "" {
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+
+	feedback := &models.Feedback{
+		UserID:           userId,
+		PlanID:           fr.PlanID,
+		Rating:           fr.Rating,
+		WasSwam:          fr.WasSwam,
+		DifficultyRating: fr.DifficultyRating,
+		Comment:          fr.Comment,
+	}
+
+	// Check if feedback already exists
+	existingFeedback, err := rs.db.GetFeedback(req.Context(), userId, fr.PlanID)
+	if err != nil && !strings.Contains(err.Error(), "no rows in result set") {
+		logger.Error("Error checking for existing feedback", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if existingFeedback != nil {
+		// Update existing feedback
+		err = rs.db.UpdateFeedback(req.Context(), feedback)
+	} else {
+		// Add new feedback
+		err = rs.db.AddFeedback(req.Context(), feedback)
+	}
+
+	if err != nil {
+		logger.Error("Failed to submit feedback", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Feedback submitted successfully")
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write([]byte("Feedback submitted successfully")); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}

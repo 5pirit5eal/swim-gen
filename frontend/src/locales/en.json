@@ -340,7 +340,8 @@
   },
   "labels": {
     "created_at": "Created at",
-    "updated_at": "Updated at"
+    "updated_at": "Updated",
+    "exported_at": "Exported"
   },
   "share": {
     "fetching_url": "Fetching shareable URL...",
@@ -360,6 +361,7 @@
     "plan_tab": "Training Plan",
     "hide_plan": "Hide Plan",
     "show_plan": "Show Plan",
+    "give_feedback": "Give Feedback",
     "metadata": "Metadata",
     "created_at": "Created At",
     "updated_at": "Updated At",
@@ -375,5 +377,23 @@
     "register_to_save": "Register an account or login to save and manage this shared training plans.",
     "unknown_user": "Unknown User",
     "start_conversation": "Start Interactive Editing"
+  },
+  "feedback": {
+    "title": "How was your training?",
+    "subtitle": "Feedback for: {plan}",
+    "thank_you": "Thank you for taking the time to give us your feedback. Your input helps us improve training plans for everyone!",
+    "rating_label": "Overall Rating",
+    "swam_label": "I swam this plan",
+    "difficulty_label": "Difficulty",
+    "easy": "Easy",
+    "hard": "Hard",
+    "comment_label": "Comment",
+    "comment_placeholder": "What did you like? What could be improved?",
+    "disclaimer": "Your feedback helps us improve the training plans for everyone.",
+    "submit_success": "Thank you for your feedback!"
+  },
+  "common": {
+    "submit": "Submit",
+    "optional": "optional"
   }
 }
