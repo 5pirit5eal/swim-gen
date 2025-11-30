@@ -1,6 +1,6 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
-import type { ShareUrlRequest, SharedPlanData, SharedHistoryItem, Row, RAGResponse } from '@/types'
+import type { SharedPlanData, SharedHistoryItem, Row, RAGResponse } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import router from '@/router'
@@ -17,7 +17,6 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   const isLoading = ref(false)
   const isFetchingHistory = ref(false)
   const error = ref<string | null>(null)
-  const shareUrl = ref<string | null>(null)
   const isForked = ref(false)
 
   // --- COMPUTED ---
@@ -40,24 +39,6 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   async function keepForever() {
     // No-op
     return
-  }
-
-  // Creates a shareable URL for a plan
-  async function createShareUrl(request: ShareUrlRequest): Promise<string | null> {
-    isLoading.value = true
-    error.value = null
-    const result = await apiClient.createShareUrl(request)
-    isLoading.value = false
-
-    if (result.success && result.data) {
-      shareUrl.value = `${window.location.origin}/shared/${result.data.url_hash}`
-      return shareUrl.value
-    } else {
-      error.value = result.error
-        ? formatError(result.error)
-        : i18n.global.t('errors.share_plan_failed')
-      return null
-    }
   }
 
   // Fetches a shared plan by its hash
@@ -311,7 +292,6 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   function clear() {
     sharedPlan.value = null
     error.value = null
-    shareUrl.value = null
     isForked.value = false
   }
 
@@ -320,7 +300,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -433,14 +413,12 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     isLoading,
     isFetchingHistory,
     error,
-    shareUrl,
     isForked,
     // Computed
     currentPlan,
     hasPlan,
     // Actions
     keepForever,
-    createShareUrl,
     fetchSharedPlanByHash,
     fetchSharedHistory,
     loadPlanFromHistory,

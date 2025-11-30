@@ -125,9 +125,7 @@ describe('UploadForm.vue', () => {
         const store = useUploadFormStore()
         // Mock the store action implementation or return value
         store.uploadCurrentPlan = vi.fn().mockResolvedValue(true)
-        store.currentPlan = { title: 'Valid Title', table: [] } as unknown as any // Keeping as any for now to avoid importing types, but acknowledging it. Or better:
-        // store.currentPlan = { title: 'Valid Title', table: [] } as import('@/types').RAGResponse
-        // Let's try to be cleaner.
+        store.currentPlan = { title: 'Valid Title', table: [] } as unknown as import('@/types').RAGResponse
         store.currentPlan = {
             title: 'Valid Title',
             table: [],

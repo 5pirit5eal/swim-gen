@@ -54,8 +54,15 @@ async function handleExport() {
   // Phase 1: user clicks "Export PDF"
   exportPhase.value = 'exporting'
   try {
+    // Strip _id from table rows before sending to backend
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const tableWithoutIds = props.store.currentPlan.table.map(({ _id, ...rest }) => rest)
+
     const payload: PlanToPDFRequest = {
-      ...props.store.currentPlan,
+      plan_id: props.store.currentPlan.plan_id,
+      title: props.store.currentPlan.title,
+      description: props.store.currentPlan.description,
+      table: tableWithoutIds,
       horizontal: exportHorizontal.value,
       large_font: exportLargeFont.value,
       language: navigator.language.split('-')[0] || 'en',

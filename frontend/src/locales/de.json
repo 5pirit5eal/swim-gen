@@ -81,7 +81,7 @@
   },
   "display": {
     "generating_plan_message": "Dein Trainingsplan wird generiert...",
-    "plan_title": "Kein Title angegeben.",
+    "plan_title": "Kein Titel angegeben.",
     "plan_description": "Keine Beschreibung angegeben.",
     "amount": "Anzahl",
     "amount_tooltip": "Anzahl der Wiederholungen für die Übung.",

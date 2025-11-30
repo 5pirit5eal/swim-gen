@@ -5,7 +5,7 @@ import FeedbackForm from '../FeedbackForm.vue'
 // Mock vue-i18n
 vi.mock('vue-i18n', () => ({
     useI18n: () => ({
-        t: (key: string, params?: Record<string, any>) => params ? `${key} ${JSON.stringify(params)}` : key,
+        t: (key: string, params?: Record<string, unknown>) => params ? `${key} ${JSON.stringify(params)}` : key,
     }),
 }))
 
