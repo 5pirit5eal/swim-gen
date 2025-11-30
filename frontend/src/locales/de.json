@@ -335,11 +335,27 @@
     "history": "Deine Pläne",
     "generated": "Generierte Pläne",
     "generated_placeholder": "Noch keine Pläne generiert.",
-    "donated": "Hochgeladene Pläne",
-    "donated_placeholder": "Noch keine Pläne hochgeladen.",
+    "uploaded": "Hochgeladene Pläne",
+    "uploaded_placeholder": "Noch keine Pläne hochgeladen.",
     "shared": "Mit Dir Geteilte Pläne",
     "shared_placeholder": "Noch keine Pläne mit dir geteilt.",
-    "create_new": "Neuen Plan erstellen"
+    "create_new": "Neuen Plan erstellen",
+    "upload_plan": "Plan hochladen"
+  },
+  "donation": {
+    "title": "Trainingsplan spenden",
+    "intro": "Teile deinen Trainingsplan mit der Community! Bitte fülle die untenstehenden Details aus.",
+    "submit": "Plan speichern",
+    "loading": "Lade plan hoch...",
+    "success_toast": "Plan erfolgreich gespeichert!",
+    "error_toast": "Plan konnte nicht gespeichert werden: {error}",
+    "no_plan_toast": "Der gespeicherte Plan konnte nicht gefunden werden.\n{error}",
+    "newPlan": {
+      "title": "Neuer Plan",
+      "description": "Keine Beschreibung angegeben.",
+      "warmup": "Einschwimmen",
+      "total": "Gesamt"
+    }
   },
   "labels": {
     "created_at": "Erstellt am",
@@ -397,6 +413,7 @@
   },
   "common": {
     "submit": "Absenden",
+    "loading": "Lade...",
     "optional": "optional"
   }
 }

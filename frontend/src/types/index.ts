@@ -20,6 +20,7 @@ export type {
   ChatRequest,
   ChatResponsePayload,
   FeedbackRequest,
+  DonatedPlan,
 } from './training'
 
 // Export filter option constants

@@ -332,11 +332,27 @@
     "history": "Your plans",
     "generated": "Generated plans",
     "generated_placeholder": "No generated plans yet.",
-    "donated": "Uploaded plans",
-    "donated_placeholder": "No plans uploaded yet.",
+    "uploaded": "Uploaded plans",
+    "uploaded_placeholder": "No plans uploaded yet.",
     "shared": "Plans shared with you",
     "shared_placeholder": "No plans shared with you yet.",
-    "create_new": "Create New Plan"
+    "create_new": "Create New Plan",
+    "upload_plan": "Upload Plan"
+  },
+  "donation": {
+    "title": "Upload Training Plan",
+    "intro": "Share your training plan with the community! Please fill in the details below.",
+    "submit": "Save Plan",
+    "loading": "Uploading plan...",
+    "success_toast": "Plan saved successfully!",
+    "error_toast": "Failed to save plan: {error}",
+    "no_plan_toast": "The saved plan could not be found.\n{error}",
+    "newPlan": {
+      "title": "New Plan",
+      "description": "No description provided.",
+      "warmup": "Warmup",
+      "total": "Total"
+    }
   },
   "labels": {
     "created_at": "Created at",
@@ -394,6 +410,7 @@
   },
   "common": {
     "submit": "Submit",
+    "loading": "Loading...",
     "optional": "optional"
   }
 }

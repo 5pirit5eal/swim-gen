@@ -135,6 +135,51 @@ definitions:
     required:
     - table
     type: object
+  models.DonatedPlan:
+    properties:
+      created_at:
+        description: CreatedAt is the time the plan was donated as a datetime string
+        type: string
+      description:
+        type: string
+      plan_id:
+        type: string
+      table:
+        description: Table is the table associated with the plan
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
+      title:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.FeedbackRequest:
+    description: Request payload for submitting feedback on a training plan
+    properties:
+      comment:
+        example: Great plan!
+        type: string
+      difficulty_rating:
+        example: 7
+        maximum: 10
+        minimum: 1
+        type: integer
+      plan_id:
+        example: plan_123
+        type: string
+      rating:
+        example: 5
+        maximum: 5
+        minimum: 1
+        type: integer
+      was_swam:
+        example: true
+        type: boolean
+    required:
+    - plan_id
+    - rating
+    type: object
   models.GeneratePromptRequest:
     description: Request payload for generating a prompt for swim training plan creation
     properties:
@@ -428,9 +473,9 @@ paths:
             type: string
       security:
       - BearerAuth: []
-      summary: Donate a new training plan
+      summary: Upload a new training plan
       tags:
-      - Donation
+      - Upload
   /add-plan-to-history:
     post:
       consumes:
@@ -498,6 +543,68 @@ paths:
       summary: Chat with AI to create or refine training plans
       tags:
       - Chat
+  /uploads:
+    get:
+      consumes:
+      - application/json
+      description: Get all plans donated by the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DonatedPlan'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get donated plans
+      tags:
+      - Upload
+  /uploads/{plan_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a specific plan donated by the authenticated user
+      parameters:
+      - description: Plan ID
+        in: path
+        name: plan_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DonatedPlan'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Plan not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get a donated plan
+      tags:
+      - Upload
   /export-pdf:
     post:
       consumes:
@@ -530,6 +637,39 @@ paths:
       summary: Export training plan to PDF
       tags:
       - Training Plans
+  /feedback:
+    post:
+      consumes:
+      - application/json
+      description: Submit a rating, was_swam status, and difficulty rating for a training
+        plan
+      parameters:
+      - description: Feedback data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.FeedbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Feedback submitted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Submit feedback for a training plan
+      tags:
+      - Feedback
   /generate-prompt:
     post:
       consumes:

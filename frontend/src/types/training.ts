@@ -160,3 +160,13 @@ export interface FeedbackRequest {
   difficulty_rating: number
   comment?: string
 }
+
+// Backend API DonatedPlan structure
+export interface DonatedPlan {
+  user_id: string
+  plan_id: string
+  created_at: string
+  title: string
+  description: string
+  table: Row[]
+}

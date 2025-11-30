@@ -142,6 +142,8 @@ func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Confi
 		r.Get("/health", ragServer.HealthHandler)
 		r.Get("/health-basic", basicHealthHandler)
 		r.Post("/add", ragServer.DonatePlanHandler)
+		r.Get("/uploads", ragServer.GetUploadedPlansHandler)
+		r.Get("/uploads/{plan_id}", ragServer.GetUploadedPlanHandler)
 		r.Post("/prompt", ragServer.GeneratePromptHandler)
 		r.Post("/query", ragServer.QueryHandler)
 		r.Post("/chat", ragServer.ChatHandler)

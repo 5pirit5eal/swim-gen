@@ -9,9 +9,13 @@ import IconHourglass from '@/components/icons/IconHourglass.vue'
 import IconHeart from '@/components/icons/IconHeart.vue'
 import IconCross from '@/components/icons/IconCross.vue'
 import IconPlus from '@/components/icons/IconPlus.vue'
+import UploadForm from '@/components/forms/UploadForm.vue'
+import { useDonationStore } from '@/stores/uploads'
+import { ref } from 'vue'
 
 const trainingPlanStore = useTrainingPlanStore()
 const sharedPlanStore = useSharedPlanStore()
+const donationStore = useDonationStore()
 const sidebarStore = useSidebarStore()
 const { t } = useI18n()
 const router = useRouter()
@@ -33,6 +37,14 @@ function createNewPlan() {
   trainingPlanStore.clear()
   if (window.innerWidth <= 768) sidebarStore.close()
   router.push('/')
+}
+
+const showDonationForm = ref(false)
+
+async function loadUploadedPlan(plan_id: string) {
+  await donationStore.loadPlanFromHistory(plan_id)
+  if (window.innerWidth <= 768) sidebarStore.close()
+  router.push(`/uploaded/${plan_id}`)
 }
 </script>
 
@@ -90,10 +102,29 @@ function createNewPlan() {
         </ul>
       </section>
       <section>
-        <h3>{{ t('sidebar.donated') }}</h3>
-        <p>{{ t('sidebar.donated_placeholder') }}</p>
+        <div class="section-header">
+          <h3>{{ t('sidebar.uploaded') }}</h3>
+          <div v-if="donationStore.isFetchingUploads" class="loading-spinner"></div>
+          <button @click="showDonationForm = true" class="create-new-btn secondary">
+            <IconPlus class="icon-small" />
+            {{ t('sidebar.upload_plan') }}
+          </button>
+        </div>
+        <p v-if="donationStore.uploadedPlans.length === 0">
+          {{ t('sidebar.uploaded_placeholder') }}
+        </p>
+        <ul v-else class="plan-list">
+          <li v-for="plan in donationStore.uploadedPlans" :key="plan.plan_id">
+            <div class="plan-item-main">
+              <div class="plan-title" @click="loadUploadedPlan(plan.plan_id)">
+                <span>{{ plan.title }}</span>
+              </div>
+            </div>
+          </li>
+        </ul>
       </section>
     </div>
+    <UploadForm :show="showDonationForm" @close="showDonationForm = false" />
   </aside>
 </template>
 
@@ -172,6 +203,16 @@ function createNewPlan() {
 
 .create-new-btn:hover {
   background-color: var(--color-primary-hover);
+}
+
+.create-new-btn.secondary {
+  background-color: var(--color-background-soft);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.create-new-btn.secondary:hover {
+  background-color: var(--color-background-mute);
 }
 
 .icon-small {

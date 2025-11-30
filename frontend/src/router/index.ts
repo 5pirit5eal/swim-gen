@@ -37,6 +37,12 @@ const router = createRouter({
       component: () => import('@/views/InteractionView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/uploaded/:planId',
+      name: 'uploaded',
+      component: () => import('@/views/UploadedPlanView.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 

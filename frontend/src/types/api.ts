@@ -39,6 +39,8 @@ export enum ApiEndpoints {
   ADD_PLAN_TO_HISTORY = 'add-plan-to-history',
   CHAT = 'chat',
   FEEDBACK = 'feedback',
+  GET_UPLOADS = 'uploads',
+
 }
 
 // Form validation types

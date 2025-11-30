@@ -18,6 +18,8 @@ import {
   type ChatRequest,
   type ChatResponsePayload,
   type FeedbackRequest,
+  type DonatePlanRequest,
+  type DonatedPlan,
   ApiEndpoints,
 } from '@/types'
 import i18n from '@/plugins/i18n'
@@ -250,6 +252,50 @@ class ApiClient {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Upload a training plan
+   */
+  async donatePlan(request: DonatePlanRequest): Promise<ApiResult<string>> {
+    return this._fetch(
+      ApiEndpoints.ADD_PLAN,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Get all uploaded plans for the user
+   */
+  async getUploadedPlans(): Promise<ApiResult<DonatedPlan[]>> {
+    return this._fetch(
+      ApiEndpoints.GET_UPLOADS,
+      {
+        method: 'GET',
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Get a specific uploaded plan
+   */
+  async getUploadedPlan(planId: string): Promise<ApiResult<DonatedPlan>> {
+    return this._fetch(
+      `${ApiEndpoints.GET_UPLOADS}/${planId}`,
+      {
+        method: 'GET',
       },
       this.DEFAULT_TIMEOUT_MS,
       true,

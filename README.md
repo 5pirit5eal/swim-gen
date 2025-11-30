@@ -41,12 +41,12 @@ The initial version only contains the core concept of being able to generate ind
 - **Requests are anonym and no user identification is necessary**
   - Authentication is omitted for v1
   - Any user information is stored encrypted if not configured otherwise
-  - Frontend displays the option to not donate results in advanced settings
-- **Backend allows user to donate training plans**
+  - Frontend displays the option to not upload results in advanced settings
+- **Backend allows user to upload training plans**
   - Backend-only implementation of training plan donation
   - Backend-only implementation of feedback
 
-### V2: User-specific TPs and TP History
+### V2: User-specific TPs and TP History and Multimodal Generation
 
 The next version takes lessons learned in v1 into consideration and adds user authentication and generation history, making the web application a lot more useful.
 
@@ -56,9 +56,8 @@ The next version takes lessons learned in v1 into consideration and adds user au
   - Chat history and user data saved in DB
 - **TP are exportable as PDF, excel or odt**
 - **TP can be recommended/donated**
-  - Form added to frontend to input/donate your favorite training plans
-  - URL input to report new scraping targets (after allowListing and configuration)
-  - Request user feedback to plan after new login after previously exporting TP
+  - Form added to frontend to input/upload your favorite training plans
+  - Allow user feedback for plans
   - Endpoint in backend for saving feedback
   - Notation/Abbreviations of different sources can be processed correctly
 - **User authentication and authorization**
@@ -75,23 +74,26 @@ The next version takes lessons learned in v1 into consideration and adds user au
   - Add url to delete all user data at the bottom of the page
 - **Add content required by german/eu law**
   - Impressum
+  - Datenschutzerklärung
 - **Login possible via Supabase**
-
-### V3: Multimodal Generation and Community-Sharing
-
-- **Generate TP based on multimodal user input (pdf, image, hand-written notes)**
-  - The third version further builds upon v1 and v2 by adding more input options for generating or donating TPs
-- **Searchable Community Board for most popular TP**
-  - A searchable community forum of previously created and liked TPs.
-  - This also allows user interaction, such as comments, likes and tagging.
-  - Optional sign-up for a leaderboard of most active users
 - **Add anonymous/guest mode**
-  - An anonymous mode is added which enables new users to test the application in a similar way to how v1 works.
+  - An anonymous mode is added which enables new users to use the application in the same way as v1.
+- **Upload TP based on multimodal user input (pdf, image of hand-written notes)**
 
-### V4: Usage Statistics Dashboard
+### V3: Community-Expansion and Monetization
 
-- **Add usage statistics dashboard for each signed-in user**
+- **Tutorial page for understanding plans**
+- **Add a public leaderboard and public, searchable plans for premium users**
+  - This also allows user interaction, such as comments, likes and tagging.
+- **Optional sign-up for a leaderboard of most active users**
+- **Add usage statistics dashboard for each premium user**
   - KM swam in plans
   - Number of plans exported
   - Number of plans donated
   - Comparative statistics with other user behaviour
+- **Add multi-plan generation as a premium feature**
+  - Generate weeks or months of consecutive training plans to prepare for a competition or reach certain goals
+- **Add premium model usage as a premium feature**
+- **Add unlimited number of plans as a premium feature**
+- **Add unlimited number of interactions as a premium feature**
+  - Fee-tier users get 3 back-and-forth for a plan for free

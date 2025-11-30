@@ -34,9 +34,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Donation"
+                    "Upload"
                 ],
-                "summary": "Donate a new training plan",
+                "summary": "Upload a new training plan",
                 "parameters": [
                     {
                         "description": "Training plan data",
@@ -173,6 +173,104 @@ const docTemplate = `{
                 }
             }
         },
+        "/uploads": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all plans donated by the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Upload"
+                ],
+                "summary": "Get donated plans",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DonatedPlan"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/uploads/{plan_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a specific plan donated by the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Upload"
+                ],
+                "summary": "Get a donated plan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Plan ID",
+                        "name": "plan_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DonatedPlan"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Plan not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/export-pdf": {
             "post": {
                 "security": [
@@ -207,6 +305,57 @@ const docTemplate = `{
                         "description": "PDF export response with URI",
                         "schema": {
                             "$ref": "#/definitions/models.PlanToPDFResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/feedback": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Submit a rating, was_swam status, and difficulty rating for a training plan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feedback"
+                ],
+                "summary": "Submit feedback for a training plan",
+                "parameters": [
+                    {
+                        "description": "Feedback data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.FeedbackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Feedback submitted successfully",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -899,6 +1048,68 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Advanced Freestyle Training"
+                }
+            }
+        },
+        "models.DonatedPlan": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt is the time the plan was donated as a datetime string",
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "table": {
+                    "description": "Table is the table associated with the plan",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.FeedbackRequest": {
+            "description": "Request payload for submitting feedback on a training plan",
+            "type": "object",
+            "required": [
+                "plan_id",
+                "rating"
+            ],
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Great plan!"
+                },
+                "difficulty_rating": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1,
+                    "example": 7
+                },
+                "plan_id": {
+                    "type": "string",
+                    "example": "plan_123"
+                },
+                "rating": {
+                    "type": "integer",
+                    "maximum": 5,
+                    "minimum": 1,
+                    "example": 5
+                },
+                "was_swam": {
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },

@@ -120,7 +120,13 @@ async function initializeView() {
   }
 
   if (trainingStore.planHistory.length === 0) {
-    await trainingStore.fetchHistory()
+    if (!trainingStore.isFetchingHistory) {
+      await trainingStore.fetchHistory()
+    } else {
+      while (trainingStore.isFetchingHistory) {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      }
+    }
   }
 
   const planFromHistory = trainingStore.planHistory.find((p) => p.plan_id === planId)
@@ -241,7 +247,7 @@ watch(
                   }}</span>
                   <span class="message-time">{{
                     new Date(message.created_at).toLocaleString()
-                    }}</span>
+                  }}</span>
                 </div>
 
                 <div class="message-content">

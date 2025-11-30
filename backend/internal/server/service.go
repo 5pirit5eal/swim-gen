@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/5pirit5eal/swim-gen/internal/config"
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/5pirit5eal/swim-gen/internal/pdf"
 	"github.com/5pirit5eal/swim-gen/internal/rag"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/httplog/v2"
 	"github.com/google/uuid"
 	"github.com/supabase-community/supabase-go"
@@ -68,10 +68,10 @@ func (rs *RAGService) Close() {
 	slog.Info("RAG server closed successfully")
 }
 
-// DonatePlanHandler handles the HTTP request to donate a training plan to the database.
+// DonatePlanHandler handles the HTTP request to upload a training plan to the database.
 // It parses the request, stores the documents and their embeddings in the
 // database, and responds with a success message.
-// @Summary Donate a new training plan
+// @Summary Upload a new training plan
 // @Description Upload and store a new user created swim training plan in the RAG system
 // @Tags Donation
 // @Accept json
@@ -133,14 +133,13 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 	plan := &models.DonatedPlan{
 		UserID:      req.Context().Value(models.UserIdCtxKey).(string),
 		PlanID:      uuid.NewString(),
-		CreatedAt:   time.Now().Format(time.DateTime),
 		Title:       desc.Title,
 		Description: desc.Text,
 		Table:       dpr.Table,
 	}
 
 	// Store the plan in the database
-	err = rs.db.AddDonatedPlan(req.Context(), plan, desc.Meta)
+	err = rs.db.AddUploadedPlan(req.Context(), plan, desc.Meta)
 	if err != nil {
 		logger.Error("Failed to store plan in the database", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -150,6 +149,76 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 	// Respond with a success message
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write([]byte("Scraping completed successfully")); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+// GetUploadedPlansHandler handles the request to get all uploaded plans for a user.
+// @Summary Get uploaded plans
+// @Description Get all plans uploaded by the authenticated user
+// @Tags Donation
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.DonatedPlan
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /uploads [get]
+func (rs *RAGService) GetUploadedPlansHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Getting uploaded plans...")
+
+	userId := req.Context().Value(models.UserIdCtxKey).(string)
+	if userId == "" {
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+
+	plans, err := rs.db.GetUploadedPlans(req.Context(), userId)
+	if err != nil {
+		logger.Error("Failed to get uploaded plans", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Uploaded plans retrieved successfully")
+	if err := models.WriteResponseJSON(w, http.StatusOK, plans); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+// GetUploadedPlanHandler handles the request to get a specific uploaded plan.
+// @Summary Get a uploaded plan
+// @Description Get a specific plan uploaded by the authenticated user
+// @Tags Donation
+// @Accept json
+// @Produce json
+// @Param plan_id path string true "Plan ID"
+// @Success 200 {object} models.DonatedPlan
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 404 {string} string "Plan not found"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /uploads/{plan_id} [get]
+func (rs *RAGService) GetUploadedPlanHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Getting uploaded plan...")
+
+	planID := chi.URLParam(req, "plan_id")
+	if planID == "" {
+		http.Error(w, "Plan ID is required", http.StatusBadRequest)
+		return
+	}
+
+	plan, err := rs.db.GetUploadedPlan(req.Context(), planID)
+	if err != nil {
+		logger.Error("Failed to get uploaded plan", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Uploaded plan retrieved successfully")
+	if err := models.WriteResponseJSON(w, http.StatusOK, plan); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }

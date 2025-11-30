@@ -41,8 +41,6 @@ async function handleLogin() {
   loading.value = true
   try {
     await auth.signInWithPassword(email.value, password.value)
-    await trainingPlanStore.fetchHistory()
-    await sharedPlanStore.fetchSharedHistory()
     sidebarStore.open()
     toast.success(t('login.loginSuccess'))
     router.push('/')

@@ -314,9 +314,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     }
 
     if (data !== null && Array.isArray(data)) {
-      // We need to map the backend message type to a frontend friendly type if needed
-      // For now assuming the types match or we use the backend type directly
-      // You might need to add a 'conversation' state property to the store
       conversation.value = data
     } else {
       conversation.value = []
@@ -330,7 +327,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
     const result = await apiClient.addPlanToHistory(plan)
     if (result.success) {
-      await fetchHistory()
+      await fetchHistory() // Refresh history after saving snapshot
     } else {
       console.error('Failed to save snapshot:', result.error)
     }
@@ -394,7 +391,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         }
         ensureRowIds(currentPlan.value.table)
         recalculateTotalSum()
-        await fetchHistory()
+        await fetchHistory() // Refresh history after updating plan
       }
     } else {
       error.value = result.error ? formatError(result.error) : i18n.global.t('errors.unknown_error')

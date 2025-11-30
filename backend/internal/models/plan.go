@@ -6,6 +6,7 @@ import (
 	"maps"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/invopop/jsonschema"
@@ -20,27 +21,30 @@ const (
 )
 
 type Planable interface {
-	// Map represenation of the object with at least the plan_id
+	// Map represenation of the object with at least the plan_id without the table
 	Map() map[string]any
+	// Plan returns the basic Plan structure
 	Plan() *Plan
 }
 
 type DonatedPlan struct {
-	UserID string `db:"user_id"`
-	PlanID string `db:"plan_id"`
+	UserID string `db:"user_id" json:"user_id"`
+	PlanID string `db:"plan_id" json:"plan_id"`
 	// CreatedAt is the time the plan was donated as a datetime string
-	CreatedAt   string `db:"created_at"`
-	Title       string `db:"title"`
-	Description string `db:"description"`
+	CreatedAt   time.Time `db:"created_at" json:"created_at"`
+	Title       string    `db:"title" json:"title"`
+	Description string    `db:"description" json:"description"`
 	// Table is the table associated with the plan
-	Table Table `db:"plan_table"`
+	Table Table `db:"plan_table" json:"table"`
 }
 
 func (d *DonatedPlan) Map() map[string]any {
 	m := map[string]any{
-		"plan_id":    d.PlanID,
-		"created_at": d.CreatedAt,
-		"title":      d.Title,
+		"user_id":     d.UserID,
+		"plan_id":     d.PlanID,
+		"created_at":  d.CreatedAt,
+		"title":       d.Title,
+		"description": d.Description,
 	}
 
 	return m
@@ -59,17 +63,19 @@ type ScrapedPlan struct {
 	PlanID string `db:"plan_id"`
 	URL    string `db:"url"`
 	// CreatedAt is the time the plan was scraped as a datetime string
-	CreatedAt   string `db:"created_at"`
-	Title       string `db:"title"`
-	Description string `db:"description"`
-	Table       Table  `db:"plan_table"`
+	CreatedAt   time.Time `db:"created_at"`
+	Title       string    `db:"title"`
+	Description string    `db:"description"`
+	Table       Table     `db:"plan_table"`
 }
 
 func (s *ScrapedPlan) Map() map[string]any {
 	m := map[string]any{
-		"plan_id": s.PlanID,
-		"url":     s.URL,
-		"title":   s.Title,
+		"plan_id":     s.PlanID,
+		"url":         s.URL,
+		"title":       s.Title,
+		"created_at":  s.CreatedAt,
+		"description": s.Description,
 	}
 
 	return m
@@ -94,6 +100,7 @@ func (gp *GeneratedPlan) Map() map[string]any {
 	m := map[string]any{
 		"title":       gp.Title,
 		"description": gp.Description,
+		"plan_table":  gp.Table,
 	}
 
 	return m
