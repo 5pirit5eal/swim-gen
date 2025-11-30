@@ -75,11 +75,7 @@ async function handleExport() {
 
 <template>
   <div class="export-actions">
-    <button
-      @click="handleExport"
-      class="export-btn main-action"
-      :disabled="exportPhase === 'exporting'"
-    >
+    <button @click="handleExport" class="export-btn main-action" :disabled="exportPhase === 'exporting'">
       <template v-if="exportPhase === 'exporting'">
         {{ t('display.exporting') }}
       </template>
@@ -93,11 +89,8 @@ async function handleExport() {
       </template>
     </button>
     <div class="dropdown-container">
-      <button
-        @click="isExportMenuOpen = !isExportMenuOpen"
-        class="export-btn dropdown-toggle"
-        :disabled="exportPhase === 'exporting'"
-      ></button>
+      <button @click="isExportMenuOpen = !isExportMenuOpen" class="export-btn dropdown-toggle"
+        :disabled="exportPhase === 'exporting'"></button>
       <Transition name="dropdown-transform">
         <div v-if="isExportMenuOpen" class="dropdown-menu">
           <label>
@@ -115,18 +108,39 @@ async function handleExport() {
 </template>
 
 <style scoped>
-.export-btn {
+.export-actions {
+  display: flex;
   flex: 1;
+  position: relative;
+  max-width: 200px;
+}
+
+.export-actions .main-action {
+  flex: 3;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.export-actions .dropdown-toggle {
+  flex: 1;
+  position: relative;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 1px solid var(--color-primary-hover);
+  padding: 0.75rem 1rem;
+  min-width: 0;
+  max-width: 0;
+}
+
+.export-btn {
   background: var(--color-primary);
   color: white;
   border: none;
   padding: 0.75rem 1rem;
   border-radius: 0.25rem;
-  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  min-width: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -156,32 +170,9 @@ async function handleExport() {
   height: 24px;
 }
 
-.export-actions {
-  display: flex;
-  flex: 1;
-  position: relative;
-}
-
-.export-actions .main-action {
-  flex: 3;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
 .dropdown-container {
-  flex: 1;
   display: flex;
   position: static;
-}
-
-.export-actions .dropdown-toggle {
-  flex: 1;
-  position: relative;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: 1px solid var(--color-primary-hover);
-  padding: 0.75rem 1rem;
-  min-width: 0;
 }
 
 .dropdown-toggle::before {

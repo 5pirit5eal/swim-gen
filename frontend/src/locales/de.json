@@ -355,7 +355,13 @@
       "description": "Keine Beschreibung angegeben.",
       "warmup": "Einschwimmen",
       "total": "Gesamt"
-    }
+    },
+    "title_required": "Bitte gib einen Titel für deinen Plan an.",
+    "upload_image_btn": "Bild hochladen & Plan extrahieren",
+    "processing_image": "Verarbeite Bild...",
+    "upload_image_hint": "Lade ein Bild eines Schwimmplans hoch, um ihn automatisch zu extrahieren.",
+    "image_upload_success": "Plan erfolgreich extrahiert!",
+    "image_upload_error": "Plan konnte nicht aus dem Bild extrahiert werden."
   },
   "labels": {
     "created_at": "Erstellt am",

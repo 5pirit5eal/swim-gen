@@ -1,91 +1,91 @@
 import { apiClient, formatError } from '@/api/client'
-import type { DonatedPlan, RAGResponse, Row } from '@/types'
+import i18n from '@/plugins/i18n'
+import type { DonatePlanRequest, RAGResponse, Row } from '@/types'
 import { defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { computed, ref } from 'vue'
+import { useDonationStore } from '@/stores/uploads'
 
-export const useDonationStore = defineStore('donation', () => {
+export const useUploadFormStore = defineStore('uploadForm', () => {
   // --- STATE ---
   const currentPlan = ref<RAGResponse | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
-  const uploadedPlans = ref<DonatedPlan[]>([])
-  const isFetchingUploads = ref(false)
-  const userStore = useAuthStore()
+  const donationStore = useDonationStore()
 
   // --- COMPUTED ---
   const hasPlan = computed(() => currentPlan.value !== null)
 
-  watch(
-    () => userStore.user?.id ?? null,
-    async (userId) => {
-      if (userId) {
-        await fetchUploadedPlans()
-      } else {
-        uploadedPlans.value = []
-      }
-    },
-    { immediate: true },
-  )
-
   // --- ACTIONS ---
 
-  // Fetch all uploaded plans for the user
-  async function fetchUploadedPlans() {
-    if (!userStore.user) return
-    isFetchingUploads.value = true
-    const result = await apiClient.getUploadedPlans()
-    if (result.success && Array.isArray(result.data)) {
-      uploadedPlans.value = result.data
-    } else {
-      console.error(result.error ? formatError(result.error) : 'Failed to fetch uploaded plans')
+  // Initialize a new empty plan for donation
+  function initNewPlan() {
+    currentPlan.value = {
+      title: i18n.global.t('donation.newPlan.title'),
+      description: i18n.global.t('donation.newPlan.description'),
+      table: [
+        {
+          Amount: 1,
+          Multiplier: 'x',
+          Distance: 100,
+          Break: '20',
+          Content: i18n.global.t('donation.newPlan.warmup'),
+          Intensity: 'GA1',
+          Sum: 100,
+          _id: crypto.randomUUID(),
+        },
+        {
+          Amount: 0,
+          Multiplier: '',
+          Distance: 0,
+          Break: '',
+          Content: i18n.global.t('donation.newPlan.total'),
+          Intensity: '',
+          Sum: 100,
+          _id: crypto.randomUUID(),
+        },
+      ],
     }
-    isFetchingUploads.value = false
   }
 
-  // Fetch a specific uploaded plan
-  async function fetchUploadedPlan(planId: string): Promise<boolean> {
+  // Submit the current plan as a donation
+  async function uploadCurrentPlan(): Promise<boolean> {
+    if (!currentPlan.value) return false
     isLoading.value = true
     error.value = null
-    const result = await apiClient.getUploadedPlan(planId)
-    if (result.success && result.data) {
-      // Convert DonatedPlan to RAGResponse format for display
-      currentPlan.value = {
-        plan_id: result.data.plan_id,
-        title: result.data.title,
-        description: result.data.description,
-        table: result.data.table,
-      }
-      ensureRowIds(currentPlan.value.table)
-      recalculateTotalSum()
+
+    // Strip _id from table rows before sending
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const tableWithoutIds = currentPlan.value.table.slice(0, -1).map(({ _id, ...rest }) => rest)
+
+    const request: DonatePlanRequest = {
+      title: currentPlan.value.title,
+      description: currentPlan.value.description,
+      table: tableWithoutIds,
+      language: i18n.global.locale.value,
+    }
+
+    const result = await apiClient.donatePlan(request)
+    if (result.success) {
+      // Refresh the list of uploaded plans in the donation store
+      await donationStore.fetchUploadedPlans()
       isLoading.value = false
       return true
     } else {
-      error.value = result.error ? formatError(result.error) : 'Failed to fetch uploaded plan'
+      error.value = result.error ? formatError(result.error) : 'Failed to upload plan'
       isLoading.value = false
       return false
-    }
-  }
-
-  // Loads a plan from history into the editor
-  async function loadPlanFromHistory(plan_id: string) {
-    if (!userStore.user) return
-    if (currentPlan.value?.plan_id === plan_id) return
-    await fetchUploadedPlan(plan_id)
-    if (currentPlan.value) {
-      ensureRowIds(currentPlan.value.table)
     }
   }
 
   // --- PlanStore Implementation ---
 
   async function keepForever(planId: string) {
-    // Not applicable for donation store, but required by interface
-    console.log('keepForever not implemented for donation store', planId)
+    // Not applicable for upload form
+    console.log('keepForever not implemented for upload form', planId)
   }
 
   async function upsertCurrentPlan() {
-    // Not applicable for donation store in the same way,
+    // Not applicable for upload form in the same way,
     // we don't auto-save to backend on every edit, only on explicit upload
     // But we can use this to trigger local validation or updates if needed
     recalculateTotalSum()
@@ -155,14 +155,6 @@ export const useDonationStore = defineStore('donation', () => {
     }
   }
 
-  function ensureRowIds(table: Row[]) {
-    table.forEach((row) => {
-      if (!row._id) {
-        row._id = crypto.randomUUID()
-      }
-    })
-  }
-
   function clear() {
     currentPlan.value = null
     error.value = null
@@ -174,14 +166,11 @@ export const useDonationStore = defineStore('donation', () => {
     currentPlan,
     isLoading,
     error,
-    uploadedPlans,
-    isFetchingUploads,
     // Computed
     hasPlan,
     // Actions
-    fetchUploadedPlans,
-    fetchUploadedPlan,
-    loadPlanFromHistory,
+    initNewPlan,
+    uploadCurrentPlan,
     // PlanStore Implementation
     keepForever,
     upsertCurrentPlan,

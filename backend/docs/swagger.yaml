@@ -475,7 +475,7 @@ paths:
       - BearerAuth: []
       summary: Upload a new training plan
       tags:
-      - Upload
+      - Donation
   /add-plan-to-history:
     post:
       consumes:
@@ -543,68 +543,6 @@ paths:
       summary: Chat with AI to create or refine training plans
       tags:
       - Chat
-  /uploads:
-    get:
-      consumes:
-      - application/json
-      description: Get all plans donated by the authenticated user
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.DonatedPlan'
-            type: array
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "500":
-          description: Internal server error
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: Get donated plans
-      tags:
-      - Upload
-  /uploads/{plan_id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a specific plan donated by the authenticated user
-      parameters:
-      - description: Plan ID
-        in: path
-        name: plan_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.DonatedPlan'
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "404":
-          description: Plan not found
-          schema:
-            type: string
-        "500":
-          description: Internal server error
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: Get a donated plan
-      tags:
-      - Upload
   /export-pdf:
     post:
       consumes:
@@ -953,6 +891,68 @@ paths:
       summary: Share a training plan
       tags:
       - Training Plans
+  /uploads:
+    get:
+      consumes:
+      - application/json
+      description: Get all plans uploaded by the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DonatedPlan'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get uploaded plans
+      tags:
+      - Donation
+  /uploads/{plan_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a specific plan uploaded by the authenticated user
+      parameters:
+      - description: Plan ID
+        in: path
+        name: plan_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DonatedPlan'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Plan not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get a uploaded plan
+      tags:
+      - Donation
   /upsert-plan:
     post:
       consumes:

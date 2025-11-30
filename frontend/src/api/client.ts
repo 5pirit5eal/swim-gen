@@ -301,6 +301,27 @@ class ApiClient {
       true,
     )
   }
+
+  /**
+   * Extract a training plan from an image
+   */
+  async imageToPlan(image: File): Promise<ApiResult<RAGResponse>> {
+    const formData = new FormData()
+    formData.append('image', image)
+
+    return this._fetch(
+      ApiEndpoints.IMAGE_TO_PLAN,
+      {
+        method: 'POST',
+        // Content-Type header is automatically set by the browser for FormData
+        // We need to pass undefined so that the browser sets the boundary correctly
+        headers: {},
+        body: formData,
+      },
+      this.QUERY_TIMEOUT_MS, // This might take a while
+      true,
+    )
+  }
 }
 
 // Export singleton instance

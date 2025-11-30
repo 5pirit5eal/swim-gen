@@ -77,8 +77,7 @@ async function copyUrl() {
 
 <style scoped>
 .share-container {
-  flex: 1;
-  min-width: 160px;
+  max-width: 200px;
   position: relative;
 }
 
@@ -90,7 +89,6 @@ async function copyUrl() {
   color: white;
   border: none;
   border-radius: 0.25rem;
-  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;

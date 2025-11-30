@@ -352,7 +352,13 @@
       "description": "No description provided.",
       "warmup": "Warmup",
       "total": "Total"
-    }
+    },
+    "title_required": "Please provide a title for your plan.",
+    "upload_image_btn": "Upload Image to Extract Plan",
+    "processing_image": "Processing Image...",
+    "upload_image_hint": "Upload an image of a swimming plan to automatically extract it.",
+    "image_upload_success": "Plan extracted successfully!",
+    "image_upload_error": "Failed to extract plan from image."
   },
   "labels": {
     "created_at": "Created at",

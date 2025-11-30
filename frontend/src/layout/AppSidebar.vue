@@ -9,6 +9,7 @@ import IconHourglass from '@/components/icons/IconHourglass.vue'
 import IconHeart from '@/components/icons/IconHeart.vue'
 import IconCross from '@/components/icons/IconCross.vue'
 import IconPlus from '@/components/icons/IconPlus.vue'
+import IconUpload from '@/components/icons/IconUpload.vue'
 import UploadForm from '@/components/forms/UploadForm.vue'
 import { useDonationStore } from '@/stores/uploads'
 import { ref } from 'vue'
@@ -57,10 +58,14 @@ async function loadUploadedPlan(plan_id: string) {
       <h3>{{ t('sidebar.history') }}</h3>
     </div>
     <div class="sidebar-content">
-      <button @click="createNewPlan" class="create-new-btn">
-        <IconPlus class="icon-small" />
-        {{ t('sidebar.create_new') }}
-      </button>
+      <div class="action-buttons">
+        <button @click="createNewPlan" class="create-new-btn" :title="t('sidebar.create_new')">
+          <IconPlus class="icon-small" />
+        </button>
+        <button @click="showDonationForm = true" class="create-new-btn secondary" :title="t('sidebar.upload_plan')">
+          <IconUpload class="icon-small" />
+        </button>
+      </div>
       <section>
         <div class="section-header">
           <h3>{{ t('sidebar.generated') }}</h3>
@@ -105,10 +110,6 @@ async function loadUploadedPlan(plan_id: string) {
         <div class="section-header">
           <h3>{{ t('sidebar.uploaded') }}</h3>
           <div v-if="donationStore.isFetchingUploads" class="loading-spinner"></div>
-          <button @click="showDonationForm = true" class="create-new-btn secondary">
-            <IconPlus class="icon-small" />
-            {{ t('sidebar.upload_plan') }}
-          </button>
         </div>
         <p v-if="donationStore.uploadedPlans.length === 0">
           {{ t('sidebar.uploaded_placeholder') }}
@@ -184,21 +185,27 @@ async function loadUploadedPlan(plan_id: string) {
   margin-bottom: 1.5rem;
 }
 
-.create-new-btn {
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
   width: 100%;
+  justify-content: space-evenly;
+}
+
+.create-new-btn {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  margin-bottom: 1.5rem;
+  padding: 0.75rem 0.25rem;
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: 600;
   transition: background-color 0.2s;
+  max-width: 100px;
 }
 
 .create-new-btn:hover {
@@ -216,8 +223,8 @@ async function loadUploadedPlan(plan_id: string) {
 }
 
 .icon-small {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .sidebar-content section h3 {

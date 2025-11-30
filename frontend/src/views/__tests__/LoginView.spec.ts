@@ -196,6 +196,6 @@ describe('LoginView.vue', () => {
 
     expect(auth.signInWithPassword).toHaveBeenCalledWith('existing@example.com', 'password')
     expect(toast.success).toHaveBeenCalledWith('login.userExistsLoginSuccess')
-    expect(mockPush).toHaveBeenCalledWith('/')
+    expect(mockPush).toHaveBeenCalledWith({ path: '/', state: { redirectedFromLogin: true } })
   })
 })

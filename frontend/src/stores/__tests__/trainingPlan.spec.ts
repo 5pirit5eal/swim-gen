@@ -152,6 +152,13 @@ describe('trainingPlan Store', () => {
           in: vi.fn().mockResolvedValue({ data: [], error: null }),
         }
       }
+      if (tableName === 'feedback') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          in: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }
+      }
       return {}
     })
 
@@ -391,6 +398,13 @@ describe('trainingPlan Store', () => {
             in: vi.fn().mockResolvedValue({ data: mockPlans, error: null }),
           }
         }
+        if (tableName === 'feedback') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
+        }
         return {
           select: vi.fn().mockReturnThis(),
           order: vi.fn().mockReturnThis(),
@@ -453,6 +467,13 @@ describe('trainingPlan Store', () => {
             in: vi.fn().mockResolvedValue({ data: null, error: new Error('Plan fetch error') }),
           }
         }
+        if (tableName === 'feedback') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
+        }
         return {
           select: vi.fn().mockReturnThis(),
         }
@@ -492,6 +513,13 @@ describe('trainingPlan Store', () => {
           return {
             select: vi.fn().mockReturnThis(),
             in: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
+        }
+        if (tableName === 'feedback') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockResolvedValue({ data: [], error: null }),
           }
         }
         return {}

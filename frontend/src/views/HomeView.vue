@@ -31,7 +31,6 @@ function scrollToPlan() {
   }
 }
 
-
 watch(
   () => trainingPlanStore.currentPlan,
   (newPlan) => {
@@ -80,7 +79,6 @@ onMounted(async () => {
         </div>
       </section>
     </div>
-
   </div>
 </template>
 

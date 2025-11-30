@@ -228,7 +228,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-        ; (row[field] as string | number) = value
+      ;(row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -371,11 +371,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         next_message_id: null,
         plan_snapshot: result.data.table
           ? {
-            plan_id: result.data.plan_id,
-            title: result.data.title || '',
-            description: result.data.description || '',
-            table: result.data.table,
-          }
+              plan_id: result.data.plan_id,
+              title: result.data.title || '',
+              description: result.data.description || '',
+              table: result.data.table,
+            }
           : undefined,
       }
       conversation.value.push(aiMsg)
@@ -408,12 +408,12 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       rating: payload.rating,
       was_swam: payload.was_swam,
       difficulty_rating: payload.difficulty_rating,
-      comment: payload.comment
+      comment: payload.comment,
     })
 
     if (result.success) {
       // Optimistically update history
-      const metadata = historyMetadata.value.find(p => p.plan_id === payload.plan_id)
+      const metadata = historyMetadata.value.find((p) => p.plan_id === payload.plan_id)
       if (metadata) {
         metadata.feedback_rating = payload.rating
         metadata.was_swam = payload.was_swam
