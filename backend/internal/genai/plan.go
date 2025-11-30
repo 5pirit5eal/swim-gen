@@ -202,3 +202,56 @@ func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.Pla
 	logger.Debug("Plan translated successfully", "plan_id", p.PlanID)
 	return &p, nil
 }
+
+func (gc *GoogleGenAIClient) ImageToPlan(ctx context.Context, image []byte, filename string) (*models.GeneratedPlan, error) {
+	logger := httplog.LogEntry(ctx)
+	logger.Debug("ImageToPlan", "filename", filename)
+	gps, err := models.GeneratedPlanSchema()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get GeneratedPlan schema: %w", err)
+	}
+
+	// Create a RAG query for the LLM with the most relevant documents as context
+	genCfg := *gc.gcfg
+	genCfg.ResponseMIMEType = "application/json"
+	genCfg.ResponseJsonSchema = gps
+	parts := []*genai.Part{
+		genai.NewPartFromBytes(image, "image/jpeg"),
+		genai.NewPartFromText(ocrTemplateStr),
+	}
+
+	contents := []*genai.Content{
+		genai.NewContentFromParts(parts, genai.RoleUser),
+	}
+
+	answer, _ := gc.gc.Models.GenerateContent(
+		ctx,
+		gc.cfg.Model,
+		contents,
+		&genCfg,
+	)
+
+	if err != nil {
+		logger.Error("Error when extracting plan from image with LLM", httplog.ErrAttr(err))
+		return nil, fmt.Errorf("error when extracting plan from image with LLM: %w", err)
+	}
+
+	// read description and table from the LLM response
+	var p models.GeneratedPlan
+	err = json.Unmarshal([]byte(answer.Text()), &p)
+	if err != nil {
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer.Text())
+		return nil, fmt.Errorf("error parsing LLM response: %w", err)
+	}
+	// Add the total to the table if it is not already present
+	if !strings.Contains(p.Table[len(p.Table)-1].Content, "Gesamt") {
+		p.Table.AddSum()
+	}
+	// Recalculate the sums of the rows to be sure they are correct
+	p.Table.UpdateSum()
+
+	// Add the plan to the response
+	logger.Debug("Plan extracted from image successfully")
+	return &p, nil
+
+}

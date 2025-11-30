@@ -367,6 +367,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/image-to-plan": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Convert an image of a plan to a plan",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Donation"
+                ],
+                "summary": "Convert an image of a plan to a plan",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Image of a plan",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plan ID of the converted plan",
+                        "schema": {
+                            "$ref": "#/definitions/models.RAGResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/memory/conversation": {
             "get": {
                 "security": [

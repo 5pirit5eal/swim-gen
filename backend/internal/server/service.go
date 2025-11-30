@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -149,6 +150,65 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 	// Respond with a success message
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write([]byte("Scraping completed successfully")); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+// ImageToPlanHandler handles the request to convert an image of a plan to a plan
+// The iamge is sent as form data
+// @Summary Convert an image of a plan to a plan
+// @Description Convert an image of a plan to a plan
+// @Tags Donation
+// @Accept multipart/form-data
+// @Produce json
+// @Param image formData file true "Image of a plan"
+// @Success 200 {object} models.RAGResponse "Plan ID of the converted plan"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /image-to-plan [post]
+func (rs *RAGService) ImageToPlanHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Request for image to plan received...")
+
+	// 1. tell Go to parse the incoming multipart stream
+	err := req.ParseMultipartForm(20 << 20) // 20 MB max memory
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// 2. retrieve the file (form field name must match the client’s key)
+	file, header, err := req.FormFile("image")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// read the file
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	logger.Debug("Converting image to plan")
+	resp, err := rs.db.Client.ImageToPlan(req.Context(), fileBytes, header.Filename)
+	if err != nil {
+		logger.Error("Failed to convert image to plan in the database", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	answer := &models.RAGResponse{
+		Title:       resp.Title,
+		Description: resp.Description,
+		Table:       resp.Table,
+	}
+
+	logger.Info("Image converted to plan successfully", "plan_id", resp)
+	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }

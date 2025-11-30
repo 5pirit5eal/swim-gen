@@ -669,6 +669,37 @@ paths:
       summary: Basic health check
       tags:
       - Health
+  /image-to-plan:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Convert an image of a plan to a plan
+      parameters:
+      - description: Image of a plan
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plan ID of the converted plan
+          schema:
+            $ref: '#/definitions/models.RAGResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Convert an image of a plan to a plan
+      tags:
+      - Donation
   /memory/conversation:
     delete:
       consumes:
