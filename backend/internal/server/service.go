@@ -69,6 +69,22 @@ func (rs *RAGService) Close() {
 	slog.Info("RAG server closed successfully")
 }
 
+// getMimeTypeFromFilename returns the MIME type based on the file extension.
+// Returns an error if the file type is not supported.
+func getMimeTypeFromFilename(filename string) (string, error) {
+	filename = strings.ToLower(filename)
+	switch {
+	case strings.HasSuffix(filename, ".png"):
+		return "image/png", nil
+	case strings.HasSuffix(filename, ".jpg"), strings.HasSuffix(filename, ".jpeg"):
+		return "image/jpeg", nil
+	case strings.HasSuffix(filename, ".pdf"):
+		return "application/pdf", nil
+	default:
+		return "", fmt.Errorf("unsupported file type: %s. Supported formats: PNG, JPEG, PDF", filename)
+	}
+}
+
 // UploadPlanHandler handles the HTTP request to upload a private training plan to the database.
 // It parses the request, stores the documents and their embeddings in the
 // database, and responds with a success message.
@@ -77,7 +93,7 @@ func (rs *RAGService) Close() {
 // @Tags Upload
 // @Accept json
 // @Produce json
-// @Param plan body models.DonatePlanRequest true "Training plan data"
+// @Param plan body models.UploadPlanRequest true "Training plan data"
 // @Success 200 {string} string "Plan added successfully"
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"
@@ -150,22 +166,22 @@ func (rs *RAGService) UploadPlanHandler(w http.ResponseWriter, req *http.Request
 	}
 }
 
-// ImageToPlanHandler handles the request to convert an image of a plan to a plan
-// The iamge is sent as form data
-// @Summary Convert an image of a plan to a plan
-// @Description Convert an image of a plan to a plan
+// FileToPlanHandler handles the request to convert a file (image or PDF) of a plan to a plan
+// The file is sent as form data. Supported formats: PNG, JPEG, PDF
+// @Summary Convert a file (image or PDF) of a plan to a plan
+// @Description Convert a file containing a training plan to a structured plan. Supports PNG, JPEG, and PDF formats.
 // @Tags Upload
 // @Accept multipart/form-data
 // @Produce json
-// @Param image formData file true "Image of a plan"
+// @Param image formData file true "File containing a plan (PNG, JPEG, or PDF)"
 // @Success 200 {object} models.RAGResponse "Plan ID of the converted plan"
-// @Failure 400 {string} string "Bad request"
+// @Failure 400 {string} string "Bad request or unsupported file type"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
-// @Router /image-to-plan [post]
-func (rs *RAGService) ImageToPlanHandler(w http.ResponseWriter, req *http.Request) {
+// @Router /file-to-plan [post]
+func (rs *RAGService) FileToPlanHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
-	logger.Info("Request for image to plan received...")
+	logger.Info("Request for file to plan received...")
 
 	// 1. tell Go to parse the incoming multipart stream
 	err := req.ParseMultipartForm(20 << 20) // 20 MB max memory
@@ -174,13 +190,23 @@ func (rs *RAGService) ImageToPlanHandler(w http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	// 2. retrieve the file (form field name must match the client’s key)
-	file, header, err := req.FormFile("image")
+	// 2. retrieve the file (form field name must match the client's key)
+	file, header, err := req.FormFile("file")
+	logger.Debug("Filename", "filename", header.Filename)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
+
+	// 3. Detect MIME type from filename
+	mimeType, err := getMimeTypeFromFilename(header.Filename)
+	if err != nil {
+		logger.Error("Unsupported file type", "filename", header.Filename, httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	logger.Debug("Detected MIME type", "mimeType", mimeType)
 
 	// read the file
 	fileBytes, err := io.ReadAll(file)
@@ -189,16 +215,16 @@ func (rs *RAGService) ImageToPlanHandler(w http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	logger.Debug("Converting image to plan")
+	logger.Debug("Converting file to plan")
 	// Get language from form data
 	language := req.FormValue("language")
 	if language == "" {
 		language = "en"
 	}
 
-	resp, err := rs.db.Client.ImageToPlan(req.Context(), fileBytes, header.Filename, models.Language(language))
+	resp, err := rs.db.Client.FileToPlan(req.Context(), fileBytes, header.Filename, mimeType, models.Language(language))
 	if err != nil {
-		logger.Error("Failed to convert image to plan in the database", httplog.ErrAttr(err))
+		logger.Error("Failed to convert file to plan in the database", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

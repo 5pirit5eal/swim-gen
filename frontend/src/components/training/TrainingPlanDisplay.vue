@@ -697,11 +697,8 @@ function autoResize(event: Event) {
 
 @media (max-width: 740px) {
   .edit-btn {
-    width: 100%;
-    min-width: 10%;
-    /* min-width: 80px; */
     padding: 0.75rem 0.5rem;
-    overflow: hidden;
+    overflow-wrap: break-word;
     font-size: 0.8rem;
   }
 }

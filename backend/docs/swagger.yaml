@@ -113,30 +113,11 @@ definitions:
     required:
     - message_id
     type: object
-  models.DonatePlanRequest:
-    description: Request payload for donating a swim training plan to the system
-    properties:
-      description:
-        example: A comprehensive training plan for improving freestyle technique
-        type: string
-      language:
-        allOf:
-        - $ref: '#/definitions/models.Language'
-        description: Language specifies the language of the training plan
-        example: en
-      table:
-        description: A structured training plan table containing exercise rows
-        items:
-          $ref: '#/definitions/models.Row'
-        type: array
-      title:
-        example: Advanced Freestyle Training
-        type: string
-    required:
-    - table
-    type: object
   models.DonatedPlan:
     properties:
+      allow_sharing:
+        description: AllowSharing indicates if the plan can be used in the RAG system
+        type: boolean
       created_at:
         description: CreatedAt is the time the plan was donated as a datetime string
         type: string
@@ -401,6 +382,31 @@ definitions:
     x-enum-varnames:
     - SharingMethodLink
     - SharingMethodEmail
+  models.UploadPlanRequest:
+    description: Request payload for donating a swim training plan to the system
+    properties:
+      allow_sharing:
+        description: AllowSharing indicates if the plan can be shared with others
+        type: boolean
+      description:
+        example: A comprehensive training plan for improving freestyle technique
+        type: string
+      language:
+        allOf:
+        - $ref: '#/definitions/models.Language'
+        description: Language specifies the language of the training plan
+        example: en
+      table:
+        description: A structured training plan table containing exercise rows
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
+      title:
+        example: Advanced Freestyle Training
+        type: string
+    required:
+    - table
+    type: object
   models.UpsertPlanRequest:
     description: Request payload for upserting a swim training plan to the system
     properties:
@@ -447,15 +453,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: Upload and store a new user created swim training plan in the RAG
-        system
+      description: Upload and store a new user created swim training plan in the database
       parameters:
       - description: Training plan data
         in: body
         name: plan
         required: true
         schema:
-          $ref: '#/definitions/models.DonatePlanRequest'
+          $ref: '#/definitions/models.UploadPlanRequest'
       produces:
       - application/json
       responses:
@@ -473,9 +478,9 @@ paths:
             type: string
       security:
       - BearerAuth: []
-      summary: Upload a new training plan
+      summary: Upload a new private training plan
       tags:
-      - Donation
+      - Upload
   /add-plan-to-history:
     post:
       consumes:
@@ -608,6 +613,38 @@ paths:
       summary: Submit feedback for a training plan
       tags:
       - Feedback
+  /file-to-plan:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Convert a file containing a training plan to a structured plan.
+        Supports PNG, JPEG, and PDF formats.
+      parameters:
+      - description: File containing a plan (PNG, JPEG, or PDF)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plan ID of the converted plan
+          schema:
+            $ref: '#/definitions/models.RAGResponse'
+        "400":
+          description: Bad request or unsupported file type
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Convert a file (image or PDF) of a plan to a plan
+      tags:
+      - Upload
   /generate-prompt:
     post:
       consumes:
@@ -669,37 +706,6 @@ paths:
       summary: Basic health check
       tags:
       - Health
-  /image-to-plan:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Convert an image of a plan to a plan
-      parameters:
-      - description: Image of a plan
-        in: formData
-        name: image
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Plan ID of the converted plan
-          schema:
-            $ref: '#/definitions/models.RAGResponse'
-        "400":
-          description: Bad request
-          schema:
-            type: string
-        "500":
-          description: Internal server error
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: Convert an image of a plan to a plan
-      tags:
-      - Donation
   /memory/conversation:
     delete:
       consumes:
@@ -948,7 +954,7 @@ paths:
       - BearerAuth: []
       summary: Get uploaded plans
       tags:
-      - Donation
+      - Upload
   /uploads/{plan_id}:
     get:
       consumes:
@@ -983,7 +989,7 @@ paths:
       - BearerAuth: []
       summary: Get a uploaded plan
       tags:
-      - Donation
+      - Upload
   /upsert-plan:
     post:
       consumes:

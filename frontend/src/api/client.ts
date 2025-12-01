@@ -303,15 +303,15 @@ class ApiClient {
   }
 
   /**
-   * Extract a training plan from an image
+   * Extract a training plan from a file (PNG, JPEG, or PDF)
    */
-  async imageToPlan(image: File, language: string = 'en'): Promise<ApiResult<RAGResponse>> {
+  async fileToPlan(file: File, language: string = 'en'): Promise<ApiResult<RAGResponse>> {
     const formData = new FormData()
-    formData.append('image', image)
+    formData.append('file', file)
     formData.append('language', language)
 
     return this._fetch(
-      ApiEndpoints.IMAGE_TO_PLAN,
+      ApiEndpoints.FILE_TO_PLAN,
       {
         method: 'POST',
         // Content-Type header is automatically set by the browser for FormData

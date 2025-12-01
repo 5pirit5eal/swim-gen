@@ -203,9 +203,9 @@ func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.Pla
 	return &p, nil
 }
 
-func (gc *GoogleGenAIClient) ImageToPlan(ctx context.Context, image []byte, filename string, language models.Language) (*models.GeneratedPlan, error) {
+func (gc *GoogleGenAIClient) FileToPlan(ctx context.Context, file []byte, filename string, mimeType string, language models.Language) (*models.GeneratedPlan, error) {
 	logger := httplog.LogEntry(ctx)
-	logger.Debug("ImageToPlan", "filename", filename)
+	logger.Debug("FileToPlan", "filename", filename, "mimeType", mimeType)
 	gps, err := models.GeneratedPlanSchema()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get GeneratedPlan schema: %w", err)
@@ -218,7 +218,7 @@ func (gc *GoogleGenAIClient) ImageToPlan(ctx context.Context, image []byte, file
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = gps
 	parts := []*genai.Part{
-		genai.NewPartFromBytes(image, "image/jpeg"),
+		genai.NewPartFromBytes(file, mimeType),
 		genai.NewPartFromText(prompt),
 	}
 

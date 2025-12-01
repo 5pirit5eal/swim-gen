@@ -26,7 +26,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Upload and store a new user created swim training plan in the RAG system",
+                "description": "Upload and store a new user created swim training plan in the database",
                 "consumes": [
                     "application/json"
                 ],
@@ -34,9 +34,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Donation"
+                    "Upload"
                 ],
-                "summary": "Upload a new training plan",
+                "summary": "Upload a new private training plan",
                 "parameters": [
                     {
                         "description": "Training plan data",
@@ -44,7 +44,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.DonatePlanRequest"
+                            "$ref": "#/definitions/models.UploadPlanRequest"
                         }
                     }
                 ],
@@ -275,6 +275,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/file-to-plan": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Convert a file containing a training plan to a structured plan. Supports PNG, JPEG, and PDF formats.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Upload"
+                ],
+                "summary": "Convert a file (image or PDF) of a plan to a plan",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File containing a plan (PNG, JPEG, or PDF)",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plan ID of the converted plan",
+                        "schema": {
+                            "$ref": "#/definitions/models.RAGResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request or unsupported file type",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/generate-prompt": {
             "post": {
                 "description": "Generate a prompt for the LLM based on the provided language",
@@ -360,55 +409,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/image-to-plan": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Convert an image of a plan to a plan",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Donation"
-                ],
-                "summary": "Convert an image of a plan to a plan",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "Image of a plan",
-                        "name": "image",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Plan ID of the converted plan",
-                        "schema": {
-                            "$ref": "#/definitions/models.RAGResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
                         "schema": {
                             "type": "string"
                         }
@@ -777,7 +777,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Donation"
+                    "Upload"
                 ],
                 "summary": "Get uploaded plans",
                 "responses": {
@@ -820,7 +820,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Donation"
+                    "Upload"
                 ],
                 "summary": "Get a uploaded plan",
                 "parameters": [
@@ -1067,42 +1067,13 @@ const docTemplate = `{
                 }
             }
         },
-        "models.DonatePlanRequest": {
-            "description": "Request payload for donating a swim training plan to the system",
-            "type": "object",
-            "required": [
-                "table"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string",
-                    "example": "A comprehensive training plan for improving freestyle technique"
-                },
-                "language": {
-                    "description": "Language specifies the language of the training plan",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Language"
-                        }
-                    ],
-                    "example": "en"
-                },
-                "table": {
-                    "description": "A structured training plan table containing exercise rows",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Row"
-                    }
-                },
-                "title": {
-                    "type": "string",
-                    "example": "Advanced Freestyle Training"
-                }
-            }
-        },
         "models.DonatedPlan": {
             "type": "object",
             "properties": {
+                "allow_sharing": {
+                    "description": "AllowSharing indicates if the plan can be used in the RAG system",
+                    "type": "boolean"
+                },
                 "created_at": {
                     "description": "CreatedAt is the time the plan was donated as a datetime string",
                     "type": "string"
@@ -1472,6 +1443,43 @@ const docTemplate = `{
                 "SharingMethodLink",
                 "SharingMethodEmail"
             ]
+        },
+        "models.UploadPlanRequest": {
+            "description": "Request payload for donating a swim training plan to the system",
+            "type": "object",
+            "required": [
+                "table"
+            ],
+            "properties": {
+                "allow_sharing": {
+                    "description": "AllowSharing indicates if the plan can be shared with others",
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "language": {
+                    "description": "Language specifies the language of the training plan",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Language"
+                        }
+                    ],
+                    "example": "en"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Advanced Freestyle Training"
+                }
+            }
         },
         "models.UpsertPlanRequest": {
             "description": "Request payload for upserting a swim training plan to the system",

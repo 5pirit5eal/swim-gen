@@ -15,7 +15,7 @@ vi.mock('vue-i18n', () => ({
 // Mock dependencies
 vi.mock('@/api/client', () => ({
     apiClient: {
-        imageToPlan: vi.fn(),
+        fileToPlan: vi.fn(),
     },
 }))
 

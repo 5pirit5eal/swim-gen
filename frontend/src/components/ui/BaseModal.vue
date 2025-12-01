@@ -69,9 +69,10 @@ defineEmits<{ close: [] }>()
 }
 
 .modal-body {
+  display: flex;
+  flex-direction: column;
   padding: 1.5rem;
   overflow-y: auto;
-  flex: 1;
   background: var(--color-background);
   color: var(--color-text);
   border-radius: 0 0 8px 8px;

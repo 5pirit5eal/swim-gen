@@ -40,7 +40,7 @@ export enum ApiEndpoints {
   CHAT = 'chat',
   FEEDBACK = 'feedback',
   GET_UPLOADS = 'uploads',
-  IMAGE_TO_PLAN = 'image-to-plan',
+  FILE_TO_PLAN = 'file-to-plan',
 }
 
 // Form validation types

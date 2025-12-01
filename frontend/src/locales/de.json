@@ -344,8 +344,9 @@
     "upload_plan": "Plan hochladen"
   },
   "donation": {
-    "title": "Trainingsplan spenden",
-    "intro": "Teile deinen Trainingsplan mit der Community! Bitte fülle die untenstehenden Details aus.",
+    "title": "Trainingsplan hochladen",
+    "intro": "Hier kannst du deinen Trainingsplan hochladen. Du kannst entweder eine PDF, oder Bilddatei hochladen, oder den Plan manuell eingeben. \n Sobald der Plan hochgeladen ist, kannst du noch Korrekturen vornehmen und ihn dann speichern.",
+    "allow_sharing": "Erlaube anderen Ergebnisse basierend auf diesem Plan zu sehen",
     "submit": "Plan speichern",
     "loading": "Lade plan hoch...",
     "success_toast": "Plan erfolgreich gespeichert!",
@@ -358,11 +359,11 @@
       "total": "Gesamt"
     },
     "title_required": "Bitte gib einen Titel für deinen Plan an.",
-    "upload_image_btn": "Bild hochladen & Plan extrahieren",
-    "processing_image": "Verarbeite Bild...",
-    "upload_image_hint": "Lade ein Bild eines Schwimmplans hoch, um ihn automatisch zu extrahieren.",
+    "upload_image_btn": "Datei hochladen & Plan extrahieren",
+    "processing_image": "Verarbeite Datei...",
+    "upload_image_hint": "Lade eine Datei (PNG, JPEG oder PDF) eines Schwimmplans hoch, um ihn automatisch zu extrahieren.",
     "image_upload_success": "Plan erfolgreich extrahiert!",
-    "image_upload_error": "Plan konnte nicht aus dem Bild extrahiert werden.",
+    "image_upload_error": "Plan konnte nicht aus der Datei extrahiert werden.",
     "view": {
       "title": "Dein hochgeladener Plan",
       "description": "Dieser Plan wurde von dir hochgeladen. Du kannst ihn editieren, teilen oder exportieren. Andernfalls kannst du dir Variationen dieses Plans mittels der interaktiven Bearbeitung erstellen."
@@ -392,6 +393,7 @@
     "show_plan": "Plan anzeigen",
     "hide_plan": "Plan ausblenden",
     "give_feedback": "Feedback geben",
+    "rate_plan": "Plan bewerten",
     "metadata": "Metadaten",
     "created_at": "Erstellt am",
     "updated_at": "Aktualisiert am",

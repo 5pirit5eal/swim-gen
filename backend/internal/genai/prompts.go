@@ -214,6 +214,8 @@ const ocrTemplateStr string = `
 Analysiere diese Datei und extrahiere den darin enthaltenen Plan möglichst genau.
 Falls das Schema für den Trainingsplan nicht genau passt, modifiziere den Plan entsprechend
 und passe ihn an das Schema an. Gib das Ergebnis im JSON-Format zurück.
+Blöcke die sich wiederholen, sowas wie 2x(100m Kraul, 200m Brust, 100m Locker) kannst du über das
+Content-Feld abbilden, sodass 2x400m ("1. 100m Kraul, 2. 200m Brust, 3. 100m Locker")
 Antworte in der Sprache: %s.
 
 Antwort:
