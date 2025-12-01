@@ -364,9 +364,9 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   // Upserts the current plan. If it's the first edit (not forked yet),
   // it saves as a new plan (forking) to the user's history.
   // If already forked, updates the forked plan.
-  async function upsertCurrentPlan() {
+  async function upsertCurrentPlan(): Promise<string> {
     if (!authStore.user || !currentPlan.value) {
-      return
+      throw new Error('User or plan not available')
     }
 
     // If not yet forked, strip the plan_id to create a new plan
@@ -384,17 +384,15 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     })
 
     if (result.success && result.data) {
-      if (sharedPlan.value && sharedPlan.value.plan) {
-        // Update the local plan with the new ID (or keep same if updated)
-        sharedPlan.value.plan.plan_id = result.data.plan_id
-        isForked.value = true
+      // Mark as forked and refresh history
+      isForked.value = true
+      const trainingPlanStore = useTrainingPlanStore()
+      await trainingPlanStore.fetchHistory()
 
-        // Refresh history to show the new plan there
-        const trainingPlanStore = useTrainingPlanStore()
-        await trainingPlanStore.fetchHistory()
-      }
+      return result.data.plan_id
     } else {
       console.error(result.error ? formatError(result.error) : 'Unknown error during upsertPlan')
+      throw new Error(result.error ? formatError(result.error) : 'Upsert failed')
     }
   }
 

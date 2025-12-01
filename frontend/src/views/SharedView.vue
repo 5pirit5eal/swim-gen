@@ -59,15 +59,19 @@ async function handleStartConversation() {
   const message = chatInput.value
   chatInput.value = ''
 
-  // 1. Import the shared plan as a new plan in the user's history
-  await sharedPlanStore.upsertCurrentPlan()
+  const trainingPlanStore = useTrainingPlanStore()
 
-  if (sharedPlan.value.plan && sharedPlan.value.plan.plan_id) {
-    const trainingPlanStore = useTrainingPlanStore()
+  try {
+    // 1. Import the shared plan as a new plan in the user's history and get the new plan_id
+    const newPlanId = await sharedPlanStore.upsertCurrentPlan()
 
-    // 2. Load the plan into the training plan store
-    // We pass the plan object which now has the new ID
-    await trainingPlanStore.loadPlanFromHistory(sharedPlan.value.plan)
+    // 2. Load the new plan into the training plan store
+    await trainingPlanStore.loadPlanFromHistory({
+      plan_id: newPlanId,
+      title: sharedPlan.value.plan.title,
+      description: sharedPlan.value.plan.description,
+      table: sharedPlan.value.plan.table,
+    })
 
     // 3. Send the message
     // We don't await this to allow immediate navigation while processing happens in background
@@ -77,8 +81,9 @@ async function handleStartConversation() {
     })
 
     // 4. Navigate to the interaction view
-    router.push({ name: 'plan', params: { id: sharedPlan.value.plan.plan_id } })
-  } else {
+    router.push({ name: 'plan', params: { id: newPlanId } })
+  } catch (err) {
+    console.error('Failed to fork plan:', err)
     toast.error(t('errors.generic'))
   }
 }
@@ -111,13 +116,8 @@ async function handleStartConversation() {
           <section class="chat-transition">
             <label class="input-label">{{ t('shared.start_conversation') }}</label>
             <form @submit.prevent="handleStartConversation" class="chat-form">
-              <input
-                v-model="chatInput"
-                type="text"
-                :placeholder="t('interaction.chat_placeholder')"
-                class="chat-input"
-                :disabled="isLoading"
-              />
+              <input v-model="chatInput" type="text" :placeholder="t('interaction.chat_placeholder')" class="chat-input"
+                :disabled="isLoading" />
               <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
                 <IconSend class="send-icon" />
               </button>

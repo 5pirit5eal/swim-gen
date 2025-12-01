@@ -289,7 +289,8 @@
     "userExistsLoginFailed": "User already exists, but login failed. Please check your credentials.",
     "unknownError": "An unknown error occurred. Please contact support.",
     "logoutSuccess": "You have been logged out successfully.",
-    "logoutFailed": "Logout failed. Please try again."
+    "logoutFailed": "Logout failed. Please try again.",
+    "upsert_failed": "Failed to update plan. Please try again."
   },
   "profile": {
     "title": "Profile",
@@ -358,7 +359,11 @@
     "processing_image": "Processing Image...",
     "upload_image_hint": "Upload an image of a swimming plan to automatically extract it.",
     "image_upload_success": "Plan extracted successfully!",
-    "image_upload_error": "Failed to extract plan from image."
+    "image_upload_error": "Failed to extract plan from image.",
+    "view": {
+      "title": "Uploaded Plan",
+      "description": "This plan was uploaded by you. You may edit, share or export it. If you want to create variations of this plan, feel free to use interactive editing below."
+    }
   },
   "labels": {
     "created_at": "Created at",
@@ -398,7 +403,7 @@
     "no_plan_toast": "The shared plan could not be found.\n{error}",
     "register_to_save": "Register an account or login to save and manage this shared training plans.",
     "unknown_user": "Unknown User",
-    "start_conversation": "Start Interactive Editing"
+    "start_conversation": "Interactive editing"
   },
   "feedback": {
     "title": "How was your training?",

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
 import UploadedPlanView from '../UploadedPlanView.vue'
-import { useDonationStore } from '@/stores/uploads'
+import { useUploadStore } from '@/stores/uploads'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useRoute } from 'vue-router'
 
@@ -48,12 +48,12 @@ describe('UploadedPlanView.vue', () => {
             },
         })
 
-        const store = useDonationStore()
+        const store = useUploadStore()
         expect(store.fetchUploadedPlan).toHaveBeenCalledWith('uploaded-123')
     })
 
     it('redirects if no plan found', async () => {
-        const store = useDonationStore()
+        const store = useUploadStore()
         store.fetchUploadedPlan = vi.fn().mockResolvedValue(false) // Failed to fetch
         store.currentPlan = null
 
@@ -99,6 +99,8 @@ describe('UploadedPlanView.vue', () => {
 
         const trainingStore = useTrainingPlanStore()
         trainingStore.sendMessage = vi.fn().mockResolvedValue(true)
+
+        await flushPromises()
 
         const input = wrapper.find('.chat-input')
         await input.setValue('Hello')

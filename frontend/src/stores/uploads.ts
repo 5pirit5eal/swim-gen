@@ -1,15 +1,15 @@
 import { apiClient, formatError } from '@/api/client'
-import type { DonatedPlan, RAGResponse, Row } from '@/types'
+import type { UploadedPlan, RAGResponse, Row } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 
-export const useDonationStore = defineStore('donation', () => {
+export const useUploadStore = defineStore('upload', () => {
     // --- STATE ---
     const currentPlan = ref<RAGResponse | null>(null)
     const isLoading = ref(false)
     const error = ref<string | null>(null)
-    const uploadedPlans = ref<DonatedPlan[]>([])
+    const uploadedPlans = ref<UploadedPlan[]>([])
     const isFetchingUploads = ref(false)
     const userStore = useAuthStore()
 
@@ -84,14 +84,14 @@ export const useDonationStore = defineStore('donation', () => {
         console.log('keepForever not implemented for donation store', planId)
     }
 
-    async function upsertCurrentPlan() {
+    async function upsertCurrentPlan(): Promise<string> {
         if (!userStore.user) {
             console.log('User is not available.')
-            return
+            throw new Error('User is not available')
         }
         if (!currentPlan.value) {
             console.log('No current plan to upsert.')
-            return
+            throw new Error('No current plan to upsert')
         }
         // Strip _id from table rows before sending to backend
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -108,9 +108,10 @@ export const useDonationStore = defineStore('donation', () => {
             if (currentPlan.value?.plan_id !== result.data.plan_id) {
                 console.log(`Plan upserted with new plan_id: ${result.data.plan_id}`)
             }
+            return result.data.plan_id
         } else {
             console.error(result.error ? formatError(result.error) : 'Unknown error during upsertPlan')
-            return
+            throw new Error(result.error ? formatError(result.error) : 'Upsert failed')
         }
     }
 

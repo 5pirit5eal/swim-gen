@@ -11,12 +11,12 @@ import IconCross from '@/components/icons/IconCross.vue'
 import IconPlus from '@/components/icons/IconPlus.vue'
 import IconUpload from '@/components/icons/IconUpload.vue'
 import UploadForm from '@/components/forms/UploadForm.vue'
-import { useDonationStore } from '@/stores/uploads'
+import { useUploadStore } from '@/stores/uploads'
 import { ref } from 'vue'
 
 const trainingPlanStore = useTrainingPlanStore()
 const sharedPlanStore = useSharedPlanStore()
-const donationStore = useDonationStore()
+const donationStore = useUploadStore()
 const sidebarStore = useSidebarStore()
 const { t } = useI18n()
 const router = useRouter()

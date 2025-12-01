@@ -127,11 +127,12 @@ func (rs *RAGService) UploadPlanHandler(w http.ResponseWriter, req *http.Request
 
 	// Create a donated plan
 	plan := &models.DonatedPlan{
-		UserID:      req.Context().Value(models.UserIdCtxKey).(string),
-		PlanID:      uuid.NewString(),
-		Title:       desc.Title,
-		Description: desc.Text,
-		Table:       dpr.Table,
+		UserID:       req.Context().Value(models.UserIdCtxKey).(string),
+		PlanID:       uuid.NewString(),
+		Title:        desc.Title,
+		Description:  desc.Text,
+		Table:        dpr.Table,
+		AllowSharing: dpr.AllowSharing,
 	}
 
 	// Store the plan in the database
@@ -189,7 +190,13 @@ func (rs *RAGService) ImageToPlanHandler(w http.ResponseWriter, req *http.Reques
 	}
 
 	logger.Debug("Converting image to plan")
-	resp, err := rs.db.Client.ImageToPlan(req.Context(), fileBytes, header.Filename)
+	// Get language from form data
+	language := req.FormValue("language")
+	if language == "" {
+		language = "en"
+	}
+
+	resp, err := rs.db.Client.ImageToPlan(req.Context(), fileBytes, header.Filename, models.Language(language))
 	if err != nil {
 		logger.Error("Failed to convert image to plan in the database", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)

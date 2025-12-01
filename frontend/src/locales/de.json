@@ -269,7 +269,8 @@
     "failed_to_export_plan": "Trainingsplan konnte nicht als PDF exportiert werden.",
     "timeout": "Die Anfrage wurde nach {time} Sekunden abgebrochen. Bitte versuche es erneut.",
     "connection_failed": "Verbindung zum Server fehlgeschlagen. Bitte überprüfe deine Internetverbindung und versuche es erneut.",
-    "api_request_failed": "API-Anfrage für {endpoint} fehlgeschlagen"
+    "api_request_failed": "API-Anfrage für {endpoint} fehlgeschlagen",
+    "upsert_failed": "Trainingsplan konnte nicht aktualisiert werden"
   },
   "login": {
     "login": "Anmelden",
@@ -361,7 +362,11 @@
     "processing_image": "Verarbeite Bild...",
     "upload_image_hint": "Lade ein Bild eines Schwimmplans hoch, um ihn automatisch zu extrahieren.",
     "image_upload_success": "Plan erfolgreich extrahiert!",
-    "image_upload_error": "Plan konnte nicht aus dem Bild extrahiert werden."
+    "image_upload_error": "Plan konnte nicht aus dem Bild extrahiert werden.",
+    "view": {
+      "title": "Dein hochgeladener Plan",
+      "description": "Dieser Plan wurde von dir hochgeladen. Du kannst ihn editieren, teilen oder exportieren. Andernfalls kannst du dir Variationen dieses Plans mittels der interaktiven Bearbeitung erstellen."
+    }
   },
   "labels": {
     "created_at": "Erstellt am",
@@ -401,7 +406,7 @@
     "no_plan_toast": "Der Plan konnte nicht gefunden werden.\n{error}",
     "register_to_save": "Melde dich an, um diesen Plan zu speichern und zu bearbeiten!",
     "unknown_user": "Unbekannter Nutzer",
-    "start_conversation": "Interaktives Bearbeiten starten"
+    "start_conversation": "Interaktives Bearbeiten"
   },
   "feedback": {
     "title": "Wie war dein Training?",

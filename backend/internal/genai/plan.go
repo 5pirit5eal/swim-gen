@@ -203,7 +203,7 @@ func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.Pla
 	return &p, nil
 }
 
-func (gc *GoogleGenAIClient) ImageToPlan(ctx context.Context, image []byte, filename string) (*models.GeneratedPlan, error) {
+func (gc *GoogleGenAIClient) ImageToPlan(ctx context.Context, image []byte, filename string, language models.Language) (*models.GeneratedPlan, error) {
 	logger := httplog.LogEntry(ctx)
 	logger.Debug("ImageToPlan", "filename", filename)
 	gps, err := models.GeneratedPlanSchema()
@@ -211,25 +211,22 @@ func (gc *GoogleGenAIClient) ImageToPlan(ctx context.Context, image []byte, file
 		return nil, fmt.Errorf("failed to get GeneratedPlan schema: %w", err)
 	}
 
+	prompt := fmt.Sprintf(ocrTemplateStr, language)
+
 	// Create a RAG query for the LLM with the most relevant documents as context
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = gps
 	parts := []*genai.Part{
 		genai.NewPartFromBytes(image, "image/jpeg"),
-		genai.NewPartFromText(ocrTemplateStr),
+		genai.NewPartFromText(prompt),
 	}
 
 	contents := []*genai.Content{
 		genai.NewContentFromParts(parts, genai.RoleUser),
 	}
 
-	answer, _ := gc.gc.Models.GenerateContent(
-		ctx,
-		gc.cfg.Model,
-		contents,
-		&genCfg,
-	)
+	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, contents, &genCfg)
 
 	if err != nil {
 		logger.Error("Error when extracting plan from image with LLM", httplog.ErrAttr(err))

@@ -12,7 +12,7 @@ import (
 const DonatedPlanTable string = "donations"
 
 // Add uploaded plan to the database
-func (db *RAGDB) AddUploadedPlan(ctx context.Context, donation *models.DonatedPlan) error {
+func (db *RAGDB) AddUploadedPlan(ctx context.Context, upload *models.DonatedPlan) error {
 	logger := httplog.LogEntry(ctx)
 
 	// Begin transaction for plan and uploaded entry
@@ -28,7 +28,7 @@ func (db *RAGDB) AddUploadedPlan(ctx context.Context, donation *models.DonatedPl
 		INSERT INTO %s (plan_id, title, description, plan_table)
 		VALUES ($1, $2, $3, $4)
 		ON CONFLICT (plan_id) DO NOTHING`, PlanTableName),
-		donation.PlanID, donation.Title, donation.Description, donation.Table)
+		upload.PlanID, upload.Title, upload.Description, upload.Table)
 	if err != nil {
 		logger.Error("Error inserting plan", httplog.ErrAttr(err))
 		return fmt.Errorf("failed to insert plan: %w", err)
@@ -36,8 +36,8 @@ func (db *RAGDB) AddUploadedPlan(ctx context.Context, donation *models.DonatedPl
 
 	// Create a new donation entry in the database using the struct fields
 	_, err = tx.Exec(ctx,
-		fmt.Sprintf("INSERT INTO %s (user_id, plan_id) VALUES ($1, $2)", DonatedPlanTable),
-		donation.UserID, donation.PlanID)
+		fmt.Sprintf("INSERT INTO %s (user_id, plan_id, allow_sharing) VALUES ($1, $2, $3)", DonatedPlanTable),
+		upload.UserID, upload.PlanID, upload.AllowSharing)
 	if err != nil {
 		logger.Error("Error creating donation", httplog.ErrAttr(err))
 		return fmt.Errorf("failed to insert donation: %w", err)
@@ -49,7 +49,7 @@ func (db *RAGDB) AddUploadedPlan(ctx context.Context, donation *models.DonatedPl
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	logger.Info("Uploaded plan added successfully", "plan", donation)
+	logger.Debug("Uploaded plan added successfully", "plan", upload)
 	return nil
 }
 
@@ -61,7 +61,7 @@ func (db *RAGDB) GetUploadedPlans(ctx context.Context, userID string) ([]*models
 	var plans []*models.DonatedPlan
 	err := pgxscan.Select(ctx, db.Conn, &plans,
 		fmt.Sprintf(`
-			SELECT dp.user_id, dp.plan_id, dp.created_at, p.title, p.description, p.plan_table
+			SELECT dp.user_id, dp.plan_id, dp.created_at, dp.allow_sharing, p.title, p.description, p.plan_table
 			FROM %s dp
 			JOIN %s p ON dp.plan_id = p.plan_id
 			WHERE dp.user_id = $1
@@ -75,7 +75,7 @@ func (db *RAGDB) GetUploadedPlans(ctx context.Context, userID string) ([]*models
 		plans = []*models.DonatedPlan{}
 	}
 
-	logger.Info("Uploaded plans retrieved successfully", "count", len(plans))
+	logger.Debug("Uploaded plans retrieved successfully", "count", len(plans))
 	return plans, nil
 }
 
@@ -87,7 +87,7 @@ func (db *RAGDB) GetUploadedPlan(ctx context.Context, planID string) (*models.Do
 	var plan models.DonatedPlan
 	err := pgxscan.Get(ctx, db.Conn, &plan,
 		fmt.Sprintf(`
-			SELECT dp.user_id, dp.plan_id, dp.created_at, p.title, p.description, p.plan_table
+			SELECT dp.user_id, dp.plan_id, dp.created_at, dp.allow_sharing, p.title, p.description, p.plan_table
 			FROM %s dp
 			JOIN %s p ON dp.plan_id = p.plan_id
 			WHERE dp.plan_id = $1`, DonatedPlanTable, PlanTableName), planID)
@@ -96,6 +96,6 @@ func (db *RAGDB) GetUploadedPlan(ctx context.Context, planID string) (*models.Do
 		return nil, err
 	}
 
-	logger.Info("Uploaded plan retrieved successfully", "plan", plan)
+	logger.Debug("Uploaded plan retrieved successfully", "plan", plan)
 	return &plan, nil
 }

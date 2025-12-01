@@ -182,14 +182,14 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   }
 
   // Upserts the current plan
-  async function upsertCurrentPlan() {
+  async function upsertCurrentPlan(): Promise<string> {
     if (!userStore.user) {
       console.log('User is not available.')
-      return
+      throw new Error('User is not available')
     }
     if (!currentPlan.value) {
       console.log('No current plan to upsert.')
-      return
+      throw new Error('No current plan to upsert')
     }
     // Strip _id from table rows before sending to backend
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -206,9 +206,13 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       if (currentPlan.value?.plan_id !== result.data.plan_id) {
         console.log(`Plan upserted with new plan_id: ${result.data.plan_id}`)
       }
+      return result.data.plan_id
     } else {
       console.error(result.error ? formatError(result.error) : 'Unknown error during upsertPlan')
-      return
+      error.value = result.error
+        ? formatError(result.error)
+        : i18n.global.t('errors.training_plan_failed')
+      throw new Error(error.value)
     }
   }
 
@@ -228,7 +232,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -371,11 +375,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         next_message_id: null,
         plan_snapshot: result.data.table
           ? {
-              plan_id: result.data.plan_id,
-              title: result.data.title || '',
-              description: result.data.description || '',
-              table: result.data.table,
-            }
+            plan_id: result.data.plan_id,
+            title: result.data.title || '',
+            description: result.data.description || '',
+            table: result.data.table,
+          }
           : undefined,
       }
       conversation.value.push(aiMsg)

@@ -19,7 +19,7 @@ import {
   type ChatResponsePayload,
   type FeedbackRequest,
   type DonatePlanRequest,
-  type DonatedPlan,
+  type UploadedPlan,
   ApiEndpoints,
 } from '@/types'
 import i18n from '@/plugins/i18n'
@@ -277,7 +277,7 @@ class ApiClient {
   /**
    * Get all uploaded plans for the user
    */
-  async getUploadedPlans(): Promise<ApiResult<DonatedPlan[]>> {
+  async getUploadedPlans(): Promise<ApiResult<UploadedPlan[]>> {
     return this._fetch(
       ApiEndpoints.GET_UPLOADS,
       {
@@ -291,7 +291,7 @@ class ApiClient {
   /**
    * Get a specific uploaded plan
    */
-  async getUploadedPlan(planId: string): Promise<ApiResult<DonatedPlan>> {
+  async getUploadedPlan(planId: string): Promise<ApiResult<UploadedPlan>> {
     return this._fetch(
       `${ApiEndpoints.GET_UPLOADS}/${planId}`,
       {
@@ -305,9 +305,10 @@ class ApiClient {
   /**
    * Extract a training plan from an image
    */
-  async imageToPlan(image: File): Promise<ApiResult<RAGResponse>> {
+  async imageToPlan(image: File, language: string = 'en'): Promise<ApiResult<RAGResponse>> {
     const formData = new FormData()
     formData.append('image', image)
+    formData.append('language', language)
 
     return this._fetch(
       ApiEndpoints.IMAGE_TO_PLAN,

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useDonationStore } from '@/stores/uploads'
+import { useUploadStore } from '@/stores/uploads'
 
 import { apiClient } from '@/api/client'
 
@@ -26,7 +26,7 @@ describe('uploads Store', () => {
     })
 
     it('fetches uploaded plans', async () => {
-        const store = useDonationStore()
+        const store = useUploadStore()
         const mockPlans = [{ plan_id: '1', title: 'Plan 1' }]
             ; (apiClient.getUploadedPlans as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ success: true, data: mockPlans })
 
@@ -37,7 +37,7 @@ describe('uploads Store', () => {
     })
 
     it('fetches a single uploaded plan', async () => {
-        const store = useDonationStore()
+        const store = useUploadStore()
         const mockPlan = { plan_id: '1', title: 'Plan 1', table: [] }
             ; (apiClient.getUploadedPlan as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ success: true, data: mockPlan })
 
@@ -49,7 +49,7 @@ describe('uploads Store', () => {
     })
 
     it('handles fetch error', async () => {
-        const store = useDonationStore()
+        const store = useUploadStore()
             ; (apiClient.getUploadedPlan as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
                 success: false,
                 error: { message: 'Not found' }

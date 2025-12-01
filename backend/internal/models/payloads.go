@@ -5,10 +5,11 @@ import "time"
 // UploadPlanRequest represents the request body for donating a training plan
 // @Description Request payload for donating a swim training plan to the system
 type UploadPlanRequest struct {
-	Title       string   `json:"title,omitempty" example:"Advanced Freestyle Training"`
-	Description string   `json:"description,omitempty" example:"A comprehensive training plan for improving freestyle technique"`
-	Table       Table    `json:"table" binding:"required"`
-	Language    Language `json:"language,omitempty" example:"en"` // Language specifies the language of the training plan
+	Title        string   `json:"title,omitempty" example:"Advanced Freestyle Training"`
+	Description  string   `json:"description,omitempty" example:"A comprehensive training plan for improving freestyle technique"`
+	Table        Table    `json:"table" binding:"required"`
+	Language     Language `json:"language,omitempty" example:"en"` // Language specifies the language of the training plan
+	AllowSharing bool     `json:"allow_sharing"`                   // AllowSharing indicates if the plan can be shared with others
 }
 
 // QueryRequest represents the request body for querying the RAG system

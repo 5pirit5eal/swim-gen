@@ -48,7 +48,7 @@ export interface PlanStore {
   hasPlan: boolean
   isLoading: boolean
   keepForever: (plan_id: string) => Promise<void>
-  upsertCurrentPlan: () => Promise<void>
+  upsertCurrentPlan: () => Promise<string>
   updatePlanRow: (rowIndex: number, field: keyof Row, value: string | number) => void
   addRow: (rowIndex: number) => void
   removeRow: (rowIndex: number) => void
@@ -77,6 +77,7 @@ export interface DonatePlanRequest {
   description: string
   table: Row[]
   language: string
+  allow_sharing: boolean
 }
 
 // Backend API UpsertPlanRequest structure
@@ -100,20 +101,20 @@ export interface Filter {
   delfin?: boolean // Butterfly swimming technique
   lagen?: boolean // Individual medley swimming
   schwierigkeitsgrad?:
-    | 'Nichtschwimmer'
-    | 'Anfaenger'
-    | 'Fortgeschritten'
-    | 'Leistungsschwimmer'
-    | 'Top-Athlet'
+  | 'Nichtschwimmer'
+  | 'Anfaenger'
+  | 'Fortgeschritten'
+  | 'Leistungsschwimmer'
+  | 'Top-Athlet'
   trainingstyp?:
-    | 'Techniktraining'
-    | 'Leistungstest'
-    | 'Grundlagenausdauer'
-    | 'Recovery'
-    | 'Kurzstrecken'
-    | 'Langstrecken'
-    | 'Atemmangel'
-    | 'Wettkampfvorbereitung'
+  | 'Techniktraining'
+  | 'Leistungstest'
+  | 'Grundlagenausdauer'
+  | 'Recovery'
+  | 'Kurzstrecken'
+  | 'Langstrecken'
+  | 'Atemmangel'
+  | 'Wettkampfvorbereitung'
 }
 
 // Helper type for difficulty options
@@ -161,8 +162,8 @@ export interface FeedbackRequest {
   comment?: string
 }
 
-// Backend API DonatedPlan structure
-export interface DonatedPlan {
+// Backend API UploadedPlan structure
+export interface UploadedPlan {
   user_id: string
   plan_id: string
   created_at: string

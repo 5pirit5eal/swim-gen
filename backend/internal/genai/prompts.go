@@ -214,6 +214,7 @@ const ocrTemplateStr string = `
 Analysiere diese Datei und extrahiere den darin enthaltenen Plan möglichst genau.
 Falls das Schema für den Trainingsplan nicht genau passt, modifiziere den Plan entsprechend
 und passe ihn an das Schema an. Gib das Ergebnis im JSON-Format zurück.
+Antworte in der Sprache: %s.
 
 Antwort:
 `

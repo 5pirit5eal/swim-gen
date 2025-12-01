@@ -36,6 +36,8 @@ type DonatedPlan struct {
 	Description string    `db:"description" json:"description"`
 	// Table is the table associated with the plan
 	Table Table `db:"plan_table" json:"table"`
+	// AllowSharing indicates if the plan can be used in the RAG system
+	AllowSharing bool `db:"allow_sharing" json:"allow_sharing"`
 }
 
 func (d *DonatedPlan) Map() map[string]any {
