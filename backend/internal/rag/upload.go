@@ -12,7 +12,7 @@ import (
 const DonatedPlanTable string = "donations"
 
 // Add uploaded plan to the database
-func (db *RAGDB) AddUploadedPlan(ctx context.Context, donation *models.DonatedPlan, meta *models.Metadata) error {
+func (db *RAGDB) AddUploadedPlan(ctx context.Context, donation *models.DonatedPlan) error {
 	logger := httplog.LogEntry(ctx)
 
 	// Begin transaction for plan and uploaded entry

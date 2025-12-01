@@ -69,12 +69,12 @@ func (rs *RAGService) Close() {
 	slog.Info("RAG server closed successfully")
 }
 
-// DonatePlanHandler handles the HTTP request to upload a training plan to the database.
+// UploadPlanHandler handles the HTTP request to upload a private training plan to the database.
 // It parses the request, stores the documents and their embeddings in the
 // database, and responds with a success message.
-// @Summary Upload a new training plan
-// @Description Upload and store a new user created swim training plan in the RAG system
-// @Tags Donation
+// @Summary Upload a new private training plan
+// @Description Upload and store a new user created swim training plan in the database
+// @Tags Upload
 // @Accept json
 // @Produce json
 // @Param plan body models.DonatePlanRequest true "Training plan data"
@@ -83,12 +83,12 @@ func (rs *RAGService) Close() {
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /add [post]
-func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request) {
+func (rs *RAGService) UploadPlanHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
-	logger.Info("Adding documents to the database...")
+	logger.Info("Adding uploaded plan to the users history...")
 	// Parse HTTP request from JSON.
 
-	dpr := &models.DonatePlanRequest{}
+	dpr := &models.UploadPlanRequest{}
 
 	err := models.GetRequestJSON(req, dpr)
 	if err != nil {
@@ -106,7 +106,8 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 	// Check if description is empty and generate one if needed
 	if dpr.Description == "" || dpr.Title == "" {
 		// Generate a description for the plan
-		desc, err := rs.db.Client.DescribeTable(req.Context(), &dpr.Table)
+		var err error
+		desc, err = rs.db.Client.DescribeTable(req.Context(), &dpr.Table)
 		if err != nil {
 			logger.Error("Error when generating description with LLM", httplog.ErrAttr(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -120,14 +121,8 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 			desc.Text = dpr.Description
 		}
 	} else {
-		// Generate metadata with improve plan
-		m, err := rs.db.Client.GenerateMetadata(req.Context(), &models.Plan{Title: dpr.Title, Description: dpr.Description, Table: dpr.Table})
-		if err != nil {
-			logger.Error("Error when generating metadata with LLM", httplog.ErrAttr(err))
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		desc.Meta = m
+		desc.Title = dpr.Title
+		desc.Text = dpr.Description
 	}
 
 	// Create a donated plan
@@ -140,7 +135,7 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 	}
 
 	// Store the plan in the database
-	err = rs.db.AddUploadedPlan(req.Context(), plan, desc.Meta)
+	err = rs.db.AddUploadedPlan(req.Context(), plan)
 	if err != nil {
 		logger.Error("Failed to store plan in the database", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -158,7 +153,7 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 // The iamge is sent as form data
 // @Summary Convert an image of a plan to a plan
 // @Description Convert an image of a plan to a plan
-// @Tags Donation
+// @Tags Upload
 // @Accept multipart/form-data
 // @Produce json
 // @Param image formData file true "Image of a plan"
@@ -216,7 +211,7 @@ func (rs *RAGService) ImageToPlanHandler(w http.ResponseWriter, req *http.Reques
 // GetUploadedPlansHandler handles the request to get all uploaded plans for a user.
 // @Summary Get uploaded plans
 // @Description Get all plans uploaded by the authenticated user
-// @Tags Donation
+// @Tags Upload
 // @Accept json
 // @Produce json
 // @Success 200 {array} models.DonatedPlan
@@ -250,7 +245,7 @@ func (rs *RAGService) GetUploadedPlansHandler(w http.ResponseWriter, req *http.R
 // GetUploadedPlanHandler handles the request to get a specific uploaded plan.
 // @Summary Get a uploaded plan
 // @Description Get a specific plan uploaded by the authenticated user
-// @Tags Donation
+// @Tags Upload
 // @Accept json
 // @Produce json
 // @Param plan_id path string true "Plan ID"

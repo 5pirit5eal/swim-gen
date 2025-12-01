@@ -2,16 +2,13 @@ package models
 
 import "time"
 
-// DonatePlanRequest represents the request body for donating a training plan
+// UploadPlanRequest represents the request body for donating a training plan
 // @Description Request payload for donating a swim training plan to the system
-type DonatePlanRequest struct {
+type UploadPlanRequest struct {
 	Title       string   `json:"title,omitempty" example:"Advanced Freestyle Training"`
 	Description string   `json:"description,omitempty" example:"A comprehensive training plan for improving freestyle technique"`
 	Table       Table    `json:"table" binding:"required"`
 	Language    Language `json:"language,omitempty" example:"en"` // Language specifies the language of the training plan
-	// v3: add other table modalities
-	// Image 	 string `json:"image,omitempty"`
-	// URI 		 string `json:"uri,omitempty"`
 }
 
 // QueryRequest represents the request body for querying the RAG system
