@@ -1,3 +1,25 @@
+## [2.4.0](https://github.com/5pirit5eal/swim-gen/compare/v2.3.0...v2.4.0) (2025-12-02)
+
+### Features
+
+* 88 tp can be recommended donated ([#129](https://github.com/5pirit5eal/swim-gen/issues/129)) ([2c519f7](https://github.com/5pirit5eal/swim-gen/commit/2c519f70e0fe4fb794115a3f525e962ebe60379c))
+* added descriptions to sidebar buttons ([f244411](https://github.com/5pirit5eal/swim-gen/commit/f2444119acbdf78387d0eaecc913f1229a7a53da))
+* added feedback option for a plan ([9820200](https://github.com/5pirit5eal/swim-gen/commit/9820200c13cdedea97df4e376bbb147b8b6dba23))
+* added ocr for plan extraction ([cc26e08](https://github.com/5pirit5eal/swim-gen/commit/cc26e08366d8d959b97a0fe7f050145de66f40fe))
+* added pdf and png file processin ([ebb3ccf](https://github.com/5pirit5eal/swim-gen/commit/ebb3ccfdce4e3d0c7205eafac5e58f995a40ec1a))
+* added pdf preview enlarging ([e0e5092](https://github.com/5pirit5eal/swim-gen/commit/e0e50923f43f8b7c17b0668e944455f0c2af258c))
+* added preview ([de8160e](https://github.com/5pirit5eal/swim-gen/commit/de8160e77d1b7499343595026e4511289fc08ea8))
+* added share button to donated plans ([ac63cd2](https://github.com/5pirit5eal/swim-gen/commit/ac63cd2f1206d3a721dd72c03fa271a0947d5d73))
+* added tests for new components and fixed action button flex ([e0eca81](https://github.com/5pirit5eal/swim-gen/commit/e0eca811ecf10a2f35d4a44f21d9782dd95f6587))
+* fixed some final issues ([c02e76f](https://github.com/5pirit5eal/swim-gen/commit/c02e76f01b582c5ddbd44d2e7a9718631f9fd276))
+* renamed donation to upload to represent a more accuracte description ([3c2539e](https://github.com/5pirit5eal/swim-gen/commit/3c2539e1948cdea9aa1641f6ae9d172b2065fadf))
+
+### Bug Fixes
+
+* added the plan sum for empty table ([c5f45b8](https://github.com/5pirit5eal/swim-gen/commit/c5f45b851da4cd78c62dc745f9b6a94d9ca538f5))
+* fixed plan export ([624faab](https://github.com/5pirit5eal/swim-gen/commit/624faab3088fb832733b34a63bac7749601e82b8))
+* fixed some layout issues and optimized queries ([c2070fc](https://github.com/5pirit5eal/swim-gen/commit/c2070fc0d09d17ced6ef5beb186af05c1c33363b))
+
 ## [2.3.0](https://github.com/5pirit5eal/swim-gen/compare/v2.2.0...v2.3.0) (2025-11-28)
 
 ### Features
