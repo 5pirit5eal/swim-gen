@@ -38,6 +38,9 @@ export enum ApiEndpoints {
   CONVERSATION = 'memory/conversation',
   ADD_PLAN_TO_HISTORY = 'add-plan-to-history',
   CHAT = 'chat',
+  FEEDBACK = 'feedback',
+  GET_UPLOADS = 'uploads',
+  FILE_TO_PLAN = 'file-to-plan',
 }
 
 // Form validation types

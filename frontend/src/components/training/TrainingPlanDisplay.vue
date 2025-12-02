@@ -372,9 +372,7 @@ function autoResize(event: Event) {
       <IconEdit v-else class="icon" />
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
     </button>
-    <div class="gap"></div>
     <SharePlanButton v-if="showShareButton" :store="store" />
-    <div class="gap"></div>
     <ExportPlanButton :store="store" />
   </div>
 </template>
@@ -723,20 +721,20 @@ function autoResize(event: Event) {
   background: var(--color-background-soft);
   text-align: center;
   margin-top: 1rem;
+  gap: 1rem;
+  width: 100%;
 }
 
 .edit-btn {
-  flex: 1;
   background: var(--color-primary);
   color: white;
   border: none;
   padding: 0.75rem 1rem;
   border-radius: 0.25rem;
-  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  min-width: 180px;
+  max-width: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -745,11 +743,8 @@ function autoResize(event: Event) {
 
 @media (max-width: 740px) {
   .edit-btn {
-    width: 100%;
-    min-width: 10%;
-    /* min-width: 80px; */
     padding: 0.75rem 0.5rem;
-    overflow: hidden;
+    overflow-wrap: break-word;
     font-size: 0.8rem;
   }
 }
@@ -761,11 +756,6 @@ function autoResize(event: Event) {
 .icon {
   width: 24px;
   height: 24px;
-}
-
-.gap {
-  flex: 2;
-  display: flex;
 }
 
 /* List Transitions */

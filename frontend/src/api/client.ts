@@ -17,6 +17,9 @@ import {
   type ShareUrlResponse,
   type ChatRequest,
   type ChatResponsePayload,
+  type FeedbackRequest,
+  type DonatePlanRequest,
+  type UploadedPlan,
   ApiEndpoints,
 } from '@/types'
 import i18n from '@/plugins/i18n'
@@ -235,6 +238,88 @@ class ApiClient {
         body: JSON.stringify(request),
       },
       this.QUERY_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Submit feedback for a training plan
+   */
+  async submitFeedback(request: FeedbackRequest): Promise<ApiResult<string>> {
+    return this._fetch(
+      ApiEndpoints.FEEDBACK,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Upload a training plan
+   */
+  async donatePlan(request: DonatePlanRequest): Promise<ApiResult<string>> {
+    return this._fetch(
+      ApiEndpoints.ADD_PLAN,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Get all uploaded plans for the user
+   */
+  async getUploadedPlans(): Promise<ApiResult<UploadedPlan[]>> {
+    return this._fetch(
+      ApiEndpoints.GET_UPLOADS,
+      {
+        method: 'GET',
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Get a specific uploaded plan
+   */
+  async getUploadedPlan(planId: string): Promise<ApiResult<UploadedPlan>> {
+    return this._fetch(
+      `${ApiEndpoints.GET_UPLOADS}/${planId}`,
+      {
+        method: 'GET',
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
+
+  /**
+   * Extract a training plan from a file (PNG, JPEG, or PDF)
+   */
+  async fileToPlan(file: File, language: string = 'en'): Promise<ApiResult<RAGResponse>> {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('language', language)
+
+    return this._fetch(
+      ApiEndpoints.FILE_TO_PLAN,
+      {
+        method: 'POST',
+        // Content-Type header is automatically set by the browser for FormData
+        // We need to pass undefined so that the browser sets the boundary correctly
+        headers: {},
+        body: formData,
+      },
+      this.QUERY_TIMEOUT_MS, // This might take a while
       true,
     )
   }

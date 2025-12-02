@@ -289,7 +289,8 @@
     "userExistsLoginFailed": "User already exists, but login failed. Please check your credentials.",
     "unknownError": "An unknown error occurred. Please contact support.",
     "logoutSuccess": "You have been logged out successfully.",
-    "logoutFailed": "Logout failed. Please try again."
+    "logoutFailed": "Logout failed. Please try again.",
+    "upsert_failed": "Failed to update plan. Please try again."
   },
   "profile": {
     "title": "Profile",
@@ -332,15 +333,43 @@
     "history": "Your plans",
     "generated": "Generated plans",
     "generated_placeholder": "No generated plans yet.",
-    "donated": "Uploaded plans",
-    "donated_placeholder": "No plans uploaded yet.",
+    "uploaded": "Uploaded plans",
+    "uploaded_placeholder": "No plans uploaded yet.",
     "shared": "Plans shared with you",
     "shared_placeholder": "No plans shared with you yet.",
-    "create_new": "Create New Plan"
+    "create_new": "New Plan",
+    "upload_plan": "Upload Plan"
+  },
+  "donation": {
+    "title": "Upload Training Plan",
+    "intro": "Here you can upload your training plan. It will be stored in your account. You may either upload a PDF or image file, or input the plan manually. After saving this plan, it is available for further use.",
+    "allow_sharing": "Allow others to see results based on this plan",
+    "submit": "Save Plan",
+    "loading": "Uploading plan...",
+    "success_toast": "Plan saved successfully!",
+    "error_toast": "Failed to save plan: {error}",
+    "no_plan_toast": "The saved plan could not be found.\n{error}",
+    "newPlan": {
+      "title": "New Plan",
+      "description": "No description provided.",
+      "warmup": "Warmup",
+      "total": "Total"
+    },
+    "title_required": "Please provide a title for your plan.",
+    "upload_image_btn": "Upload File to Extract Plan",
+    "processing_image": "Processing File...",
+    "upload_image_hint": "Upload a file (PNG, JPEG, or PDF) of a swimming plan to automatically extract it.",
+    "image_upload_success": "Plan extracted successfully!",
+    "image_upload_error": "Failed to extract plan from file.",
+    "view": {
+      "title": "Uploaded Plan",
+      "description": "This plan was uploaded by you. You may edit, share or export it. If you want to create variations of this plan, feel free to use interactive editing below."
+    }
   },
   "labels": {
     "created_at": "Created at",
-    "updated_at": "Updated at"
+    "updated_at": "Updated",
+    "exported_at": "Exported"
   },
   "share": {
     "fetching_url": "Fetching shareable URL...",
@@ -360,9 +389,12 @@
     "plan_tab": "Training Plan",
     "hide_plan": "Hide Plan",
     "show_plan": "Show Plan",
+    "give_feedback": "Give Feedback",
+    "rate_plan": "Rate Plan",
     "metadata": "Metadata",
     "created_at": "Created At",
     "updated_at": "Updated At",
+    "exported_at": "Exported At",
     "chat_placeholder": "Type a message...",
     "describe_changes": "Describe your desired changes"
   },
@@ -374,6 +406,25 @@
     "no_plan_toast": "The shared plan could not be found.\n{error}",
     "register_to_save": "Register an account or login to save and manage this shared training plans.",
     "unknown_user": "Unknown User",
-    "start_conversation": "Start Interactive Editing"
+    "start_conversation": "Interactive editing"
+  },
+  "feedback": {
+    "title": "How was your training?",
+    "subtitle": "Feedback for: {plan}",
+    "thank_you": "Thank you for taking the time to give us your feedback. Your input helps us improve training plans for everyone!",
+    "rating_label": "Overall Rating",
+    "swam_label": "I swam this plan",
+    "difficulty_label": "Difficulty",
+    "easy": "Easy",
+    "hard": "Hard",
+    "comment_label": "Comment",
+    "comment_placeholder": "What did you like? What could be improved?",
+    "disclaimer": "Your feedback helps us improve the training plans for everyone.",
+    "submit_success": "Thank you for your feedback!"
+  },
+  "common": {
+    "submit": "Submit",
+    "loading": "Loading...",
+    "optional": "optional"
   }
 }

@@ -1,6 +1,13 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
-import type { QueryRequest, RAGResponse, Row, HistoryMetadata, Message } from '@/types'
+import type {
+  QueryRequest,
+  RAGResponse,
+  Row,
+  HistoryMetadata,
+  Message,
+  FeedbackRequest,
+} from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { supabase } from '@/plugins/supabase'
@@ -58,7 +65,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     isFetchingHistory.value = true
     const { data, error } = await supabase
       .from('history')
-      .select('plan_id, keep_forever, created_at, updated_at')
+      .select('plan_id, keep_forever, created_at, updated_at, exported_at')
       .order('created_at', { ascending: false })
       .limit(50)
 
@@ -66,12 +73,31 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       console.error(error)
     } else if (data) {
       const planIds = data.map((entry) => entry.plan_id)
-      historyMetadata.value = data.map((entry) => ({
-        plan_id: entry.plan_id,
-        keep_forever: entry.keep_forever,
-        created_at: entry.created_at,
-        updated_at: entry.updated_at,
-      }))
+
+      // Fetch feedback for these plans
+      const { data: feedbackData, error: feedbackError } = await supabase
+        .from('feedback')
+        .select('plan_id, rating, was_swam, difficulty_rating')
+        .in('plan_id', planIds)
+        .eq('user_id', userStore.user.id)
+
+      if (feedbackError) {
+        console.error('Error fetching feedback:', feedbackError)
+      }
+
+      historyMetadata.value = data.map((entry) => {
+        const feedback = feedbackData?.find((f) => f.plan_id === entry.plan_id)
+        return {
+          plan_id: entry.plan_id,
+          keep_forever: entry.keep_forever,
+          created_at: entry.created_at,
+          updated_at: entry.updated_at,
+          exported_at: entry.exported_at,
+          feedback_rating: feedback?.rating,
+          was_swam: feedback?.was_swam,
+          difficulty_rating: feedback?.difficulty_rating,
+        }
+      })
 
       const { data: plansData, error: plansError } = await supabase
         .from('plans')
@@ -145,6 +171,10 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       recalculateTotalSum()
       await fetchHistory() // Refresh history after generating a new plan
       isLoading.value = false
+      if (result.data.plan_id) {
+        console.log('Fetching conversation after generation for plan_id:', result.data.plan_id)
+        await fetchConversation(result.data.plan_id)
+      }
       return true
     } else {
       error.value = result.error
@@ -156,14 +186,14 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   }
 
   // Upserts the current plan
-  async function upsertCurrentPlan() {
+  async function upsertCurrentPlan(): Promise<string> {
     if (!userStore.user) {
       console.log('User is not available.')
-      return
+      throw new Error('User is not available')
     }
     if (!currentPlan.value) {
       console.log('No current plan to upsert.')
-      return
+      throw new Error('No current plan to upsert')
     }
     // Strip _id from table rows before sending to backend
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -180,9 +210,13 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       if (currentPlan.value?.plan_id !== result.data.plan_id) {
         console.log(`Plan upserted with new plan_id: ${result.data.plan_id}`)
       }
+      return result.data.plan_id
     } else {
       console.error(result.error ? formatError(result.error) : 'Unknown error during upsertPlan')
-      return
+      error.value = result.error
+        ? formatError(result.error)
+        : i18n.global.t('errors.training_plan_failed')
+      throw new Error(error.value)
     }
   }
 
@@ -288,9 +322,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     }
 
     if (data !== null && Array.isArray(data)) {
-      // We need to map the backend message type to a frontend friendly type if needed
-      // For now assuming the types match or we use the backend type directly
-      // You might need to add a 'conversation' state property to the store
       conversation.value = data
     } else {
       conversation.value = []
@@ -304,7 +335,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
     const result = await apiClient.addPlanToHistory(plan)
     if (result.success) {
-      await fetchHistory()
+      await fetchHistory() // Refresh history after saving snapshot
     } else {
       console.error('Failed to save snapshot:', result.error)
     }
@@ -368,12 +399,39 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         }
         ensureRowIds(currentPlan.value.table)
         recalculateTotalSum()
-        await fetchHistory()
+        await fetchHistory() // Refresh history after updating plan
       }
     } else {
       error.value = result.error ? formatError(result.error) : i18n.global.t('errors.unknown_error')
     }
     isLoading.value = false
+  }
+
+  // Submits feedback for a plan
+  async function submitFeedback(payload: FeedbackRequest): Promise<boolean> {
+    if (!userStore.user) return false
+
+    const result = await apiClient.submitFeedback({
+      plan_id: payload.plan_id,
+      rating: payload.rating,
+      was_swam: payload.was_swam,
+      difficulty_rating: payload.difficulty_rating,
+      comment: payload.comment,
+    })
+
+    if (result.success) {
+      // Optimistically update history
+      const metadata = historyMetadata.value.find((p) => p.plan_id === payload.plan_id)
+      if (metadata) {
+        metadata.feedback_rating = payload.rating
+        metadata.was_swam = payload.was_swam
+        metadata.difficulty_rating = payload.difficulty_rating
+      }
+      return true
+    } else {
+      console.error('Failed to submit feedback:', result.error)
+      return false
+    }
   }
 
   function ensureRowIds(table: Row[]) {
@@ -413,5 +471,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     fetchConversation,
     saveSnapshot,
     sendMessage,
+    submitFeedback,
   }
 })

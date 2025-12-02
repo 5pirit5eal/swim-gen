@@ -152,6 +152,13 @@ describe('trainingPlan Store', () => {
           in: vi.fn().mockResolvedValue({ data: [], error: null }),
         }
       }
+      if (tableName === 'feedback') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          in: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }
+      }
       return {}
     })
 
@@ -391,6 +398,13 @@ describe('trainingPlan Store', () => {
             in: vi.fn().mockResolvedValue({ data: mockPlans, error: null }),
           }
         }
+        if (tableName === 'feedback') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
+        }
         return {
           select: vi.fn().mockReturnThis(),
           order: vi.fn().mockReturnThis(),
@@ -453,6 +467,13 @@ describe('trainingPlan Store', () => {
             in: vi.fn().mockResolvedValue({ data: null, error: new Error('Plan fetch error') }),
           }
         }
+        if (tableName === 'feedback') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
+        }
         return {
           select: vi.fn().mockReturnThis(),
         }
@@ -494,6 +515,13 @@ describe('trainingPlan Store', () => {
             in: vi.fn().mockResolvedValue({ data: [], error: null }),
           }
         }
+        if (tableName === 'feedback') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
+        }
         return {}
       })
 
@@ -516,7 +544,7 @@ describe('trainingPlan Store', () => {
       // Mock the api call to prevent failure if the user check fails
       mockedApiUpsert.mockResolvedValue({ success: false, error: 'Should not be called' })
 
-      await store.upsertCurrentPlan()
+      await expect(store.upsertCurrentPlan()).rejects.toThrow('User is not available')
 
       expect(mockedApiUpsert).not.toHaveBeenCalled()
     })
@@ -535,7 +563,7 @@ describe('trainingPlan Store', () => {
       mockedApiUpsert.mockResolvedValue(mockErrorResponse)
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      await store.upsertCurrentPlan()
+      await expect(store.upsertCurrentPlan()).rejects.toThrow('Server Error: UPSERT_FAILED')
 
       expect(store.isLoading).toBe(false)
       expect(consoleErrorSpy).toHaveBeenCalled()

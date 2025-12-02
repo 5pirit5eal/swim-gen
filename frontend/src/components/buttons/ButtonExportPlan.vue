@@ -54,8 +54,15 @@ async function handleExport() {
   // Phase 1: user clicks "Export PDF"
   exportPhase.value = 'exporting'
   try {
+    // Strip _id from table rows before sending to backend
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const tableWithoutIds = props.store.currentPlan.table.map(({ _id, ...rest }) => rest)
+
     const payload: PlanToPDFRequest = {
-      ...props.store.currentPlan,
+      plan_id: props.store.currentPlan.plan_id,
+      title: props.store.currentPlan.title,
+      description: props.store.currentPlan.description,
+      table: tableWithoutIds,
       horizontal: exportHorizontal.value,
       large_font: exportLargeFont.value,
       language: navigator.language.split('-')[0] || 'en',
@@ -115,18 +122,39 @@ async function handleExport() {
 </template>
 
 <style scoped>
-.export-btn {
+.export-actions {
+  display: flex;
   flex: 1;
+  position: relative;
+  max-width: 200px;
+}
+
+.export-actions .main-action {
+  flex: 3;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.export-actions .dropdown-toggle {
+  flex: 1;
+  position: relative;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 1px solid var(--color-primary-hover);
+  padding: 0.75rem 1rem;
+  min-width: 0;
+  max-width: 0;
+}
+
+.export-btn {
   background: var(--color-primary);
   color: white;
   border: none;
   padding: 0.75rem 1rem;
   border-radius: 0.25rem;
-  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  min-width: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -156,32 +184,9 @@ async function handleExport() {
   height: 24px;
 }
 
-.export-actions {
-  display: flex;
-  flex: 1;
-  position: relative;
-}
-
-.export-actions .main-action {
-  flex: 3;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
 .dropdown-container {
-  flex: 1;
   display: flex;
   position: static;
-}
-
-.export-actions .dropdown-toggle {
-  flex: 1;
-  position: relative;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: 1px solid var(--color-primary-hover);
-  padding: 0.75rem 1rem;
-  min-width: 0;
 }
 
 .dropdown-toggle::before {

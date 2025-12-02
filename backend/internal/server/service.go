@@ -3,15 +3,16 @@ package server
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/5pirit5eal/swim-gen/internal/config"
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/5pirit5eal/swim-gen/internal/pdf"
 	"github.com/5pirit5eal/swim-gen/internal/rag"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/httplog/v2"
 	"github.com/google/uuid"
 	"github.com/supabase-community/supabase-go"
@@ -68,26 +69,42 @@ func (rs *RAGService) Close() {
 	slog.Info("RAG server closed successfully")
 }
 
-// DonatePlanHandler handles the HTTP request to donate a training plan to the database.
+// getMimeTypeFromFilename returns the MIME type based on the file extension.
+// Returns an error if the file type is not supported.
+func getMimeTypeFromFilename(filename string) (string, error) {
+	filename = strings.ToLower(filename)
+	switch {
+	case strings.HasSuffix(filename, ".png"):
+		return "image/png", nil
+	case strings.HasSuffix(filename, ".jpg"), strings.HasSuffix(filename, ".jpeg"):
+		return "image/jpeg", nil
+	case strings.HasSuffix(filename, ".pdf"):
+		return "application/pdf", nil
+	default:
+		return "", fmt.Errorf("unsupported file type: %s. Supported formats: PNG, JPEG, PDF", filename)
+	}
+}
+
+// UploadPlanHandler handles the HTTP request to upload a private training plan to the database.
 // It parses the request, stores the documents and their embeddings in the
 // database, and responds with a success message.
-// @Summary Donate a new training plan
-// @Description Upload and store a new user created swim training plan in the RAG system
-// @Tags Donation
+// @Summary Upload a new private training plan
+// @Description Upload and store a new user created swim training plan in the database
+// @Tags Upload
 // @Accept json
 // @Produce json
-// @Param plan body models.DonatePlanRequest true "Training plan data"
+// @Param plan body models.UploadPlanRequest true "Training plan data"
 // @Success 200 {string} string "Plan added successfully"
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /add [post]
-func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request) {
+func (rs *RAGService) UploadPlanHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
-	logger.Info("Adding documents to the database...")
+	logger.Info("Adding uploaded plan to the users history...")
 	// Parse HTTP request from JSON.
 
-	dpr := &models.DonatePlanRequest{}
+	dpr := &models.UploadPlanRequest{}
 
 	err := models.GetRequestJSON(req, dpr)
 	if err != nil {
@@ -105,7 +122,8 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 	// Check if description is empty and generate one if needed
 	if dpr.Description == "" || dpr.Title == "" {
 		// Generate a description for the plan
-		desc, err := rs.db.Client.DescribeTable(req.Context(), &dpr.Table)
+		var err error
+		desc, err = rs.db.Client.DescribeTable(req.Context(), &dpr.Table)
 		if err != nil {
 			logger.Error("Error when generating description with LLM", httplog.ErrAttr(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -119,28 +137,22 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 			desc.Text = dpr.Description
 		}
 	} else {
-		// Generate metadata with improve plan
-		m, err := rs.db.Client.GenerateMetadata(req.Context(), &models.Plan{Title: dpr.Title, Description: dpr.Description, Table: dpr.Table})
-		if err != nil {
-			logger.Error("Error when generating metadata with LLM", httplog.ErrAttr(err))
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		desc.Meta = m
+		desc.Title = dpr.Title
+		desc.Text = dpr.Description
 	}
 
 	// Create a donated plan
 	plan := &models.DonatedPlan{
-		UserID:      req.Context().Value(models.UserIdCtxKey).(string),
-		PlanID:      uuid.NewString(),
-		CreatedAt:   time.Now().Format(time.DateTime),
-		Title:       desc.Title,
-		Description: desc.Text,
-		Table:       dpr.Table,
+		UserID:       req.Context().Value(models.UserIdCtxKey).(string),
+		PlanID:       uuid.NewString(),
+		Title:        desc.Title,
+		Description:  desc.Text,
+		Table:        dpr.Table,
+		AllowSharing: dpr.AllowSharing,
 	}
 
 	// Store the plan in the database
-	err = rs.db.AddDonatedPlan(req.Context(), plan, desc.Meta)
+	err = rs.db.AddUploadedPlan(req.Context(), plan)
 	if err != nil {
 		logger.Error("Failed to store plan in the database", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -150,6 +162,151 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 	// Respond with a success message
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write([]byte("Scraping completed successfully")); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+// FileToPlanHandler handles the request to convert a file (image or PDF) of a plan to a plan
+// The file is sent as form data. Supported formats: PNG, JPEG, PDF
+// @Summary Convert a file (image or PDF) of a plan to a plan
+// @Description Convert a file containing a training plan to a structured plan. Supports PNG, JPEG, and PDF formats.
+// @Tags Upload
+// @Accept multipart/form-data
+// @Produce json
+// @Param image formData file true "File containing a plan (PNG, JPEG, or PDF)"
+// @Success 200 {object} models.RAGResponse "Plan ID of the converted plan"
+// @Failure 400 {string} string "Bad request or unsupported file type"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /file-to-plan [post]
+func (rs *RAGService) FileToPlanHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Request for file to plan received...")
+
+	// 1. tell Go to parse the incoming multipart stream
+	err := req.ParseMultipartForm(20 << 20) // 20 MB max memory
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// 2. retrieve the file (form field name must match the client's key)
+	file, header, err := req.FormFile("file")
+	logger.Debug("Filename", "filename", header.Filename)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer func() { _ = file.Close() }()
+
+	// 3. Detect MIME type from filename
+	mimeType, err := getMimeTypeFromFilename(header.Filename)
+	if err != nil {
+		logger.Error("Unsupported file type", "filename", header.Filename, httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	logger.Debug("Detected MIME type", "mimeType", mimeType)
+
+	// read the file
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	logger.Debug("Converting file to plan")
+	// Get language from form data
+	language := req.FormValue("language")
+	if language == "" {
+		language = "en"
+	}
+
+	resp, err := rs.db.Client.FileToPlan(req.Context(), fileBytes, header.Filename, mimeType, models.Language(language))
+	if err != nil {
+		logger.Error("Failed to convert file to plan in the database", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	answer := &models.RAGResponse{
+		Title:       resp.Title,
+		Description: resp.Description,
+		Table:       resp.Table,
+	}
+
+	logger.Info("Image converted to plan successfully", "plan_id", resp)
+	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+// GetUploadedPlansHandler handles the request to get all uploaded plans for a user.
+// @Summary Get uploaded plans
+// @Description Get all plans uploaded by the authenticated user
+// @Tags Upload
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.DonatedPlan
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /uploads [get]
+func (rs *RAGService) GetUploadedPlansHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Getting uploaded plans...")
+
+	userId := req.Context().Value(models.UserIdCtxKey).(string)
+	if userId == "" {
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+
+	plans, err := rs.db.GetUploadedPlans(req.Context(), userId)
+	if err != nil {
+		logger.Error("Failed to get uploaded plans", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Uploaded plans retrieved successfully")
+	if err := models.WriteResponseJSON(w, http.StatusOK, plans); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+// GetUploadedPlanHandler handles the request to get a specific uploaded plan.
+// @Summary Get a uploaded plan
+// @Description Get a specific plan uploaded by the authenticated user
+// @Tags Upload
+// @Accept json
+// @Produce json
+// @Param plan_id path string true "Plan ID"
+// @Success 200 {object} models.DonatedPlan
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 404 {string} string "Plan not found"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /uploads/{plan_id} [get]
+func (rs *RAGService) GetUploadedPlanHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Getting uploaded plan...")
+
+	planID := chi.URLParam(req, "plan_id")
+	if planID == "" {
+		http.Error(w, "Plan ID is required", http.StatusBadRequest)
+		return
+	}
+
+	plan, err := rs.db.GetUploadedPlan(req.Context(), planID)
+	if err != nil {
+		logger.Error("Failed to get uploaded plan", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Uploaded plan retrieved successfully")
+	if err := models.WriteResponseJSON(w, http.StatusOK, plan); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }
@@ -479,6 +636,74 @@ func (rs *RAGService) SharePlanHandler(w http.ResponseWriter, req *http.Request)
 	answer := &models.SharePlanResponse{URLHash: url_hash}
 	logger.Info("Plan shared successfully", "uri", url_hash)
 	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+// FeedbackHandler handles the request to submit feedback for a training plan.
+// @Summary Submit feedback for a training plan
+// @Description Submit a rating, was_swam status, and difficulty rating for a training plan
+// @Tags Feedback
+// @Accept json
+// @Produce json
+// @Param request body models.FeedbackRequest true "Feedback data"
+// @Success 200 {string} string "Feedback submitted successfully"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /feedback [post]
+func (rs *RAGService) FeedbackHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Submitting feedback...")
+
+	// Parse HTTP request from JSON.
+	fr := &models.FeedbackRequest{}
+	err := models.GetRequestJSON(req, fr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userId := req.Context().Value(models.UserIdCtxKey).(string)
+	if userId == "" {
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+
+	feedback := &models.Feedback{
+		UserID:           userId,
+		PlanID:           fr.PlanID,
+		Rating:           fr.Rating,
+		WasSwam:          fr.WasSwam,
+		DifficultyRating: fr.DifficultyRating,
+		Comment:          fr.Comment,
+	}
+
+	// Check if feedback already exists
+	existingFeedback, err := rs.db.GetFeedback(req.Context(), userId, fr.PlanID)
+	if err != nil && !strings.Contains(err.Error(), "no rows in result set") {
+		logger.Error("Error checking for existing feedback", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if existingFeedback != nil {
+		// Update existing feedback
+		err = rs.db.UpdateFeedback(req.Context(), feedback)
+	} else {
+		// Add new feedback
+		err = rs.db.AddFeedback(req.Context(), feedback)
+	}
+
+	if err != nil {
+		logger.Error("Failed to submit feedback", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Feedback submitted successfully")
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write([]byte("Feedback submitted successfully")); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }

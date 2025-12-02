@@ -9,9 +9,14 @@ import IconHourglass from '@/components/icons/IconHourglass.vue'
 import IconHeart from '@/components/icons/IconHeart.vue'
 import IconCross from '@/components/icons/IconCross.vue'
 import IconPlus from '@/components/icons/IconPlus.vue'
+import IconUpload from '@/components/icons/IconUpload.vue'
+import UploadForm from '@/components/forms/UploadForm.vue'
+import { useUploadStore } from '@/stores/uploads'
+import { ref } from 'vue'
 
 const trainingPlanStore = useTrainingPlanStore()
 const sharedPlanStore = useSharedPlanStore()
+const donationStore = useUploadStore()
 const sidebarStore = useSidebarStore()
 const { t } = useI18n()
 const router = useRouter()
@@ -34,6 +39,14 @@ function createNewPlan() {
   if (window.innerWidth <= 768) sidebarStore.close()
   router.push('/')
 }
+
+const showDonationForm = ref(false)
+
+async function loadUploadedPlan(plan_id: string) {
+  await donationStore.loadPlanFromHistory(plan_id)
+  if (window.innerWidth <= 768) sidebarStore.close()
+  router.push(`/uploaded/${plan_id}`)
+}
 </script>
 
 <template>
@@ -45,10 +58,24 @@ function createNewPlan() {
       <h3>{{ t('sidebar.history') }}</h3>
     </div>
     <div class="sidebar-content">
-      <button @click="createNewPlan" class="create-new-btn">
-        <IconPlus class="icon-small" />
-        {{ t('sidebar.create_new') }}
-      </button>
+      <div class="action-buttons">
+        <button
+          @click="createNewPlan"
+          class="create-new-btn secondary"
+          :title="t('sidebar.create_new')"
+        >
+          <IconPlus class="icon-small" />
+          <span>{{ t('sidebar.create_new') }}</span>
+        </button>
+        <button
+          @click="showDonationForm = true"
+          class="create-new-btn secondary"
+          :title="t('sidebar.upload_plan')"
+        >
+          <IconUpload class="icon-small" />
+          <span>{{ t('sidebar.upload_plan') }}</span>
+        </button>
+      </div>
       <section>
         <div class="section-header">
           <h3>{{ t('sidebar.generated') }}</h3>
@@ -93,10 +120,25 @@ function createNewPlan() {
         </ul>
       </section>
       <section>
-        <h3>{{ t('sidebar.donated') }}</h3>
-        <p>{{ t('sidebar.donated_placeholder') }}</p>
+        <div class="section-header">
+          <h3>{{ t('sidebar.uploaded') }}</h3>
+          <div v-if="donationStore.isFetchingUploads" class="loading-spinner"></div>
+        </div>
+        <p v-if="donationStore.uploadedPlans.length === 0">
+          {{ t('sidebar.uploaded_placeholder') }}
+        </p>
+        <ul v-else class="plan-list">
+          <li v-for="plan in donationStore.uploadedPlans" :key="plan.plan_id">
+            <div class="plan-item-main">
+              <div class="plan-title" @click="loadUploadedPlan(plan.plan_id)">
+                <span>{{ plan.title }}</span>
+              </div>
+            </div>
+          </li>
+        </ul>
       </section>
     </div>
+    <UploadForm :show="showDonationForm" @close="showDonationForm = false" />
   </aside>
 </template>
 
@@ -142,7 +184,7 @@ function createNewPlan() {
 }
 
 .close-btn:hover {
-  color: var(--color-error);
+  color: var(--color-primary-hover);
 }
 
 .sidebar-content {
@@ -156,30 +198,48 @@ function createNewPlan() {
   margin-bottom: 1.5rem;
 }
 
-.create-new-btn {
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
   width: 100%;
+  justify-content: space-evenly;
+}
+
+.create-new-btn {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  margin-bottom: 1.5rem;
+  padding: 0.5rem;
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: 600;
   transition: background-color 0.2s;
+  gap: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
 .create-new-btn:hover {
   background-color: var(--color-primary-hover);
 }
 
+.create-new-btn.secondary {
+  background-color: var(--color-background-soft);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.create-new-btn.secondary:hover {
+  background-color: var(--color-background-mute);
+}
+
 .icon-small {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
 }
 
 .sidebar-content section h3 {

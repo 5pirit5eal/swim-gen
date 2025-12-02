@@ -2,11 +2,10 @@
 import IconCheck from '@/components/icons/IconCheck.vue'
 import IconCopy from '@/components/icons/IconCopy.vue'
 import IconShare from '@/components/icons/IconShare.vue'
-import { useSharedPlanStore } from '@/stores/sharedPlan'
-import type { PlanStore } from '@/types'
-import { storeToRefs } from 'pinia'
+import type { PlanStore, ShareUrlRequest } from '@/types'
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { apiClient, formatError } from '@/api/client'
 
 const props = defineProps<{
   store: PlanStore
@@ -14,8 +13,9 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const sharedPlanStore = useSharedPlanStore()
-const { isLoading, error, shareUrl } = storeToRefs(sharedPlanStore)
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+const shareUrl = ref<string | null>(null)
 const copied = ref(false)
 
 // Reset share URL when the plan changes
@@ -26,12 +26,28 @@ watch(
   },
 )
 
+// Creates a shareable URL for a plan
+async function createShareUrl(request: ShareUrlRequest): Promise<string | null> {
+  isLoading.value = true
+  error.value = null
+  const result = await apiClient.createShareUrl(request)
+  isLoading.value = false
+
+  if (result.success && result.data) {
+    shareUrl.value = `${window.location.origin}/shared/${result.data.url_hash}`
+    return shareUrl.value
+  } else {
+    error.value = result.error ? formatError(result.error) : t('errors.share_plan_failed')
+    return null
+  }
+}
+
 async function handleShare() {
   if (!props.store.currentPlan || !props.store.currentPlan.plan_id) {
     return
   }
   await props.store.keepForever(props.store.currentPlan.plan_id)
-  await sharedPlanStore.createShareUrl({ plan_id: props.store.currentPlan.plan_id, method: 'link' })
+  await createShareUrl({ plan_id: props.store.currentPlan.plan_id, method: 'link' })
 }
 
 async function copyUrl() {
@@ -89,8 +105,7 @@ async function copyUrl() {
 
 <style scoped>
 .share-container {
-  flex: 1;
-  min-width: 160px;
+  max-width: 200px;
   position: relative;
 }
 
@@ -102,7 +117,6 @@ async function copyUrl() {
   color: white;
   border: none;
   border-radius: 0.25rem;
-  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;

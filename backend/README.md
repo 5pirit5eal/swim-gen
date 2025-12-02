@@ -5,7 +5,7 @@ This directory contains the backend service for the Swim Gen application. It is 
 ## Core Features
 
 - **AI-Powered Plan Generation**: Leverages a Retrieval-Augmented Generation (RAG) system to create or recommend swimming training plans based on natural language queries.
-- **Plan Donation**: Allows users to contribute new training plans to the system's database.
+- **Plan Upload**: Allows users to contribute new training plans to the system's database.
 - **PDF Export**: Generates a PDF version of a training plan and uploads it to Google Cloud Storage.
 - **Web Scraping**: Includes functionality to scrape training plans from external websites to populate the database.
 

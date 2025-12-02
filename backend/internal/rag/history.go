@@ -30,7 +30,7 @@ func (db *RAGDB) GetPlan(ctx context.Context, planID string, source SourceOption
 	case SourceOptionScraped:
 		return db.GetScrapedPlan(ctx, planID)
 	case SourceOptionDonated:
-		return db.GetDonatedPlan(ctx, planID)
+		return db.GetUploadedPlan(ctx, planID)
 	}
 	return nil, fmt.Errorf("unsupported source option: %s", source)
 }
@@ -97,15 +97,16 @@ func (db *RAGDB) UpsertPlan(ctx context.Context, plan models.Plan, userID string
 
 	// Add the plan to the user's history
 	logger.Debug("Adding plan to user history")
-	_, err = tx.Exec(ctx,
-		`INSERT INTO history (user_id, plan_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
-		userID, plan.PlanID,
-	)
-	if err != nil {
-		logger.Error("Error adding plan to user history", httplog.ErrAttr(err))
-		return "", fmt.Errorf("failed to add plan to user history: %w", err)
+	if !exists {
+		_, err = tx.Exec(ctx,
+			`INSERT INTO history (user_id, plan_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+			userID, plan.PlanID,
+		)
+		if err != nil {
+			logger.Error("Error adding plan to user history", httplog.ErrAttr(err))
+			return "", fmt.Errorf("failed to add plan to user history: %w", err)
+		}
 	}
-
 	// Commit transaction
 	if err = tx.Commit(ctx); err != nil {
 		logger.Error("Error committing transaction", httplog.ErrAttr(err))

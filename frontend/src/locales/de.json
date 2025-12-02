@@ -81,7 +81,7 @@
   },
   "display": {
     "generating_plan_message": "Dein Trainingsplan wird generiert...",
-    "plan_title": "Kein Title angegeben.",
+    "plan_title": "Kein Titel angegeben.",
     "plan_description": "Keine Beschreibung angegeben.",
     "amount": "Anzahl",
     "amount_tooltip": "Anzahl der Wiederholungen für die Übung.",
@@ -269,7 +269,8 @@
     "failed_to_export_plan": "Trainingsplan konnte nicht als PDF exportiert werden.",
     "timeout": "Die Anfrage wurde nach {time} Sekunden abgebrochen. Bitte versuche es erneut.",
     "connection_failed": "Verbindung zum Server fehlgeschlagen. Bitte überprüfe deine Internetverbindung und versuche es erneut.",
-    "api_request_failed": "API-Anfrage für {endpoint} fehlgeschlagen"
+    "api_request_failed": "API-Anfrage für {endpoint} fehlgeschlagen",
+    "upsert_failed": "Trainingsplan konnte nicht aktualisiert werden"
   },
   "login": {
     "login": "Anmelden",
@@ -335,15 +336,43 @@
     "history": "Deine Pläne",
     "generated": "Generierte Pläne",
     "generated_placeholder": "Noch keine Pläne generiert.",
-    "donated": "Hochgeladene Pläne",
-    "donated_placeholder": "Noch keine Pläne hochgeladen.",
+    "uploaded": "Hochgeladene Pläne",
+    "uploaded_placeholder": "Noch keine Pläne hochgeladen.",
     "shared": "Mit Dir Geteilte Pläne",
     "shared_placeholder": "Noch keine Pläne mit dir geteilt.",
-    "create_new": "Neuen Plan erstellen"
+    "create_new": "Neuer Plan",
+    "upload_plan": "Plan hochladen"
+  },
+  "donation": {
+    "title": "Trainingsplan hochladen",
+    "intro": "Hier kannst du deinen Trainingsplan hochladen. Du kannst entweder eine PDF, oder Bilddatei hochladen, oder den Plan manuell eingeben. \n Sobald der Plan hochgeladen ist, kannst du noch Korrekturen vornehmen und ihn dann speichern. Dann steht er für weitere Nutzung zur Verfügung.",
+    "allow_sharing": "Erlaube anderen Ergebnisse basierend auf diesem Plan zu sehen",
+    "submit": "Plan speichern",
+    "loading": "Lade plan hoch...",
+    "success_toast": "Plan erfolgreich gespeichert!",
+    "error_toast": "Plan konnte nicht gespeichert werden: {error}",
+    "no_plan_toast": "Der gespeicherte Plan konnte nicht gefunden werden.\n{error}",
+    "newPlan": {
+      "title": "Neuer Plan",
+      "description": "Keine Beschreibung angegeben.",
+      "warmup": "Einschwimmen",
+      "total": "Gesamt"
+    },
+    "title_required": "Bitte gib einen Titel für deinen Plan an.",
+    "upload_image_btn": "Datei hochladen & Plan extrahieren",
+    "processing_image": "Verarbeite Datei...",
+    "upload_image_hint": "Lade eine Datei (PNG, JPEG oder PDF) eines Schwimmplans hoch, um ihn automatisch zu extrahieren.",
+    "image_upload_success": "Plan erfolgreich extrahiert!",
+    "image_upload_error": "Plan konnte nicht aus der Datei extrahiert werden.",
+    "view": {
+      "title": "Dein hochgeladener Plan",
+      "description": "Dieser Plan wurde von dir hochgeladen. Du kannst ihn editieren, teilen oder exportieren. Andernfalls kannst du dir Variationen dieses Plans mittels der interaktiven Bearbeitung erstellen."
+    }
   },
   "labels": {
     "created_at": "Erstellt am",
-    "updated_at": "Aktualisiert am"
+    "updated_at": "Aktualisiert",
+    "exported_at": "Exportiert"
   },
   "share": {
     "fetching_url": "Generiere Freigabe-Link...",
@@ -361,11 +390,14 @@
     "ai": "Swim Gen",
     "conversation_tab": "Interaktive Bearbeitung",
     "plan_tab": "Trainingsplan",
-    "hide_plan": "Plan verbergen",
     "show_plan": "Plan anzeigen",
+    "hide_plan": "Plan ausblenden",
+    "give_feedback": "Feedback geben",
+    "rate_plan": "Plan bewerten",
     "metadata": "Metadaten",
     "created_at": "Erstellt am",
     "updated_at": "Aktualisiert am",
+    "exported_at": "Exportiert am",
     "chat_placeholder": "Nachricht eingeben...",
     "describe_changes": "Beschreibe hier deine gewünschte Änderung"
   },
@@ -377,6 +409,25 @@
     "no_plan_toast": "Der Plan konnte nicht gefunden werden.\n{error}",
     "register_to_save": "Melde dich an, um diesen Plan zu speichern und zu bearbeiten!",
     "unknown_user": "Unbekannter Nutzer",
-    "start_conversation": "Interaktives Bearbeiten starten"
+    "start_conversation": "Interaktives Bearbeiten"
+  },
+  "feedback": {
+    "title": "Wie war dein Training?",
+    "subtitle": "Feedback für: {plan}",
+    "thank_you": "Vielen Dank, dass du dir die Zeit nimmst, uns dein Feedback zu geben. Deine Rückmeldung hilft uns, die Trainingspläne für alle zu verbessern!",
+    "rating_label": "Gesamtbewertung",
+    "swam_label": "Ich bin diesen Plan geschwommen",
+    "difficulty_label": "Schwierigkeit",
+    "easy": "Leicht",
+    "hard": "Schwer",
+    "comment_label": "Kommentar",
+    "comment_placeholder": "Was hat dir gefallen? Was könnte besser sein?",
+    "disclaimer": "Dein Feedback wird genutzt um Swim Gen zu verbessern.",
+    "submit_success": "Danke für dein Feedback!"
+  },
+  "common": {
+    "submit": "Absenden",
+    "loading": "Lade...",
+    "optional": "optional"
   }
 }

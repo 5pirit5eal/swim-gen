@@ -1,6 +1,6 @@
 package genai
 
-const ragTemplateStr = `
+const ragTemplateStr string = `
 Du bist ein Schwimmtrainer und hilfst einem Schwimmer einen Trainingsplan zu erstellen.
 Du bekommst eine Frage vom Schwimmer und du hast eine Liste von Trainingsplänen als Referenz.
 Die Trainingspläne beinhalten Downloadlinks und nummerierte Titel. Mit diesen kann der Schwimmer nichts anfangen. Entsprechend sollten
@@ -40,7 +40,7 @@ Pläne:
 %s
 `
 
-const choosePlanTemplateStr = `
+const choosePlanTemplateStr string = `
 Du bist ein Schwimmtrainer und hilfst einem Schwimmer einen Trainingsplan auszusuchen.
 Du bekommst eine Frage vom Schwimmer und du hast eine Liste von Trainingsplänen als Kontext.
 Wähle den besten Trainingsplan aus dem Kontext aus, der am besten zu der Frage und der gewünschten Beckenart, %s, passt.
@@ -60,7 +60,7 @@ Kontext:
 %s
 `
 
-const metadataTemplateStr = `
+const metadataTemplateStr string = `
 Deine Aufgabe ist die Klassifikation von Schwimmtrainingsplänen.
 Du bekommst eine Reihe von Informationen über den Trainingsplan und
 sollst eine strukturierte Antwort mit Deutschem Text wiedergeben.
@@ -102,7 +102,7 @@ und gib deine Antwort als JSON zurück:
 Antwort:
 `
 
-const describeTemplateStr = `
+const describeTemplateStr string = `
 Du bist ein Schwimmtrainer und bekommst einen Trainingsplan von deinem Assitenten vorgelegt.
 Du sollst den Trainingsplan beschreiben und die wichtigsten Eigenschaften benennen.
 Analysiere für welche Schwimmer und für welche Trainingsziele der Trainingsplan geeignet ist.
@@ -131,7 +131,7 @@ Tabelle:
 Antwort:
 `
 
-const generatePromptTemplateStr = `
+const generatePromptTemplateStr string = `
 Du bist ein Assistent für einen Schwimmer und der einen Trainingsplan von deinem Trainer erstellt bekommen möchte.
 Du erstellst eine konkrete Anfrage für den Trainer, um einen Plan für ein einzelnes Training zu generieren.
 Deine Antwort soll folgende Inhalte enthalten:
@@ -142,7 +142,7 @@ Die Antwort sollte im Fließtext sein und keine Formattierung enthalten.
 Make sure to respond in %s (language code).
 `
 
-const translateTemplateStr = `
+const translateTemplateStr string = `
 You are a professional translator. You are tasked with translating a training plan into a specified language.
 The training plan is provided in JSON format and includes a title, a description, and a table of training data.
 Your response must be in the same JSON format as the input.
@@ -167,7 +167,7 @@ Training Plan to Translate:
 Response:
 `
 
-const chatRefineTemplateStr = `
+const chatRefineTemplateStr string = `
 Du bist ein Schwimmtrainer und hilfst einem Schwimmer, einen Trainingsplan in einer Unterhaltung zu erstellen oder zu verfeinern.
 
 Du hast Zugriff auf:
@@ -206,6 +206,17 @@ Bitte gib deine Antwort in folgendem JSON-Format zurück:
   - Auf spezifische Aspekte des Plans eingeht
   - Motivierend und hilfreich ist
   - KEINE Grußformeln enthält (kein "Hallo", kein "Viel Erfolg", etc.)
+
+Antwort:
+`
+
+const ocrTemplateStr string = `
+Analysiere diese Datei und extrahiere den darin enthaltenen Plan möglichst genau.
+Falls das Schema für den Trainingsplan nicht genau passt, modifiziere den Plan entsprechend
+und passe ihn an das Schema an. Gib das Ergebnis im JSON-Format zurück.
+Blöcke die sich wiederholen, sowas wie 2x(100m Kraul, 200m Brust, 100m Locker) kannst du über das
+Content-Feld abbilden, sodass 2x400m ("1. 100m Kraul, 2. 200m Brust, 3. 100m Locker")
+Antworte in der Sprache: %s.
 
 Antwort:
 `

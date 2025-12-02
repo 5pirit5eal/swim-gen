@@ -1,12 +1,13 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
-import type { ShareUrlRequest, SharedPlanData, SharedHistoryItem, Row, RAGResponse } from '@/types'
+import type { SharedPlanData, SharedHistoryItem, Row, RAGResponse } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import router from '@/router'
 import { supabase } from '@/plugins/supabase'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
+import { useUploadStore } from '@/stores/uploads'
 
 export const useSharedPlanStore = defineStore('sharedPlan', () => {
   const authStore = useAuthStore()
@@ -17,7 +18,6 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   const isLoading = ref(false)
   const isFetchingHistory = ref(false)
   const error = ref<string | null>(null)
-  const shareUrl = ref<string | null>(null)
   const isForked = ref(false)
 
   // --- COMPUTED ---
@@ -40,24 +40,6 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   async function keepForever() {
     // No-op
     return
-  }
-
-  // Creates a shareable URL for a plan
-  async function createShareUrl(request: ShareUrlRequest): Promise<string | null> {
-    isLoading.value = true
-    error.value = null
-    const result = await apiClient.createShareUrl(request)
-    isLoading.value = false
-
-    if (result.success && result.data) {
-      shareUrl.value = `${window.location.origin}/shared/${result.data.url_hash}`
-      return shareUrl.value
-    } else {
-      error.value = result.error
-        ? formatError(result.error)
-        : i18n.global.t('errors.share_plan_failed')
-      return null
-    }
   }
 
   // Fetches a shared plan by its hash
@@ -101,7 +83,13 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
       if (authStore.user && sharedPlanData.user_id === authStore.user.id) {
         const trainingPlanStore = useTrainingPlanStore()
         if (!trainingPlanStore.planHistory.length) {
-          await trainingPlanStore.fetchHistory()
+          if (!trainingPlanStore.isFetchingHistory) {
+            await trainingPlanStore.fetchHistory()
+          } else {
+            while (trainingPlanStore.isFetchingHistory) {
+              await new Promise((resolve) => setTimeout(resolve, 100))
+            }
+          }
         }
         const ownPlan = trainingPlanStore.planHistory.find(
           (plan) => plan.plan_id === sharedPlanData.plan_id,
@@ -110,6 +98,26 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
           trainingPlanStore.loadPlanFromHistory(ownPlan)
           isLoading.value = false
           router.push('/')
+          return 'own_plan'
+        }
+
+        // Check if it is an uploaded plan
+        const uploadStore = useUploadStore()
+        if (!uploadStore.uploadedPlans.length) {
+          if (!uploadStore.isFetchingUploads) {
+            await uploadStore.fetchUploadedPlans()
+          } else {
+            while (uploadStore.isFetchingUploads) {
+              await new Promise((resolve) => setTimeout(resolve, 100))
+            }
+          }
+        }
+        const ownUploadedPlan = uploadStore.uploadedPlans.find(
+          (plan) => plan.plan_id === sharedPlanData.plan_id,
+        )
+        if (ownUploadedPlan) {
+          isLoading.value = false
+          router.push({ name: 'uploaded', params: { planId: ownUploadedPlan.plan_id } })
           return 'own_plan'
         }
       }
@@ -305,7 +313,6 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   function clear() {
     sharedPlan.value = null
     error.value = null
-    shareUrl.value = null
     isForked.value = false
   }
 
@@ -378,9 +385,9 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   // Upserts the current plan. If it's the first edit (not forked yet),
   // it saves as a new plan (forking) to the user's history.
   // If already forked, updates the forked plan.
-  async function upsertCurrentPlan() {
+  async function upsertCurrentPlan(): Promise<string> {
     if (!authStore.user || !currentPlan.value) {
-      return
+      throw new Error('User or plan not available')
     }
 
     // If not yet forked, strip the plan_id to create a new plan
@@ -398,17 +405,15 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     })
 
     if (result.success && result.data) {
-      if (sharedPlan.value && sharedPlan.value.plan) {
-        // Update the local plan with the new ID (or keep same if updated)
-        sharedPlan.value.plan.plan_id = result.data.plan_id
-        isForked.value = true
+      // Mark as forked and refresh history
+      isForked.value = true
+      const trainingPlanStore = useTrainingPlanStore()
+      await trainingPlanStore.fetchHistory()
 
-        // Refresh history to show the new plan there
-        const trainingPlanStore = useTrainingPlanStore()
-        await trainingPlanStore.fetchHistory()
-      }
+      return result.data.plan_id
     } else {
       console.error(result.error ? formatError(result.error) : 'Unknown error during upsertPlan')
+      throw new Error(result.error ? formatError(result.error) : 'Upsert failed')
     }
   }
 
@@ -427,14 +432,12 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     isLoading,
     isFetchingHistory,
     error,
-    shareUrl,
     isForked,
     // Computed
     currentPlan,
     hasPlan,
     // Actions
     keepForever,
-    createShareUrl,
     fetchSharedPlanByHash,
     fetchSharedHistory,
     loadPlanFromHistory,

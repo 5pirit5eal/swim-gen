@@ -17,8 +17,8 @@ func (db *RAGDB) AddFeedback(ctx context.Context, feedback *models.Feedback) err
 
 	// Create a new feedback entry in the database using the struct fields
 	_, err := db.Conn.Exec(ctx,
-		fmt.Sprintf("INSERT INTO %s (user_id, plan_id, rating, comment, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)", FeedbackTable),
-		feedback.UserID, feedback.PlanID, feedback.Rating, feedback.Comment, feedback.CreatedAt, feedback.UpdatedAt)
+		fmt.Sprintf("INSERT INTO %s (user_id, plan_id, rating, was_swam, difficulty_rating, comment) VALUES ($1, $2, $3, $4, $5, $6)", FeedbackTable),
+		feedback.UserID, feedback.PlanID, feedback.Rating, feedback.WasSwam, feedback.DifficultyRating, feedback.Comment)
 	if err != nil {
 		logger.Error("Error creating feedback", httplog.ErrAttr(err))
 		return err
@@ -40,6 +40,8 @@ func (db *RAGDB) GetFeedback(ctx context.Context, userID string, planID string) 
 		&feedback.Comment,
 		&feedback.CreatedAt,
 		&feedback.UpdatedAt,
+		&feedback.WasSwam,
+		&feedback.DifficultyRating,
 	)
 	if err != nil {
 		logger.Error("Error querying feedback", httplog.ErrAttr(err))
@@ -81,8 +83,8 @@ func (db *RAGDB) UpdateFeedback(ctx context.Context, feedback *models.Feedback) 
 	logger := httplog.LogEntry(ctx)
 
 	// Update the feedback entry in the database using the struct fields
-	_, err := db.Conn.Exec(ctx, fmt.Sprintf("UPDATE %s SET rating = $1, comment = $2, updated_at = $3 WHERE user_id = $4 AND plan_id = $5", FeedbackTable),
-		feedback.Rating, feedback.Comment, feedback.UpdatedAt, feedback.UserID, feedback.PlanID)
+	_, err := db.Conn.Exec(ctx, fmt.Sprintf("UPDATE %s SET rating = $1, was_swam = $2, difficulty_rating = $3, comment = $4 WHERE user_id = $5 AND plan_id = $6", FeedbackTable),
+		feedback.Rating, feedback.WasSwam, feedback.DifficultyRating, feedback.Comment, feedback.UserID, feedback.PlanID)
 	if err != nil {
 		logger.Error("Error updating feedback", httplog.ErrAttr(err))
 		return err

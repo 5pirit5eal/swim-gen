@@ -2,16 +2,14 @@ package models
 
 import "time"
 
-// DonatePlanRequest represents the request body for donating a training plan
+// UploadPlanRequest represents the request body for donating a training plan
 // @Description Request payload for donating a swim training plan to the system
-type DonatePlanRequest struct {
-	Title       string   `json:"title,omitempty" example:"Advanced Freestyle Training"`
-	Description string   `json:"description,omitempty" example:"A comprehensive training plan for improving freestyle technique"`
-	Table       Table    `json:"table" binding:"required"`
-	Language    Language `json:"language,omitempty" example:"en"` // Language specifies the language of the training plan
-	// v3: add other table modalities
-	// Image 	 string `json:"image,omitempty"`
-	// URI 		 string `json:"uri,omitempty"`
+type UploadPlanRequest struct {
+	Title        string   `json:"title,omitempty" example:"Advanced Freestyle Training"`
+	Description  string   `json:"description,omitempty" example:"A comprehensive training plan for improving freestyle technique"`
+	Table        Table    `json:"table" binding:"required"`
+	Language     Language `json:"language,omitempty" example:"en"` // Language specifies the language of the training plan
+	AllowSharing bool     `json:"allow_sharing"`                   // AllowSharing indicates if the plan can be shared with others
 }
 
 // QueryRequest represents the request body for querying the RAG system
@@ -180,4 +178,14 @@ func (a *AddPlanToHistoryRequest) Plan() *Plan {
 type AddPlanToHistoryResponse struct {
 	Message string `json:"message" example:"Plan added to history successfully"`
 	PlanID  string `json:"plan_id" example:"plan_123"`
+}
+
+// FeedbackRequest represents the request payload for submitting feedback
+// @Description Request payload for submitting feedback on a training plan
+type FeedbackRequest struct {
+	PlanID           string `json:"plan_id" example:"plan_123" binding:"required"`
+	Rating           int    `json:"rating" example:"5" binding:"required" validate:"min=1,max=5"`
+	WasSwam          bool   `json:"was_swam" example:"true"`
+	DifficultyRating int    `json:"difficulty_rating" example:"7" validate:"min=1,max=10"`
+	Comment          string `json:"comment,omitempty" example:"Great plan!"`
 }

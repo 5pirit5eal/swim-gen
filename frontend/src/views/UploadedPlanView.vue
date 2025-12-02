@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 import IconSend from '@/components/icons/IconSend.vue'
-import { useSharedPlanStore } from '@/stores/sharedPlan'
+import { useUploadStore } from '@/stores/uploads'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { storeToRefs } from 'pinia'
 import { onMounted, onUnmounted, watch, ref } from 'vue'
@@ -12,20 +12,20 @@ import { toast } from 'vue3-toastify'
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const sharedPlanStore = useSharedPlanStore()
+const donationStore = useUploadStore()
 
-const { sharedPlan, isLoading, error } = storeToRefs(sharedPlanStore)
+const { currentPlan, isLoading, error } = storeToRefs(donationStore)
 
 const chatInput = ref('')
 
 async function initializeView() {
-  const urlHash = route.params.urlHash
-  if (typeof urlHash === 'string') {
-    if (await sharedPlanStore.fetchSharedPlanByHash(urlHash)) return
-    if (sharedPlan.value === null) {
+  const planId = route.params.planId
+  if (typeof planId === 'string') {
+    if (await donationStore.fetchUploadedPlan(planId)) return
+    if (currentPlan.value === null) {
       noPlanFound()
     }
-  } else if (typeof urlHash === 'undefined' && sharedPlan.value === null) {
+  } else {
     noPlanFound()
   }
 }
@@ -35,81 +35,84 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  sharedPlanStore.clear()
+  donationStore.clear()
 })
 
 watch(
-  () => route.params.urlHash,
-  async (newHash) => {
-    if (newHash) {
+  () => route.params.planId,
+  async (newId) => {
+    if (newId) {
       await initializeView()
     }
   },
 )
 
 function noPlanFound() {
-  toast.error(t('shared.no_plan_toast', { error: error.value || '' }))
+  toast.error(t('donation.no_plan_toast', { error: error.value || '' }))
   router.push('/')
 }
 
 // Starts a conversation by adding the plan to the history
 async function handleStartConversation() {
-  if (!chatInput.value.trim() || !sharedPlan.value?.plan) return
+  if (!chatInput.value.trim() || !currentPlan.value) return
 
   const message = chatInput.value
   chatInput.value = ''
 
   const trainingPlanStore = useTrainingPlanStore()
 
-  try {
-    // 1. Import the shared plan as a new plan in the user's history and get the new plan_id
-    const newPlanId = await sharedPlanStore.upsertCurrentPlan()
+  // 1. Set the uploaded plan as the current plan in training store (without plan_id)
+  trainingPlanStore.currentPlan = {
+    title: currentPlan.value.title,
+    description: currentPlan.value.description,
+    table: currentPlan.value.table,
+  }
 
-    // 2. Load the new plan into the training plan store
+  try {
+    // 2. Import the uploaded plan as a new plan in the user's history and get the new plan_id
+    const newPlanId = await trainingPlanStore.upsertCurrentPlan()
+
+    // 3. Load the new plan into the training store
     await trainingPlanStore.loadPlanFromHistory({
       plan_id: newPlanId,
-      title: sharedPlan.value.plan.title,
-      description: sharedPlan.value.plan.description,
-      table: sharedPlan.value.plan.table,
+      title: currentPlan.value.title,
+      description: currentPlan.value.description,
+      table: currentPlan.value.table,
     })
 
-    // 3. Send the message
+    // 4. Send the message
     // We don't await this to allow immediate navigation while processing happens in background
     trainingPlanStore.sendMessage(message).catch((err) => {
       console.error('Failed to send initial message:', err)
       toast.error(t('errors.send_message_failed'))
     })
 
-    // 4. Navigate to the interaction view
+    // 5. Navigate to the interaction view
     router.push({ name: 'plan', params: { id: newPlanId } })
   } catch (err) {
-    console.error('Failed to fork plan:', err)
-    toast.error(t('errors.generic'))
+    console.error('Failed to create plan:', err)
+    toast.error(t('errors.upsert_failed'))
   }
 }
 </script>
 
 <template>
-  <div class="shared-view">
+  <div class="donated-view">
     <Transition name="fade">
       <div v-if="isLoading" class="loading-state">
         <div class="loading-spinner"></div>
-        <p>{{ t('shared.loading') }}</p>
+        <p>{{ t('common.loading') }}</p>
       </div>
-      <div v-else-if="sharedPlan">
+      <div v-else-if="currentPlan">
         <div class="container">
           <section class="hero">
-            <h1>{{ t('shared.hero_title') }}</h1>
-            <p class="hero-description">
-              {{ t('shared.hero_description_one')
-              }}<strong>{{ sharedPlan.sharer_username }}</strong>
-              {{ t('shared.hero_description_two', { username: sharedPlan.sharer_username }) }}
-            </p>
+            <h1>{{ t('donation.view.title') }}</h1>
+            <p class="hero-description">{{ t('donation.view.description') }}</p>
           </section>
 
           <!-- Main content -->
           <section class="training-plan">
-            <TrainingPlanDisplay :store="sharedPlanStore" :show-share-button="false" />
+            <TrainingPlanDisplay :store="donationStore" :show-share-button="true" />
           </section>
 
           <!-- Chat Transition Area -->
@@ -135,7 +138,7 @@ async function handleStartConversation() {
 </template>
 
 <style scoped>
-.shared-view {
+.donated-view {
   padding: 0.25rem 0 2rem 0;
 }
 
@@ -168,11 +171,6 @@ async function handleStartConversation() {
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
-}
-
-.hero-description strong {
-  font-weight: 900;
-  color: var(--color-primary);
 }
 
 @media (max-width: 740px) {

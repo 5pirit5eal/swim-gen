@@ -1,0 +1,122 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mount, flushPromises } from '@vue/test-utils'
+import { createTestingPinia } from '@pinia/testing'
+import UploadedPlanView from '../UploadedPlanView.vue'
+import { useUploadStore } from '@/stores/uploads'
+import { useTrainingPlanStore } from '@/stores/trainingPlan'
+import { useRoute } from 'vue-router'
+
+// Mock vue-i18n
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => key,
+  }),
+}))
+
+const pushMock = vi.fn()
+vi.mock('vue-router', () => ({
+  useRoute: vi.fn(),
+  useRouter: vi.fn(() => ({
+    push: pushMock,
+  })),
+}))
+
+vi.mock('@/components/training/TrainingPlanDisplay.vue', () => ({
+  default: { template: '<div class="plan-display-stub"></div>' },
+}))
+
+describe('UploadedPlanView.vue', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    ;(useRoute as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      params: { planId: 'uploaded-123' },
+    })
+    window.scrollTo = vi.fn()
+  })
+
+  it('fetches uploaded plan on mount', () => {
+    mount(UploadedPlanView, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+          }),
+        ],
+        stubs: {
+          IconSend: true,
+        },
+      },
+    })
+
+    const store = useUploadStore()
+    expect(store.fetchUploadedPlan).toHaveBeenCalledWith('uploaded-123')
+  })
+
+  it('redirects if no plan found', async () => {
+    const store = useUploadStore()
+    store.fetchUploadedPlan = vi.fn().mockResolvedValue(false) // Failed to fetch
+    store.currentPlan = null
+
+    mount(UploadedPlanView, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            stubActions: false,
+          }),
+        ],
+        stubs: {
+          IconSend: true,
+        },
+      },
+    })
+
+    // Wait for async onMounted
+    await flushPromises()
+
+    // Verify router push was called
+    expect(pushMock).toHaveBeenCalledWith('/')
+  })
+
+  it('starts conversation', async () => {
+    const wrapper = mount(UploadedPlanView, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            initialState: {
+              upload: {
+                currentPlan: {
+                  plan_id: 'uploaded-123',
+                  title: 'Uploaded Plan',
+                  description: 'Test',
+                  table: [],
+                },
+              },
+            },
+          }),
+        ],
+        stubs: {
+          IconSend: true,
+          transition: false,
+        },
+      },
+    })
+
+    const trainingStore = useTrainingPlanStore()
+    trainingStore.upsertCurrentPlan = vi.fn().mockResolvedValue('new-plan-id')
+    trainingStore.sendMessage = vi.fn().mockResolvedValue(true)
+
+    await flushPromises()
+
+    const input = wrapper.find('.chat-input')
+    await input.setValue('Hello')
+    await wrapper.find('.chat-form').trigger('submit')
+
+    await flushPromises()
+
+    expect(trainingStore.upsertCurrentPlan).toHaveBeenCalled()
+    expect(trainingStore.loadPlanFromHistory).toHaveBeenCalled()
+    expect(trainingStore.sendMessage).toHaveBeenCalledWith('Hello')
+  })
+})

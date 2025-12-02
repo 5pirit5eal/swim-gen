@@ -7,28 +7,15 @@ import (
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
-	"github.com/tmc/langchaingo/schema"
 )
 
 const DonatedPlanTable string = "donations"
 
-// Add donated plan to the database
-func (db *RAGDB) AddDonatedPlan(ctx context.Context, donation *models.DonatedPlan, meta *models.Metadata) error {
+// Add uploaded plan to the database
+func (db *RAGDB) AddUploadedPlan(ctx context.Context, upload *models.DonatedPlan) error {
 	logger := httplog.LogEntry(ctx)
 
-	// Add the donated plan to the vector store
-	doc, err := models.Document{Plan: donation, Meta: meta}.ToLangChainDoc()
-	if err != nil {
-		logger.Error("Error converting plan to document", httplog.ErrAttr(err))
-		return fmt.Errorf("PlanToDoc: %w", err)
-	}
-	_, err = db.Store.AddDocuments(ctx, []schema.Document{doc})
-	if err != nil {
-		logger.Error("Error adding donation to vector store", httplog.ErrAttr(err))
-		return fmt.Errorf("Store.AddDocuments: %w", err)
-	}
-
-	// Begin transaction for plan and donation entry
+	// Begin transaction for plan and uploaded entry
 	tx, err := db.Conn.Begin(ctx)
 	if err != nil {
 		logger.Error("Error beginning transaction", httplog.ErrAttr(err))
@@ -41,7 +28,7 @@ func (db *RAGDB) AddDonatedPlan(ctx context.Context, donation *models.DonatedPla
 		INSERT INTO %s (plan_id, title, description, plan_table)
 		VALUES ($1, $2, $3, $4)
 		ON CONFLICT (plan_id) DO NOTHING`, PlanTableName),
-		donation.PlanID, donation.Title, donation.Description, donation.Table)
+		upload.PlanID, upload.Title, upload.Description, upload.Table)
 	if err != nil {
 		logger.Error("Error inserting plan", httplog.ErrAttr(err))
 		return fmt.Errorf("failed to insert plan: %w", err)
@@ -49,8 +36,8 @@ func (db *RAGDB) AddDonatedPlan(ctx context.Context, donation *models.DonatedPla
 
 	// Create a new donation entry in the database using the struct fields
 	_, err = tx.Exec(ctx,
-		fmt.Sprintf("INSERT INTO %s (user_id, plan_id, created_at) VALUES ($1, $2, $3)", DonatedPlanTable),
-		donation.UserID, donation.PlanID, donation.CreatedAt)
+		fmt.Sprintf("INSERT INTO %s (user_id, plan_id, allow_sharing) VALUES ($1, $2, $3)", DonatedPlanTable),
+		upload.UserID, upload.PlanID, upload.AllowSharing)
 	if err != nil {
 		logger.Error("Error creating donation", httplog.ErrAttr(err))
 		return fmt.Errorf("failed to insert donation: %w", err)
@@ -62,49 +49,53 @@ func (db *RAGDB) AddDonatedPlan(ctx context.Context, donation *models.DonatedPla
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	logger.Info("Donation added successfully", "donation", donation)
+	logger.Debug("Uploaded plan added successfully", "plan", upload)
 	return nil
 }
 
-// Get donated plans for a user
-func (db *RAGDB) GetDonatedPlans(ctx context.Context, userID string) ([]*models.DonatedPlan, error) {
+// Get uploaded plans for a user
+func (db *RAGDB) GetUploadedPlans(ctx context.Context, userID string) ([]*models.DonatedPlan, error) {
 	logger := httplog.LogEntry(ctx)
 
-	// Query the database for the donated plans
+	// Query the database for the uploaded plans
 	var plans []*models.DonatedPlan
 	err := pgxscan.Select(ctx, db.Conn, &plans,
 		fmt.Sprintf(`
-			SELECT dp.user_id, dp.plan_id, dp.created_at, p.title, p.description, p.plan_table
+			SELECT dp.user_id, dp.plan_id, dp.created_at, dp.allow_sharing, p.title, p.description, p.plan_table
 			FROM %s dp
 			JOIN %s p ON dp.plan_id = p.plan_id
 			WHERE dp.user_id = $1
 		`, DonatedPlanTable, PlanTableName), userID)
 	if err != nil {
-		logger.Error("Error querying donated plans", httplog.ErrAttr(err))
+		logger.Error("Error querying uploaded plans", httplog.ErrAttr(err))
 		return nil, err
 	}
 
-	logger.Info("Donated plans retrieved successfully", "count", len(plans))
+	if len(plans) == 0 {
+		plans = []*models.DonatedPlan{}
+	}
+
+	logger.Debug("Uploaded plans retrieved successfully", "count", len(plans))
 	return plans, nil
 }
 
-// Get a single donated plan by plan ID
-func (db *RAGDB) GetDonatedPlan(ctx context.Context, planID string) (*models.DonatedPlan, error) {
+// Get a single uploaded plan by plan ID
+func (db *RAGDB) GetUploadedPlan(ctx context.Context, planID string) (*models.DonatedPlan, error) {
 	logger := httplog.LogEntry(ctx)
 
-	// Query the database for the donated plan
+	// Query the database for the uploaded plan
 	var plan models.DonatedPlan
 	err := pgxscan.Get(ctx, db.Conn, &plan,
 		fmt.Sprintf(`
-			SELECT dp.user_id, dp.plan_id, dp.created_at, p.title, p.description, p.plan_table
+			SELECT dp.user_id, dp.plan_id, dp.created_at, dp.allow_sharing, p.title, p.description, p.plan_table
 			FROM %s dp
 			JOIN %s p ON dp.plan_id = p.plan_id
 			WHERE dp.plan_id = $1`, DonatedPlanTable, PlanTableName), planID)
 	if err != nil {
-		logger.Error("Error querying donated plan", httplog.ErrAttr(err))
+		logger.Error("Error querying uploaded plan", httplog.ErrAttr(err))
 		return nil, err
 	}
 
-	logger.Info("Donated plan retrieved successfully", "plan", plan)
+	logger.Debug("Uploaded plan retrieved successfully", "plan", plan)
 	return &plan, nil
 }

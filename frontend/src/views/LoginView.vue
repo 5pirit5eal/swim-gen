@@ -41,8 +41,6 @@ async function handleLogin() {
   loading.value = true
   try {
     await auth.signInWithPassword(email.value, password.value)
-    await trainingPlanStore.fetchHistory()
-    await sharedPlanStore.fetchSharedHistory()
     sidebarStore.open()
     toast.success(t('login.loginSuccess'))
     router.push('/')
@@ -92,7 +90,7 @@ async function handleSignUp() {
       await sharedPlanStore.fetchSharedHistory()
       sidebarStore.open()
       toast.success(t('login.userExistsLoginSuccess'))
-      router.push('/')
+      router.push({ path: '/', state: { redirectedFromLogin: true } })
     } catch {
       toast.error(t('login.userExistsLoginFailed'))
     } finally {

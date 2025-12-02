@@ -113,27 +113,53 @@ definitions:
     required:
     - message_id
     type: object
-  models.DonatePlanRequest:
-    description: Request payload for donating a swim training plan to the system
+  models.DonatedPlan:
     properties:
-      description:
-        example: A comprehensive training plan for improving freestyle technique
+      allow_sharing:
+        description: AllowSharing indicates if the plan can be used in the RAG system
+        type: boolean
+      created_at:
+        description: CreatedAt is the time the plan was donated as a datetime string
         type: string
-      language:
-        allOf:
-        - $ref: '#/definitions/models.Language'
-        description: Language specifies the language of the training plan
-        example: en
+      description:
+        type: string
+      plan_id:
+        type: string
       table:
-        description: A structured training plan table containing exercise rows
+        description: Table is the table associated with the plan
         items:
           $ref: '#/definitions/models.Row'
         type: array
       title:
-        example: Advanced Freestyle Training
         type: string
+      user_id:
+        type: string
+    type: object
+  models.FeedbackRequest:
+    description: Request payload for submitting feedback on a training plan
+    properties:
+      comment:
+        example: Great plan!
+        type: string
+      difficulty_rating:
+        example: 7
+        maximum: 10
+        minimum: 1
+        type: integer
+      plan_id:
+        example: plan_123
+        type: string
+      rating:
+        example: 5
+        maximum: 5
+        minimum: 1
+        type: integer
+      was_swam:
+        example: true
+        type: boolean
     required:
-    - table
+    - plan_id
+    - rating
     type: object
   models.GeneratePromptRequest:
     description: Request payload for generating a prompt for swim training plan creation
@@ -356,6 +382,31 @@ definitions:
     x-enum-varnames:
     - SharingMethodLink
     - SharingMethodEmail
+  models.UploadPlanRequest:
+    description: Request payload for donating a swim training plan to the system
+    properties:
+      allow_sharing:
+        description: AllowSharing indicates if the plan can be shared with others
+        type: boolean
+      description:
+        example: A comprehensive training plan for improving freestyle technique
+        type: string
+      language:
+        allOf:
+        - $ref: '#/definitions/models.Language'
+        description: Language specifies the language of the training plan
+        example: en
+      table:
+        description: A structured training plan table containing exercise rows
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
+      title:
+        example: Advanced Freestyle Training
+        type: string
+    required:
+    - table
+    type: object
   models.UpsertPlanRequest:
     description: Request payload for upserting a swim training plan to the system
     properties:
@@ -402,15 +453,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: Upload and store a new user created swim training plan in the RAG
-        system
+      description: Upload and store a new user created swim training plan in the database
       parameters:
       - description: Training plan data
         in: body
         name: plan
         required: true
         schema:
-          $ref: '#/definitions/models.DonatePlanRequest'
+          $ref: '#/definitions/models.UploadPlanRequest'
       produces:
       - application/json
       responses:
@@ -428,9 +478,9 @@ paths:
             type: string
       security:
       - BearerAuth: []
-      summary: Donate a new training plan
+      summary: Upload a new private training plan
       tags:
-      - Donation
+      - Upload
   /add-plan-to-history:
     post:
       consumes:
@@ -530,6 +580,71 @@ paths:
       summary: Export training plan to PDF
       tags:
       - Training Plans
+  /feedback:
+    post:
+      consumes:
+      - application/json
+      description: Submit a rating, was_swam status, and difficulty rating for a training
+        plan
+      parameters:
+      - description: Feedback data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.FeedbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Feedback submitted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Submit feedback for a training plan
+      tags:
+      - Feedback
+  /file-to-plan:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Convert a file containing a training plan to a structured plan.
+        Supports PNG, JPEG, and PDF formats.
+      parameters:
+      - description: File containing a plan (PNG, JPEG, or PDF)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plan ID of the converted plan
+          schema:
+            $ref: '#/definitions/models.RAGResponse'
+        "400":
+          description: Bad request or unsupported file type
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Convert a file (image or PDF) of a plan to a plan
+      tags:
+      - Upload
   /generate-prompt:
     post:
       consumes:
@@ -813,6 +928,68 @@ paths:
       summary: Share a training plan
       tags:
       - Training Plans
+  /uploads:
+    get:
+      consumes:
+      - application/json
+      description: Get all plans uploaded by the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DonatedPlan'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get uploaded plans
+      tags:
+      - Upload
+  /uploads/{plan_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a specific plan uploaded by the authenticated user
+      parameters:
+      - description: Plan ID
+        in: path
+        name: plan_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DonatedPlan'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Plan not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get a uploaded plan
+      tags:
+      - Upload
   /upsert-plan:
     post:
       consumes:

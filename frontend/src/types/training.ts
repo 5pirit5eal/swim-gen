@@ -48,7 +48,7 @@ export interface PlanStore {
   hasPlan: boolean
   isLoading: boolean
   keepForever: (plan_id: string) => Promise<void>
-  upsertCurrentPlan: () => Promise<void>
+  upsertCurrentPlan: () => Promise<string>
   updatePlanRow: (rowIndex: number, field: keyof Row, value: string | number) => void
   addRow: (rowIndex: number) => void
   removeRow: (rowIndex: number) => void
@@ -77,6 +77,7 @@ export interface DonatePlanRequest {
   description: string
   table: Row[]
   language: string
+  allow_sharing: boolean
 }
 
 // Backend API UpsertPlanRequest structure
@@ -150,4 +151,23 @@ export interface ChatResponsePayload {
   title?: string
   description?: string
   table?: Row[]
+}
+
+// Feedback API Request structure
+export interface FeedbackRequest {
+  plan_id: string
+  rating: number
+  was_swam: boolean
+  difficulty_rating: number
+  comment?: string
+}
+
+// Backend API UploadedPlan structure
+export interface UploadedPlan {
+  user_id: string
+  plan_id: string
+  created_at: string
+  title: string
+  description: string
+  table: Row[]
 }

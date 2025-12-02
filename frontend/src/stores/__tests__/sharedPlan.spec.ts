@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useSharedPlanStore } from '@/stores/sharedPlan'
-import type { ApiResult, ShareUrlResponse } from '@/types'
 import { apiClient } from '@/api/client'
 import { supabase } from '@/plugins/supabase'
 import { useAuthStore } from '@/stores/auth'
@@ -13,7 +12,6 @@ vi.mock('@/api/client', async (importOriginal) => {
   return {
     ...actual,
     apiClient: {
-      createShareUrl: vi.fn(),
       upsertPlan: vi.fn(),
     },
     formatError: vi.fn((error) => `${error.message}: ${error.details}`),
@@ -66,7 +64,6 @@ vi.mock('@/stores/trainingPlan', () => ({
 }))
 
 // --- Mock Casts ---
-const mockedApiCreateShareUrl = apiClient.createShareUrl as Mock
 const mockedApiUpsertPlan = apiClient.upsertPlan as Mock
 const mockedSupabase = supabase as unknown as {
   from: Mock
@@ -110,41 +107,6 @@ describe('sharedPlan Store', () => {
     expect(store.sharedHistory).toEqual([])
     expect(store.isLoading).toBe(false)
     expect(store.error).toBeNull()
-    expect(store.shareUrl).toBeNull()
-  })
-
-  describe('createShareUrl', () => {
-    it('creates a share URL successfully', async () => {
-      const store = useSharedPlanStore()
-      const mockResponse: ApiResult<ShareUrlResponse> = {
-        success: true,
-        data: { url_hash: 'test-hash' },
-      }
-      mockedApiCreateShareUrl.mockResolvedValue(mockResponse)
-
-      const result = await store.createShareUrl({ plan_id: 'test-plan-id', method: 'link' })
-
-      expect(result).toBe(`${window.location.origin}/shared/test-hash`)
-      expect(store.shareUrl).toBe(`${window.location.origin}/shared/test-hash`)
-      expect(store.error).toBeNull()
-      expect(store.isLoading).toBe(false)
-    })
-
-    it('handles create share URL failure', async () => {
-      const store = useSharedPlanStore()
-      const mockErrorResponse: ApiResult<ShareUrlResponse> = {
-        success: false,
-        error: { status: 500, message: 'Error', details: 'Failed to create URL' },
-      }
-      mockedApiCreateShareUrl.mockResolvedValue(mockErrorResponse)
-
-      const result = await store.createShareUrl({ plan_id: 'test-plan-id', method: 'link' })
-
-      expect(result).toBeNull()
-      expect(store.shareUrl).toBeNull()
-      expect(store.error).toBe('Error: Failed to create URL')
-      expect(store.isLoading).toBe(false)
-    })
   })
 
   describe('fetchSharedPlanByHash', () => {
@@ -284,7 +246,6 @@ describe('sharedPlan Store', () => {
 
       await store.upsertCurrentPlan()
 
-      expect(store.sharedPlan?.plan.plan_id).toBe('new-id')
       expect(store.isForked).toBe(true)
     })
   })

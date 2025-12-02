@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import IconCross from '@/components/icons/IconCross.vue'
 defineProps<{ show: boolean }>()
 defineEmits<{ close: [] }>()
 </script>
@@ -12,7 +13,9 @@ defineEmits<{ close: [] }>()
             <slot name="header">
               <h1>Modal Title</h1>
             </slot>
-            <button class="modal-close" @click="$emit('close')">×</button>
+            <button class="modal-close" @click="$emit('close')">
+              <IconCross />
+            </button>
           </div>
           <div class="modal-body">
             <slot name="body">
@@ -35,17 +38,18 @@ defineEmits<{ close: [] }>()
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(color-transparent);
   z-index: 9998;
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
 }
 
 .modal-container {
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px var(--color-shadow);
+  border: 1px solid var(--color-border);
   width: 90%;
   max-width: 1000px;
   max-height: 90vh;
@@ -60,16 +64,18 @@ defineEmits<{ close: [] }>()
   align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid var(--color-border);
-  border-radius: 0.5rem 0.5rem 0 0;
+  border-radius: 8px 8px 0 0;
   background: var(--color-background-soft);
 }
 
 .modal-body {
+  display: flex;
+  flex-direction: column;
   padding: 1.5rem;
   overflow-y: auto;
-  flex: 1;
   background: var(--color-background);
   color: var(--color-text);
+  border-radius: 0 0 8px 8px;
 }
 
 .modal-footer {
@@ -85,14 +91,12 @@ defineEmits<{ close: [] }>()
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: var(--color-text);
-  padding: 0.25rem;
-  border-radius: 0.25rem;
+  color: var(--color-heading);
   transition: background-color 0.2s;
 }
 
 .modal-close:hover {
-  background-color: var(--color-border);
+  color: var(--color-primary);
 }
 
 .modal-enter-active,
@@ -103,16 +107,6 @@ defineEmits<{ close: [] }>()
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
-}
-
-.modal-close:focus {
-  outline: 2px solid var(--color-text);
-  outline-offset: 2px;
-}
-
-.modal-footer button:focus {
-  outline: 2px solid var(--color-text);
-  outline-offset: 2px;
 }
 
 /* Add responsive padding */
