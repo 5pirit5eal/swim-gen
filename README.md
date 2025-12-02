@@ -54,7 +54,6 @@ The next version takes lessons learned in v1 into consideration and adds user au
   - Builds upon the content of v1 by adding chat-like interaction
   - Chat interaction is integrated as part of the go backend
   - Chat history and user data saved in DB
-- **TP are exportable as PDF, excel or odt**
 - **TP can be recommended/donated**
   - Form added to frontend to input/upload your favorite training plans
   - Allow user feedback for plans
@@ -97,3 +96,4 @@ The next version takes lessons learned in v1 into consideration and adds user au
 - **Add unlimited number of plans as a premium feature**
 - **Add unlimited number of interactions as a premium feature**
   - Fee-tier users get 3 back-and-forth for a plan for free
+- **TP are exportable as PDF, for premium users excel, csv or odt**

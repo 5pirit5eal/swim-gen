@@ -36,7 +36,9 @@ export const useUploadStore = defineStore('upload', () => {
     isFetchingUploads.value = true
     const result = await apiClient.getUploadedPlans()
     if (result.success && Array.isArray(result.data)) {
-      uploadedPlans.value = result.data
+      uploadedPlans.value = result.data.sort((a, b) => {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      })
     } else {
       console.error(result.error ? formatError(result.error) : 'Failed to fetch uploaded plans')
     }

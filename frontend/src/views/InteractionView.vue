@@ -68,7 +68,7 @@ watch(
       displayedMessages.value = [...newVal]
     }
   },
-  { deep: true },
+  { deep: true, immediate: true },
 )
 
 function toggleSnapshot(messageId: string) {
@@ -725,10 +725,14 @@ watch(
   transition: all 0.5s ease;
 }
 
-.message-enter-from,
-.message-leave-to {
+.message-enter-from {
   opacity: 0;
   transform: translateY(20px);
+}
+
+.message-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
 }
 
 .fade-enter-active,

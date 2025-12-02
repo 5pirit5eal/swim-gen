@@ -171,6 +171,10 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       recalculateTotalSum()
       await fetchHistory() // Refresh history after generating a new plan
       isLoading.value = false
+      if (result.data.plan_id) {
+        console.log('Fetching conversation after generation for plan_id:', result.data.plan_id)
+        await fetchConversation(result.data.plan_id)
+      }
       return true
     } else {
       error.value = result.error

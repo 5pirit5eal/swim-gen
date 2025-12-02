@@ -342,7 +342,7 @@
   },
   "donation": {
     "title": "Upload Training Plan",
-    "intro": "Here you can upload your training plan. It will be stored in your account. You may either upload a PDF or image file, or input the plan manually. ",
+    "intro": "Here you can upload your training plan. It will be stored in your account. You may either upload a PDF or image file, or input the plan manually. After saving this plan, it is available for further use.",
     "allow_sharing": "Allow others to see results based on this plan",
     "submit": "Save Plan",
     "loading": "Uploading plan...",
@@ -394,6 +394,7 @@
     "metadata": "Metadata",
     "created_at": "Created At",
     "updated_at": "Updated At",
+    "exported_at": "Exported At",
     "chat_placeholder": "Type a message...",
     "describe_changes": "Describe your desired changes"
   },

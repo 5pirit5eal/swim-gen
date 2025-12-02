@@ -184,7 +184,7 @@ async function loadUploadedPlan(plan_id: string) {
 }
 
 .close-btn:hover {
-  color: var(--color-error);
+  color: var(--color-primary-hover);
 }
 
 .sidebar-content {
@@ -211,7 +211,7 @@ async function loadUploadedPlan(plan_id: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem;
   background-color: var(--color-primary);
   color: white;
   border: none;
@@ -238,8 +238,8 @@ async function loadUploadedPlan(plan_id: string) {
 }
 
 .icon-small {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 .sidebar-content section h3 {

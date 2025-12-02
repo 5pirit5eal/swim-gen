@@ -345,7 +345,7 @@
   },
   "donation": {
     "title": "Trainingsplan hochladen",
-    "intro": "Hier kannst du deinen Trainingsplan hochladen. Du kannst entweder eine PDF, oder Bilddatei hochladen, oder den Plan manuell eingeben. \n Sobald der Plan hochgeladen ist, kannst du noch Korrekturen vornehmen und ihn dann speichern.",
+    "intro": "Hier kannst du deinen Trainingsplan hochladen. Du kannst entweder eine PDF, oder Bilddatei hochladen, oder den Plan manuell eingeben. \n Sobald der Plan hochgeladen ist, kannst du noch Korrekturen vornehmen und ihn dann speichern. Dann steht er für weitere Nutzung zur Verfügung.",
     "allow_sharing": "Erlaube anderen Ergebnisse basierend auf diesem Plan zu sehen",
     "submit": "Plan speichern",
     "loading": "Lade plan hoch...",
@@ -397,6 +397,7 @@
     "metadata": "Metadaten",
     "created_at": "Erstellt am",
     "updated_at": "Aktualisiert am",
+    "exported_at": "Exportiert am",
     "chat_placeholder": "Nachricht eingeben...",
     "describe_changes": "Beschreibe hier deine gewünschte Änderung"
   },

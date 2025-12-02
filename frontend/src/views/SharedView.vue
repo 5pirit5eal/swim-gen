@@ -119,7 +119,7 @@ async function handleStartConversation() {
               <input
                 v-model="chatInput"
                 type="text"
-                :placeholder="t('interaction.chat_placeholder')"
+                :placeholder="t('interaction.describe_changes') + '...'"
                 class="chat-input"
                 :disabled="isLoading"
               />

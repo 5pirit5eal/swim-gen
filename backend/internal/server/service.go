@@ -197,7 +197,7 @@ func (rs *RAGService) FileToPlanHandler(w http.ResponseWriter, req *http.Request
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 3. Detect MIME type from filename
 	mimeType, err := getMimeTypeFromFilename(header.Filename)

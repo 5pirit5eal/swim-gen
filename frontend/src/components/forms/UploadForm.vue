@@ -67,7 +67,6 @@ async function handleFileUpload(event: Event) {
         ...result.data,
         // Ensure we keep the ID if it exists, or let the store handle it
       }
-      console.log(uploadFormStore.currentPlan)
       toast.success(t('donation.image_upload_success'))
     } else {
       toast.error(t('donation.image_upload_error'))
@@ -104,6 +103,11 @@ async function submit() {
 function close() {
   emit('close')
 }
+
+function resetPreview() {
+  imagePreviewUrl.value = null
+  fileType.value = null
+}
 </script>
 
 <template>
@@ -139,13 +143,7 @@ function close() {
             <iframe :src="imagePreviewUrl" class="preview-pdf"></iframe>
             <div class="pdf-overlay"></div>
           </div>
-          <button
-            class="remove-preview"
-            @click="
-              imagePreviewUrl = null
-              fileType = null
-            "
-          >
+          <button class="remove-preview" @click="resetPreview">
             <IconCross class="icon" />
           </button>
         </div>
@@ -165,7 +163,9 @@ function close() {
             :src="imagePreviewUrl || ''"
             class="preview-pdf-modal"
           ></iframe>
-          <button class="close-preview" @click="isPreviewOpen = false">×</button>
+          <button class="close-preview" @click="isPreviewOpen = false">
+            <IconCross class="icon" />
+          </button>
         </div>
       </div>
 

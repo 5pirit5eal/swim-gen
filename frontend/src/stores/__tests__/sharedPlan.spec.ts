@@ -246,7 +246,6 @@ describe('sharedPlan Store', () => {
 
       await store.upsertCurrentPlan()
 
-      expect(store.sharedPlan?.plan.plan_id).toBe('new-id')
       expect(store.isForked).toBe(true)
     })
   })

@@ -7,6 +7,7 @@ import router from '@/router'
 import { supabase } from '@/plugins/supabase'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
+import { useUploadStore } from '@/stores/uploads'
 
 export const useSharedPlanStore = defineStore('sharedPlan', () => {
   const authStore = useAuthStore()
@@ -97,6 +98,26 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
           trainingPlanStore.loadPlanFromHistory(ownPlan)
           isLoading.value = false
           router.push('/')
+          return 'own_plan'
+        }
+
+        // Check if it is an uploaded plan
+        const uploadStore = useUploadStore()
+        if (!uploadStore.uploadedPlans.length) {
+          if (!uploadStore.isFetchingUploads) {
+            await uploadStore.fetchUploadedPlans()
+          } else {
+            while (uploadStore.isFetchingUploads) {
+              await new Promise((resolve) => setTimeout(resolve, 100))
+            }
+          }
+        }
+        const ownUploadedPlan = uploadStore.uploadedPlans.find(
+          (plan) => plan.plan_id === sharedPlanData.plan_id,
+        )
+        if (ownUploadedPlan) {
+          isLoading.value = false
+          router.push({ name: 'uploaded', params: { planId: ownUploadedPlan.plan_id } })
           return 'own_plan'
         }
       }
@@ -384,10 +405,6 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     })
 
     if (result.success && result.data) {
-      // Update the plan_id in the shared plan
-      if (sharedPlan.value) {
-        sharedPlan.value.plan.plan_id = result.data.plan_id
-      }
       // Mark as forked and refresh history
       isForked.value = true
       const trainingPlanStore = useTrainingPlanStore()
