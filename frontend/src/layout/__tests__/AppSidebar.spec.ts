@@ -79,4 +79,15 @@ describe('AppSidebar.vue', () => {
     expect(trainingPlanStore.loadPlanFromHistory).toHaveBeenCalledTimes(1)
     expect(push).toHaveBeenCalledWith('/plan/1')
   })
+  it('renders the create new and upload buttons with correct text', () => {
+    const wrapper = mount(Sidebar, {
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    const buttons = wrapper.findAll('.create-new-btn')
+    expect(buttons[0].text()).toBe(i18n.global.t('sidebar.create_new'))
+    expect(buttons[1].text()).toBe(i18n.global.t('sidebar.upload_plan'))
+  })
 })

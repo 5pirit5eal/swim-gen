@@ -116,16 +116,36 @@ function close() {
       <p class="intro-text">{{ t('donation.intro') }}</p>
 
       <div class="image-upload-section">
-        <input type="file" ref="fileInput" accept="image/png,image/jpeg,application/pdf" class="hidden-input"
-          @change="handleFileUpload" />
+        <input
+          type="file"
+          ref="fileInput"
+          accept="image/png,image/jpeg,application/pdf"
+          class="hidden-input"
+          @change="handleFileUpload"
+        />
 
-        <div v-if="imagePreviewUrl" class="preview-container" :class="{ 'is-pdf': fileType === 'pdf' }">
-          <img v-if="fileType === 'image'" :src="imagePreviewUrl" class="preview-image" @click="isPreviewOpen = true" />
+        <div
+          v-if="imagePreviewUrl"
+          class="preview-container"
+          :class="{ 'is-pdf': fileType === 'pdf' }"
+        >
+          <img
+            v-if="fileType === 'image'"
+            :src="imagePreviewUrl"
+            class="preview-image"
+            @click="isPreviewOpen = true"
+          />
           <div v-else-if="fileType === 'pdf'" class="pdf-wrapper" @click="isPreviewOpen = true">
             <iframe :src="imagePreviewUrl" class="preview-pdf"></iframe>
             <div class="pdf-overlay"></div>
           </div>
-          <button class="remove-preview" @click="imagePreviewUrl = null; fileType = null">
+          <button
+            class="remove-preview"
+            @click="
+              imagePreviewUrl = null
+              fileType = null
+            "
+          >
             <IconCross class="icon" />
           </button>
         </div>
@@ -140,7 +160,11 @@ function close() {
       <div v-if="isPreviewOpen" class="preview-modal" @click="isPreviewOpen = false">
         <div class="preview-content">
           <img v-if="fileType === 'image'" :src="imagePreviewUrl || ''" />
-          <iframe v-else-if="fileType === 'pdf'" :src="imagePreviewUrl || ''" class="preview-pdf-modal"></iframe>
+          <iframe
+            v-else-if="fileType === 'pdf'"
+            :src="imagePreviewUrl || ''"
+            class="preview-pdf-modal"
+          ></iframe>
           <button class="close-preview" @click="isPreviewOpen = false">×</button>
         </div>
       </div>
@@ -148,7 +172,6 @@ function close() {
       <div class="plan-editor">
         <TrainingPlanDisplay :store="uploadFormStore" :show-share-button="false" />
       </div>
-
     </template>
 
     <template #footer>
@@ -368,8 +391,6 @@ h2 {
   cursor: not-allowed;
 }
 
-
-
 .sharing-option {
   margin: 0 2rem 1.5rem 2rem;
 }
@@ -383,7 +404,7 @@ h2 {
   user-select: none;
 }
 
-.checkbox-label input[type="checkbox"] {
+.checkbox-label input[type='checkbox'] {
   width: 1.2rem;
   height: 1.2rem;
   accent-color: var(--color-primary);

@@ -82,7 +82,11 @@ async function handleExport() {
 
 <template>
   <div class="export-actions">
-    <button @click="handleExport" class="export-btn main-action" :disabled="exportPhase === 'exporting'">
+    <button
+      @click="handleExport"
+      class="export-btn main-action"
+      :disabled="exportPhase === 'exporting'"
+    >
       <template v-if="exportPhase === 'exporting'">
         {{ t('display.exporting') }}
       </template>
@@ -96,8 +100,11 @@ async function handleExport() {
       </template>
     </button>
     <div class="dropdown-container">
-      <button @click="isExportMenuOpen = !isExportMenuOpen" class="export-btn dropdown-toggle"
-        :disabled="exportPhase === 'exporting'"></button>
+      <button
+        @click="isExportMenuOpen = !isExportMenuOpen"
+        class="export-btn dropdown-toggle"
+        :disabled="exportPhase === 'exporting'"
+      ></button>
       <Transition name="dropdown-transform">
         <div v-if="isExportMenuOpen" class="dropdown-menu">
           <label>

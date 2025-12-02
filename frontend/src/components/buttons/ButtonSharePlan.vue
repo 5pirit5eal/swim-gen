@@ -37,9 +37,7 @@ async function createShareUrl(request: ShareUrlRequest): Promise<string | null> 
     shareUrl.value = `${window.location.origin}/shared/${result.data.url_hash}`
     return shareUrl.value
   } else {
-    error.value = result.error
-      ? formatError(result.error)
-      : t('errors.share_plan_failed')
+    error.value = result.error ? formatError(result.error) : t('errors.share_plan_failed')
     return null
   }
 }
@@ -71,7 +69,13 @@ async function copyUrl() {
   <div class="share-container">
     <transition name="fade" mode="out-in">
       <!-- Initial Share Button -->
-      <button v-if="!shareUrl" @click="handleShare" :disabled="isLoading" class="share-btn" key="share-btn">
+      <button
+        v-if="!shareUrl"
+        @click="handleShare"
+        :disabled="isLoading"
+        class="share-btn"
+        key="share-btn"
+      >
         <span v-if="isLoading" class="loading-spinner"></span>
         <template v-else>
           <IconShare class="icon" />
@@ -80,7 +84,13 @@ async function copyUrl() {
       </button>
 
       <!-- Copy Link Button (Success State) -->
-      <button v-else @click="copyUrl" class="share-btn copy-link-btn" :class="{ copied: copied }" key="copy-btn">
+      <button
+        v-else
+        @click="copyUrl"
+        class="share-btn copy-link-btn"
+        :class="{ copied: copied }"
+        key="copy-btn"
+      >
         <transition name="scale" mode="out-in">
           <IconCheck v-if="copied" class="icon" />
           <IconCopy v-else class="icon" />

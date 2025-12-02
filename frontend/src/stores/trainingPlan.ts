@@ -232,7 +232,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-        ; (row[field] as string | number) = value
+      ;(row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -375,11 +375,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         next_message_id: null,
         plan_snapshot: result.data.table
           ? {
-            plan_id: result.data.plan_id,
-            title: result.data.title || '',
-            description: result.data.description || '',
-            table: result.data.table,
-          }
+              plan_id: result.data.plan_id,
+              title: result.data.title || '',
+              description: result.data.description || '',
+              table: result.data.table,
+            }
           : undefined,
       }
       conversation.value.push(aiMsg)

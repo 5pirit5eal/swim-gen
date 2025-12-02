@@ -59,11 +59,21 @@ async function loadUploadedPlan(plan_id: string) {
     </div>
     <div class="sidebar-content">
       <div class="action-buttons">
-        <button @click="createNewPlan" class="create-new-btn" :title="t('sidebar.create_new')">
+        <button
+          @click="createNewPlan"
+          class="create-new-btn secondary"
+          :title="t('sidebar.create_new')"
+        >
           <IconPlus class="icon-small" />
+          <span>{{ t('sidebar.create_new') }}</span>
         </button>
-        <button @click="showDonationForm = true" class="create-new-btn secondary" :title="t('sidebar.upload_plan')">
+        <button
+          @click="showDonationForm = true"
+          class="create-new-btn secondary"
+          :title="t('sidebar.upload_plan')"
+        >
           <IconUpload class="icon-small" />
+          <span>{{ t('sidebar.upload_plan') }}</span>
         </button>
       </div>
       <section>
@@ -77,7 +87,10 @@ async function loadUploadedPlan(plan_id: string) {
         <ul v-else class="plan-list">
           <li v-for="plan in trainingPlanStore.planHistory" :key="plan.plan_id">
             <div class="plan-item-main">
-              <div class="status-icon-container" @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)">
+              <div
+                class="status-icon-container"
+                @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)"
+              >
                 <IconHeart v-if="plan.keep_forever" class="status-icon" />
                 <IconHourglass v-else class="status-icon" />
               </div>
@@ -198,14 +211,16 @@ async function loadUploadedPlan(plan_id: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 0.25rem;
+  padding: 0.75rem 1rem;
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
-  max-width: 100px;
+  gap: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
 .create-new-btn:hover {

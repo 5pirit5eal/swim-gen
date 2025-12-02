@@ -119,8 +119,13 @@ async function handleStartConversation() {
           <section class="chat-transition">
             <label class="input-label">{{ t('shared.start_conversation') }}</label>
             <form @submit.prevent="handleStartConversation" class="chat-form">
-              <input v-model="chatInput" type="text" :placeholder="t('interaction.describe_changes') + '...'"
-                class="chat-input" :disabled="isLoading" />
+              <input
+                v-model="chatInput"
+                type="text"
+                :placeholder="t('interaction.describe_changes') + '...'"
+                class="chat-input"
+                :disabled="isLoading"
+              />
               <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
                 <IconSend class="send-icon" />
               </button>

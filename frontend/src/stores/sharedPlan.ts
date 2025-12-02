@@ -300,7 +300,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-        ; (row[field] as string | number) = value
+      ;(row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -384,6 +384,10 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     })
 
     if (result.success && result.data) {
+      // Update the plan_id in the shared plan
+      if (sharedPlan.value) {
+        sharedPlan.value.plan.plan_id = result.data.plan_id
+      }
       // Mark as forked and refresh history
       isForked.value = true
       const trainingPlanStore = useTrainingPlanStore()
