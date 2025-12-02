@@ -22,6 +22,7 @@ const uploadFormStore = useUploadFormStore()
 const isUploadingImage = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
 const imagePreviewUrl = ref<string | null>(null)
+const fileType = ref<'image' | 'pdf' | null>(null)
 const isPreviewOpen = ref(false)
 const allowSharing = ref(false)
 
@@ -39,6 +40,13 @@ async function handleFileUpload(event: Event) {
   if (!file) return
 
   isUploadingImage.value = true
+
+  // Detect file type
+  if (file.type === 'application/pdf') {
+    fileType.value = 'pdf'
+  } else if (file.type.startsWith('image/')) {
+    fileType.value = 'image'
+  }
 
   // Create preview URL
   const reader = new FileReader()
@@ -85,6 +93,7 @@ async function submit() {
     toast.success(t('donation.success_toast'))
     uploadFormStore.clear()
     imagePreviewUrl.value = null
+    fileType.value = null
     allowSharing.value = false
     emit('close')
   } else {
@@ -110,9 +119,13 @@ function close() {
         <input type="file" ref="fileInput" accept="image/png,image/jpeg,application/pdf" class="hidden-input"
           @change="handleFileUpload" />
 
-        <div v-if="imagePreviewUrl" class="preview-container">
-          <img :src="imagePreviewUrl" class="preview-image" @click="isPreviewOpen = true" />
-          <button class="remove-preview" @click="imagePreviewUrl = null">
+        <div v-if="imagePreviewUrl" class="preview-container" :class="{ 'is-pdf': fileType === 'pdf' }">
+          <img v-if="fileType === 'image'" :src="imagePreviewUrl" class="preview-image" @click="isPreviewOpen = true" />
+          <div v-else-if="fileType === 'pdf'" class="pdf-wrapper" @click="isPreviewOpen = true">
+            <iframe :src="imagePreviewUrl" class="preview-pdf"></iframe>
+            <div class="pdf-overlay"></div>
+          </div>
+          <button class="remove-preview" @click="imagePreviewUrl = null; fileType = null">
             <IconCross class="icon" />
           </button>
         </div>
@@ -126,7 +139,8 @@ function close() {
 
       <div v-if="isPreviewOpen" class="preview-modal" @click="isPreviewOpen = false">
         <div class="preview-content">
-          <img :src="imagePreviewUrl || ''" />
+          <img v-if="fileType === 'image'" :src="imagePreviewUrl || ''" />
+          <iframe v-else-if="fileType === 'pdf'" :src="imagePreviewUrl || ''" class="preview-pdf-modal"></iframe>
           <button class="close-preview" @click="isPreviewOpen = false">×</button>
         </div>
       </div>
@@ -216,6 +230,11 @@ h2 {
   position: relative;
   margin-bottom: 1rem;
   max-width: 200px;
+  width: 100%;
+}
+
+.preview-container.is-pdf {
+  max-width: 100%;
 }
 
 .preview-image {
@@ -223,6 +242,32 @@ h2 {
   border-radius: 8px;
   cursor: zoom-in;
   border: 1px solid var(--color-border);
+}
+
+.pdf-wrapper {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.preview-pdf {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.pdf-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 1;
 }
 
 .remove-preview {
@@ -265,6 +310,13 @@ h2 {
 .preview-content img {
   max-width: 100%;
   max-height: 90vh;
+  border-radius: 8px;
+}
+
+.preview-pdf-modal {
+  width: 90vw;
+  height: 90vh;
+  border: none;
   border-radius: 8px;
 }
 
