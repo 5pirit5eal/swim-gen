@@ -190,7 +190,7 @@ jobs:
   comment-on-completion:
     name: 💬 Comment on deployment completion
     needs: opentofu-services
-    if: always() && !cancelled() && !contains(needs.*.result, 'failure') && github.event_name != 'workflow_dispatch'
+    if: always() && !cancelled() && !contains(needs.*.result, 'failure') && github.event_name != 'workflow_dispatch' && github.event.issue.pull_request && needs.opentofu-services.result != 'skipped'
     runs-on: ubuntu-latest
     steps:
       - name: Comment on PR
@@ -208,7 +208,7 @@ jobs:
   comment-on-failure:
     name: ❗ Comment on deployment failure
     needs: opentofu-services
-    if: failure() && github.event_name != 'workflow_dispatch'
+    if: failure() && github.event_name != 'workflow_dispatch' && github.event.issue.pull_request
     runs-on: ubuntu-latest
     steps:
       - name: Comment on PR about failure
