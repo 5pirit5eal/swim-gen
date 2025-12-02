@@ -1,3 +1,10 @@
+## [2.4.1](https://github.com/5pirit5eal/swim-gen/compare/v2.4.0...v2.4.1) (2025-12-02)
+
+### Bug Fixes
+
+* fixed comment workflow ([448302d](https://github.com/5pirit5eal/swim-gen/commit/448302d84bdf7e3d014d98b98797f46850c4cc09))
+* fixed comment workflow ([#130](https://github.com/5pirit5eal/swim-gen/issues/130)) ([89f4641](https://github.com/5pirit5eal/swim-gen/commit/89f4641ef189b7409428c2063f22b25aca6ea3a5))
+
 ## [2.4.0](https://github.com/5pirit5eal/swim-gen/compare/v2.3.0...v2.4.0) (2025-12-02)
 
 ### Features
