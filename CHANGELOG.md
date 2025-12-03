@@ -1,3 +1,18 @@
+## [2.5.0](https://github.com/5pirit5eal/swim-gen/compare/v2.4.1...v2.5.0) (2025-12-03)
+
+### Features
+
+* 125 sidebar updates ([#131](https://github.com/5pirit5eal/swim-gen/issues/131)) ([cbbb212](https://github.com/5pirit5eal/swim-gen/commit/cbbb2123728b8ff571e07264027e4e6895099860))
+* added highlighting to the sidebar ([95ac15d](https://github.com/5pirit5eal/swim-gen/commit/95ac15d8659228408c76e2993a4a1b1a0f4e4a92))
+* fixed the border in the sidebar ([82c1fa9](https://github.com/5pirit5eal/swim-gen/commit/82c1fa9a7154134a47d0536197794decce5ff999))
+* restyled dropdown menue ([73de096](https://github.com/5pirit5eal/swim-gen/commit/73de09664baeacb29f6173160fbbd4638e8a7146))
+
+### Bug Fixes
+
+* added i18n translations for delete confirmation ([9ddf11b](https://github.com/5pirit5eal/swim-gen/commit/9ddf11bc55fee4caf4c84dcdffc81267b406b4fa))
+* fix mulitpart passthrough ([1e8fabd](https://github.com/5pirit5eal/swim-gen/commit/1e8fabdd7caedccf7c6fd1d7fca73a706afcc388))
+* toggle only if not kept forever ([091ebf7](https://github.com/5pirit5eal/swim-gen/commit/091ebf7ba272d2099f366d3caec5a9e7c1017965))
+
 ## [2.4.1](https://github.com/5pirit5eal/swim-gen/compare/v2.4.0...v2.4.1) (2025-12-02)
 
 ### Bug Fixes
