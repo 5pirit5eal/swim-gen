@@ -306,6 +306,11 @@ watch(
                 </div>
               </div>
             </TransitionGroup>
+
+            <!-- Three-dot loader while waiting for AI response -->
+            <div v-if="isLoading" class="chat-loader">
+              <div class="loader"></div>
+            </div>
           </div>
 
           <!-- Chat Input Area -->
@@ -743,5 +748,55 @@ watch(
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.chat-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0 0;
+}
+
+/* Three-dot jumping loader */
+.loader {
+  width: 60px;
+  aspect-ratio: 2;
+  --_g: no-repeat radial-gradient(circle closest-side, var(--color-text) 90%, #0000);
+  background:
+    var(--_g) 0% 50%,
+    var(--_g) 50% 50%,
+    var(--_g) 100% 50%;
+  background-size: calc(100% / 3) 50%;
+  animation: l3 1s infinite linear;
+}
+
+@keyframes l3 {
+  20% {
+    background-position:
+      0% 0%,
+      50% 50%,
+      100% 50%;
+  }
+
+  40% {
+    background-position:
+      0% 100%,
+      50% 0%,
+      100% 50%;
+  }
+
+  60% {
+    background-position:
+      0% 50%,
+      50% 100%,
+      100% 0%;
+  }
+
+  80% {
+    background-position:
+      0% 50%,
+      50% 50%,
+      100% 100%;
+  }
 }
 </style>
