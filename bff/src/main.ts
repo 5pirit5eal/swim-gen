@@ -59,7 +59,9 @@ async function proxyRequest(req: express.Request, res: express.Response) {
   const contentType = req.headers["content-type"] || "";
   const isMultipart = contentType.startsWith("multipart/");
 
-  console.log(`Proxying request: ${method} ${originalUrl} -> ${targetUrl} (multipart: ${isMultipart})`);
+  console.log(
+    `Proxying request: ${method} ${originalUrl} -> ${targetUrl} (multipart: ${isMultipart})`,
+  );
 
   try {
     // Extract user's Authorization header from the request (if present)
