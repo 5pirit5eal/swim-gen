@@ -507,7 +507,9 @@ async function loadUploadedPlan(plan_id: string) {
 }
 
 .plan-list li {
+  border: 1px solid transparent;
   border-bottom: 1px solid var(--color-border);
+  border-bottom-color: var(--color-border);
   color: var(--color-text);
   display: flex;
   flex-direction: column;
