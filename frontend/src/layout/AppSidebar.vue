@@ -82,7 +82,7 @@ function closeMenu() {
 }
 
 async function deletePlan(planId: string) {
-  if (!confirm('Are you sure you want to delete this plan? This action cannot be undone.')) {
+  if (!confirm(t('sidebar.confirm_delete_plan'))) {
     return
   }
   const result = await apiClient.deletePlan(planId)
@@ -131,6 +131,34 @@ function cancelEdit() {
   editingTitle.value = ''
 }
 
+function startEditTitleUpload(plan: { plan_id: string; title: string }) {
+  editingPlanId.value = plan.plan_id
+  editingTitle.value = plan.title
+  closeMenu()
+}
+
+async function saveUploadedTitle(planId: string) {
+  if (!editingTitle.value.trim()) {
+    editingPlanId.value = null
+    return
+  }
+
+  const plan = donationStore.uploadedPlans.find(p => p.plan_id === planId)
+  if (!plan) return
+
+  const result = await apiClient.upsertPlan({
+    plan_id: planId,
+    title: editingTitle.value,
+    description: plan.description,
+    table: plan.table
+  })
+
+  if (result.success) {
+    await donationStore.fetchUploadedPlans()
+  }
+  editingPlanId.value = null
+}
+
 async function sharePlan(plan: RAGResponse & HistoryMetadata) {
   // If we already have a URL for this plan, copy it
   if (shareUrl.value && sharingPlanId.value === plan.plan_id) {
@@ -167,7 +195,7 @@ async function copyShareUrl() {
 }
 
 async function deleteSharedPlan(planId: string) {
-  if (!confirm('Are you sure you want to delete this shared plan? This action cannot be undone.')) {
+  if (!confirm(t('sidebar.confirm_delete_shared'))) {
     return
   }
   const result = await apiClient.deletePlan(planId)
@@ -184,7 +212,7 @@ async function deleteSharedPlan(planId: string) {
 }
 
 async function deleteUploadedPlan(planId: string) {
-  if (!confirm('Are you sure you want to delete this uploaded plan? This action cannot be undone.')) {
+  if (!confirm(t('sidebar.confirm_delete_uploaded'))) {
     return
   }
   const result = await apiClient.deletePlan(planId)
@@ -359,7 +387,12 @@ async function loadUploadedPlan(plan_id: string) {
           <li v-for="plan in donationStore.uploadedPlans" :key="plan.plan_id"
             :class="{ 'active-plan': currentPlanId === plan.plan_id }">
             <div class="plan-item-main">
-              <div class="plan-title" @click="loadUploadedPlan(plan.plan_id)">
+              <div v-if="editingPlanId === plan.plan_id" class="plan-title-edit">
+                <input ref="titleInputRef" v-model="editingTitle" type="text" class="title-input"
+                  @keyup.enter="saveUploadedTitle(plan.plan_id)" @keyup.escape="cancelEdit"
+                  @blur="saveUploadedTitle(plan.plan_id)" />
+              </div>
+              <div v-else class="plan-title" @click="loadUploadedPlan(plan.plan_id)">
                 <span>{{ plan.title }}</span>
               </div>
               <div class="menu-container">
@@ -368,6 +401,9 @@ async function loadUploadedPlan(plan_id: string) {
                 </button>
                 <transition name="dropdown">
                   <div v-if="openMenuPlanId === plan.plan_id" class="dropdown-menu">
+                    <button class="menu-item" @click="startEditTitleUpload(plan)">
+                      {{ t('sidebar.menu_edit_title') }}
+                    </button>
                     <button class="menu-item" @click="shareUploadedPlan(plan)">
                       <transition name="scale" mode="out-in">
                         <IconCheck v-if="copied && sharingPlanId === plan.plan_id" class="menu-icon" />

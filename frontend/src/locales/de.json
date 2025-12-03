@@ -346,7 +346,10 @@
     "tooltip_permanent": "Dauerhafter Plan - wird dauerhaft gespeichert",
     "menu_delete": "Löschen",
     "menu_edit_title": "Titel bearbeiten",
-    "menu_share": "Teilen"
+    "menu_share": "Teilen",
+    "confirm_delete_plan": "Bist du sicher, dass du diesen Plan löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm_delete_shared": "Bist du sicher, dass du diesen geteilten Plan löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm_delete_uploaded": "Bist du sicher, dass du diesen hochgeladenen Plan löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden."
   },
   "donation": {
     "title": "Trainingsplan hochladen",
