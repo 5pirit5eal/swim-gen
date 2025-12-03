@@ -15,8 +15,20 @@ vi.mock('vue-router', async (importOriginal) => {
       push,
       currentRoute: { value: { path: '/not-home' } },
     })),
+    useRoute: vi.fn(() => ({
+      name: 'plan',
+      params: { id: '1' },
+    })),
   }
 })
+
+// Mock apiClient
+vi.mock('@/api/client', () => ({
+  apiClient: {
+    deletePlan: vi.fn().mockResolvedValue({ success: true }),
+    upsertPlan: vi.fn().mockResolvedValue({ success: true }),
+  },
+}))
 
 describe('AppSidebar.vue', () => {
   beforeEach(() => {
@@ -89,5 +101,101 @@ describe('AppSidebar.vue', () => {
     const buttons = wrapper.findAll('.create-new-btn')
     expect(buttons[0].text()).toBe(i18n.global.t('sidebar.create_new'))
     expect(buttons[1].text()).toBe(i18n.global.t('sidebar.upload_plan'))
+  })
+
+  it('toggles the menu when dots icon is clicked', async () => {
+    const wrapper = mount(Sidebar, {
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    // Menu should be hidden initially
+    expect(wrapper.find('.dropdown-menu').exists()).toBe(false)
+
+    // Click dots button
+    await wrapper.find('.menu-button').trigger('click')
+    expect(wrapper.find('.dropdown-menu').exists()).toBe(true)
+
+    // Click again to close
+    await wrapper.find('.menu-button').trigger('click')
+    expect(wrapper.find('.dropdown-menu').exists()).toBe(false)
+  })
+
+  it('shows correct tooltips for status icons', () => {
+    const wrapper = mount(Sidebar, {
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    const iconContainer = wrapper.find('.status-icon-container')
+    // Plan 1 has keep_forever: false
+    expect(iconContainer.attributes('title')).toBe(i18n.global.t('sidebar.tooltip_temporary'))
+  })
+
+  it('handles plan deletion', async () => {
+    const wrapper = mount(Sidebar, {
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    // Mock confirm
+    window.confirm = vi.fn(() => true)
+    const { apiClient } = await import('@/api/client')
+    const trainingPlanStore = useTrainingPlanStore()
+
+    // Open menu
+    await wrapper.find('.menu-button').trigger('click')
+
+    // Click delete
+    await wrapper.find('.menu-item.delete').trigger('click')
+
+    expect(window.confirm).toHaveBeenCalled()
+    expect(apiClient.deletePlan).toHaveBeenCalledWith('1')
+    expect(trainingPlanStore.fetchHistory).toHaveBeenCalled()
+    expect(push).toHaveBeenCalledWith('/') // Should go home if deleting current plan
+  })
+
+  it('handles title editing', async () => {
+    const wrapper = mount(Sidebar, {
+      global: {
+        plugins: [i18n],
+      },
+      attachTo: document.body, // Needed for focus/blur events sometimes
+    })
+
+    const { apiClient } = await import('@/api/client')
+    const trainingPlanStore = useTrainingPlanStore()
+
+    // Open menu
+    await wrapper.find('.menu-button').trigger('click')
+
+    // Click edit title
+    const editButton = wrapper
+      .findAll('.menu-item')
+      .find((b) => b.text() === i18n.global.t('sidebar.menu_edit_title'))
+    await editButton?.trigger('click')
+
+    // Input should appear
+    const input = wrapper.find('input.title-input')
+    expect(input.exists()).toBe(true)
+    expect((input.element as HTMLInputElement).value).toBe('Test Plan 1')
+
+    // Change value and blur to save
+    await input.setValue('New Title')
+    await input.trigger('blur')
+
+    expect(apiClient.upsertPlan).toHaveBeenCalledWith({
+      plan_id: '1',
+      title: 'New Title',
+      description: 'Desc 1',
+      table: [],
+    })
+    expect(trainingPlanStore.fetchHistory).toHaveBeenCalled()
+
+    // Input should disappear
+    expect(wrapper.find('input.title-input').exists()).toBe(false)
   })
 })

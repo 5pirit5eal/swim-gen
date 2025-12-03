@@ -97,7 +97,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         if (ownPlan) {
           trainingPlanStore.loadPlanFromHistory(ownPlan)
           isLoading.value = false
-          router.push('/')
+          router.push({ name: 'plan', params: { id: ownPlan.plan_id } })
           return 'own_plan'
         }
 

@@ -323,6 +323,20 @@ class ApiClient {
       true,
     )
   }
+
+  /**
+   * Delete a training plan
+   */
+  async deletePlan(planId: string): Promise<ApiResult<string>> {
+    return this._fetch(
+      `plan/${planId}`,
+      {
+        method: 'DELETE',
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
 }
 
 // Export singleton instance
