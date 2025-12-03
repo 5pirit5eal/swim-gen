@@ -514,6 +514,13 @@ async function loadUploadedPlan(plan_id: string) {
   padding: 0.5rem;
 }
 
+/* Active/highlighted plan */
+.plan-list li.active-plan {
+  background-color: var(--color-shadow);
+  border: 1px solid var(--color-primary-hover);
+  border-radius: 8px;
+}
+
 .plan-item-main {
   display: flex;
   align-items: center;
@@ -580,8 +587,8 @@ async function loadUploadedPlan(plan_id: string) {
 }
 
 .dots-icon {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 24px;
+  height: 24px;
   color: var(--color-text);
   transition: color 0.2s;
 }
@@ -591,6 +598,7 @@ async function loadUploadedPlan(plan_id: string) {
   right: 0;
   top: 100%;
   margin-top: 0.25rem;
+  margin-right: 0.25rem;
   background-color: var(--color-background-soft);
   border: 1px solid var(--color-border);
   border-radius: 8px;
@@ -630,13 +638,6 @@ async function loadUploadedPlan(plan_id: string) {
 .menu-icon {
   width: 1rem;
   height: 1rem;
-}
-
-/* Active/highlighted plan */
-.plan-list li.active-plan {
-  background-color: var(--color-shadow);
-  border: 2px solid var(--color-primary-hover);
-  border-radius: 8px;
 }
 
 /* Dropdown transition */
