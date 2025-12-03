@@ -1,3 +1,10 @@
+## [2.6.0](https://github.com/5pirit5eal/swim-gen/compare/v2.5.0...v2.6.0) (2025-12-03)
+
+### Features
+
+* added loading animation to chat interaction ([2a287b5](https://github.com/5pirit5eal/swim-gen/commit/2a287b57d0d84a025c86c6be794aac29b3786885))
+* added loading animation to chat interaction ([#132](https://github.com/5pirit5eal/swim-gen/issues/132)) ([6cf8ff5](https://github.com/5pirit5eal/swim-gen/commit/6cf8ff5d71adaf5889e348b1d36d1aa41bdc0ca5))
+
 ## [2.5.0](https://github.com/5pirit5eal/swim-gen/compare/v2.4.1...v2.5.0) (2025-12-03)
 
 ### Features
