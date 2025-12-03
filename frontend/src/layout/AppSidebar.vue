@@ -175,7 +175,7 @@ async function sharePlan(plan: RAGResponse & HistoryMetadata) {
   copied.value = false
 
   // Keep forever and create share URL
-  await trainingPlanStore.toggleKeepForever(plan.plan_id)
+  if (!plan.keep_forever) await trainingPlanStore.toggleKeepForever(plan.plan_id)
   const result = await apiClient.createShareUrl({ plan_id: plan.plan_id, method: 'link' })
 
   if (result.success && result.data) {
