@@ -167,10 +167,19 @@ async function copyShareUrl() {
 }
 
 async function deleteSharedPlan(planId: string) {
-  if (!confirm('Are you sure you want to remove this shared plan from your history?')) {
+  if (!confirm('Are you sure you want to delete this shared plan? This action cannot be undone.')) {
     return
   }
-  await sharedPlanStore.deleteFromHistory(planId)
+  const result = await apiClient.deletePlan(planId)
+  if (result.success) {
+    await sharedPlanStore.fetchSharedHistory()
+    // If we're currently viewing this plan, go home
+    if (currentPlanId.value === planId) {
+      router.push('/')
+    }
+  } else {
+    alert('Failed to delete plan: ' + (result.error?.message || 'Unknown error'))
+  }
   closeMenu()
 }
 
@@ -180,7 +189,7 @@ async function deleteUploadedPlan(planId: string) {
   }
   const result = await apiClient.deletePlan(planId)
   if (result.success) {
-    await donationStore.fetchUploads()
+    await donationStore.fetchUploadedPlans()
     // If we're currently viewing this plan, go home
     if (currentPlanId.value === planId) {
       router.push('/')

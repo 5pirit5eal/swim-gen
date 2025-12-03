@@ -13,7 +13,17 @@ app.set("trust proxy", 1);
 const port = process.env.PORT || 8080;
 
 // Middleware to handle JSON bodies
-app.use(express.json());
+// Note: This middleware only applies to non-multipart requests
+// Multipart requests are handled separately in the proxy handler
+app.use((req, res, next) => {
+  const contentType = req.headers["content-type"] || "";
+  if (contentType.startsWith("multipart/")) {
+    // Skip JSON parsing for multipart requests
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 
 // Enable CORS
 const corsOptions = {
@@ -46,7 +56,10 @@ async function proxyRequest(req: express.Request, res: express.Response) {
   const backendPath = originalUrl.replace(/^\/api/, "");
   const targetUrl = `${process.env.BACKEND_URL}${backendPath}`;
 
-  console.log(`Proxying request: ${method} ${originalUrl} -> ${targetUrl}`);
+  const contentType = req.headers["content-type"] || "";
+  const isMultipart = contentType.startsWith("multipart/");
+
+  console.log(`Proxying request: ${method} ${originalUrl} -> ${targetUrl} (multipart: ${isMultipart})`);
 
   try {
     // Extract user's Authorization header from the request (if present)
@@ -55,15 +68,41 @@ async function proxyRequest(req: express.Request, res: express.Response) {
     // Get auth headers (includes user auth passthrough + Google Identity token)
     const authHeaders = await authModule.getAuthHeaders(userAuthHeader);
 
-    const response = await axios({
-      method,
-      url: targetUrl,
-      data: body,
-      headers: {
-        ...authHeaders,
-        "Content-Type": "application/json",
-      },
-    });
+    let response;
+
+    if (isMultipart) {
+      // For multipart requests, stream the raw body and preserve the original Content-Type
+      // Collect the raw body data
+      const chunks: Buffer[] = [];
+      for await (const chunk of req as unknown as AsyncIterable<Buffer>) {
+        chunks.push(chunk);
+      }
+      const rawBody = Buffer.concat(chunks);
+
+      response = await axios({
+        method,
+        url: targetUrl,
+        data: rawBody,
+        headers: {
+          ...authHeaders,
+          "Content-Type": contentType, // Preserve original multipart Content-Type with boundary
+          "Content-Length": rawBody.length.toString(),
+        },
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
+      });
+    } else {
+      // For JSON requests, use the parsed body
+      response = await axios({
+        method,
+        url: targetUrl,
+        data: body,
+        headers: {
+          ...authHeaders,
+          "Content-Type": "application/json",
+        },
+      });
+    }
 
     res.status(response.status).json(response.data);
   } catch (error) {
