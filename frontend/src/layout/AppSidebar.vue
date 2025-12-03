@@ -38,7 +38,10 @@ const currentPlanId = computed(() => {
     return route.params.id as string
   }
   // For shared plans, check if we have a loaded shared plan
-  if ((route.name === 'shared' || route.name === 'shared_empty') && sharedPlanStore.sharedPlan?.plan?.plan_id) {
+  if (
+    (route.name === 'shared' || route.name === 'shared_empty') &&
+    sharedPlanStore.sharedPlan?.plan?.plan_id
+  ) {
     return sharedPlanStore.sharedPlan.plan.plan_id
   }
   if (route.name === 'uploaded' && route.params.planId) {
@@ -110,14 +113,14 @@ async function saveTitle(planId: string) {
     return
   }
 
-  const plan = trainingPlanStore.planHistory.find(p => p.plan_id === planId)
+  const plan = trainingPlanStore.planHistory.find((p) => p.plan_id === planId)
   if (!plan) return
 
   const result = await apiClient.upsertPlan({
     plan_id: planId,
     title: editingTitle.value,
     description: plan.description,
-    table: plan.table
+    table: plan.table,
   })
 
   if (result.success) {
@@ -143,14 +146,14 @@ async function saveUploadedTitle(planId: string) {
     return
   }
 
-  const plan = donationStore.uploadedPlans.find(p => p.plan_id === planId)
+  const plan = donationStore.uploadedPlans.find((p) => p.plan_id === planId)
   if (!plan) return
 
   const result = await apiClient.upsertPlan({
     plan_id: planId,
     title: editingTitle.value,
     description: plan.description,
-    table: plan.table
+    table: plan.table,
   })
 
   if (result.success) {
@@ -281,11 +284,19 @@ async function loadUploadedPlan(plan_id: string) {
     </div>
     <div class="sidebar-content">
       <div class="action-buttons">
-        <button @click="createNewPlan" class="create-new-btn secondary" :title="t('sidebar.create_new')">
+        <button
+          @click="createNewPlan"
+          class="create-new-btn secondary"
+          :title="t('sidebar.create_new')"
+        >
           <IconPlus class="icon-small" />
           <span>{{ t('sidebar.create_new') }}</span>
         </button>
-        <button @click="showDonationForm = true" class="create-new-btn secondary" :title="t('sidebar.upload_plan')">
+        <button
+          @click="showDonationForm = true"
+          class="create-new-btn secondary"
+          :title="t('sidebar.upload_plan')"
+        >
           <IconUpload class="icon-small" />
           <span>{{ t('sidebar.upload_plan') }}</span>
         </button>
@@ -299,18 +310,34 @@ async function loadUploadedPlan(plan_id: string) {
           {{ t('sidebar.generated_placeholder') }}
         </p>
         <ul v-else class="plan-list">
-          <li v-for="plan in trainingPlanStore.planHistory" :key="plan.plan_id"
-            :class="{ 'active-plan': currentPlanId === plan.plan_id }">
+          <li
+            v-for="plan in trainingPlanStore.planHistory"
+            :key="plan.plan_id"
+            :class="{ 'active-plan': currentPlanId === plan.plan_id }"
+          >
             <div class="plan-item-main">
-              <div class="status-icon-container"
-                :title="plan.keep_forever ? t('sidebar.tooltip_permanent') : t('sidebar.tooltip_temporary')"
-                @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)">
+              <div
+                class="status-icon-container"
+                :title="
+                  plan.keep_forever
+                    ? t('sidebar.tooltip_permanent')
+                    : t('sidebar.tooltip_temporary')
+                "
+                @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)"
+              >
                 <IconHeart v-if="plan.keep_forever" class="status-icon" />
                 <IconHourglass v-else class="status-icon" />
               </div>
               <div v-if="editingPlanId === plan.plan_id" class="plan-title-edit">
-                <input ref="titleInputRef" v-model="editingTitle" type="text" class="title-input"
-                  @keyup.enter="saveTitle(plan.plan_id)" @keyup.escape="cancelEdit" @blur="saveTitle(plan.plan_id)" />
+                <input
+                  ref="titleInputRef"
+                  v-model="editingTitle"
+                  type="text"
+                  class="title-input"
+                  @keyup.enter="saveTitle(plan.plan_id)"
+                  @keyup.escape="cancelEdit"
+                  @blur="saveTitle(plan.plan_id)"
+                />
               </div>
               <div v-else class="plan-title" @click="loadPlan(plan)">
                 <span>{{ plan.title }}</span>
@@ -326,12 +353,22 @@ async function loadUploadedPlan(plan_id: string) {
                     </button>
                     <button class="menu-item" @click="sharePlan(plan)">
                       <transition name="scale" mode="out-in">
-                        <IconCheck v-if="copied && sharingPlanId === plan.plan_id" class="menu-icon" />
-                        <IconCopy v-else-if="shareUrl && sharingPlanId === plan.plan_id" class="menu-icon" />
+                        <IconCheck
+                          v-if="copied && sharingPlanId === plan.plan_id"
+                          class="menu-icon"
+                        />
+                        <IconCopy
+                          v-else-if="shareUrl && sharingPlanId === plan.plan_id"
+                          class="menu-icon"
+                        />
                         <IconShare v-else class="menu-icon" />
                       </transition>
-                      <span v-if="copied && sharingPlanId === plan.plan_id">{{ t('share.copied') }}</span>
-                      <span v-else-if="shareUrl && sharingPlanId === plan.plan_id">{{ t('share.copy') }}</span>
+                      <span v-if="copied && sharingPlanId === plan.plan_id">{{
+                        t('share.copied')
+                      }}</span>
+                      <span v-else-if="shareUrl && sharingPlanId === plan.plan_id">{{
+                        t('share.copy')
+                      }}</span>
                       <span v-else>{{ t('sidebar.menu_share') }}</span>
                     </button>
                     <button class="menu-item delete" @click="deletePlan(plan.plan_id)">
@@ -353,8 +390,11 @@ async function loadUploadedPlan(plan_id: string) {
           {{ t('sidebar.shared_placeholder') }}
         </p>
         <ul v-else class="plan-list">
-          <li v-for="item in sharedPlanStore.sharedHistory" :key="item.plan_id"
-            :class="{ 'active-plan': currentPlanId === item.plan_id }">
+          <li
+            v-for="item in sharedPlanStore.sharedHistory"
+            :key="item.plan_id"
+            :class="{ 'active-plan': currentPlanId === item.plan_id }"
+          >
             <div class="plan-item-main">
               <div class="plan-title" @click="loadSharedPlan(item)">
                 <span>{{ item.plan.title }}</span>
@@ -384,13 +424,22 @@ async function loadUploadedPlan(plan_id: string) {
           {{ t('sidebar.uploaded_placeholder') }}
         </p>
         <ul v-else class="plan-list">
-          <li v-for="plan in donationStore.uploadedPlans" :key="plan.plan_id"
-            :class="{ 'active-plan': currentPlanId === plan.plan_id }">
+          <li
+            v-for="plan in donationStore.uploadedPlans"
+            :key="plan.plan_id"
+            :class="{ 'active-plan': currentPlanId === plan.plan_id }"
+          >
             <div class="plan-item-main">
               <div v-if="editingPlanId === plan.plan_id" class="plan-title-edit">
-                <input ref="titleInputRef" v-model="editingTitle" type="text" class="title-input"
-                  @keyup.enter="saveUploadedTitle(plan.plan_id)" @keyup.escape="cancelEdit"
-                  @blur="saveUploadedTitle(plan.plan_id)" />
+                <input
+                  ref="titleInputRef"
+                  v-model="editingTitle"
+                  type="text"
+                  class="title-input"
+                  @keyup.enter="saveUploadedTitle(plan.plan_id)"
+                  @keyup.escape="cancelEdit"
+                  @blur="saveUploadedTitle(plan.plan_id)"
+                />
               </div>
               <div v-else class="plan-title" @click="loadUploadedPlan(plan.plan_id)">
                 <span>{{ plan.title }}</span>
@@ -406,12 +455,22 @@ async function loadUploadedPlan(plan_id: string) {
                     </button>
                     <button class="menu-item" @click="shareUploadedPlan(plan)">
                       <transition name="scale" mode="out-in">
-                        <IconCheck v-if="copied && sharingPlanId === plan.plan_id" class="menu-icon" />
-                        <IconCopy v-else-if="shareUrl && sharingPlanId === plan.plan_id" class="menu-icon" />
+                        <IconCheck
+                          v-if="copied && sharingPlanId === plan.plan_id"
+                          class="menu-icon"
+                        />
+                        <IconCopy
+                          v-else-if="shareUrl && sharingPlanId === plan.plan_id"
+                          class="menu-icon"
+                        />
                         <IconShare v-else class="menu-icon" />
                       </transition>
-                      <span v-if="copied && sharingPlanId === plan.plan_id">{{ t('share.copied') }}</span>
-                      <span v-else-if="shareUrl && sharingPlanId === plan.plan_id">{{ t('share.copy') }}</span>
+                      <span v-if="copied && sharingPlanId === plan.plan_id">{{
+                        t('share.copied')
+                      }}</span>
+                      <span v-else-if="shareUrl && sharingPlanId === plan.plan_id">{{
+                        t('share.copy')
+                      }}</span>
                       <span v-else>{{ t('sidebar.menu_share') }}</span>
                     </button>
                     <button class="menu-item delete" @click="deleteUploadedPlan(plan.plan_id)">

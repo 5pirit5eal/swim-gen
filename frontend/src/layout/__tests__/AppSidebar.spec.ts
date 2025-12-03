@@ -163,7 +163,7 @@ describe('AppSidebar.vue', () => {
       global: {
         plugins: [i18n],
       },
-      attachTo: document.body // Needed for focus/blur events sometimes
+      attachTo: document.body, // Needed for focus/blur events sometimes
     })
 
     const { apiClient } = await import('@/api/client')
@@ -173,7 +173,9 @@ describe('AppSidebar.vue', () => {
     await wrapper.find('.menu-button').trigger('click')
 
     // Click edit title
-    const editButton = wrapper.findAll('.menu-item').find(b => b.text() === i18n.global.t('sidebar.menu_edit_title'))
+    const editButton = wrapper
+      .findAll('.menu-item')
+      .find((b) => b.text() === i18n.global.t('sidebar.menu_edit_title'))
     await editButton?.trigger('click')
 
     // Input should appear
@@ -189,7 +191,7 @@ describe('AppSidebar.vue', () => {
       plan_id: '1',
       title: 'New Title',
       description: 'Desc 1',
-      table: []
+      table: [],
     })
     expect(trainingPlanStore.fetchHistory).toHaveBeenCalled()
 
