@@ -97,7 +97,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         if (ownPlan) {
           trainingPlanStore.loadPlanFromHistory(ownPlan)
           isLoading.value = false
-          router.push('/')
+          router.push({ name: 'plan', params: { id: ownPlan.plan_id } })
           return 'own_plan'
         }
 
@@ -321,7 +321,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance

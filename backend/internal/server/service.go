@@ -707,3 +707,51 @@ func (rs *RAGService) FeedbackHandler(w http.ResponseWriter, req *http.Request) 
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }
+
+// DeletePlanHandler handles the request to delete a plan from the user's history.
+// @Summary Delete a training plan
+// @Description Delete a training plan from the authenticated user's history and remove all associated data
+// @Tags Training Plans
+// @Accept json
+// @Produce json
+// @Param plan_id path string true "Plan ID to delete"
+// @Success 200 {string} string "Plan deleted successfully"
+// @Failure 400 {string} string "Bad request"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 404 {string} string "Plan not found"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /plan/{plan_id} [delete]
+func (rs *RAGService) DeletePlanHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Deleting plan...")
+
+	planID := chi.URLParam(req, "plan_id")
+	if planID == "" {
+		http.Error(w, "Plan ID is required", http.StatusBadRequest)
+		return
+	}
+
+	userID := req.Context().Value(models.UserIdCtxKey).(string)
+	if userID == "" {
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+
+	err := rs.db.DeletePlan(req.Context(), planID, userID)
+	if err != nil {
+		if err.Error() == "plan not found in user history or user does not own the plan" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		logger.Error("Failed to delete plan", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Plan deleted successfully")
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write([]byte("Plan deleted successfully")); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}

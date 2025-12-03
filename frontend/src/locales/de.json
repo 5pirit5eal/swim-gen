@@ -341,7 +341,12 @@
     "shared": "Mit Dir Geteilte Pläne",
     "shared_placeholder": "Noch keine Pläne mit dir geteilt.",
     "create_new": "Neuer Plan",
-    "upload_plan": "Plan hochladen"
+    "upload_plan": "Plan hochladen",
+    "tooltip_temporary": "Temporärer Plan - wird nach 30 Tagen gelöscht",
+    "tooltip_permanent": "Dauerhafter Plan - wird dauerhaft gespeichert",
+    "menu_delete": "Löschen",
+    "menu_edit_title": "Titel bearbeiten",
+    "menu_share": "Teilen"
   },
   "donation": {
     "title": "Trainingsplan hochladen",
