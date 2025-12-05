@@ -84,8 +84,8 @@ select cron.schedule(
     'clean-up-old-plans',
     '0 0 * * *', -- Every day at midnight
     $$
-      -- Delete history entries older than 30 days
-      delete from public.history where created_at < now() - interval '30 days' and keep_forever = false;
+      -- Delete history entries older than 2 days
+      delete from public.history where created_at < now() - interval '2 days' and keep_forever = false;
 
       -- Delete plans that are not referenced anymore
       delete from public.plans p
