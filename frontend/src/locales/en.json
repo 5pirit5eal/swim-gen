@@ -266,7 +266,8 @@
     "failed_to_export_plan": "Failed to export training plan to PDF.",
     "timeout": "Request timed out after {time} seconds. Please try again.",
     "connection_failed": "Failed to connect to the server. Please check your internet connection and try again.",
-    "api_request_failed": "API request failed for {endpoint}"
+    "api_request_failed": "API request failed for {endpoint}",
+    "fetch_shared_plan_failed": "Failed to fetch shared training plan. It may have been deleted or is no longer available."
   },
   "login": {
     "login": "Login",
@@ -313,8 +314,16 @@
     "monthly_quota": "Monthly Quota",
     "monthly_quota_tooltip": "Number of advanced training plans you can generate per month. Advanced plans are plans in chat-mode or multi-plan requests. The quota resets on the first day of each month.",
     "delete_account": "Delete Account",
-    "delete_account_placeholder": "This action cannot be undone.",
+    "delete_account_warning": "Permanently delete your account and all associated data. This action cannot be undone.",
     "delete_account_button": "Delete Account",
+    "delete_account_title": "Delete Your Account",
+    "delete_account_confirmation": "Are you sure you want to permanently delete your account? This will remove all your training plans, history, feedback, and profile data. Shared plans will not be available to others anymore. This action cannot be undone.",
+    "delete_account_instruction": "To confirm, type DELETE in the field below:",
+    "delete_account_placeholder_input": "Type DELETE to confirm",
+    "delete_account_confirm": "Delete My Account",
+    "delete_error": "Failed to delete account. Please try again.",
+    "deleting": "Deleting...",
+    "cancel": "Cancel",
     "experience_beginner": "Beginner",
     "experience_advanced": "Advanced",
     "experience_competitive": "Competitive",

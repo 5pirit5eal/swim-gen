@@ -270,7 +270,8 @@
     "timeout": "Die Anfrage wurde nach {time} Sekunden abgebrochen. Bitte versuche es erneut.",
     "connection_failed": "Verbindung zum Server fehlgeschlagen. Bitte überprüfe deine Internetverbindung und versuche es erneut.",
     "api_request_failed": "API-Anfrage für {endpoint} fehlgeschlagen",
-    "upsert_failed": "Trainingsplan konnte nicht aktualisiert werden"
+    "upsert_failed": "Trainingsplan konnte nicht aktualisiert werden",
+    "fetch_shared_plan_failed": "Geteilter Trainingsplan konnte nicht abgerufen werden"
   },
   "login": {
     "login": "Anmelden",
@@ -316,8 +317,16 @@
     "monthly_quota": "Monatliches Kontingent",
     "monthly_quota_tooltip": "Die Anzahl der erweiterten Trainingsgenerierungen, die du diesen Monat durchgeführt hast. Erweitertes Generieren umfasst alle Trainingspläne, die im Chat Modus oder in Multi-Plan Anfragen generiert wurden. Das Kontigent wird am ersten Tag jedes Monats zurückgesetzt.",
     "delete_account": "Konto löschen",
-    "delete_account_placeholder": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "delete_account_warning": "Dein Konto und alle zugehörigen Daten dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden.",
     "delete_account_button": "Konto löschen",
+    "delete_account_title": "Dein Konto löschen",
+    "delete_account_confirmation": "Bist du sicher, dass du dein Konto dauerhaft löschen möchtest? Dadurch werden alle deine Trainingspläne, dein Verlauf, Feedback und Profildaten entfernt. Geteilte Pläne werden dann nicht mehr verfügbar sein für andere Nutzer. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "delete_account_instruction": "Zum Bestätigen gib DELETE in das Feld unten ein:",
+    "delete_account_placeholder_input": "Gib DELETE zum Bestätigen ein",
+    "delete_account_confirm": "Mein Konto löschen",
+    "delete_error": "Fehler beim Löschen des Kontos. Bitte versuche es erneut.",
+    "deleting": "Wird gelöscht...",
+    "cancel": "Abbrechen",
     "experience_beginner": "Anfänger",
     "experience_advanced": "Fortgeschritten",
     "experience_competitive": "Leistungsschwimmer",

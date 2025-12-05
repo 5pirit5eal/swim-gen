@@ -196,8 +196,9 @@ func (db *RAGDB) SharePlan(ctx context.Context, planID, userID string, method mo
 	}
 }
 
-// DeletePlan removes a plan from the user's history and deletes the plan data if they own it.
-// Related data (conversations, feedback, shared plans) are automatically deleted via CASCADE constraints.
+// DeletePlan removes a plan from the user's history.
+// If the plan has feedback, it preserves the plan data and marks the feedback as removed_from_history.
+// If no feedback exists, it deletes the plan entirely (CASCADE removes related data).
 func (db *RAGDB) DeletePlan(ctx context.Context, planID, userID string) error {
 	logger := httplog.LogEntry(ctx)
 
@@ -231,15 +232,76 @@ func (db *RAGDB) DeletePlan(ctx context.Context, planID, userID string) error {
 		return fmt.Errorf("plan not found in user history or user does not own the plan")
 	}
 
-	// Delete the plan from plans table
-	// This will CASCADE to: history, conversation, feedback, shared_plans, shared_history
-	_, err = tx.Exec(ctx,
-		fmt.Sprintf(`DELETE FROM %s WHERE plan_id = $1`, PlanTableName),
+	// Check if feedback exists for this plan
+	var hasFeedback bool
+	err = tx.QueryRow(ctx,
+		`SELECT EXISTS(SELECT 1 FROM feedback WHERE plan_id = $1)`,
 		planID,
-	)
+	).Scan(&hasFeedback)
+
 	if err != nil {
-		logger.Error("Error deleting plan", httplog.ErrAttr(err))
-		return fmt.Errorf("failed to delete plan: %w", err)
+		logger.Error("Error checking feedback existence", httplog.ErrAttr(err))
+		return fmt.Errorf("failed to check feedback existence: %w", err)
+	}
+
+	if hasFeedback {
+		// Plan has feedback - preserve the plan, only remove from history and mark feedback
+		logger.Info("Plan has feedback, preserving plan data", "plan_id", planID)
+
+		// Remove from user's history only
+		_, err = tx.Exec(ctx,
+			`DELETE FROM history WHERE plan_id = $1 AND user_id = $2`,
+			planID, userID,
+		)
+		if err != nil {
+			logger.Error("Error removing plan from history", httplog.ErrAttr(err))
+			return fmt.Errorf("failed to remove plan from history: %w", err)
+		}
+
+		// Remove from shared_history of any other users who have this plan shared with them
+		_, err = tx.Exec(ctx,
+			`DELETE FROM shared_history WHERE plan_id = $1`,
+			planID,
+		)
+		if err != nil {
+			logger.Error("Error removing plan from shared_history", httplog.ErrAttr(err))
+			return fmt.Errorf("failed to remove plan from shared_history: %w", err)
+		}
+
+		// Remove from shared_plans table
+		_, err = tx.Exec(ctx,
+			`DELETE FROM shared_plans WHERE plan_id = $1`,
+			planID,
+		)
+		if err != nil {
+			logger.Error("Error removing plan from shared_plans", httplog.ErrAttr(err))
+			return fmt.Errorf("failed to remove plan from shared_plans: %w", err)
+		}
+
+		// Mark feedback as removed_from_history
+		_, err = tx.Exec(ctx,
+			`UPDATE feedback SET removed_from_history = true WHERE plan_id = $1 AND user_id = $2`,
+			planID, userID,
+		)
+		if err != nil {
+			logger.Error("Error marking feedback as removed", httplog.ErrAttr(err))
+			return fmt.Errorf("failed to mark feedback as removed: %w", err)
+		}
+
+		logger.Info("Plan removed from history, feedback preserved", "plan_id", planID, "user_id", userID)
+	} else {
+		// No feedback - delete the plan entirely
+		// This will CASCADE to: history, conversation, shared_plans, shared_history
+		_, err = tx.Exec(ctx,
+			fmt.Sprintf(`DELETE FROM %s WHERE plan_id = $1`, PlanTableName),
+			planID,
+		)
+		if err != nil {
+			logger.Error("Error deleting plan", httplog.ErrAttr(err))
+			return fmt.Errorf("failed to delete plan: %w", err)
+		}
+
+		logger.Info("Plan deleted successfully", "plan_id", planID, "user_id", userID)
 	}
 
 	// Commit transaction
@@ -248,6 +310,5 @@ func (db *RAGDB) DeletePlan(ctx context.Context, planID, userID string) error {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	logger.Info("Plan deleted successfully", "plan_id", planID, "user_id", userID)
 	return nil
 }

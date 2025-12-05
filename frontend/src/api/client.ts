@@ -337,6 +337,20 @@ class ApiClient {
       true,
     )
   }
+
+  /**
+   * Delete user account and all associated data
+   */
+  async deleteUser(): Promise<ApiResult<string>> {
+    return this._fetch(
+      'user',
+      {
+        method: 'DELETE',
+      },
+      this.DEFAULT_TIMEOUT_MS,
+      true,
+    )
+  }
 }
 
 // Export singleton instance

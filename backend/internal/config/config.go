@@ -34,8 +34,9 @@ type Config struct {
 	}
 
 	SB struct {
-		ApiUrl  string `env:"SUPABASE_URL"`
-		AnonKey string `env:"SUPABASE_ANON_KEY"`
+		ApiUrl         string `env:"SUPABASE_URL"`
+		AnonKey        string `env:"SUPABASE_ANON_KEY"`
+		ServiceRoleKey string `env:"SUPABASE_SERVICE_ROLE_KEY"`
 	}
 
 	Bucket struct {

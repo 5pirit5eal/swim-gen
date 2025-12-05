@@ -15,6 +15,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/httplog/v2"
 	"github.com/google/uuid"
+	"github.com/supabase-community/gotrue-go/types"
 	"github.com/supabase-community/supabase-go"
 )
 
@@ -42,7 +43,6 @@ func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) 
 	}
 
 	slog.Info("Created database connection successfully")
-
 	auth, err := supabase.NewClient(cfg.SB.ApiUrl, cfg.SB.AnonKey, nil)
 	if err != nil {
 		fmt.Println("Failed to initialize the client: ", err)
@@ -752,6 +752,54 @@ func (rs *RAGService) DeletePlanHandler(w http.ResponseWriter, req *http.Request
 	logger.Info("Plan deleted successfully")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write([]byte("Plan deleted successfully")); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+// DeleteUserHandler handles the request to delete a user account and all associated data.
+// This operation deletes the user from auth.users which triggers CASCADE deletion of all related data.
+// @Summary Delete user account
+// @Description Permanently delete the authenticated user's account and all associated data
+// @Tags User
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "User deleted successfully"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /user [delete]
+func (rs *RAGService) DeleteUserHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Deleting user account...")
+
+	userID := req.Context().Value(models.UserIdCtxKey).(string)
+	if userID == "" {
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+
+	// Parse UUID for the admin auth client
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		logger.Error("Invalid user ID format", httplog.ErrAttr(err))
+		http.Error(w, "Invalid user ID format", http.StatusBadRequest)
+		return
+	}
+
+	// Delete user via Supabase Admin API using service role key
+	// This will CASCADE delete all related data in: profiles, history, donations, feedback, shared_plans, shared_history, memory
+	err = rs.auth.Auth.WithToken(rs.cfg.SB.ServiceRoleKey).AdminDeleteUser(types.AdminDeleteUserRequest{
+		UserID: userUUID,
+	})
+	if err != nil {
+		logger.Error("Failed to delete user", httplog.ErrAttr(err))
+		http.Error(w, "Failed to delete user account", http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("User deleted successfully", "user_id", userID)
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write([]byte("User deleted successfully")); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }
