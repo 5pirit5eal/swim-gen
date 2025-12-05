@@ -299,7 +299,7 @@
     "title": "Profile",
     "description": "Hello, {user}. Here you can view and edit your personal information, track your usage statistics, and manage your account.",
     "your_information": "Your Information",
-    "info_description": "Your profile information is used to improve the generation of your training plans. It can also be viewed by other users.",
+    "info_description": "Your profile information is used to improve and personalize the generation of your training plans.",
     "experience": "Experience",
     "experience_explanation": "Your swimming experience level.",
     "preferred_strokes": "Preferred Strokes",

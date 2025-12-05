@@ -302,7 +302,7 @@
     "title": "Profil",
     "description": "Hallo, {user}. Hier kannst du deine Informationen anzeigen und bearbeiten sowie Statistiken zu deinen generierten Trainingsplänen einsehen.",
     "your_information": "Deine Informationen",
-    "info_description": "Diese Profilinformationen werden verwendet, um die Generierung von Plänen zu verbessern. Sie sind auch für andere Nutzer sichtbar.",
+    "info_description": "Diese Profilinformationen werden verwendet, um die Generierung deiner Trainingspläne zu verbessern und personalisieren.",
     "experience": "Erfahrung",
     "experience_explanation": "Dein Erfahrungslevel im Schwimmen.",
     "preferred_strokes": "Bevorzugte Schwimmstile",
