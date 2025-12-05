@@ -1,3 +1,9 @@
+## [2.8.0](https://github.com/5pirit5eal/swim-gen/compare/v2.7.0...v2.8.0) (2025-12-05)
+
+### Features
+
+* redesign of sidebar and added usage of preferences ([914282d](https://github.com/5pirit5eal/swim-gen/commit/914282dd6e27f92a13553448de6c765020e29ccd))
+
 ## [2.7.0](https://github.com/5pirit5eal/swim-gen/compare/v2.6.0...v2.7.0) (2025-12-05)
 
 ### Features
