@@ -488,11 +488,10 @@ async function loadUploadedPlan(plan_id: string) {
 .sidebar {
   position: fixed;
   top: 0;
-  left: -300px;
-  width: 300px;
+  left: -400px;
+  width: 400px;
   height: 100%;
-  background-color: var(--color-transparent);
-  backdrop-filter: blur(4px);
+  background-color: var(--color-background-soft);
   border-right: 1px solid var(--color-border);
   transition: left 0.3s ease;
   z-index: 1000;
@@ -514,7 +513,8 @@ async function loadUploadedPlan(plan_id: string) {
 }
 
 .sidebar-header h3 {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: var(--color-heading);
 }
 
@@ -561,8 +561,8 @@ async function loadUploadedPlan(plan_id: string) {
   cursor: pointer;
   transition: background-color 0.2s;
   gap: 0.5rem;
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .create-new-btn:hover {
@@ -585,7 +585,8 @@ async function loadUploadedPlan(plan_id: string) {
 }
 
 .sidebar-content section h3 {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
+  font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
@@ -595,7 +596,8 @@ async function loadUploadedPlan(plan_id: string) {
 
 .sidebar-content h3 {
   text-align: left;
-  font-size: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
   padding: 0 0 0.5rem 0;
   color: var(--color-heading);
 }
@@ -614,6 +616,8 @@ async function loadUploadedPlan(plan_id: string) {
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 500;
 }
 
 /* Active/highlighted plan */
@@ -640,14 +644,14 @@ async function loadUploadedPlan(plan_id: string) {
 .plan-title {
   display: flex;
   align-items: center;
-  color: var(--color-heading);
+  color: var(--color-text);
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 8px;
 }
 
 .plan-title:hover {
-  color: var(--color-text);
+  color: var(--color-primary-hover);
 }
 
 .plan-title span {

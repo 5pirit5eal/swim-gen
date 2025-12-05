@@ -1425,6 +1425,10 @@ const docTemplate = `{
                 },
                 "pool_length": {
                     "description": "PoolLength specifies the pool length for the training plan"
+                },
+                "preferences": {
+                    "description": "Preferences indicates if the user profile should be used for generation",
+                    "type": "boolean"
                 }
             }
         },

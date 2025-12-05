@@ -336,7 +336,25 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	p, err := rs.db.Query(req.Context(), qr.Content, qr.Language, qr.Filter, qr.Method, qr.PoolLength)
+	userId := req.Context().Value(models.UserIdCtxKey).(string)
+
+	var userProfileStr string
+	// Check if preferences should be used (default to true)
+	usePreferences := true
+	if qr.Preferences != nil {
+		usePreferences = *qr.Preferences
+	}
+
+	if usePreferences && userId != "" {
+		profile, err := rs.db.GetUserProfile(req.Context(), userId)
+		if err != nil {
+			logger.Warn("Failed to get user profile, proceeding without it", httplog.ErrAttr(err))
+		} else {
+			userProfileStr = rs.db.FormatUserProfile(profile)
+		}
+	}
+
+	p, err := rs.db.Query(req.Context(), qr.Content, qr.Language, userProfileStr, qr.Filter, qr.Method, qr.PoolLength)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "unsupported method:") {
 			http.Error(w, "Method may only be 'choose' or 'generate', invalid choice.", http.StatusBadRequest)
@@ -349,7 +367,7 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	p.Table.UpdateSum()
 	logger.Debug("Updated the table sums...", "sum", p.Table[len(p.Table)-1].Sum)
 
-	userId := req.Context().Value(models.UserIdCtxKey).(string)
+	// userId is already declared above
 	if userId != "" {
 		// Add a plan id to the newly created plan
 		p.PlanID = uuid.NewString()

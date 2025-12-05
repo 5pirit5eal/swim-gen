@@ -32,6 +32,7 @@ export interface QueryRequest {
   method?: 'choose' | 'generate'
   language: string
   pool_length?: 25 | 50 | 'Freiwasser'
+  preferences?: boolean
 }
 
 // Backend API RAGResponse structure

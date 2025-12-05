@@ -22,7 +22,7 @@ const (
 )
 
 // Query searches for documents in the database based on the provided query and filter.
-func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, filter map[string]any, method string, poolLength any) (*models.Plan, error) {
+func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, userProfile string, filter map[string]any, method string, poolLength any) (*models.Plan, error) {
 	logger := httplog.LogEntry(ctx)
 	// Set the embedder to query mode
 	db.Client.QueryMode()
@@ -47,7 +47,7 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	var plan models.Planable
 	switch method {
 	case "generate":
-		plan, err = db.Client.GeneratePlan(ctx, query, string(lang), poolLength, docs)
+		plan, err = db.Client.GeneratePlan(ctx, query, string(lang), userProfile, poolLength, docs)
 		if err != nil {
 			logger.Error("Error generating plan", httplog.ErrAttr(err))
 			return nil, fmt.Errorf("error generating plan: %w", err)

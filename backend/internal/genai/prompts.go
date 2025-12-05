@@ -17,6 +17,8 @@ Nutze eine freundliche und motivierende Sprache. Grüße nicht den Schwimmer.
 Für den Schwimmer ist nicht relevant, ob der Plan aus mehreren oder einem anderen Trainingsplan erstellt wurde.
 Die Antwort soll in %s (Sprache) sein.
 
+%s
+
 Die Antwort soll keine Fragen enthalten und auch nicht die Anweisung wiederholen.
 
 Anfrage:
