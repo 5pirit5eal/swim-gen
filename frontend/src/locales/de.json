@@ -44,7 +44,7 @@
     "i_feel_lucky": "Überrasch mich",
     "generating": "Generiere...",
     "swimming_strokes": "Schwimmstile",
-    "swimming_strokes_tooltip": "Wähle spezifische Schwimmstile aus, auf die der Fokus liegen soll",
+    "swimming_strokes_tooltip": "Wähle spezifische Schwimmstile aus, die explizit enthalten sein müssen.",
     "freestyle": "Freistil",
     "breaststroke": "Brustschwimmen",
     "backstroke": "Rückenschwimmen",
@@ -77,7 +77,9 @@
     "pool_length_tooltip": "Die Beckenlänge wird verwendet, um den Trainingsplan zu verfeinern. 25m ist die Standardeinstellung.",
     "pool_length_twenty_five_meters": "25 Meter",
     "pool_length_fifty_meters": "50 Meter",
-    "pool_length_open_water": "Freiwasser"
+    "pool_length_open_water": "Freiwasser",
+    "use_profile_preferences": "Profilpräferenzen verwenden",
+    "use_profile_preferences_tooltip": "Beziehe deine Profileinstellungen (Erfahrung, Schwimmstile, Kategorien) in die Plangenerierung mit ein."
   },
   "display": {
     "generating_plan_message": "Dein Trainingsplan wird generiert...",

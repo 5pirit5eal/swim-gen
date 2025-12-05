@@ -7,6 +7,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const dataDonationOptOut = ref(true)
   const poolLength = ref<25 | 50 | 'Freiwasser'>(25)
   const preferredMethod = ref<'choose' | 'generate'>('generate')
+  const useProfilePreferences = ref(true)
 
   // Filter settings
   const filters = ref<Filter>({
@@ -44,6 +45,7 @@ export const useSettingsStore = defineStore('settings', () => {
     dataDonationOptOut,
     poolLength,
     preferredMethod,
+    useProfilePreferences,
     filters,
     // Actions
     updateStrokeFilter,

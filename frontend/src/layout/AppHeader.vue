@@ -133,15 +133,17 @@ async function handleLogout() {
 }
 
 .logo-icon {
-  width: 2rem;
-  height: 2rem;
+  width: 38px;
+  height: 38px;
   color: var(--color-heading);
   background: transparent;
+  stroke-width: 6;
 }
 
 .logo h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 500;
   color: var(--color-heading);
   text-wrap: nowrap;
 }
@@ -160,6 +162,7 @@ async function handleLogout() {
   cursor: pointer;
   transition: all 0.2s;
   font-weight: 500;
+  font-size: 1rem;
   background-color: var(--color-transparent);
   backdrop-filter: blur(2px);
   padding: 0.5rem 1rem;

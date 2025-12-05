@@ -14,7 +14,7 @@ import (
 )
 
 // GeneratePlan generates a plan using the LLM based on the provided query and documents.
-func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang string, poolLength any, docs []schema.Document) (*models.GeneratedPlan, error) {
+func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProfile string, poolLength any, docs []schema.Document) (*models.GeneratedPlan, error) {
 	logger := httplog.LogEntry(ctx)
 	gps, err := models.GeneratedPlanSchema()
 	if err != nil {
@@ -27,7 +27,7 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang string, p
 	}
 
 	// Create a RAG query for the LLM with the most relevant documents as context
-	query := fmt.Sprintf(ragTemplateStr, poolLength, lang, q, strings.Join(dc, "\n \n"))
+	query := fmt.Sprintf(ragTemplateStr, poolLength, lang, userProfile, q, strings.Join(dc, "\n \n"))
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = gps

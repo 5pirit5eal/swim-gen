@@ -43,7 +43,7 @@
     "i_feel_lucky": "I feel lucky",
     "generating": "Generating...",
     "swimming_strokes": "Swimming Strokes",
-    "swimming_strokes_tooltip": "Select specific swimming strokes to focus on",
+    "swimming_strokes_tooltip": "Select specific swimming strokes to explicitly include.",
     "freestyle": "Freestyle",
     "breaststroke": "Breaststroke",
     "backstroke": "Backstroke",
@@ -76,7 +76,9 @@
     "pool_length_tooltip": "The pool length is used to refine the training plan. 25m is the default.",
     "pool_length_twenty_five_meters": "25 meters",
     "pool_length_fifty_meters": "50 meters",
-    "pool_length_open_water": "Open water"
+    "pool_length_open_water": "Open water",
+    "use_profile_preferences": "Use Profile Preferences",
+    "use_profile_preferences_tooltip": "Incorporate your profile settings (experience, strokes, categories) into the plan generation."
   },
   "display": {
     "generating_plan_message": "Generating your training plan...",

@@ -365,7 +365,8 @@ async function confirmDeleteAccount() {
 
 .hero-description {
   font-size: 1.25rem;
-  color: var(--color-text);
+  font-weight: 500;
+  color: var(--color-heading);
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -376,9 +377,10 @@ async function confirmDeleteAccount() {
   gap: 2rem;
 }
 
-@media (max-width: 1186px) {
+@media (max-width: 1286px) {
   .profile-content {
     flex-direction: column;
+    gap: 1.5rem;
   }
 }
 

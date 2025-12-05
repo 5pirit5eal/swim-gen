@@ -87,3 +87,21 @@ func (db *RAGDB) IncrementExportCount(ctx context.Context, userID, planID string
 	logger.Info("Export count incremented successfully", "plan_id", planID)
 	return nil
 }
+
+func (db *RAGDB) FormatUserProfile(profile *models.UserProfile) string {
+	if profile == nil {
+		return ""
+	}
+
+	experience := "Unknown"
+	if profile.Experience != nil {
+		experience = *profile.Experience
+	}
+
+	return fmt.Sprintf(`
+Benutzerprofil Präferenzen:
+- Erfahrungslevel: %s
+- Bevorzugte Schwimmstile: %v
+- Interessenkategorien: %v
+`, experience, profile.PreferredStrokes, profile.Categories)
+}

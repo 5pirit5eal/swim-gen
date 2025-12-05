@@ -57,7 +57,7 @@ const sidebarStore = useSidebarStore()
 }
 
 .content-wrapper.sidebar-open {
-  margin-left: 300px;
+  margin-left: 400px;
 }
 
 .main-content {
@@ -67,7 +67,7 @@ const sidebarStore = useSidebarStore()
   z-index: 1;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1124px) {
   .main-content {
     padding: 0 1rem;
   }

@@ -42,6 +42,7 @@ async function handleSubmit() {
     filter: settingsStore.filters,
     language: navigator.language,
     pool_length: settingsStore.poolLength,
+    preferences: settingsStore.useProfilePreferences,
   }
 
   const success = await trainingStore.generatePlan(request)
@@ -329,6 +330,23 @@ async function handlePromptGeneration() {
                 {{ t(option.label) }}
               </option>
             </select>
+          </div>
+
+          <!-- Profile Preferences -->
+          <div class="setting-group">
+            <label class="setting-label">
+              <input
+                type="checkbox"
+                v-model="settingsStore.useProfilePreferences"
+                :disabled="trainingStore.isLoading"
+              />
+              {{ t('form.use_profile_preferences') }}
+              <BaseTooltip>
+                <template #tooltip>
+                  {{ t('form.use_profile_preferences_tooltip') }}
+                </template>
+              </BaseTooltip>
+            </label>
           </div>
 
           <!-- Data Donation -->
