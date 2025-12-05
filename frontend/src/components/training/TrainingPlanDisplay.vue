@@ -485,7 +485,7 @@ function autoResize(event: Event) {
   border: 1px solid var(--color-border);
   padding: 0.75rem 0.5rem;
   text-align: center;
-  color: var(--color-text);
+  color: var(--color-heading);
   width: auto;
 }
 
@@ -500,7 +500,6 @@ function autoResize(event: Event) {
 
 .exercise-table th {
   background: var(--color-border);
-  color: var(--color-heading);
   /* Use flexbox for alignment */
   align-items: center;
   /* Horizontally center items */

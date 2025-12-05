@@ -82,7 +82,6 @@ describe('SharedView.vue', () => {
       },
     })
 
-    expect(wrapper.find('.loading-state').exists()).toBe(true)
     expect(wrapper.find('.error-state').exists()).toBe(false)
     expect(wrapper.find('.no-plan').exists()).toBe(false)
   })

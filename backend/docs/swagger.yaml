@@ -1063,6 +1063,32 @@ paths:
       summary: Update or insert a training plan into a user's history
       tags:
       - Training Plans
+  /user:
+    delete:
+      consumes:
+      - application/json
+      description: Permanently delete the authenticated user's account and all associated
+        data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User deleted successfully
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete user account
+      tags:
+      - User
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and the JWT.

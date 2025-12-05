@@ -66,11 +66,11 @@ The next version takes lessons learned in v1 into consideration and adds user au
   - Users get up to 1000 interactions to avoid abuse
   - Whitelisted users with unlimited interactions
 - **TP History can be viewed**
-  - TPs are saved associated with user email
+  - TPs are saved associated with user
   - Frontend is extended with `History` page to view previously created TPs
 - **TP can be shared via URL**
 - **Enable deletion of user data**
-  - Add url to delete all user data at the bottom of the page
+  - Add url to delete all user data to the user profile
 - **Add content required by german/eu law**
   - Impressum
   - Datenschutzerklärung
@@ -82,6 +82,7 @@ The next version takes lessons learned in v1 into consideration and adds user au
 ### V3: Community-Expansion and Monetization
 
 - **Tutorial page for understanding plans**
+  - References input into the plan display with explainations and tutorials
 - **Add a public leaderboard and public, searchable plans for premium users**
   - This also allows user interaction, such as comments, likes and tagging.
 - **Optional sign-up for a leaderboard of most active users**
@@ -90,8 +91,8 @@ The next version takes lessons learned in v1 into consideration and adds user au
   - Number of plans exported
   - Number of plans donated
   - Comparative statistics with other user behaviour
-- **Add multi-plan generation as a premium feature**
-  - Generate weeks or months of consecutive training plans to prepare for a competition or reach certain goals
+- **Add multi-plan generation as a one-time payment or premium feature**
+  - Generate weeks or months of consecutive training plans as background task to prepare for a competition or to reach certain goals
 - **Add premium model usage as a premium feature**
 - **Add unlimited number of plans as a premium feature**
 - **Add unlimited number of interactions as a premium feature**

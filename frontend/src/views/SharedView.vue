@@ -92,11 +92,7 @@ async function handleStartConversation() {
 <template>
   <div class="shared-view">
     <Transition name="fade">
-      <div v-if="isLoading" class="loading-state">
-        <div class="loading-spinner"></div>
-        <p>{{ t('shared.loading') }}</p>
-      </div>
-      <div v-else-if="sharedPlan">
+      <div v-if="sharedPlan">
         <div class="container">
           <section class="hero">
             <h1>{{ t('shared.hero_title') }}</h1>

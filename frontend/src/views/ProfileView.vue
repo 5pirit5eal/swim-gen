@@ -1,13 +1,27 @@
 <script setup lang="ts">
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
+import BaseModal from '@/components/ui/BaseModal.vue'
 import { useProfileStore } from '@/stores/profile'
+import { useAuthStore } from '@/stores/auth'
+import { apiClient } from '@/api/client'
 import { DIFFICULTY_OPTIONS } from '@/types'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 const profileStore = useProfileStore()
+const authStore = useAuthStore()
+const router = useRouter()
 const isEditMode = ref(false)
+
+// Delete account state
+const showDeleteModal = ref(false)
+const deleteConfirmationText = ref('')
+const deletingAccount = ref(false)
+const deleteError = ref('')
+
+const canDelete = computed(() => deleteConfirmationText.value === 'DELETE')
 
 const strokeOptions = ['Freestyle', 'Breaststroke', 'Backstroke', 'Butterfly', 'Individual Medley']
 const categoryOptions = ['Triathlete', 'Swimmer', 'Coach', 'Hobby']
@@ -61,6 +75,40 @@ function toggleEditMode() {
 function getExperienceLabel(value: string) {
   const option = DIFFICULTY_OPTIONS.find((opt) => opt.value === value)
   return option ? t(option.label) : ''
+}
+
+function openDeleteModal() {
+  deleteConfirmationText.value = ''
+  deleteError.value = ''
+  showDeleteModal.value = true
+}
+
+function closeDeleteModal() {
+  showDeleteModal.value = false
+  deleteConfirmationText.value = ''
+  deleteError.value = ''
+}
+
+async function confirmDeleteAccount() {
+  if (!canDelete.value) return
+
+  deletingAccount.value = true
+  deleteError.value = ''
+
+  try {
+    const result = await apiClient.deleteUser()
+    if (result.success) {
+      // Sign out the user and redirect to home
+      await authStore.signOut()
+      router.push('/')
+    } else {
+      deleteError.value = result.error?.message || t('profile.delete_error')
+    }
+  } catch {
+    deleteError.value = t('profile.delete_error')
+  } finally {
+    deletingAccount.value = false
+  }
 }
 </script>
 
@@ -242,11 +290,47 @@ function getExperienceLabel(value: string) {
           </div>
 
           <div class="delete-card">
-            <p>{{ t('profile.delete_account_placeholder') }}</p>
-            <button class="delete-btn">{{ t('profile.delete_account_button') }}</button>
+            <p>{{ t('profile.delete_account_warning') }}</p>
+            <button class="delete-btn" @click="openDeleteModal">
+              {{ t('profile.delete_account_button') }}
+            </button>
           </div>
         </div>
       </section>
+
+      <!-- Delete Account Confirmation Modal -->
+      <BaseModal :show="showDeleteModal" @close="closeDeleteModal">
+        <template #header>
+          <h2>{{ t('profile.delete_account_title') }}</h2>
+        </template>
+        <template #body>
+          <div class="delete-modal-content">
+            <p class="delete-warning">{{ t('profile.delete_account_confirmation') }}</p>
+            <p class="delete-instruction">{{ t('profile.delete_account_instruction') }}</p>
+            <input
+              v-model="deleteConfirmationText"
+              type="text"
+              class="delete-confirmation-input"
+              :placeholder="t('profile.delete_account_placeholder_input')"
+              :disabled="deletingAccount"
+            />
+            <p v-if="deleteError" class="delete-error">{{ deleteError }}</p>
+          </div>
+        </template>
+        <template #footer>
+          <button class="cancel-btn" @click="closeDeleteModal" :disabled="deletingAccount">
+            {{ t('profile.cancel') }}
+          </button>
+          <button
+            class="confirm-delete-btn"
+            @click="confirmDeleteAccount"
+            :disabled="!canDelete || deletingAccount"
+          >
+            <span v-if="deletingAccount" class="spinner"></span>
+            {{ deletingAccount ? t('profile.deleting') : t('profile.delete_account_confirm') }}
+          </button>
+        </template>
+      </BaseModal>
     </div>
   </div>
 </template>
@@ -530,5 +614,109 @@ function getExperienceLabel(value: string) {
 
 .delete-btn:hover {
   background: var(--color-error-soft);
+}
+
+/* Delete Modal Styles */
+.delete-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.delete-warning {
+  color: var(--color-error);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.delete-instruction {
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.delete-confirmation-input {
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--color-background-soft);
+  color: var(--color-text);
+  width: 100%;
+}
+
+.delete-confirmation-input:focus {
+  outline: none;
+  border-color: var(--color-error);
+}
+
+.delete-confirmation-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.delete-error {
+  color: var(--color-error);
+  font-size: 0.9rem;
+}
+
+.cancel-btn {
+  background: var(--color-background-soft);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: var(--color-background-mute);
+}
+
+.cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirm-delete-btn {
+  background: var(--color-error);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.confirm-delete-btn:hover:not(:disabled) {
+  background: var(--color-error-soft);
+}
+
+.confirm-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid transparent;
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

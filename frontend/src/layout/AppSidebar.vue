@@ -284,17 +284,13 @@ async function loadUploadedPlan(plan_id: string) {
     </div>
     <div class="sidebar-content">
       <div class="action-buttons">
-        <button
-          @click="createNewPlan"
-          class="create-new-btn secondary"
-          :title="t('sidebar.create_new')"
-        >
+        <button @click="createNewPlan" class="create-new-btn" :title="t('sidebar.create_new')">
           <IconPlus class="icon-small" />
           <span>{{ t('sidebar.create_new') }}</span>
         </button>
         <button
           @click="showDonationForm = true"
-          class="create-new-btn secondary"
+          class="create-new-btn"
           :title="t('sidebar.upload_plan')"
         >
           <IconUpload class="icon-small" />

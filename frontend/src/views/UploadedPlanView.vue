@@ -99,11 +99,7 @@ async function handleStartConversation() {
 <template>
   <div class="donated-view">
     <Transition name="fade">
-      <div v-if="isLoading" class="loading-state">
-        <div class="loading-spinner"></div>
-        <p>{{ t('common.loading') }}</p>
-      </div>
-      <div v-else-if="currentPlan">
+      <div v-if="currentPlan">
         <div class="container">
           <section class="hero">
             <h1>{{ t('donation.view.title') }}</h1>
