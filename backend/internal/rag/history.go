@@ -280,8 +280,8 @@ func (db *RAGDB) DeletePlan(ctx context.Context, planID, userID string) error {
 
 		// Mark feedback as removed_from_history
 		_, err = tx.Exec(ctx,
-			`UPDATE feedback SET removed_from_history = true WHERE plan_id = $1 AND user_id = $2`,
-			planID, userID,
+			`UPDATE feedback SET removed_from_history = true WHERE plan_id = $1`,
+			planID,
 		)
 		if err != nil {
 			logger.Error("Error marking feedback as removed", httplog.ErrAttr(err))
