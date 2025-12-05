@@ -1,3 +1,17 @@
+## [2.7.0](https://github.com/5pirit5eal/swim-gen/compare/v2.6.0...v2.7.0) (2025-12-05)
+
+### Features
+
+* 92 enable deletion of user data ([#136](https://github.com/5pirit5eal/swim-gen/issues/136)) ([9f995aa](https://github.com/5pirit5eal/swim-gen/commit/9f995aa9e160b56e6ea7c6a62687ef34ae8d7888))
+* added delete button to profile and preserve feedback on removal from history ([9dd4a42](https://github.com/5pirit5eal/swim-gen/commit/9dd4a42297333f8d84a85c63d1f08cf49edd3c5c))
+
+### Bug Fixes
+
+* all feedback flagged for a plan in backend/internal/rag/history.go ([0d9580a](https://github.com/5pirit5eal/swim-gen/commit/0d9580ac37b260dc6b9902418e916978e97126fe))
+* fixed loading animation ([b962a39](https://github.com/5pirit5eal/swim-gen/commit/b962a39abcc982ed8b6d1fcbddfb7a8f6856eb6a))
+* fixed test ([aa7943a](https://github.com/5pirit5eal/swim-gen/commit/aa7943a75cab4272fc0163b37b7248dea54fe132))
+* forgot to add the env variable ([3634798](https://github.com/5pirit5eal/swim-gen/commit/3634798c56685fbd2b365bd795f932c778cc8f85))
+
 ## [2.6.0](https://github.com/5pirit5eal/swim-gen/compare/v2.5.0...v2.6.0) (2025-12-03)
 
 ### Features
