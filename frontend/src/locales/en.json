@@ -348,7 +348,7 @@
     "shared_placeholder": "No plans shared with you yet.",
     "create_new": "New Plan",
     "upload_plan": "Upload Plan",
-    "tooltip_temporary": "Temporary plan - will be deleted after 30 days",
+    "tooltip_temporary": "Temporary plan - will be deleted after 2 days",
     "tooltip_permanent": "Permanent plan - kept forever",
     "menu_delete": "Delete",
     "menu_edit_title": "Edit Title",
