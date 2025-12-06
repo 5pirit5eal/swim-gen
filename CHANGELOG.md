@@ -1,3 +1,16 @@
+## [2.9.0](https://github.com/5pirit5eal/swim-gen/compare/v2.8.0...v2.9.0) (2025-12-06)
+
+### Features
+
+* 114 tp history can be searched ([#139](https://github.com/5pirit5eal/swim-gen/issues/139)) ([a52e19c](https://github.com/5pirit5eal/swim-gen/commit/a52e19c42c94ad4758d1375f8437ee7dce0ad0f0))
+* added info on loading ([f413de4](https://github.com/5pirit5eal/swim-gen/commit/f413de4158f92d9336c1a75a16f259e8cd1db091))
+* added message for max search results hit ([e681ae6](https://github.com/5pirit5eal/swim-gen/commit/e681ae6ceffc1983a2c5b0fe563ce444493faf38))
+* added search bar ([68f7306](https://github.com/5pirit5eal/swim-gen/commit/68f7306a6f17500ee86d45ea8118aa6243022608))
+
+### Bug Fixes
+
+* adjusted page size ([65c93fb](https://github.com/5pirit5eal/swim-gen/commit/65c93fbda46b68229d5b47b23ea0c89d366d3c00))
+
 ## [2.8.0](https://github.com/5pirit5eal/swim-gen/compare/v2.7.0...v2.8.0) (2025-12-05)
 
 ### Features
