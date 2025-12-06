@@ -1,23 +1,33 @@
 <script setup lang="ts">
-import { useTrainingPlanStore } from '@/stores/trainingPlan'
-import { useSidebarStore } from '@/stores/sidebar'
-import { useSharedPlanStore } from '@/stores/sharedPlan'
-import { useI18n } from 'vue-i18n'
-import type { HistoryMetadata, RAGResponse, SharedHistoryItem } from '@/types'
-import { useRouter, useRoute } from 'vue-router'
-import IconHourglass from '@/components/icons/IconHourglass.vue'
-import IconHeart from '@/components/icons/IconHeart.vue'
-import IconCross from '@/components/icons/IconCross.vue'
-import IconPlus from '@/components/icons/IconPlus.vue'
-import IconUpload from '@/components/icons/IconUpload.vue'
-import IconDots from '@/components/icons/IconDots.vue'
-import IconShare from '@/components/icons/IconShare.vue'
+import { apiClient } from '@/api/client'
+import UploadForm from '@/components/forms/UploadForm.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import IconCopy from '@/components/icons/IconCopy.vue'
-import UploadForm from '@/components/forms/UploadForm.vue'
+import IconCross from '@/components/icons/IconCross.vue'
+import IconDots from '@/components/icons/IconDots.vue'
+import IconHeart from '@/components/icons/IconHeart.vue'
+import IconHourglass from '@/components/icons/IconHourglass.vue'
+import IconPlus from '@/components/icons/IconPlus.vue'
+import IconSearch from '@/components/icons/IconSearch.vue'
+import IconShare from '@/components/icons/IconShare.vue'
+import IconUpload from '@/components/icons/IconUpload.vue'
+import { useSharedPlanStore } from '@/stores/sharedPlan'
+import { useSidebarStore } from '@/stores/sidebar'
+import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useUploadStore } from '@/stores/uploads'
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { apiClient } from '@/api/client'
+import type { HistoryMetadata, RAGResponse, SharedHistoryItem } from '@/types'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
+
+// Search debounce utility
+function debounce<T extends (...args: Parameters<T>) => void>(fn: T, delay: number): T {
+  let timeoutId: ReturnType<typeof setTimeout>
+  return ((...args: Parameters<T>) => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => fn(...args), delay)
+  }) as T
+}
 
 const trainingPlanStore = useTrainingPlanStore()
 const sharedPlanStore = useSharedPlanStore()
@@ -54,6 +64,16 @@ const currentPlanId = computed(() => {
 const shareUrl = ref<string | null>(null)
 const sharingPlanId = ref<string | null>(null)
 const copied = ref(false)
+
+// Search functionality
+const searchQuery = ref('')
+const debouncedSearch = debounce((query: string) => {
+  trainingPlanStore.searchPlans(query)
+}, 300)
+
+watch(searchQuery, (query) => {
+  debouncedSearch(query)
+})
 
 async function loadPlan(plan: RAGResponse & HistoryMetadata) {
   // Load plan and fetch conversation before navigation
@@ -302,8 +322,25 @@ async function loadUploadedPlan(plan_id: string) {
           <h3>{{ t('sidebar.generated') }}</h3>
           <div v-if="trainingPlanStore.isFetchingHistory" class="loading-spinner"></div>
         </div>
-        <p v-if="trainingPlanStore.planHistory.length === 0">
+        <!-- Search input -->
+        <div class="search-container">
+          <IconSearch class="search-icon" />
+          <input
+            v-model="searchQuery"
+            type="search"
+            :placeholder="t('sidebar.search_placeholder')"
+            class="search-input"
+          />
+          <div v-if="trainingPlanStore.isSearching" class="loading-spinner small" />
+        </div>
+        <p v-if="trainingPlanStore.planHistory.length === 0 && !searchQuery">
           {{ t('sidebar.generated_placeholder') }}
+        </p>
+        <p
+          v-else-if="trainingPlanStore.planHistory.length === 0 && searchQuery"
+          class="search-info"
+        >
+          {{ t('sidebar.search_no_results') }}
         </p>
         <ul v-else class="plan-list">
           <li
@@ -376,6 +413,30 @@ async function loadUploadedPlan(plan_id: string) {
             </div>
           </li>
         </ul>
+        <!-- Search results info -->
+        <p
+          v-if="
+            searchQuery &&
+            trainingPlanStore.planHistory.length > 0 &&
+            trainingPlanStore.searchHitLimit
+          "
+          class="search-info search-limit-warning"
+        >
+          {{ t('sidebar.search_limit_hit', { count: trainingPlanStore.planHistory.length }) }}
+        </p>
+        <p v-else-if="searchQuery && trainingPlanStore.planHistory.length > 0" class="search-info">
+          {{ t('sidebar.search_results_info', { count: trainingPlanStore.planHistory.length }) }}
+        </p>
+        <!-- Load more button for generated plans -->
+        <button
+          v-if="trainingPlanStore.historyHasMore && !searchQuery"
+          @click="trainingPlanStore.fetchMoreHistory()"
+          :disabled="trainingPlanStore.isLoadingMore"
+          class="load-more-btn"
+        >
+          <span v-if="trainingPlanStore.isLoadingMore">{{ t('common.loading') }}</span>
+          <span v-else>{{ t('sidebar.load_more') }}</span>
+        </button>
       </section>
       <section>
         <div class="section-header">
@@ -410,6 +471,16 @@ async function loadUploadedPlan(plan_id: string) {
             </div>
           </li>
         </ul>
+        <!-- Load more button for shared plans -->
+        <button
+          v-if="sharedPlanStore.historyHasMore"
+          @click="sharedPlanStore.fetchMoreSharedHistory()"
+          :disabled="sharedPlanStore.isLoadingMore"
+          class="load-more-btn"
+        >
+          <span v-if="sharedPlanStore.isLoadingMore">{{ t('common.loading') }}</span>
+          <span v-else>{{ t('sidebar.load_more') }}</span>
+        </button>
       </section>
       <section>
         <div class="section-header">
@@ -478,6 +549,16 @@ async function loadUploadedPlan(plan_id: string) {
             </div>
           </li>
         </ul>
+        <!-- Load more button for uploaded plans -->
+        <button
+          v-if="donationStore.historyHasMore"
+          @click="donationStore.fetchMoreUploadedPlans()"
+          :disabled="donationStore.isLoadingMore"
+          class="load-more-btn"
+        >
+          <span v-if="donationStore.isLoadingMore">{{ t('common.loading') }}</span>
+          <span v-else>{{ t('sidebar.load_more') }}</span>
+        </button>
       </section>
     </div>
     <UploadForm :show="showDonationForm" @close="showDonationForm = false" />
@@ -855,5 +936,87 @@ async function loadUploadedPlan(plan_id: string) {
   .sidebar.is-open {
     left: 0;
   }
+}
+
+/* Search styles */
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin: 1rem 1rem 0.5rem 1rem;
+  background-color: var(--color-background-mute);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.search-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E");
+  cursor: pointer;
+}
+
+.loading-spinner.small {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+  flex-shrink: 0;
+}
+
+/* Load more button */
+.load-more-btn {
+  display: block;
+  width: calc(100% - 1rem);
+  margin: 0.75rem 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-background-mute);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  background-color: var(--color-background-soft);
+  border-color: var(--color-primary);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.search-info {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  padding: 0.5rem 1rem;
+  margin: 0;
+  text-align: center;
+  font-style: italic;
 }
 </style>

@@ -31,6 +31,7 @@ vi.mock('@/plugins/supabase', () => ({
     update: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
+    range: vi.fn().mockReturnThis(),
   },
 }))
 
@@ -60,6 +61,7 @@ const mockedSupabase = supabase as unknown as {
   update: Mock
   eq: Mock
   limit: Mock
+  range: Mock
 }
 const mockedAuthStore = useAuthStore as unknown as Mock
 
@@ -110,6 +112,7 @@ describe('trainingPlan Store', () => {
       select: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+      range: vi.fn().mockResolvedValue({ data: [], error: null }),
       in: vi.fn().mockResolvedValue({ data: [], error: null }),
       update: vi.fn().mockReturnThis(),
       eq: vi.fn().mockResolvedValue({ error: null }),
@@ -143,7 +146,7 @@ describe('trainingPlan Store', () => {
         return {
           select: vi.fn().mockReturnThis(),
           order: vi.fn().mockReturnThis(),
-          limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+          range: vi.fn().mockResolvedValue({ data: [], error: null }),
         }
       }
       if (tableName === 'plans') {
@@ -389,7 +392,7 @@ describe('trainingPlan Store', () => {
           return {
             select: vi.fn().mockReturnThis(),
             order: vi.fn().mockReturnThis(),
-            limit: vi.fn().mockResolvedValue({ data: mockHistory, error: null }),
+            range: vi.fn().mockResolvedValue({ data: mockHistory, error: null }),
           }
         }
         if (tableName === 'plans') {
@@ -436,7 +439,7 @@ describe('trainingPlan Store', () => {
       mockedSupabase.from.mockReturnValue({
         select: vi.fn().mockReturnThis(),
         order: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue({ data: null, error: new Error('DB Error') }),
+        range: vi.fn().mockResolvedValue({ data: null, error: new Error('DB Error') }),
       })
       const store = useTrainingPlanStore()
 
@@ -458,7 +461,7 @@ describe('trainingPlan Store', () => {
           return {
             select: vi.fn().mockReturnThis(),
             order: vi.fn().mockReturnThis(),
-            limit: vi.fn().mockResolvedValue({ data: mockHistory, error: null }),
+            range: vi.fn().mockResolvedValue({ data: mockHistory, error: null }),
           }
         }
         if (tableName === 'plans') {
@@ -506,7 +509,7 @@ describe('trainingPlan Store', () => {
           return {
             select: vi.fn().mockReturnThis(),
             order: vi.fn().mockReturnThis(),
-            limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+            range: vi.fn().mockResolvedValue({ data: [], error: null }),
           }
         }
         if (tableName === 'plans') {
@@ -605,7 +608,7 @@ describe('trainingPlan Store', () => {
         update: vi.fn().mockReturnThis(),
         eq: vi.fn().mockResolvedValue({ error: null }),
         order: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+        range: vi.fn().mockResolvedValue({ data: [], error: null }),
       }
 
       mockedSupabase.from.mockImplementation((tableName: string) => {
