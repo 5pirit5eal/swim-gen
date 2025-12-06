@@ -25,9 +25,25 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   const conversation = ref<Message[]>([])
   const userStore = useAuthStore()
 
+  // Pagination state
+  const PAGE_SIZE = 10
+  const historyPage = ref(0)
+  const historyHasMore = ref(true)
+  const isLoadingMore = ref(false)
+
+  // Search state
+  const searchQuery = ref('')
+  const searchResults = ref<(RAGResponse & HistoryMetadata)[]>([])
+  const isSearching = ref(false)
+
   // --- COMPUTED ---
   const hasPlan = computed(() => currentPlan.value !== null)
   const planHistory = computed(() => {
+    // If searching, show only search results
+    if (searchQuery.value.trim()) {
+      return searchResults.value
+    }
+    // Otherwise show normal history
     const combined = historyMetadata.value.map((metadata) => {
       const plan = generationHistory.value.find((p) => p.plan_id === metadata.plan_id)
       return {
@@ -56,22 +72,33 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // --- ACTIONS ---
 
-  // Fetches the user's plan history
-  async function fetchHistory() {
+  // Fetches the user's plan history with pagination
+  async function fetchHistory(reset = true) {
     if (!userStore.user) {
       console.log('User is not available.')
       return
     }
+    if (reset) {
+      historyPage.value = 0
+      historyHasMore.value = true
+      generationHistory.value = []
+      historyMetadata.value = []
+    }
+
     isFetchingHistory.value = true
+    const offset = historyPage.value * PAGE_SIZE
     const { data, error } = await supabase
       .from('history')
       .select('plan_id, keep_forever, created_at, updated_at, exported_at')
       .order('created_at', { ascending: false })
-      .limit(50)
+      .range(offset, offset + PAGE_SIZE - 1)
 
     if (error) {
       console.error(error)
     } else if (data) {
+      // Check if there are more results
+      historyHasMore.value = data.length === PAGE_SIZE
+
       const planIds = data.map((entry) => entry.plan_id)
 
       // Fetch feedback for these plans
@@ -85,7 +112,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         console.error('Error fetching feedback:', feedbackError)
       }
 
-      historyMetadata.value = data.map((entry) => {
+      const newMetadata = data.map((entry) => {
         const feedback = feedbackData?.find((f) => f.plan_id === entry.plan_id)
         return {
           plan_id: entry.plan_id,
@@ -99,6 +126,12 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         }
       })
 
+      if (reset) {
+        historyMetadata.value = newMetadata
+      } else {
+        historyMetadata.value = [...historyMetadata.value, ...newMetadata]
+      }
+
       const { data: plansData, error: plansError } = await supabase
         .from('plans')
         .select('plan_id, title, description, plan_table')
@@ -106,15 +139,102 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       if (plansError) {
         console.error(plansError)
       } else if (plansData) {
-        generationHistory.value = plansData.map((plan) => ({
+        const newPlans = plansData.map((plan) => ({
           plan_id: plan.plan_id,
           title: plan.title,
           description: plan.description,
           table: plan.plan_table,
         }))
+        if (reset) {
+          generationHistory.value = newPlans
+        } else {
+          generationHistory.value = [...generationHistory.value, ...newPlans]
+        }
       }
     }
     isFetchingHistory.value = false
+  }
+
+  // Fetches more history entries (pagination)
+  async function fetchMoreHistory() {
+    if (!historyHasMore.value || isLoadingMore.value) return
+    isLoadingMore.value = true
+    historyPage.value += 1
+    await fetchHistory(false)
+    isLoadingMore.value = false
+  }
+
+  // Searches plans by title or description
+  async function searchPlans(query: string) {
+    searchQuery.value = query
+    if (!query.trim()) {
+      searchResults.value = []
+      return
+    }
+    if (!userStore.user) return
+
+    isSearching.value = true
+    try {
+      // Search in history table joined with plans table
+      const { data: historyData, error: historyError } = await supabase
+        .from('history')
+        .select('plan_id, keep_forever, created_at, updated_at, exported_at')
+        .order('created_at', { ascending: false })
+
+      if (historyError) {
+        console.error('Search history error:', historyError)
+        return
+      }
+
+      if (!historyData || historyData.length === 0) {
+        searchResults.value = []
+        return
+      }
+
+      const planIds = historyData.map((entry) => entry.plan_id)
+
+      // Search plans matching the query
+      const searchPattern = `%${query}%`
+      const { data: plansData, error: plansError } = await supabase
+        .from('plans')
+        .select('plan_id, title, description, plan_table')
+        .in('plan_id', planIds)
+        .or(`title.ilike.${searchPattern},description.ilike.${searchPattern}`)
+        .limit(20)
+
+      if (plansError) {
+        console.error('Search plans error:', plansError)
+        return
+      }
+
+      if (!plansData) {
+        searchResults.value = []
+        return
+      }
+
+      // Combine with metadata
+      searchResults.value = plansData.map((plan) => {
+        const metadata = historyData.find((h) => h.plan_id === plan.plan_id)
+        return {
+          plan_id: plan.plan_id,
+          title: plan.title,
+          description: plan.description,
+          table: plan.plan_table,
+          keep_forever: metadata?.keep_forever ?? false,
+          created_at: metadata?.created_at ?? '',
+          updated_at: metadata?.updated_at ?? '',
+          exported_at: metadata?.exported_at,
+        }
+      })
+    } finally {
+      isSearching.value = false
+    }
+  }
+
+  // Clears search results
+  function clearSearch() {
+    searchQuery.value = ''
+    searchResults.value = []
   }
 
   // Update keep_forever for plan in history
@@ -452,6 +572,13 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     generationHistory,
     historyMetadata,
     conversation,
+    // Pagination state
+    historyHasMore,
+    isLoadingMore,
+    // Search state
+    searchQuery,
+    searchResults,
+    isSearching,
     // Computed
     hasPlan,
     planHistory,
@@ -464,6 +591,9 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     clearError,
     clear,
     fetchHistory,
+    fetchMoreHistory,
+    searchPlans,
+    clearSearch,
     upsertCurrentPlan,
     loadPlanFromHistory,
     keepForever,

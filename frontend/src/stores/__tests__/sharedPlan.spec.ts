@@ -28,6 +28,7 @@ vi.mock('@/plugins/supabase', () => {
     single: vi.fn(),
     insert: vi.fn(),
     limit: vi.fn(),
+    range: vi.fn(),
     update: vi.fn(),
     maybeSingle: vi.fn(),
   }
@@ -41,6 +42,7 @@ vi.mock('@/plugins/supabase', () => {
   mockSupabase.single.mockReturnValue(mockSupabase)
   mockSupabase.insert.mockReturnValue(mockSupabase)
   mockSupabase.limit.mockReturnValue(mockSupabase)
+  mockSupabase.range.mockReturnValue(mockSupabase)
   mockSupabase.update.mockReturnValue(mockSupabase)
   mockSupabase.maybeSingle.mockReturnValue(mockSupabase)
 
@@ -74,6 +76,7 @@ const mockedSupabase = supabase as unknown as {
   single: Mock
   insert: Mock
   limit: Mock
+  range: Mock
   update: Mock
   maybeSingle: Mock
 }
@@ -96,6 +99,7 @@ describe('sharedPlan Store', () => {
     mockedSupabase.single.mockReturnValue(mockedSupabase)
     mockedSupabase.insert.mockReturnValue(mockedSupabase)
     mockedSupabase.limit.mockReturnValue(mockedSupabase)
+    mockedSupabase.range.mockReturnValue(mockedSupabase)
     mockedSupabase.update.mockReturnValue(mockedSupabase)
     mockedSupabase.maybeSingle.mockReturnValue(mockedSupabase)
   })
@@ -202,7 +206,7 @@ describe('sharedPlan Store', () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             order: vi.fn().mockReturnThis(),
-            limit: vi.fn().mockResolvedValue({ data: mockHistory, error: null }),
+            range: vi.fn().mockResolvedValue({ data: mockHistory, error: null }),
           }
         }
         if (tableName === 'plans') {

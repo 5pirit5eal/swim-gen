@@ -360,7 +360,9 @@
     "menu_share": "Teilen",
     "confirm_delete_plan": "Bist du sicher, dass du diesen Plan löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
     "confirm_delete_shared": "Bist du sicher, dass du diesen geteilten Plan löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
-    "confirm_delete_uploaded": "Bist du sicher, dass du diesen hochgeladenen Plan löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden."
+    "confirm_delete_uploaded": "Bist du sicher, dass du diesen hochgeladenen Plan löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "search_placeholder": "Generierte Pläne suchen...",
+    "load_more": "Mehr laden"
   },
   "donation": {
     "title": "Trainingsplan hochladen",

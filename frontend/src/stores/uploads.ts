@@ -10,8 +10,15 @@ export const useUploadStore = defineStore('upload', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const uploadedPlans = ref<UploadedPlan[]>([])
+  const allUploadedPlans = ref<UploadedPlan[]>([])
   const isFetchingUploads = ref(false)
   const userStore = useAuthStore()
+
+  // Pagination state
+  const PAGE_SIZE = 20
+  const displayCount = ref(PAGE_SIZE)
+  const historyHasMore = computed(() => displayCount.value < allUploadedPlans.value.length)
+  const isLoadingMore = ref(false)
 
   // --- COMPUTED ---
   const hasPlan = computed(() => currentPlan.value !== null)
@@ -31,18 +38,32 @@ export const useUploadStore = defineStore('upload', () => {
   // --- ACTIONS ---
 
   // Fetch all uploaded plans for the user
-  async function fetchUploadedPlans() {
+  async function fetchUploadedPlans(reset = true) {
     if (!userStore.user) return
+    if (reset) {
+      displayCount.value = PAGE_SIZE
+    }
     isFetchingUploads.value = true
     const result = await apiClient.getUploadedPlans()
     if (result.success && Array.isArray(result.data)) {
-      uploadedPlans.value = result.data.sort((a, b) => {
+      allUploadedPlans.value = result.data.sort((a, b) => {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       })
+      // Display only the first PAGE_SIZE items initially
+      uploadedPlans.value = allUploadedPlans.value.slice(0, displayCount.value)
     } else {
       console.error(result.error ? formatError(result.error) : 'Failed to fetch uploaded plans')
     }
     isFetchingUploads.value = false
+  }
+
+  // Fetches more uploaded plans (pagination - client side)
+  function fetchMoreUploadedPlans() {
+    if (!historyHasMore.value || isLoadingMore.value) return
+    isLoadingMore.value = true
+    displayCount.value += PAGE_SIZE
+    uploadedPlans.value = allUploadedPlans.value.slice(0, displayCount.value)
+    isLoadingMore.value = false
   }
 
   // Fetch a specific uploaded plan
@@ -202,10 +223,14 @@ export const useUploadStore = defineStore('upload', () => {
     error,
     uploadedPlans,
     isFetchingUploads,
+    // Pagination state
+    historyHasMore,
+    isLoadingMore,
     // Computed
     hasPlan,
     // Actions
     fetchUploadedPlans,
+    fetchMoreUploadedPlans,
     fetchUploadedPlan,
     loadPlanFromHistory,
     // PlanStore Implementation

@@ -20,6 +20,12 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   const error = ref<string | null>(null)
   const isForked = ref(false)
 
+  // Pagination state
+  const PAGE_SIZE = 20
+  const historyPage = ref(0)
+  const historyHasMore = ref(true)
+  const isLoadingMore = ref(false)
+
   // --- COMPUTED ---
   const currentPlan = computed(() => sharedPlan.value?.plan || null)
   const hasPlan = computed(() => currentPlan.value !== null)
@@ -174,22 +180,32 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     return null
   }
 
-  // Fetches the user's shared plan history
-  async function fetchSharedHistory() {
+  // Fetches the user's shared plan history with pagination
+  async function fetchSharedHistory(reset = true) {
     if (!authStore.user) return
+
+    if (reset) {
+      historyPage.value = 0
+      historyHasMore.value = true
+      sharedHistory.value = []
+    }
 
     isFetchingHistory.value = true
     try {
+      const offset = historyPage.value * PAGE_SIZE
       const { data: historyData, error: historyError } = await supabase
         .from('shared_history')
         .select('user_id, plan_id, share_method, shared_by, created_at')
         .eq('user_id', authStore.user.id)
         .order('created_at', { ascending: false })
-        .limit(50)
+        .range(offset, offset + PAGE_SIZE - 1)
 
       if (historyError) throw historyError
 
       if (historyData) {
+        // Check if there are more results
+        historyHasMore.value = historyData.length === PAGE_SIZE
+
         const planIds = historyData.map((item) => item.plan_id)
 
         // Fetch all plan details in one query
@@ -199,7 +215,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
           .in('plan_id', planIds)
 
         if (plansData === null) {
-          sharedHistory.value = []
+          if (reset) sharedHistory.value = []
           console.info('No plans data found for shared history')
           return
         }
@@ -237,9 +253,14 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
           }
         })
         // Filter out any undefined entries due to missing plan data
-        sharedHistory.value = rawSharedPlanHistory.filter(
+        const newItems = rawSharedPlanHistory.filter(
           (item): item is SharedHistoryItem => item !== undefined,
         )
+        if (reset) {
+          sharedHistory.value = newItems
+        } else {
+          sharedHistory.value = [...sharedHistory.value, ...newItems]
+        }
       }
     } catch (e) {
       console.error(e)
@@ -247,6 +268,15 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     } finally {
       isFetchingHistory.value = false
     }
+  }
+
+  // Fetches more shared history entries (pagination)
+  async function fetchMoreSharedHistory() {
+    if (!historyHasMore.value || isLoadingMore.value) return
+    isLoadingMore.value = true
+    historyPage.value += 1
+    await fetchSharedHistory(false)
+    isLoadingMore.value = false
   }
 
   // Load plan from history
@@ -433,6 +463,9 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     isFetchingHistory,
     error,
     isForked,
+    // Pagination state
+    historyHasMore,
+    isLoadingMore,
     // Computed
     currentPlan,
     hasPlan,
@@ -440,6 +473,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     keepForever,
     fetchSharedPlanByHash,
     fetchSharedHistory,
+    fetchMoreSharedHistory,
     loadPlanFromHistory,
     addPlanToHistory,
     clear,
