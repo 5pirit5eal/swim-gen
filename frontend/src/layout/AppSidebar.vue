@@ -414,7 +414,17 @@ async function loadUploadedPlan(plan_id: string) {
           </li>
         </ul>
         <!-- Search results info -->
-        <p v-if="searchQuery && trainingPlanStore.planHistory.length > 0" class="search-info">
+        <p
+          v-if="
+            searchQuery &&
+            trainingPlanStore.planHistory.length > 0 &&
+            trainingPlanStore.searchHitLimit
+          "
+          class="search-info search-limit-warning"
+        >
+          {{ t('sidebar.search_limit_hit', { count: trainingPlanStore.planHistory.length }) }}
+        </p>
+        <p v-else-if="searchQuery && trainingPlanStore.planHistory.length > 0" class="search-info">
           {{ t('sidebar.search_results_info', { count: trainingPlanStore.planHistory.length }) }}
         </p>
         <!-- Load more button for generated plans -->

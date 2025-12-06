@@ -32,9 +32,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   const isLoadingMore = ref(false)
 
   // Search state
+  const SEARCH_LIMIT = 20
   const searchQuery = ref('')
   const searchResults = ref<(RAGResponse & HistoryMetadata)[]>([])
   const isSearching = ref(false)
+  const searchHitLimit = computed(() => searchResults.value.length >= SEARCH_LIMIT)
 
   // --- COMPUTED ---
   const hasPlan = computed(() => currentPlan.value !== null)
@@ -200,7 +202,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         .select('plan_id, title, description, plan_table')
         .in('plan_id', planIds)
         .or(`title.ilike.${searchPattern},description.ilike.${searchPattern}`)
-        .limit(20)
+        .limit(SEARCH_LIMIT)
 
       if (plansError) {
         console.error('Search plans error:', plansError)
@@ -579,6 +581,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     searchQuery,
     searchResults,
     isSearching,
+    searchHitLimit,
     // Computed
     hasPlan,
     planHistory,
