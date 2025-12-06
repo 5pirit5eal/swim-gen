@@ -21,7 +21,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   const isForked = ref(false)
 
   // Pagination state
-  const PAGE_SIZE = 20
+  const PAGE_SIZE = 5
   const historyPage = ref(0)
   const historyHasMore = ref(true)
   const isLoadingMore = ref(false)
@@ -351,7 +351,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
