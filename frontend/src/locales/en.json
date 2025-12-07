@@ -321,7 +321,8 @@
           "short": "Upload your own plans",
           "long": "Upload your favorite training plans from images or PDFs and generate variations based on them."
         }
-      }
+      },
+      "contact": "Missing a feature? Feel free to contact us with your suggestions and feedback!"
     }
   },
   "profile": {

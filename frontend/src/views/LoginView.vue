@@ -134,6 +134,7 @@ async function handleSignUp() {
             <span class="feature-long">{{ t(`login.features.items.${feature}.long`) }}</span>
           </li>
         </ul>
+        <p class="contact-text">{{ t('login.features.contact') }}</p>
       </div>
     </div>
     <div class="column">
@@ -142,33 +143,15 @@ async function handleSignUp() {
         <form @submit.prevent="isSignUp ? handleSignUp() : handleLogin()">
           <div class="form-group" v-if="isSignUp">
             <label for="username">{{ t('login.username') }}*</label>
-            <input
-              id="username"
-              type="text"
-              :placeholder="t('login.username')"
-              v-model="username"
-              required
-            />
+            <input id="username" type="text" :placeholder="t('login.username')" v-model="username" required />
           </div>
           <div class="form-group">
             <label for="email">{{ t('login.email') }}*</label>
-            <input
-              id="email"
-              type="email"
-              :placeholder="t('login.email')"
-              v-model="email"
-              required
-            />
+            <input id="email" type="email" :placeholder="t('login.email')" v-model="email" required />
           </div>
           <div class="form-group">
             <label for="password">{{ t('login.password') }}*</label>
-            <input
-              id="password"
-              type="password"
-              :placeholder="t('login.password')"
-              v-model="password"
-              required
-            />
+            <input id="password" type="password" :placeholder="t('login.password')" v-model="password" required />
           </div>
           <div class="switch-form">
             <router-link v-if="isSignUp" to="/login">{{ t('login.haveAccount') }}</router-link>
@@ -229,6 +212,14 @@ async function handleSignUp() {
   line-height: 1.5;
 }
 
+.contact-text {
+  margin-top: 1.5rem;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+}
+
 .features-list {
   list-style: none;
   padding: 0;
@@ -259,6 +250,7 @@ async function handleSignUp() {
 }
 
 .login-box {
+  height: 100%;
   width: fit-content;
   padding: 2rem;
   background-color: var(--color-background-soft);
@@ -334,7 +326,8 @@ button:disabled {
 .google-btn {
   background-color: white;
   color: #333;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-primary);
+  box-shadow: 0 2px 4px var(--color-shadow);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -342,7 +335,7 @@ button:disabled {
 }
 
 .google-btn:hover {
-  background-color: #f5f5f5;
+  background-color: color-mix(in srgb, white, var(--color-shadow));
 }
 
 .google-icon {
