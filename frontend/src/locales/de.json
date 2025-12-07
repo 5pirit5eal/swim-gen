@@ -298,7 +298,34 @@
     "logoutSuccess": "Abmeldung erfolgreich!",
     "logoutFailed": "Die Abmeldung ist fehlgeschlagen. Bitte versuche es erneut.",
     "signInWithGoogle": "Mit Google anmelden",
-    "or": "Oder"
+    "or": "Oder",
+    "features": {
+      "title": "Erstelle dein kostenloses Konto",
+      "subtitle": "Entdecke die Funktionen von Swim Gen für angemeldete Nutzer",
+      "items": {
+        "history": {
+          "short": "Pläne in deiner Historie speichern",
+          "long": "Generierte Trainingspläne werden automatisch in deiner persönlichen Historie gespeichert und sind jederzeit abrufbar."
+        },
+        "share": {
+          "short": "Pläne mit anderen teilen",
+          "long": "Erstelle teilbare Links, um deine Lieblingstrainingspläne an Teamkollegen, Freunde oder Trainer zu senden."
+        },
+        "personalize": {
+          "short": "Plangenerierung personalisieren",
+          "long": "Lege dein Erfahrungslevel, bevorzugte Schwimmstile und Trainingsschwerpunkte in deinem Profil fest, um maßgeschneiderte Pläne zu erhalten."
+        },
+        "interactive": {
+          "short": "Interaktive Bearbeitung nutzen",
+          "long": "Verfeinere und passe deine Pläne über eine interaktive Chat-Oberfläche an für noch einfachere Anpassungen."
+        },
+        "upload": {
+          "short": "Eigene Pläne hochladen",
+          "long": "Lade deine Lieblingstrainingspläne aus Bildern oder PDFs hoch und generiere Variationen basierend darauf."
+        }
+      },
+      "contact": "Vermisst du eine Funktion? Kontaktiere uns gerne mit deinen Vorschlägen und Feedback!"
+    }
   },
   "profile": {
     "title": "Profil",
