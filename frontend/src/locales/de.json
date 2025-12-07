@@ -302,7 +302,6 @@
     "features": {
       "title": "Erstelle dein kostenloses Konto",
       "subtitle": "Entdecke die Funktionen von Swim Gen für angemeldete Nutzer",
-      "expand": "Funktionen anzeigen",
       "items": {
         "history": {
           "short": "Pläne in deiner Historie speichern",

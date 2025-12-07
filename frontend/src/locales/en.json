@@ -299,7 +299,6 @@
     "features": {
       "title": "Create your free account",
       "subtitle": "Explore Swim Gen's features for signed-in users",
-      "expand": "See what's included",
       "items": {
         "history": {
           "short": "Save plans to your history",
