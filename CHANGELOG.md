@@ -1,3 +1,11 @@
+## [2.11.0](https://github.com/5pirit5eal/swim-gen/compare/v2.10.0...v2.11.0) (2025-12-07)
+
+### Features
+
+* 102 add form for users to submit their desired auth option ([#142](https://github.com/5pirit5eal/swim-gen/issues/142)) ([ea9140b](https://github.com/5pirit5eal/swim-gen/commit/ea9140b977ffed49e1a6bfdb381d1973c814797a))
+* added call to action for feedback ([1eda555](https://github.com/5pirit5eal/swim-gen/commit/1eda555af686aa4218c8a2d0e1dbdb950581ab10))
+* added feature highlight in registration form ([611cf8a](https://github.com/5pirit5eal/swim-gen/commit/611cf8a034ddb578b17a6880a53632673df8b2f2))
+
 ## [2.10.0](https://github.com/5pirit5eal/swim-gen/compare/v2.9.0...v2.10.0) (2025-12-07)
 
 ### Features
