@@ -296,7 +296,9 @@
     "userExistsLoginFailed": "Benutzer existiert bereits, aber die Anmeldung ist fehlgeschlagen. Bitte überprüfe deine Anmeldeinformationen.",
     "unknownError": "Ein unbekannter Fehler ist aufgetreten. Bitte kontaktiere den Support.",
     "logoutSuccess": "Abmeldung erfolgreich!",
-    "logoutFailed": "Die Abmeldung ist fehlgeschlagen. Bitte versuche es erneut."
+    "logoutFailed": "Die Abmeldung ist fehlgeschlagen. Bitte versuche es erneut.",
+    "signInWithGoogle": "Mit Google anmelden",
+    "or": "Oder"
   },
   "profile": {
     "title": "Profil",

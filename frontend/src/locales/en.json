@@ -293,7 +293,9 @@
     "unknownError": "An unknown error occurred. Please contact support.",
     "logoutSuccess": "You have been logged out successfully.",
     "logoutFailed": "Logout failed. Please try again.",
-    "upsert_failed": "Failed to update plan. Please try again."
+    "upsert_failed": "Failed to update plan. Please try again.",
+    "signInWithGoogle": "Sign in with Google",
+    "or": "Or"
   },
   "profile": {
     "title": "Profile",
