@@ -91,7 +91,7 @@ Before you can run any OpenTofu commands, you must manually configure the follow
 4. **Google Auth**: Setup Google Identity Authentication following the [supabase tutorial](https://supabase.com/docs/guides/auth/social-login/auth-google).
 
 [!IMPORTANT]
-The Sign-in with Google integration cannot be configured programmatically via Terraform/OpenTofu. You must set it up manually in the Google Cloud Console (APIs & Services → Credentials → OAuth consent screen and OAuth client).
+The Sign-in with Google integration cannot be configured programmatically via Terraform/OpenTofu. You must set it up manually in the Google Cloud Console.
 
 Check the data blocks for the relevant information that needs to be prepared before applying the configuration for the first time.
 

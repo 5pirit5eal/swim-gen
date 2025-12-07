@@ -7,6 +7,7 @@ import { useSidebarStore } from '@/stores/sidebar'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue3-toastify'
+import IconGoogle from '@/components/icons/IconGoogle.vue'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -58,6 +59,17 @@ async function handleLogin() {
       toast.error(t('login.unknownError'))
     }
   } finally {
+    loading.value = false
+  }
+}
+
+async function handleGoogleLogin() {
+  loading.value = true
+  try {
+    await auth.signInWithOAuth()
+  } catch (error) {
+    console.error('Google Login failed:', error)
+    toast.error(t('login.unknownError'))
     loading.value = false
   }
 }
@@ -143,6 +155,15 @@ async function handleSignUp() {
         <button type="submit" :disabled="!canSubmit || loading">
           {{ loading ? t('login.loading') : isSignUp ? t('login.signUp') : t('login.login') }}
         </button>
+
+        <div class="divider">
+          <span>{{ t('login.or') }}</span>
+        </div>
+
+        <button type="button" class="google-btn" @click="handleGoogleLogin" :disabled="loading">
+          <IconGoogle class="google-icon" />
+          {{ t('login.signInWithGoogle') }}
+        </button>
       </form>
     </div>
   </div>
@@ -209,6 +230,44 @@ button:hover {
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--color-text);
+  margin: 0.5rem 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.divider span {
+  padding: 0 10px;
+}
+
+.google-btn {
+  background-color: white;
+  color: #333;
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.google-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.google-icon {
+  width: 22px;
+  height: 22px;
 }
 
 .error-message {
