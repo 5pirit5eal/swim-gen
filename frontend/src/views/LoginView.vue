@@ -22,6 +22,8 @@ const password = ref('')
 const username = ref('')
 const loading = ref(false)
 
+const features = ['history', 'share', 'upload', 'personalize', 'interactive'] as const
+
 onMounted(() => {
   if (auth.user) {
     router.replace('/')
@@ -121,50 +123,71 @@ async function handleSignUp() {
 
 <template>
   <div class="login-view">
-    <div class="login-box">
-      <h1>{{ isSignUp ? t('login.signUp') : t('login.login') }}</h1>
-      <form @submit.prevent="isSignUp ? handleSignUp() : handleLogin()">
-        <div class="form-group" v-if="isSignUp">
-          <label for="username">{{ t('login.username') }}*</label>
-          <input
-            id="username"
-            type="text"
-            :placeholder="t('login.username')"
-            v-model="username"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="email">{{ t('login.email') }}*</label>
-          <input id="email" type="email" :placeholder="t('login.email')" v-model="email" required />
-        </div>
-        <div class="form-group">
-          <label for="password">{{ t('login.password') }}*</label>
-          <input
-            id="password"
-            type="password"
-            :placeholder="t('login.password')"
-            v-model="password"
-            required
-          />
-        </div>
-        <div class="switch-form">
-          <router-link v-if="isSignUp" to="/login">{{ t('login.haveAccount') }}</router-link>
-          <router-link v-else to="/login?register=true">{{ t('login.needAccount') }}</router-link>
-        </div>
-        <button type="submit" :disabled="!canSubmit || loading">
-          {{ loading ? t('login.loading') : isSignUp ? t('login.signUp') : t('login.login') }}
-        </button>
+    <div class="column" v-if="isSignUp">
+      <div class="features-box">
+        <h2>{{ t('login.features.title') }}</h2>
+        <p class="features-subtitle">{{ t('login.features.subtitle') }}</p>
 
-        <div class="divider">
-          <span>{{ t('login.or') }}</span>
-        </div>
+        <ul class="features-list">
+          <li v-for="feature in features" :key="feature" class="feature-item">
+            <span class="feature-short">{{ t(`login.features.items.${feature}.short`) }}</span>
+            <span class="feature-long">{{ t(`login.features.items.${feature}.long`) }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="column">
+      <div class="login-box">
+        <h1>{{ isSignUp ? t('login.signUp') : t('login.login') }}</h1>
+        <form @submit.prevent="isSignUp ? handleSignUp() : handleLogin()">
+          <div class="form-group" v-if="isSignUp">
+            <label for="username">{{ t('login.username') }}*</label>
+            <input
+              id="username"
+              type="text"
+              :placeholder="t('login.username')"
+              v-model="username"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="email">{{ t('login.email') }}*</label>
+            <input
+              id="email"
+              type="email"
+              :placeholder="t('login.email')"
+              v-model="email"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="password">{{ t('login.password') }}*</label>
+            <input
+              id="password"
+              type="password"
+              :placeholder="t('login.password')"
+              v-model="password"
+              required
+            />
+          </div>
+          <div class="switch-form">
+            <router-link v-if="isSignUp" to="/login">{{ t('login.haveAccount') }}</router-link>
+            <router-link v-else to="/login?register=true">{{ t('login.needAccount') }}</router-link>
+          </div>
+          <button type="submit" :disabled="!canSubmit || loading">
+            {{ loading ? t('login.loading') : isSignUp ? t('login.signUp') : t('login.login') }}
+          </button>
 
-        <button type="button" class="google-btn" @click="handleGoogleLogin" :disabled="loading">
-          <IconGoogle class="google-icon" />
-          {{ t('login.signInWithGoogle') }}
-        </button>
-      </form>
+          <div class="divider">
+            <span>{{ t('login.or') }}</span>
+          </div>
+
+          <button type="button" class="google-btn" @click="handleGoogleLogin" :disabled="loading">
+            <IconGoogle class="google-icon" />
+            {{ t('login.signInWithGoogle') }}
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -172,14 +195,71 @@ async function handleSignUp() {
 <style scoped>
 .login-view {
   display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 0.25rem 0 2rem 0;
+  justify-content: center;
+  flex-direction: row;
+  padding: 2rem 1rem;
+  gap: 2rem;
+  margin: 0 auto;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.features-box {
+  height: 100%;
+  max-width: 700px;
+  padding: 2rem;
+  background-color: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.features-box h2 {
+  color: var(--color-heading);
+  margin-bottom: 0.75rem;
+  font-size: 1.75rem;
+}
+
+.features-subtitle {
+  color: var(--color-heading);
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feature-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.feature-item:last-child {
+  border-bottom: none;
+}
+
+.feature-short {
+  font-weight: 600;
+  color: var(--color-heading);
+  margin-bottom: 0.25rem;
+}
+
+.feature-long {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .login-box {
-  max-width: 1080px;
-  margin: 2rem auto;
+  width: fit-content;
   padding: 2rem;
   background-color: var(--color-background-soft);
   border-radius: 8px;
@@ -288,5 +368,12 @@ button:disabled {
   color: var(--color-text);
   text-decoration: underline;
   cursor: pointer;
+}
+
+@media (max-width: 950px) {
+  .login-view {
+    flex-direction: column-reverse;
+    align-items: center;
+  }
 }
 </style>

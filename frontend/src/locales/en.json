@@ -295,7 +295,34 @@
     "logoutFailed": "Logout failed. Please try again.",
     "upsert_failed": "Failed to update plan. Please try again.",
     "signInWithGoogle": "Sign in with Google",
-    "or": "Or"
+    "or": "Or",
+    "features": {
+      "title": "Create your free account",
+      "subtitle": "Explore Swim Gen's features for signed-in users",
+      "expand": "See what's included",
+      "items": {
+        "history": {
+          "short": "Save plans to your history",
+          "long": "Generated training plans are automatically saved in your personal history for easy access anytime."
+        },
+        "share": {
+          "short": "Share plans with others",
+          "long": "Create shareable links to send your favorite training plans to teammates, friends, or coaches."
+        },
+        "personalize": {
+          "short": "Personalize plan generation",
+          "long": "Set your experience level, preferred strokes, and training focus in your profile to get tailored plans."
+        },
+        "interactive": {
+          "short": "Use interactive editing",
+          "long": "Refine and adjust your plans through an interactive chat interface for even easier customization."
+        },
+        "upload": {
+          "short": "Upload your own plans",
+          "long": "Upload your favorite training plans from images or PDFs and generate variations based on them."
+        }
+      }
+    }
   },
   "profile": {
     "title": "Profile",
