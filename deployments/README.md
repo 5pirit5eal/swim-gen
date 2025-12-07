@@ -88,7 +88,7 @@ Before you can run any OpenTofu commands, you must manually configure the follow
 1. **Google Cloud Projects**: Create two google cloud projects, one for dev, one for prod. These projects are not created as part of the terraform configuration. You may adapt the code to create a project, but need to find another way of storing and providing the pre-required secrets.
 2. **Domain & DNS**: Procure a domain name and configure its DNS settings to point to your GCP project. The specific DNS records will be output by the `0-infra` stage.
 3. **Secrets**: Create and configure the necessary secrets in Google Secret Manager. This includes passwords for the Cloud SQL database users. These secrets must be created before the `0-infra` stage can be successfully applied, as it sets permissions on them. Check the data blocks in the dev and prod configuration for details.
-4. **Google Auth**: Setup Google Identity Authentication following the [supabase tutorial](https://supabase.com/docs/guides/auth/social-login/auth-google).
+4. **Google Auth**: Setup Google Identity Authentication following the [supabase tutorial](https://supabase.com/docs/guides/auth/social-login/auth-google). Set the site-url in the supabase project to the frontend url provided by cloud run or the domain of the app.
 
 [!IMPORTANT]
 The Sign-in with Google integration cannot be configured programmatically via Terraform/OpenTofu. You must set it up manually in the Google Cloud Console.
