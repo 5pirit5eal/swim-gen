@@ -1,3 +1,10 @@
+## [2.10.0](https://github.com/5pirit5eal/swim-gen/compare/v2.9.0...v2.10.0) (2025-12-07)
+
+### Features
+
+* added google auth to login and registration ([06899a3](https://github.com/5pirit5eal/swim-gen/commit/06899a399e05534408d09203f8705e89fc0460e8))
+* added important note to readme ([89f1067](https://github.com/5pirit5eal/swim-gen/commit/89f106700515efb985e6b78839dd055c4895e281))
+
 ## [2.9.0](https://github.com/5pirit5eal/swim-gen/compare/v2.8.0...v2.9.0) (2025-12-06)
 
 ### Features
