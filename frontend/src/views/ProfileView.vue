@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
+import IconEdit from '@/components/icons/IconEdit.vue'
+import IconCheck from '@/components/icons/IconCheck.vue'
+import IconCross from '@/components/icons/IconCross.vue'
+import { toast } from 'vue3-toastify'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import { useProfileStore } from '@/stores/profile'
 import { useAuthStore } from '@/stores/auth'
@@ -22,6 +26,7 @@ const deletingAccount = ref(false)
 const deleteError = ref('')
 
 const canDelete = computed(() => deleteConfirmationText.value === 'DELETE')
+const isEmailUser = computed(() => authStore.user?.app_metadata?.provider === 'email')
 
 const strokeOptions = ['Freestyle', 'Breaststroke', 'Backstroke', 'Butterfly', 'Individual Medley']
 const categoryOptions = ['Triathlete', 'Swimmer', 'Coach', 'Hobby']
@@ -33,6 +38,8 @@ const editableProfile = ref({
   preferred_language: '',
 })
 const username = ref('')
+const isUsernameEditMode = ref(false)
+const usernameEditValue = ref('')
 
 onMounted(() => {
   profileStore.fetchProfile()
@@ -49,6 +56,7 @@ watch(
         preferred_language: newProfile.preferred_language || '',
       }
       username.value = newProfile.username || ''
+      usernameEditValue.value = newProfile.username || ''
     }
   },
   { immediate: true },
@@ -110,6 +118,32 @@ async function confirmDeleteAccount() {
     deletingAccount.value = false
   }
 }
+
+async function saveUsername() {
+  if (!usernameEditValue.value.trim()) return
+
+  await profileStore.updateProfile({ username: usernameEditValue.value })
+  username.value = usernameEditValue.value
+  isUsernameEditMode.value = false
+}
+
+function cancelUsernameEdit() {
+  usernameEditValue.value = username.value
+  isUsernameEditMode.value = false
+}
+
+async function handleResetPassword() {
+  if (authStore.user?.email) {
+    const redirectTo = `${window.location.origin}/profile/update-password`
+    try {
+      await authStore.resetPassword(authStore.user.email, redirectTo)
+      toast.success(t('profile.reset_password_success'))
+    } catch (error) {
+      toast.error((error as Error).message || t('profile.reset_password_error'))
+    }
+  }
+}
+
 </script>
 
 <template>
@@ -118,6 +152,49 @@ async function confirmDeleteAccount() {
       <section class="hero">
         <h1>{{ t('profile.title') }}</h1>
         <p class="hero-description">{{ t('profile.description', { user: username }) }}</p>
+      </section>
+
+      <section class="credentials-section">
+        <div class="profile-card">
+          <h3>{{ t('profile.user_credentials') }}</h3>
+          <div class="credentials-grid">
+            <div class="info-group">
+              <label>{{ t('profile.username') }}</label>
+              <div v-if="!isUsernameEditMode" class="value-display">
+                <p>{{ username }}</p>
+                <button @click="isUsernameEditMode = true" class="icon-btn">
+                  <IconEdit />
+                </button>
+              </div>
+              <div v-else class="edit-display">
+                <input v-model="usernameEditValue" type="text" class="select-input" @keyup.enter="saveUsername" />
+                <div class="action-buttons">
+                  <button @click="saveUsername" class="icon-btn success">
+                    <IconCheck />
+                  </button>
+                  <button @click="cancelUsernameEdit" class="icon-btn">
+                    <IconCross />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-group">
+              <label>{{ t('profile.email') }}</label>
+              <p>{{ authStore.user?.email }}</p>
+            </div>
+
+            <div class="info-group">
+              <label>{{ t('profile.password') }}</label>
+              <div class="value-display">
+                <p>{{ t('profile.password_placeholder') }}</p>
+                <button v-if="isEmailUser" @click="handleResetPassword" class="icon-btn">
+                  <IconEdit />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section class="profile-content">
@@ -175,44 +252,30 @@ async function confirmDeleteAccount() {
             <div class="form-grid">
               <div class="form-column">
                 <div class="form-group">
-                  <label class="form-label"
-                    >{{ t('profile.experience') }}
+                  <label class="form-label">{{ t('profile.experience') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.experience_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="select-group">
-                    <select
-                      class="select-input"
-                      v-model="editableProfile.experience"
-                      :disabled="profileStore.loading"
-                    >
+                    <select class="select-input" v-model="editableProfile.experience" :disabled="profileStore.loading">
                       <option value="">{{ t('form.any_difficulty') }}</option>
-                      <option
-                        v-for="option in DIFFICULTY_OPTIONS"
-                        :key="option.value"
-                        :value="option.value"
-                      >
+                      <option v-for="option in DIFFICULTY_OPTIONS" :key="option.value" :value="option.value">
                         {{ t(option.label) }}
                       </option>
                     </select>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label"
-                    >{{ t('profile.preferred_strokes') }}
+                  <label class="form-label">{{ t('profile.preferred_strokes') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.preferred_strokes_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
                     <label v-for="option in strokeOptions" :key="option" class="checkbox-option">
-                      <input
-                        type="checkbox"
-                        :value="option"
-                        v-model="editableProfile.preferred_strokes"
-                        :disabled="profileStore.loading"
-                      />
+                      <input type="checkbox" :value="option" v-model="editableProfile.preferred_strokes"
+                        :disabled="profileStore.loading" />
                       {{ t(`profile.${option.toLowerCase().replace(' ', '_')}`) }}
                     </label>
                   </div>
@@ -220,20 +283,15 @@ async function confirmDeleteAccount() {
               </div>
               <div class="form-column">
                 <div class="form-group">
-                  <label class="form-label"
-                    >{{ t('profile.categories') }}
+                  <label class="form-label">{{ t('profile.categories') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.categories_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
                     <label v-for="option in categoryOptions" :key="option" class="checkbox-option">
-                      <input
-                        type="checkbox"
-                        :value="option"
-                        v-model="editableProfile.categories"
-                        :disabled="profileStore.loading"
-                      />
+                      <input type="checkbox" :value="option" v-model="editableProfile.categories"
+                        :disabled="profileStore.loading" />
                       {{ t(`profile.category_${option.toLowerCase()}`) }}
                     </label>
                   </div>
@@ -278,10 +336,8 @@ async function confirmDeleteAccount() {
                   <td>
                     <p>{{ profileStore.profile?.monthly_generations ?? 0 }} / 100</p>
                     <div class="progress-bar">
-                      <div
-                        class="progress"
-                        :style="{ width: `${profileStore.profile?.monthly_generations ?? 0}%` }"
-                      ></div>
+                      <div class="progress" :style="{ width: `${profileStore.profile?.monthly_generations ?? 0}%` }">
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -307,13 +363,8 @@ async function confirmDeleteAccount() {
           <div class="delete-modal-content">
             <p class="delete-warning">{{ t('profile.delete_account_confirmation') }}</p>
             <p class="delete-instruction">{{ t('profile.delete_account_instruction') }}</p>
-            <input
-              v-model="deleteConfirmationText"
-              type="text"
-              class="delete-confirmation-input"
-              :placeholder="t('profile.delete_account_placeholder_input')"
-              :disabled="deletingAccount"
-            />
+            <input v-model="deleteConfirmationText" type="text" class="delete-confirmation-input"
+              :placeholder="t('profile.delete_account_placeholder_input')" :disabled="deletingAccount" />
             <p v-if="deleteError" class="delete-error">{{ deleteError }}</p>
           </div>
         </template>
@@ -321,11 +372,7 @@ async function confirmDeleteAccount() {
           <button class="cancel-btn" @click="closeDeleteModal" :disabled="deletingAccount">
             {{ t('profile.cancel') }}
           </button>
-          <button
-            class="confirm-delete-btn"
-            @click="confirmDeleteAccount"
-            :disabled="!canDelete || deletingAccount"
-          >
+          <button class="confirm-delete-btn" @click="confirmDeleteAccount" :disabled="!canDelete || deletingAccount">
             <span v-if="deletingAccount" class="spinner"></span>
             {{ deletingAccount ? t('profile.deleting') : t('profile.delete_account_confirm') }}
           </button>
@@ -338,6 +385,10 @@ async function confirmDeleteAccount() {
 <style scoped>
 .profile-view {
   padding: 0.25rem 0 2rem 0;
+}
+
+.credentials-section {
+  margin-bottom: 2rem;
 }
 
 .container {
@@ -377,7 +428,7 @@ async function confirmDeleteAccount() {
   gap: 2rem;
 }
 
-@media (max-width: 1286px) {
+@media (max-width: 1186px) {
   .profile-content {
     flex-direction: column;
     gap: 1.5rem;
@@ -407,31 +458,38 @@ async function confirmDeleteAccount() {
 }
 
 .profile-card h3 {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   color: var(--color-heading);
   font-size: 1.5rem;
 }
 
 .profile-card p {
-  margin-bottom: 1rem;
+  margin: 0.5rem 0;
   color: var(--color-text);
   font-size: 1rem;
 }
 
 .info-grid {
   display: flex;
-  margin-bottom: 2rem;
+  margin: 1rem auto;
   justify-content: space-between;
 }
 
-@media (max-width: 460px) {
+@media (max-width: 1186px) {
   .info-grid {
-    flex-direction: column;
+    margin-bottom: 3.5rem;
   }
 }
 
-.info-group {
-  margin: 0.25rem 0.5rem 1.5rem;
+@media (max-width: 460px) {
+  .profile-card {
+    padding: 1rem;
+  }
+
+  .info-grid {
+    flex-direction: column;
+    margin-bottom: 3rem;
+  }
 }
 
 .info-group label {
@@ -442,12 +500,12 @@ async function confirmDeleteAccount() {
 }
 
 .info-group p {
-  margin-top: 0.5rem;
+  margin: 0.5rem 0;
 }
 
 .info-group ul {
   padding-left: 1rem;
-  margin-top: 0.5rem;
+  margin: 0.5rem 0;
 }
 
 .edit-btn {
@@ -480,14 +538,13 @@ async function confirmDeleteAccount() {
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin: 0.5rem 0;
 }
 
 .form-label {
   display: block;
   font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
   color: var(--color-heading);
 }
 
@@ -720,5 +777,85 @@ async function confirmDeleteAccount() {
   to {
     transform: rotate(360deg);
   }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.credentials-grid {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background: var(--color-background-soft);
+  gap: 1.5rem;
+}
+
+@media (max-width: 460px) {
+  .credentials-grid {
+    flex-direction: column;
+  }
+}
+
+.value-display {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.icon-btn {
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-background-soft);
+  color: var(--color-text);
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+
+.icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-btn:hover {
+  background: var(--color-background-mute);
+  border-color: var(--color-border-hover);
+}
+
+.edit-display {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.edit-display input {
+  max-width: 200px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.save-btn.small,
+.cancel-btn.small {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.save-btn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.save-btn:hover {
+  background: var(--color-primary-hover);
 }
 </style>

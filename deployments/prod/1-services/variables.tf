@@ -64,3 +64,13 @@ variable "outputs_location" {
   type        = string
   default     = "../0-config"
 }
+
+variable "resend_dns_records" {
+  description = "The Resend DNS records"
+  type = list(object({
+    name  = string
+    value = string
+    type  = string
+    ttl   = number
+  }))
+}

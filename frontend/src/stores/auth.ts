@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Session, User } from '@supabase/supabase-js'
+import type { Session, User, EmailOtpType } from '@supabase/supabase-js'
 import { supabase } from '@/plugins/supabase'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -60,10 +60,11 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function signInWithOAuth() {
+    console.log('Signing in with OAuth and redirecting to', `${window.location.origin}/`)
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/profile`,
       },
     })
     if (error) throw error
@@ -75,6 +76,23 @@ export const useAuthStore = defineStore('auth', () => {
     if (error) throw error
   }
 
+  async function resetPassword(email: string, redirectTo: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    })
+    if (error) throw error
+  }
+
+  async function updatePassword(password: string) {
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) throw error
+  }
+
+  async function verifyOtp(token_hash: string, type: EmailOtpType) {
+    const { error } = await supabase.auth.verifyOtp({ token_hash, type })
+    if (error) throw error
+  }
+
   return {
     session,
     user,
@@ -83,5 +101,8 @@ export const useAuthStore = defineStore('auth', () => {
     signUp,
     signInWithOAuth,
     signOut,
+    resetPassword,
+    updatePassword,
+    verifyOtp,
   }
 })

@@ -22,6 +22,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/profile/update-password',
+      name: 'update-password',
+      component: () => import('@/views/UpdatePasswordView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/shared/:urlHash',
       name: 'shared',
       component: () => import('@/views/SharedView.vue'),
