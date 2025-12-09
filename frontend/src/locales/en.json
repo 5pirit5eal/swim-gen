@@ -2,6 +2,7 @@
   "app": {
     "name": "Swim Gen",
     "slogan": "AI-powered training plan generator for swimmers and triathletes.",
+    "note_meta": "NOTE: The above 'name' and 'slogan' are also used in index.html for OpenGraph/meta tags. Change them there too.",
     "hero_title": "AI-Powered Swimming Training Plans",
     "hero_description": "Generate personalized training plans for swimmers, triathletes, and coaches. Just describe what you're looking for, and our system will create a custom training for you."
   },
@@ -98,22 +99,7 @@
       "breaststroke": "B, Br: Brustschwimmen (Breaststroke)",
       "leg_work": "Be: Beinarbeit (Leg work)",
       "butterfly": "S, D: Schmetterling/Delfinschwimmen (Butterfly)",
-      "individual_medley": "Lagen",
-      "user_credentials": "Benutzerdaten",
-      "username": "Benutzername",
-      "email": "E-Mail",
-      "password": "Passwort",
-      "password_placeholder": "********",
-      "reset_password": "Passwort zurücksetzen",
-      "password_reset_sent": "E-Mail zum Zurücksetzen des Passworts gesendet!",
-      "update_password_title": "Passwort aktualisieren",
-      "new_password": "Neues Passwort",
-      "confirm_password": "Passwort bestätigen",
-      "update_password_btn": "Passwort aktualisieren",
-      "passwords_do_not_match": "Die Passwörter stimmen nicht überein",
-      "password_updated": "Passwort erfolgreich aktualisiert!",
-      "back_to_profile": "Zurück zum Profil",
-      "individual_medley_full": "Lagenstaffel (Individual Medley)"
+      "individual_medley": "Lagen: Individual Medley (IM)"
     },
     "intensity": "Intensity",
     "intensity_tooltip": {
@@ -126,6 +112,8 @@
       "hf": "HF: Heart Rate - used to control intensity and training zones",
       "lt": "LT: Lactate Threshold - intensity at which lactate rises noticeably",
       "sa": "SA: Speed endurance - high intensities over middle distances",
+      "wa": "WA: Race-specific endurance - endurance at race pace and distance",
+      "wk": "WK: Competition",
       "ta": "TA: Technique endurance",
       "tue": "T / TÜ: Technical drill",
       "ts": "TS: Technically clean",
@@ -284,7 +272,8 @@
     "timeout": "Request timed out after {time} seconds. Please try again.",
     "connection_failed": "Failed to connect to the server. Please check your internet connection and try again.",
     "api_request_failed": "API request failed for {endpoint}",
-    "fetch_shared_plan_failed": "Failed to fetch shared training plan. It may have been deleted or is no longer available."
+    "fetch_shared_plan_failed": "Failed to fetch shared training plan. It may have been deleted or is no longer available.",
+    "upsert_failed": "Failed to update plan. Please try again."
   },
   "login": {
     "login": "Login",
@@ -308,8 +297,8 @@
     "unknownError": "An unknown error occurred. Please contact support.",
     "logoutSuccess": "You have been logged out successfully.",
     "logoutFailed": "Logout failed. Please try again.",
-    "upsert_failed": "Failed to update plan. Please try again.",
     "signInWithGoogle": "Sign in with Google",
+    "forgot_password": "Forgot Password?",
     "or": "Or",
     "features": {
       "title": "Create your free account",
@@ -354,9 +343,9 @@
     "save": "Save",
     "saving": "Saving...",
     "generated_plans": "Generated Plans",
-    "generated_plan_tooltip": "Total number of training plans generated with your account.",
+    "generated_plans_tooltip": "Total number of training plans generated with your account.",
     "exported_plans": "Exported Plans",
-    "exported_plan_tooltip": "Total number of training plans exported to PDF with your account.",
+    "exported_plans_tooltip": "Total number of training plans exported to PDF with your account.",
     "monthly_quota": "Monthly Quota",
     "monthly_quota_tooltip": "Number of advanced training plans you can generate per month. Advanced plans are plans in chat-mode or multi-plan requests. The quota resets on the first day of each month.",
     "delete_account": "Delete Account",

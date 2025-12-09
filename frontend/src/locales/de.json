@@ -298,6 +298,7 @@
     "logoutSuccess": "Abmeldung erfolgreich!",
     "logoutFailed": "Die Abmeldung ist fehlgeschlagen. Bitte versuche es erneut.",
     "signInWithGoogle": "Mit Google anmelden",
+    "forgot_password": "Passwort vergessen?",
     "or": "Oder",
     "features": {
       "title": "Erstelle dein kostenloses Konto",

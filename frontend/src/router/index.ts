@@ -25,7 +25,6 @@ const router = createRouter({
       path: '/profile/update-password',
       name: 'update-password',
       component: () => import('@/views/UpdatePasswordView.vue'),
-      meta: { requiresAuth: true },
     },
     {
       path: '/shared/:urlHash',

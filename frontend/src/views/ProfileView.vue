@@ -132,14 +132,23 @@ function cancelUsernameEdit() {
   isUsernameEditMode.value = false
 }
 
+const resetCooldown = ref(false)
+
 async function handleResetPassword() {
-  if (authStore.user?.email) {
+  if (authStore.user?.email && !resetCooldown.value) {
     const redirectTo = `${window.location.origin}/profile/update-password`
     try {
+      resetCooldown.value = true
       await authStore.resetPassword(authStore.user.email, redirectTo)
       toast.success(t('profile.reset_password_success'))
+
+      // Disable button for 10 seconds
+      setTimeout(() => {
+        resetCooldown.value = false
+      }, 10000)
     } catch (error) {
       toast.error((error as Error).message || t('profile.reset_password_error'))
+      resetCooldown.value = false
     }
   }
 }
@@ -188,7 +197,7 @@ async function handleResetPassword() {
               <label>{{ t('profile.password') }}</label>
               <div class="value-display">
                 <p>{{ t('profile.password_placeholder') }}</p>
-                <button v-if="isEmailUser" @click="handleResetPassword" class="icon-btn">
+                <button v-if="isEmailUser" @click="handleResetPassword" class="icon-btn" :disabled="resetCooldown">
                   <IconEdit />
                 </button>
               </div>
@@ -428,7 +437,7 @@ async function handleResetPassword() {
   gap: 2rem;
 }
 
-@media (max-width: 1186px) {
+@media (max-width: 1250px) {
   .profile-content {
     flex-direction: column;
     gap: 1.5rem;
@@ -473,9 +482,10 @@ async function handleResetPassword() {
   display: flex;
   margin: 1rem auto;
   justify-content: space-between;
+  gap: 0.5rem;
 }
 
-@media (max-width: 1186px) {
+@media (max-width: 1250px) {
   .info-grid {
     margin-bottom: 3.5rem;
   }

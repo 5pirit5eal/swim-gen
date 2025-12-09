@@ -29,6 +29,8 @@ onMounted(async () => {
       toast.error(t('errors.unknown_error'))
       router.push('/profile')
     }
+  } else {
+    router.push('/login')
   }
 })
 
