@@ -1,18 +1,6 @@
 <script setup lang="ts">
-import BaseModal from '@/components/ui/BaseModal.vue'
-import PrivacyPolicy from '@/components/legal/PrivacyPolicy.vue'
-import TermsOfService from '@/components/legal/TermsOfService.vue'
-import LegalImpressum from '@/components/legal/LegalImpressum.vue'
 import IconHeart from '@/components/icons/IconHeart.vue'
-import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-// Footer component with privacy links and legal information
-// Handlers for modal dialogs will be implemented when needed
-
-const showPrivacyPolicyModal = ref(false)
-const showTermsOfServiceModal = ref(false)
-const showImpressumModal = ref(false)
 
 const { t } = useI18n()
 </script>
@@ -30,19 +18,13 @@ const { t } = useI18n()
           <h4>{{ t('footer.privacy_legal') }}</h4>
           <ul class="footer-links">
             <li>
-              <a href="#privacy" id="privacy-policy" @click="showPrivacyPolicyModal = true">{{
-                t('footer.privacy_policy')
-              }}</a>
+              <router-link to="/privacy">{{ t('footer.privacy_policy') }}</router-link>
             </li>
             <li>
-              <a href="#terms" id="tos" @click="showTermsOfServiceModal = true">{{
-                t('footer.terms_of_service')
-              }}</a>
+              <router-link to="/terms">{{ t('footer.terms_of_service') }}</router-link>
             </li>
             <li>
-              <a href="#impressum" id="impress" @click.prevent="showImpressumModal = true">{{
-                t('footer.impressum')
-              }}</a>
+              <router-link to="/impressum">{{ t('footer.impressum') }}</router-link>
             </li>
           </ul>
         </div>
@@ -75,32 +57,6 @@ const { t } = useI18n()
       </div>
     </div>
   </footer>
-  <BaseModal :show="showPrivacyPolicyModal" @close="showPrivacyPolicyModal = false">
-    <template #header>
-      <h1>{{ t('footer.privacy_policy') }}</h1>
-    </template>
-    <template #body>
-      <PrivacyPolicy />
-    </template>
-  </BaseModal>
-
-  <BaseModal :show="showTermsOfServiceModal" @close="showTermsOfServiceModal = false">
-    <template #header>
-      <h1>{{ t('footer.terms_of_service') }}</h1>
-    </template>
-    <template #body>
-      <TermsOfService />
-    </template>
-  </BaseModal>
-
-  <BaseModal :show="showImpressumModal" @close="showImpressumModal = false">
-    <template #header>
-      <h1>{{ t('footer.impressum') }}</h1>
-    </template>
-    <template #body>
-      <LegalImpressum />
-    </template>
-  </BaseModal>
 </template>
 
 <style scoped>

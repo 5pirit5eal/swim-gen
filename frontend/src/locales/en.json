@@ -145,7 +145,7 @@
   },
   "privacy_policy": {
     "title": "Privacy Policy",
-    "last_updated": "Last Updated: August 30, 2025",
+    "last_updated": "Last Updated: December 9, 2025",
     "data_protection_at_a_glance_title": "1. Data Protection at a Glance",
     "general_notes_title": "General Information",
     "general_notes_text": "The following notes provide a simple overview of what happens to your personal data when you visit this website. Personal data is any data with which you could be personally identified. Detailed information on the subject of data protection can be found in our privacy policy listed below this text.",
@@ -153,9 +153,9 @@
     "who_is_responsible_title": "Who is responsible for data collection on this website?",
     "who_is_responsible_text": "The data processing on this website is carried out by the website operator. Their contact details can be found in the 'Information on the responsible party' section of this privacy policy.",
     "how_we_collect_data_title": "How do we collect your data?",
-    "how_we_collect_data_text": "We do not collect personal data automatically. The only data we process is that which you explicitly provide to us, for example, by entering training requirements into the plan generation form. This data is used exclusively for creating the training plan and is not stored.",
+    "how_we_collect_data_text": "We do not collect personal data automatically. We process data that you explicitly provide to us, such as training requirements entered into the plan generation form, uploaded plans, and your profile preferences. This data is stored in your user account to enable features like your personal training history and plan customization.",
     "what_we_use_data_for_title": "What do we use your data for?",
-    "what_we_use_data_for_text": "The data you provide is used exclusively to provide the services the site offers to the user. Your requests and the generated plans are not stored. Exported plans are temporarly stored to enable downloading. We do not use data to analyze user behavior.",
+    "what_we_use_data_for_text": "The data you provide is used to provide the services offered by the site, including generating training plans, maintaining your personal plan history, and allowing for plan sharing. Generated plans, uploaded content, and profile settings are stored until you delete them or your account. We may use anonymized data to analyze the application, develop new services, or improve services provided to the user. We do not use your personal data for third-party marketing or behavioral analysis.",
     "your_rights_title": "What are your rights regarding your data?",
     "your_rights_text": "You have the right at any time to receive information free of charge about the origin, recipient, and purpose of your stored personal data. You also have a right to request that this data be corrected or deleted. If you have given your consent to data processing, you may revoke this consent at any time for the future. You also have the right, under certain circumstances, to request the restriction of the processing of your personal data. Furthermore, you have the right to lodge a complaint with the competent supervisory authority. You can contact us at any time for further questions on the subject of data protection.",
     "general_and_mandatory_info_title": "2. General and Mandatory Information",
@@ -192,7 +192,7 @@
     "ssl_tls_encryption_text": "For security reasons and to protect the transmission of confidential content, such as orders or inquiries that you send to us as the site operator, this site uses SSL or TLS encryption. You can recognize an encrypted connection by the fact that the address line of the browser changes from “http://” to “https://” and by the lock symbol in your browser line. If SSL or TLS encryption is activated, the data you transmit to us cannot be read by third parties."
   },
   "terms_of_service": {
-    "last_updated": "Last Updated: August 30, 2025",
+    "last_updated": "Last Updated: December 9, 2025",
     "title": "Terms and Conditions of Swim Gen",
     "intro": "These Terms govern the use of this Application, and, any other related Agreement or legal relationship with the Owner in a legally binding way. Capitalized words are defined in the relevant dedicated section of this document.",
     "read_carefully": "The User must read this document carefully.",
