@@ -145,7 +145,7 @@
   },
   "privacy_policy": {
     "title": "Datenschutzerklärung",
-    "last_updated": "Zuletzt aktualisiert: 28. August 2025",
+    "last_updated": "Zuletzt aktualisiert: 09. Dezember 2025",
     "data_protection_at_a_glance_title": "1. Datenschutz auf einen Blick",
     "general_notes_title": "Allgemeine Hinweise",
     "general_notes_text": "Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können. Ausführliche Informationen zum Thema Datenschutz entnehmen Sie unserer unter diesem Text aufgeführten Datenschutzerklärung.",
@@ -153,9 +153,9 @@
     "who_is_responsible_title": "Wer ist verantwortlich für die Datenerfassung auf dieser Website?",
     "who_is_responsible_text": "Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Abschnitt „Hinweis zur Verantwortlichen Stelle“ in dieser Datenschutzerklärung entnehmen.",
     "how_we_collect_data_title": "Wie erfassen wir Ihre Daten?",
-    "how_we_collect_data_text": "Wir erheben keine personenbezogenen Daten automatisch. Die einzigen Daten, die wir verarbeiten, sind diejenigen, die Sie uns explizit zur Verfügung stellen, zum Beispiel durch die Eingabe von Trainingsanforderungen in das Formular zur Plangenerierung. Diese Daten werden ausschließlich zur Erstellung des Trainingsplans verwendet und nicht gespeichert.",
+    "how_we_collect_data_text": "Wir erheben keine personenbezogenen Daten automatisch. Wir verarbeiten Daten, die Sie uns explizit zur Verfügung stellen, wie z.B. Trainingsanforderungen im Generierungsformular, hochgeladene Pläne und Ihre Profileinstellungen. Diese Daten werden in Ihrem Benutzerkonto verknüpft, um personenbezogene Funktionen wie z.B. Ihren persönlichen Trainingsverlauf und die Plananpassung zu ermöglichen.",
     "what_we_use_data_for_title": "Wofür nutzen wir Ihre Daten?",
-    "what_we_use_data_for_text": "Die von Ihnen bereitgestellten Daten werden ausschließlich zur der von der Website bereitgestellten Funktionalität genutzt. Es findet keine Speicherung Ihrer Anfragen oder der generierten Pläne statt. Exportierte Pläne werden temporär zwischengespeichert um für den Download bereitzustehen. Wir verwenden keine Daten zur Analyse des Nutzerverhaltens.",
+    "what_we_use_data_for_text": "Die von Ihnen bereitgestellten Daten werden genutzt, um die Dienste der Website bereitzustellen, einschließlich der Generierung von Trainingsplänen, der Pflege Ihres persönlichen Planverlaufs und der Ermöglichung des Teilens von Plänen. Generierte Pläne, hochgeladene Inhalte und Profileinstellungen werden gespeichert, bis Sie diese oder Ihr Konto löschen. Wir können anonymisierte Daten verwenden, um die Anwendung zu analysieren, neue Dienste zu entwickeln oder die dem Nutzer bereitgestellten Dienste zu verbessern. Wir verwenden Ihre persönlichen Daten nicht für Marketingzwecke Dritter oder zur Analyse des Nutzerverhaltens.",
     "your_rights_title": "Welche Rechte haben Sie bezüglich Ihrer Daten?",
     "your_rights_text": "Sie haben jederzeit das Recht, unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein Recht, die Berichtigung oder Löschung dieser Daten zu verlangen. Wenn Sie eine Einwilligung zur Datenverarbeitung erteilt haben, können Sie diese Einwilligung jederzeit für die Zukunft widerrufen. Außerdem haben Sie das Recht, unter bestimmten Umständen die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen. Des Weiteren steht Ihnen ein Beschwerderecht bei der zuständigen Aufsichtsbehörde zu. Hierzu sowie zu weiteren Fragen zum Thema Datenschutz können Sie sich jederzeit an uns wenden.",
     "general_and_mandatory_info_title": "2. Allgemeine Hinweise und Pflichtinformationen",
@@ -192,7 +192,7 @@
     "ssl_tls_encryption_text": "Diese Seite nutzt aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher Inhalte, wie zum Beispiel Bestellungen oder Anfragen, die Sie an uns als Seitenbetreiber senden, eine SSL- bzw. TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie daran, dass die Adresszeile des Browsers von „http://“ auf „https://“ wechselt und an dem Schloss-Symbol in Ihrer Browserzeile. Wenn die SSL- bzw. TLS-Verschlüsselung aktiviert ist, können die Daten, die Sie an uns übermitteln, nicht von Dritten mitgelesen werden."
   },
   "terms_of_service": {
-    "last_updated": "Zuletzt aktualisiert: 13. August 2025",
+    "last_updated": "Zuletzt aktualisiert: 09. Dezember 2025",
     "title": "Nutzungsbedingungen von Swim Gen",
     "intro": "Diese Bedingungen regeln die Nutzung dieser Anwendung sowie alle damit verbundenen Vereinbarungen oder Rechtsverhältnisse mit dem Betreiber in rechtlich verbindlicher Weise. Großgeschriebene Begriffe sind im entsprechenden Abschnitt dieses Dokuments definiert.",
     "read_carefully": "Bitte lesen Sie dieses Dokument sorgfältig.",

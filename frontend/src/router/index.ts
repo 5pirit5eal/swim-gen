@@ -48,6 +48,21 @@ const router = createRouter({
       component: () => import('@/views/UploadedPlanView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: () => import('@/views/PrivacyView.vue'),
+    },
+    {
+      path: '/terms',
+      name: 'terms',
+      component: () => import('@/views/TermsView.vue'),
+    },
+    {
+      path: '/impressum',
+      name: 'impressum',
+      component: () => import('@/views/ImpressumView.vue'),
+    },
   ],
 })
 
