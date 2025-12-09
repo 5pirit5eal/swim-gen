@@ -67,6 +67,9 @@ watch(
   (lang) => {
     editableProfile.value.preferred_language = lang
     profileStore.updateProfile({ preferred_language: lang })
+    if (profileStore.error) {
+      toast.error(profileStore.error)
+    }
   },
   { immediate: true },
 )
@@ -74,6 +77,9 @@ watch(
 function saveProfile() {
   profileStore.updateProfile(editableProfile.value)
   isEditMode.value = false
+  if (profileStore.error) {
+    toast.error(profileStore.error)
+  }
 }
 
 function toggleEditMode() {
