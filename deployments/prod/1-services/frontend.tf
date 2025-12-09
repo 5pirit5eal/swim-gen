@@ -4,10 +4,25 @@ locals {
     REGION          = var.region
     BFF_APP_API_URL = google_cloud_run_v2_service.bff.uri
   }
+
+  cloud_run_records = [
+    for r in google_cloud_run_domain_mapping.frontend_domain_mapping.status[0].resource_records : {
+      name   = ""
+      type   = r.type
+      rrdata = r.rrdata
+      ttl    = 300
+    }
+  ]
+  resend_records = [
+    for r in var.resend_dns_records : {
+      name   = r.name
+      type   = r.type
+      rrdata = r.value
+      ttl    = r.ttl
+    }
+  ]
   records = {
-    for type, records in {
-      for r in google_cloud_run_domain_mapping.frontend_domain_mapping.status[0].resource_records : r.type => r.rrdata...
-    } : type => { rrdatas = records }
+    for r in concat(local.cloud_run_records, local.resend_records) : "${r.name}-${r.type}" => r...
   }
 }
 
@@ -95,12 +110,12 @@ resource "google_cloud_run_domain_mapping" "frontend_domain_mapping" {
 # DNS records for the domain mapping
 resource "google_dns_record_set" "frontend_dns_records" {
   for_each     = local.records
-  name         = data.google_dns_managed_zone.swim_gen_zone.dns_name
+  name         = each.value[0].name == "" ? data.google_dns_managed_zone.swim_gen_zone.dns_name : "${each.value[0].name}.${data.google_dns_managed_zone.swim_gen_zone.dns_name}"
   managed_zone = data.google_dns_managed_zone.swim_gen_zone.name
-  type         = each.key
-  ttl          = 300
+  type         = each.value[0].type
+  ttl          = each.value[0].ttl
 
-  rrdatas    = each.value.rrdatas
+  rrdatas    = [for r in each.value : r.rrdata]
   depends_on = [google_cloud_run_domain_mapping.frontend_domain_mapping]
 }
 

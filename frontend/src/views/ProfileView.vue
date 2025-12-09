@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
+import IconEdit from '@/components/icons/IconEdit.vue'
+import IconCheck from '@/components/icons/IconCheck.vue'
+import IconCross from '@/components/icons/IconCross.vue'
+import { toast } from 'vue3-toastify'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import { useProfileStore } from '@/stores/profile'
 import { useAuthStore } from '@/stores/auth'
@@ -22,6 +26,7 @@ const deletingAccount = ref(false)
 const deleteError = ref('')
 
 const canDelete = computed(() => deleteConfirmationText.value === 'DELETE')
+const isEmailUser = computed(() => authStore.user?.app_metadata?.provider === 'email')
 
 const strokeOptions = ['Freestyle', 'Breaststroke', 'Backstroke', 'Butterfly', 'Individual Medley']
 const categoryOptions = ['Triathlete', 'Swimmer', 'Coach', 'Hobby']
@@ -33,6 +38,8 @@ const editableProfile = ref({
   preferred_language: '',
 })
 const username = ref('')
+const isUsernameEditMode = ref(false)
+const usernameEditValue = ref('')
 
 onMounted(() => {
   profileStore.fetchProfile()
@@ -49,6 +56,7 @@ watch(
         preferred_language: newProfile.preferred_language || '',
       }
       username.value = newProfile.username || ''
+      usernameEditValue.value = newProfile.username || ''
     }
   },
   { immediate: true },
@@ -59,6 +67,9 @@ watch(
   (lang) => {
     editableProfile.value.preferred_language = lang
     profileStore.updateProfile({ preferred_language: lang })
+    if (profileStore.error) {
+      toast.error(profileStore.error)
+    }
   },
   { immediate: true },
 )
@@ -66,6 +77,9 @@ watch(
 function saveProfile() {
   profileStore.updateProfile(editableProfile.value)
   isEditMode.value = false
+  if (profileStore.error) {
+    toast.error(profileStore.error)
+  }
 }
 
 function toggleEditMode() {
@@ -110,6 +124,44 @@ async function confirmDeleteAccount() {
     deletingAccount.value = false
   }
 }
+
+async function saveUsername() {
+  if (!usernameEditValue.value.trim()) return
+
+  await profileStore.updateProfile({ username: usernameEditValue.value })
+  if (profileStore.error) {
+    toast.error(profileStore.error)
+  } else {
+    username.value = usernameEditValue.value
+    isUsernameEditMode.value = false
+  }
+}
+
+function cancelUsernameEdit() {
+  usernameEditValue.value = username.value
+  isUsernameEditMode.value = false
+}
+
+const resetCooldown = ref(false)
+
+async function handleResetPassword() {
+  if (authStore.user?.email && !resetCooldown.value) {
+    const redirectTo = `${window.location.origin}/profile/update-password`
+    try {
+      resetCooldown.value = true
+      await authStore.resetPassword(authStore.user.email, redirectTo)
+      toast.success(t('profile.reset_password_success'))
+
+      // Disable button for 10 seconds
+      setTimeout(() => {
+        resetCooldown.value = false
+      }, 10000)
+    } catch (error) {
+      toast.error((error as Error).message || t('profile.reset_password_error'))
+      resetCooldown.value = false
+    }
+  }
+}
 </script>
 
 <template>
@@ -118,6 +170,59 @@ async function confirmDeleteAccount() {
       <section class="hero">
         <h1>{{ t('profile.title') }}</h1>
         <p class="hero-description">{{ t('profile.description', { user: username }) }}</p>
+      </section>
+
+      <section class="credentials-section">
+        <div class="profile-card">
+          <h3>{{ t('profile.user_credentials') }}</h3>
+          <div class="credentials-grid">
+            <div class="info-group">
+              <label>{{ t('profile.username') }}</label>
+              <div v-if="!isUsernameEditMode" class="value-display">
+                <p>{{ username }}</p>
+                <button @click="isUsernameEditMode = true" class="icon-btn">
+                  <IconEdit />
+                </button>
+              </div>
+              <div v-else class="edit-display">
+                <input
+                  v-model="usernameEditValue"
+                  type="text"
+                  class="select-input"
+                  @keyup.enter="saveUsername"
+                />
+                <div class="action-buttons">
+                  <button @click="saveUsername" class="icon-btn success">
+                    <IconCheck />
+                  </button>
+                  <button @click="cancelUsernameEdit" class="icon-btn">
+                    <IconCross />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-group">
+              <label>{{ t('profile.email') }}</label>
+              <p>{{ authStore.user?.email }}</p>
+            </div>
+
+            <div class="info-group">
+              <label>{{ t('profile.password') }}</label>
+              <div class="value-display">
+                <p>{{ t('profile.password_placeholder') }}</p>
+                <button
+                  v-if="isEmailUser"
+                  @click="handleResetPassword"
+                  class="icon-btn"
+                  :disabled="resetCooldown"
+                >
+                  <IconEdit />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section class="profile-content">
@@ -340,6 +445,10 @@ async function confirmDeleteAccount() {
   padding: 0.25rem 0 2rem 0;
 }
 
+.credentials-section {
+  margin-bottom: 2rem;
+}
+
 .container {
   max-width: 1080px;
   margin: 0 auto;
@@ -377,7 +486,7 @@ async function confirmDeleteAccount() {
   gap: 2rem;
 }
 
-@media (max-width: 1286px) {
+@media (max-width: 1250px) {
   .profile-content {
     flex-direction: column;
     gap: 1.5rem;
@@ -407,31 +516,39 @@ async function confirmDeleteAccount() {
 }
 
 .profile-card h3 {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   color: var(--color-heading);
   font-size: 1.5rem;
 }
 
 .profile-card p {
-  margin-bottom: 1rem;
+  margin: 0.5rem 0;
   color: var(--color-text);
   font-size: 1rem;
 }
 
 .info-grid {
   display: flex;
-  margin-bottom: 2rem;
+  margin: 1rem auto;
   justify-content: space-between;
+  gap: 0.5rem;
 }
 
-@media (max-width: 460px) {
+@media (max-width: 1250px) {
   .info-grid {
-    flex-direction: column;
+    margin-bottom: 3.5rem;
   }
 }
 
-.info-group {
-  margin: 0.25rem 0.5rem 1.5rem;
+@media (max-width: 460px) {
+  .profile-card {
+    padding: 1rem;
+  }
+
+  .info-grid {
+    flex-direction: column;
+    margin-bottom: 3rem;
+  }
 }
 
 .info-group label {
@@ -442,12 +559,12 @@ async function confirmDeleteAccount() {
 }
 
 .info-group p {
-  margin-top: 0.5rem;
+  margin: 0.5rem 0;
 }
 
 .info-group ul {
   padding-left: 1rem;
-  margin-top: 0.5rem;
+  margin: 0.5rem 0;
 }
 
 .edit-btn {
@@ -480,14 +597,13 @@ async function confirmDeleteAccount() {
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin: 0.5rem 0;
 }
 
 .form-label {
   display: block;
   font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
   color: var(--color-heading);
 }
 
@@ -720,5 +836,85 @@ async function confirmDeleteAccount() {
   to {
     transform: rotate(360deg);
   }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.credentials-grid {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background: var(--color-background-soft);
+  gap: 1.5rem;
+}
+
+@media (max-width: 460px) {
+  .credentials-grid {
+    flex-direction: column;
+  }
+}
+
+.value-display {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.icon-btn {
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-background-soft);
+  color: var(--color-text);
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+
+.icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-btn:hover {
+  background: var(--color-background-mute);
+  border-color: var(--color-border-hover);
+}
+
+.edit-display {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.edit-display input {
+  max-width: 200px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.save-btn.small,
+.cancel-btn.small {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.save-btn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.save-btn:hover {
+  background: var(--color-primary-hover);
 }
 </style>

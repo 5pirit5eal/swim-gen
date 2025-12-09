@@ -298,6 +298,7 @@
     "logoutSuccess": "Abmeldung erfolgreich!",
     "logoutFailed": "Die Abmeldung ist fehlgeschlagen. Bitte versuche es erneut.",
     "signInWithGoogle": "Mit Google anmelden",
+    "forgot_password": "Passwort vergessen?",
     "or": "Oder",
     "features": {
       "title": "Erstelle dein kostenloses Konto",
@@ -370,7 +371,23 @@
     "breaststroke": "Brustschwimmen",
     "backstroke": "Rückenschwimmen",
     "butterfly": "Schmetterling",
-    "individual_medley": "Lagen"
+    "individual_medley": "Lagen",
+    "user_credentials": "Benutzerdaten",
+    "username": "Benutzername",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "password_placeholder": "********",
+    "reset_password": "Passwort zurücksetzen",
+    "password_reset_sent": "Passwort-Zurücksetzen E-Mail gesendet!",
+    "reset_password_success": "Passwort-Zurücksetzen E-Mail wurde erfolgreich gesendet.",
+    "reset_password_error": "Fehler beim Senden der Passwort-Zurücksetzen E-Mail.",
+    "update_password_title": "Passwort aktualisieren",
+    "new_password": "Neues Passwort",
+    "confirm_password": "Passwort bestätigen",
+    "update_password_btn": "Passwort aktualisieren",
+    "passwords_do_not_match": "Passwörter stimmen nicht überein",
+    "password_updated": "Passwort erfolgreich aktualisiert!",
+    "back_to_profile": "Zurück zum Profil"
   },
   "sidebar": {
     "history": "Deine Pläne",

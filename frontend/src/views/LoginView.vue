@@ -65,6 +65,21 @@ async function handleLogin() {
   }
 }
 
+async function handleResetPassword() {
+  if (!email.value) return
+  loading.value = true
+  try {
+    const redirectTo = `${window.location.origin}/profile/update-password`
+    await auth.resetPassword(email.value, redirectTo)
+    toast.success(t('profile.reset_password_success'))
+  } catch (error) {
+    console.error('Reset password failed:', error)
+    toast.error((error as Error).message || t('profile.reset_password_error'))
+  } finally {
+    loading.value = false
+  }
+}
+
 async function handleGoogleLogin() {
   loading.value = true
   try {
@@ -173,7 +188,17 @@ async function handleSignUp() {
           </div>
           <div class="switch-form">
             <router-link v-if="isSignUp" to="/login">{{ t('login.haveAccount') }}</router-link>
-            <router-link v-else to="/login?register=true">{{ t('login.needAccount') }}</router-link>
+            <div v-else class="login-links">
+              <router-link to="/login?register=true">{{ t('login.needAccount') }}</router-link>
+              <button
+                type="button"
+                class="text-btn"
+                @click="handleResetPassword"
+                :disabled="!email || loading"
+              >
+                {{ t('login.forgot_password') }}
+              </button>
+            </div>
           </div>
           <button type="submit" :disabled="!canSubmit || loading">
             {{ loading ? t('login.loading') : isSignUp ? t('login.signUp') : t('login.login') }}
@@ -272,6 +297,7 @@ async function handleSignUp() {
   width: fit-content;
   padding: 2rem;
   background-color: var(--color-background-soft);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
 }
 
@@ -386,5 +412,35 @@ button:disabled {
     flex-direction: column-reverse;
     align-items: center;
   }
+}
+
+.login-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  color: var(--color-text);
+  padding: 0;
+  font-size: 1rem;
+  text-decoration: underline;
+  cursor: pointer;
+  width: auto;
+  border-radius: 0;
+}
+
+.text-btn:hover {
+  color: var(--color-primary);
+  background: none;
+}
+
+.text-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: none;
 }
 </style>

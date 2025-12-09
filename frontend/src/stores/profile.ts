@@ -9,6 +9,7 @@ export const useProfileStore = defineStore('profile', () => {
   const loading = ref(false)
   const profile = ref<Profile | null>(null)
   const userStore = useAuthStore()
+  const error = ref<string | null>(null)
 
   watch(
     () => userStore.user?.id ?? null,
@@ -25,15 +26,18 @@ export const useProfileStore = defineStore('profile', () => {
   async function _fetchProfile() {
     if (!userStore.user) {
       console.log('User is not available.')
+      error.value = 'User is not available.'
       return
     }
-    const { data, error } = await supabase
+    error.value = null
+    const { data, error: query_error } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', userStore.user.id)
       .single()
-    if (error) {
-      console.error(error)
+    if (query_error) {
+      console.error(query_error)
+      error.value = query_error.message
     } else {
       profile.value = data
     }
@@ -50,14 +54,16 @@ export const useProfileStore = defineStore('profile', () => {
       return
     }
     loading.value = true
-    const { data, error } = await supabase
+    error.value = null
+    const { data, error: update_error } = await supabase
       .from('profiles')
       .update(updatedProfile)
       .eq('user_id', userStore.user.id)
       .select()
       .single()
-    if (error) {
-      console.error(error)
+    if (update_error) {
+      console.error(update_error)
+      error.value = update_error.message
     } else {
       profile.value = data
     }
@@ -67,6 +73,7 @@ export const useProfileStore = defineStore('profile', () => {
   return {
     loading,
     profile,
+    error,
     fetchProfile,
     updateProfile,
   }
