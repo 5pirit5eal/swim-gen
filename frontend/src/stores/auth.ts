@@ -60,7 +60,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function signInWithOAuth() {
-    console.log('Signing in with OAuth and redirecting to', `${window.location.origin}/`)
+    console.log('Signing in with OAuth and redirecting to', `${window.location.origin}/profile`)
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
