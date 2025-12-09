@@ -152,7 +152,6 @@ async function handleResetPassword() {
     }
   }
 }
-
 </script>
 
 <template>
@@ -176,7 +175,12 @@ async function handleResetPassword() {
                 </button>
               </div>
               <div v-else class="edit-display">
-                <input v-model="usernameEditValue" type="text" class="select-input" @keyup.enter="saveUsername" />
+                <input
+                  v-model="usernameEditValue"
+                  type="text"
+                  class="select-input"
+                  @keyup.enter="saveUsername"
+                />
                 <div class="action-buttons">
                   <button @click="saveUsername" class="icon-btn success">
                     <IconCheck />
@@ -197,7 +201,12 @@ async function handleResetPassword() {
               <label>{{ t('profile.password') }}</label>
               <div class="value-display">
                 <p>{{ t('profile.password_placeholder') }}</p>
-                <button v-if="isEmailUser" @click="handleResetPassword" class="icon-btn" :disabled="resetCooldown">
+                <button
+                  v-if="isEmailUser"
+                  @click="handleResetPassword"
+                  class="icon-btn"
+                  :disabled="resetCooldown"
+                >
                   <IconEdit />
                 </button>
               </div>
@@ -261,30 +270,44 @@ async function handleResetPassword() {
             <div class="form-grid">
               <div class="form-column">
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.experience') }}
+                  <label class="form-label"
+                    >{{ t('profile.experience') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.experience_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="select-group">
-                    <select class="select-input" v-model="editableProfile.experience" :disabled="profileStore.loading">
+                    <select
+                      class="select-input"
+                      v-model="editableProfile.experience"
+                      :disabled="profileStore.loading"
+                    >
                       <option value="">{{ t('form.any_difficulty') }}</option>
-                      <option v-for="option in DIFFICULTY_OPTIONS" :key="option.value" :value="option.value">
+                      <option
+                        v-for="option in DIFFICULTY_OPTIONS"
+                        :key="option.value"
+                        :value="option.value"
+                      >
                         {{ t(option.label) }}
                       </option>
                     </select>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.preferred_strokes') }}
+                  <label class="form-label"
+                    >{{ t('profile.preferred_strokes') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.preferred_strokes_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
                     <label v-for="option in strokeOptions" :key="option" class="checkbox-option">
-                      <input type="checkbox" :value="option" v-model="editableProfile.preferred_strokes"
-                        :disabled="profileStore.loading" />
+                      <input
+                        type="checkbox"
+                        :value="option"
+                        v-model="editableProfile.preferred_strokes"
+                        :disabled="profileStore.loading"
+                      />
                       {{ t(`profile.${option.toLowerCase().replace(' ', '_')}`) }}
                     </label>
                   </div>
@@ -292,15 +315,20 @@ async function handleResetPassword() {
               </div>
               <div class="form-column">
                 <div class="form-group">
-                  <label class="form-label">{{ t('profile.categories') }}
+                  <label class="form-label"
+                    >{{ t('profile.categories') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.categories_explanation') }}</template>
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
                     <label v-for="option in categoryOptions" :key="option" class="checkbox-option">
-                      <input type="checkbox" :value="option" v-model="editableProfile.categories"
-                        :disabled="profileStore.loading" />
+                      <input
+                        type="checkbox"
+                        :value="option"
+                        v-model="editableProfile.categories"
+                        :disabled="profileStore.loading"
+                      />
                       {{ t(`profile.category_${option.toLowerCase()}`) }}
                     </label>
                   </div>
@@ -345,8 +373,10 @@ async function handleResetPassword() {
                   <td>
                     <p>{{ profileStore.profile?.monthly_generations ?? 0 }} / 100</p>
                     <div class="progress-bar">
-                      <div class="progress" :style="{ width: `${profileStore.profile?.monthly_generations ?? 0}%` }">
-                      </div>
+                      <div
+                        class="progress"
+                        :style="{ width: `${profileStore.profile?.monthly_generations ?? 0}%` }"
+                      ></div>
                     </div>
                   </td>
                 </tr>
@@ -372,8 +402,13 @@ async function handleResetPassword() {
           <div class="delete-modal-content">
             <p class="delete-warning">{{ t('profile.delete_account_confirmation') }}</p>
             <p class="delete-instruction">{{ t('profile.delete_account_instruction') }}</p>
-            <input v-model="deleteConfirmationText" type="text" class="delete-confirmation-input"
-              :placeholder="t('profile.delete_account_placeholder_input')" :disabled="deletingAccount" />
+            <input
+              v-model="deleteConfirmationText"
+              type="text"
+              class="delete-confirmation-input"
+              :placeholder="t('profile.delete_account_placeholder_input')"
+              :disabled="deletingAccount"
+            />
             <p v-if="deleteError" class="delete-error">{{ deleteError }}</p>
           </div>
         </template>
@@ -381,7 +416,11 @@ async function handleResetPassword() {
           <button class="cancel-btn" @click="closeDeleteModal" :disabled="deletingAccount">
             {{ t('profile.cancel') }}
           </button>
-          <button class="confirm-delete-btn" @click="confirmDeleteAccount" :disabled="!canDelete || deletingAccount">
+          <button
+            class="confirm-delete-btn"
+            @click="confirmDeleteAccount"
+            :disabled="!canDelete || deletingAccount"
+          >
             <span v-if="deletingAccount" class="spinner"></span>
             {{ deletingAccount ? t('profile.deleting') : t('profile.delete_account_confirm') }}
           </button>
