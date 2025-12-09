@@ -1,3 +1,10 @@
+## [2.13.0](https://github.com/5pirit5eal/swim-gen/compare/v2.12.0...v2.13.0) (2025-12-09)
+
+### Features
+
+* updated the privacy policy and terms of service ([5bd262c](https://github.com/5pirit5eal/swim-gen/commit/5bd262cd83db3f6c3be64bebc9180945ff99c5b0))
+* updated the privacy policy and terms of service ([#145](https://github.com/5pirit5eal/swim-gen/issues/145)) ([df94639](https://github.com/5pirit5eal/swim-gen/commit/df946392ecfc2958d4ff017e2160e10832742a5d))
+
 ## [2.12.0](https://github.com/5pirit5eal/swim-gen/compare/v2.11.0...v2.12.0) (2025-12-09)
 
 ### Features
