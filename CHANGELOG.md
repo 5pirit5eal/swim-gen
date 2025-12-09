@@ -1,3 +1,17 @@
+## [2.12.0](https://github.com/5pirit5eal/swim-gen/compare/v2.11.0...v2.12.0) (2025-12-09)
+
+### Features
+
+* 141 allow users to adapt their username ([#144](https://github.com/5pirit5eal/swim-gen/issues/144)) ([454ad07](https://github.com/5pirit5eal/swim-gen/commit/454ad071177ebc11e3168a637dcf243c83994064))
+* added error handling to profile store ([6ef0596](https://github.com/5pirit5eal/swim-gen/commit/6ef0596a61e615b88019f7e56fadc0008fb1c66a))
+* added password reset, smtp and email templates and edit of username ([2a6df5b](https://github.com/5pirit5eal/swim-gen/commit/2a6df5b68b96c979acea4eb584da7840658ae1bc))
+* Apply suggestions from code review ([74523ab](https://github.com/5pirit5eal/swim-gen/commit/74523abd2683a81b8943790b97d2ea0b89f2ce21))
+
+### Bug Fixes
+
+* added error handling to profile ([f8f6d70](https://github.com/5pirit5eal/swim-gen/commit/f8f6d7039bc7db98a1b2871611eac28bca5939c1))
+* fixed some formatting of the email templates ([966ffcb](https://github.com/5pirit5eal/swim-gen/commit/966ffcb9b404a9a0cc10c5a5d270b92e46f15f15))
+
 ## [2.11.0](https://github.com/5pirit5eal/swim-gen/compare/v2.10.0...v2.11.0) (2025-12-07)
 
 ### Features
