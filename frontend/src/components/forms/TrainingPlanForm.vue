@@ -47,7 +47,7 @@ async function handleSubmit() {
 
   const success = await trainingStore.generatePlan(request)
   if (!success) {
-    console.log('Plan was not generated successfully!')
+    trainingStore.error = t('form.failed_to_generate_plan')
   }
 }
 
