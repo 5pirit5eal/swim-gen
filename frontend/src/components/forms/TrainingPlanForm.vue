@@ -46,9 +46,8 @@ async function handleSubmit() {
   }
 
   const success = await trainingStore.generatePlan(request)
-  if (success) {
-    // Plan generated successfully - it's now in trainingStore.currentPlan
-    console.log('Plan generated successfully!')
+  if (!success) {
+    console.log('Plan was not generated successfully!')
   }
 }
 
@@ -87,24 +86,14 @@ async function handlePromptGeneration() {
             </template>
           </BaseTooltip>
         </label>
-        <textarea
-          id="request-text"
-          v-model="requestText"
-          class="form-textarea"
-          :placeholder="t('form.example_placeholder')"
-          rows="4"
-          :disabled="trainingStore.isLoading"
-        />
+        <textarea id="request-text" v-model="requestText" class="form-textarea"
+          :placeholder="t('form.example_placeholder')" rows="4" :disabled="trainingStore.isLoading" />
       </div>
 
       <!-- Advanced settings toggle -->
       <div class="form-middle">
-        <button
-          type="button"
-          @click="toggleAdvancedSettings"
-          class="toggle-settings-btn"
-          :disabled="trainingStore.isLoading"
-        >
+        <button type="button" @click="toggleAdvancedSettings" class="toggle-settings-btn"
+          :disabled="trainingStore.isLoading">
           {{
             showAdvancedSettings
               ? t('form.hide_advanced_settings')
@@ -113,12 +102,8 @@ async function handlePromptGeneration() {
         </button>
 
         <!-- Prompt generation button -->
-        <button
-          type="button"
-          @click="handlePromptGeneration"
-          class="toggle-settings-btn"
-          :disabled="trainingStore.isLoading || generatingPrompt"
-        >
+        <button type="button" @click="handlePromptGeneration" class="toggle-settings-btn"
+          :disabled="trainingStore.isLoading || generatingPrompt">
           <div v-if="!generatingPrompt">{{ t('form.i_feel_lucky') }}</div>
           <div v-else>{{ t('form.generating') }}</div>
         </button>
@@ -167,30 +152,18 @@ async function handlePromptGeneration() {
             </label>
             <div class="radio-group">
               <label class="radio-option">
-                <input
-                  type="radio"
-                  :value="25"
-                  v-model="settingsStore.poolLength"
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="radio" :value="25" v-model="settingsStore.poolLength"
+                  :disabled="trainingStore.isLoading" />
                 {{ t('form.pool_length_twenty_five_meters') }}
               </label>
               <label class="radio-option">
-                <input
-                  type="radio"
-                  :value="50"
-                  v-model="settingsStore.poolLength"
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="radio" :value="50" v-model="settingsStore.poolLength"
+                  :disabled="trainingStore.isLoading" />
                 {{ t('form.pool_length_fifty_meters') }}
               </label>
               <label class="radio-option">
-                <input
-                  type="radio"
-                  :value="'Freiwasser'"
-                  v-model="settingsStore.poolLength"
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="radio" :value="'Freiwasser'" v-model="settingsStore.poolLength"
+                  :disabled="trainingStore.isLoading" />
                 {{ t('form.pool_length_open_water') }}
               </label>
             </div>
@@ -208,73 +181,48 @@ async function handlePromptGeneration() {
             </label>
             <div class="checkbox-group">
               <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.freistil === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'freistil',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="checkbox" :checked="settingsStore.filters.freistil === true" @change="
+                  settingsStore.updateStrokeFilter(
+                    'freistil',
+                    ($event.target as HTMLInputElement).checked ? true : undefined,
+                  )
+                  " :disabled="trainingStore.isLoading" />
                 {{ t('form.freestyle') }}
               </label>
               <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.brust === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'brust',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="checkbox" :checked="settingsStore.filters.brust === true" @change="
+                  settingsStore.updateStrokeFilter(
+                    'brust',
+                    ($event.target as HTMLInputElement).checked ? true : undefined,
+                  )
+                  " :disabled="trainingStore.isLoading" />
                 {{ t('form.breaststroke') }}
               </label>
               <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.ruecken === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'ruecken',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="checkbox" :checked="settingsStore.filters.ruecken === true" @change="
+                  settingsStore.updateStrokeFilter(
+                    'ruecken',
+                    ($event.target as HTMLInputElement).checked ? true : undefined,
+                  )
+                  " :disabled="trainingStore.isLoading" />
                 {{ t('form.backstroke') }}
               </label>
               <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.delfin === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'delfin',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="checkbox" :checked="settingsStore.filters.delfin === true" @change="
+                  settingsStore.updateStrokeFilter(
+                    'delfin',
+                    ($event.target as HTMLInputElement).checked ? true : undefined,
+                  )
+                  " :disabled="trainingStore.isLoading" />
                 {{ t('form.butterfly') }}
               </label>
               <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.lagen === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'lagen',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
+                <input type="checkbox" :checked="settingsStore.filters.lagen === true" @change="
+                  settingsStore.updateStrokeFilter(
+                    'lagen',
+                    ($event.target as HTMLInputElement).checked ? true : undefined,
+                  )
+                  " :disabled="trainingStore.isLoading" />
                 {{ t('form.individual_medley') }}
               </label>
             </div>
@@ -290,17 +238,10 @@ async function handlePromptGeneration() {
                 </template>
               </BaseTooltip>
             </label>
-            <select
-              v-model="settingsStore.filters.schwierigkeitsgrad"
-              :disabled="trainingStore.isLoading"
-              class="select-input"
-            >
+            <select v-model="settingsStore.filters.schwierigkeitsgrad" :disabled="trainingStore.isLoading"
+              class="select-input">
               <option :value="undefined">{{ t('form.any_difficulty') }}</option>
-              <option
-                v-for="option in DIFFICULTY_OPTIONS"
-                :key="option.value"
-                :value="option.value"
-              >
+              <option v-for="option in DIFFICULTY_OPTIONS" :key="option.value" :value="option.value">
                 {{ t(option.label) }}
               </option>
             </select>
@@ -316,17 +257,10 @@ async function handlePromptGeneration() {
                 </template>
               </BaseTooltip>
             </label>
-            <select
-              v-model="settingsStore.filters.trainingstyp"
-              :disabled="trainingStore.isLoading"
-              class="select-input"
-            >
+            <select v-model="settingsStore.filters.trainingstyp" :disabled="trainingStore.isLoading"
+              class="select-input">
               <option :value="undefined">{{ t('form.any_training_type') }}</option>
-              <option
-                v-for="option in TRAINING_TYPE_OPTIONS"
-                :key="option.value"
-                :value="option.value"
-              >
+              <option v-for="option in TRAINING_TYPE_OPTIONS" :key="option.value" :value="option.value">
                 {{ t(option.label) }}
               </option>
             </select>
@@ -335,11 +269,8 @@ async function handlePromptGeneration() {
           <!-- Profile Preferences -->
           <div class="setting-group">
             <label class="setting-label">
-              <input
-                type="checkbox"
-                v-model="settingsStore.useProfilePreferences"
-                :disabled="trainingStore.isLoading"
-              />
+              <input type="checkbox" v-model="settingsStore.useProfilePreferences"
+                :disabled="trainingStore.isLoading" />
               {{ t('form.use_profile_preferences') }}
               <BaseTooltip>
                 <template #tooltip>
@@ -368,12 +299,8 @@ async function handlePromptGeneration() {
           <!-- Clear Filters -->
         </div>
         <div class="setting-group">
-          <button
-            type="button"
-            @click="settingsStore.clearFilters"
-            :disabled="trainingStore.isLoading"
-            class="clear-filters-btn"
-          >
+          <button type="button" @click="settingsStore.clearFilters" :disabled="trainingStore.isLoading"
+            class="clear-filters-btn">
             {{ t('form.clear_all_filters') }}
           </button>
         </div>
@@ -381,12 +308,7 @@ async function handlePromptGeneration() {
 
       <!-- Submit button and status -->
       <div class="form-actions">
-        <button
-          type="submit"
-          class="submit-btn"
-          :disabled="!canSubmit"
-          :class="{ loading: trainingStore.isLoading }"
-        >
+        <button type="submit" class="submit-btn" :disabled="!canSubmit" :class="{ loading: trainingStore.isLoading }">
           {{
             trainingStore.isLoading ? t('form.generating_plan') : t('form.generate_training_plan')
           }}

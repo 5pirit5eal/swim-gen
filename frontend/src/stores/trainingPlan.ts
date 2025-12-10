@@ -76,10 +76,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Fetches the user's plan history with pagination
   async function fetchHistory(reset = true) {
-    if (!userStore.user) {
-      console.log('User is not available.')
-      return
-    }
+    if (!userStore.user) return
     if (reset) {
       historyPage.value = 0
       historyHasMore.value = true
@@ -241,15 +238,9 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Update keep_forever for plan in history
   async function toggleKeepForever(planId: string | undefined) {
-    if (!userStore.user || !planId) {
-      console.log('User or planId is not available.')
-      return
-    }
+    if (!userStore.user || !planId) return
     const metadataEntry = historyMetadata.value.find((entry) => entry.plan_id === planId)
-    if (!metadataEntry) {
-      console.log('Plan metadata not found.')
-      return
-    }
+    if (!metadataEntry) return
     const newKeepForever = !metadataEntry.keep_forever
 
     const { error } = await supabase
@@ -265,18 +256,10 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Lets the user keep a plan forever, does nothing if the plan is already kept forever
   async function keepForever(planId: string) {
-    if (!userStore.user) {
-      console.log('User is not available.')
-      return
-    }
+    if (!userStore.user || !planId) return
     const metadataEntry = historyMetadata.value.find((entry) => entry.plan_id === planId)
-    if (!metadataEntry) {
-      console.log('Plan metadata not found.')
-      return
-    }
-    if (metadataEntry.keep_forever) {
-      return
-    }
+    if (!metadataEntry) return
+    if (metadataEntry.keep_forever) return
     await toggleKeepForever(planId)
   }
 
@@ -293,10 +276,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       recalculateTotalSum()
       await fetchHistory() // Refresh history after generating a new plan
       isLoading.value = false
-      if (result.data.plan_id) {
-        console.log('Fetching conversation after generation for plan_id:', result.data.plan_id)
-        await fetchConversation(result.data.plan_id)
-      }
+      if (result.data.plan_id) await fetchConversation(result.data.plan_id)
       return true
     } else {
       error.value = result.error
@@ -309,14 +289,8 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Upserts the current plan
   async function upsertCurrentPlan(): Promise<string> {
-    if (!userStore.user) {
-      console.log('User is not available.')
-      throw new Error('User is not available')
-    }
-    if (!currentPlan.value) {
-      console.log('No current plan to upsert.')
-      throw new Error('No current plan to upsert')
-    }
+    if (!userStore.user) throw new Error('User is not available')
+    if (!currentPlan.value) throw new Error('No current plan to upsert')
     // Strip _id from table rows before sending to backend
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const tableWithoutIds = currentPlan.value.table.map(({ _id, ...rest }) => rest)
@@ -329,9 +303,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     })
     if (result.success && result.data) {
       await fetchHistory() // Refresh history after upserting
-      if (currentPlan.value?.plan_id !== result.data.plan_id) {
-        console.log(`Plan upserted with new plan_id: ${result.data.plan_id}`)
-      }
       return result.data.plan_id
     } else {
       console.error(result.error ? formatError(result.error) : 'Unknown error during upsertPlan')
@@ -358,7 +329,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -435,7 +406,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     if (!userStore.user) return
     isFetchingConversation.value = true
     conversation.value = []
-    console.log('Fetching conversation for plan:', planId)
 
     const { data, error: fetchError } = await apiClient.getConversation(planId)
     if (fetchError) {
@@ -501,11 +471,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         next_message_id: null,
         plan_snapshot: result.data.table
           ? {
-              plan_id: result.data.plan_id,
-              title: result.data.title || '',
-              description: result.data.description || '',
-              table: result.data.table,
-            }
+            plan_id: result.data.plan_id,
+            title: result.data.title || '',
+            description: result.data.description || '',
+            table: result.data.table,
+          }
           : undefined,
       }
       conversation.value.push(aiMsg)

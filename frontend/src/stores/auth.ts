@@ -10,7 +10,6 @@ export const useAuthStore = defineStore('auth', () => {
   const hasInitialized = ref(false)
 
   supabase.auth.onAuthStateChange((event, newSession) => {
-    console.log(`Auth event: ${event}`)
     if (event === 'INITIAL_SESSION' && !hasInitialized.value) {
       hasInitialized.value = true
     }

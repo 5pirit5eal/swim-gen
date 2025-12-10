@@ -25,7 +25,6 @@ export const useProfileStore = defineStore('profile', () => {
 
   async function _fetchProfile() {
     if (!userStore.user) {
-      console.log('User is not available.')
       error.value = 'User is not available.'
       return
     }

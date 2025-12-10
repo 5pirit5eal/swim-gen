@@ -108,14 +108,9 @@ export const useUploadStore = defineStore('upload', () => {
   }
 
   async function upsertCurrentPlan(): Promise<string> {
-    if (!userStore.user) {
-      console.log('User is not available.')
-      throw new Error('User is not available')
-    }
-    if (!currentPlan.value) {
-      console.log('No current plan to upsert.')
-      throw new Error('No current plan to upsert')
-    }
+    if (!userStore.user) throw new Error('User is not available')
+    if (!currentPlan.value) throw new Error('No current plan to upsert')
+
     // Strip _id from table rows before sending to backend
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const tableWithoutIds = currentPlan.value.table.map(({ _id, ...rest }) => rest)
@@ -128,9 +123,6 @@ export const useUploadStore = defineStore('upload', () => {
     })
     if (result.success && result.data) {
       await fetchUploadedPlans() // Refresh plans after upserting
-      if (currentPlan.value?.plan_id !== result.data.plan_id) {
-        console.log(`Plan upserted with new plan_id: ${result.data.plan_id}`)
-      }
       return result.data.plan_id
     } else {
       console.error(result.error ? formatError(result.error) : 'Unknown error during upsertPlan')
@@ -141,7 +133,7 @@ export const useUploadStore = defineStore('upload', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance

@@ -1,4 +1,5 @@
 import { GoogleAuth } from "google-auth-library";
+import { logger } from "./logger";
 
 // Initialize Google Auth client once at module level for better performance
 const auth = new GoogleAuth();
@@ -22,13 +23,13 @@ export async function getAuthHeaders(userAuthHeader?: string): Promise<Record<st
 
   // For local development, skip Google Identity token
   if (!backendUrl || process.env.NODE_ENV === "development") {
-    console.log("Skipping Google Identity auth for local development.");
+    logger.debug("Skipping Google Identity auth for local development.");
     return headers;
   }
 
   // Add Google Identity token for Cloud Run service-to-service authentication
   // The backend (if running on Cloud Run) will verify this token
-  console.log(`Fetching Google Identity token for backend: ${backendUrl}`);
+  logger.debug(`Fetching Google Identity token for backend: ${backendUrl}`);
   try {
     const client = await auth.getIdTokenClient(backendUrl);
     const googleHeaders = await client.getRequestHeaders();
@@ -40,7 +41,7 @@ export async function getAuthHeaders(userAuthHeader?: string): Promise<Record<st
     // This keeps it separate from the user's Supabase token
     headers["X-Serverless-Authorization"] = googleAuthHeader;
   } catch (error) {
-    console.error("Failed to get Google Identity token:", error);
+    logger.error("Failed to get Google Identity token:", error);
     throw new Error("Failed to authenticate with backend service.");
   }
 
