@@ -46,9 +46,8 @@ async function handleSubmit() {
   }
 
   const success = await trainingStore.generatePlan(request)
-  if (success) {
-    // Plan generated successfully - it's now in trainingStore.currentPlan
-    console.log('Plan generated successfully!')
+  if (!success) {
+    trainingStore.error = t('form.failed_to_generate_plan')
   }
 }
 

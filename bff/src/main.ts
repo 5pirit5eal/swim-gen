@@ -5,6 +5,7 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import { MemoryStore } from "./memory-store";
 import * as authModule from "./auth";
+import { logger } from "./logger";
 
 dotenv.config();
 
@@ -59,7 +60,7 @@ async function proxyRequest(req: express.Request, res: express.Response) {
   const contentType = req.headers["content-type"] || "";
   const isMultipart = contentType.startsWith("multipart/");
 
-  console.log(
+  logger.debug(
     `Proxying request: ${method} ${originalUrl} -> ${targetUrl} (multipart: ${isMultipart})`,
   );
 
@@ -108,7 +109,7 @@ async function proxyRequest(req: express.Request, res: express.Response) {
 
     res.status(response.status).json(response.data);
   } catch (error) {
-    console.error(`Error proxying request to ${targetUrl}:`, error);
+    logger.error(`Error proxying request to ${targetUrl}:`, error);
     if (error && typeof error === "object" && "response" in error && error.response) {
       const axiosError = error as { response: { status: number; data: unknown } };
       res.status(axiosError.response.status).json(axiosError.response.data);
@@ -133,7 +134,7 @@ app.use("/api", proxyRequest);
 // Avoid binding a port during tests
 if (process.env.NODE_ENV !== "test") {
   app.listen(port, () => {
-    console.log(`BFF server listening on port ${port}`);
+    logger.info(`BFF server listening on port ${port} (log level: ${logger.getLevel()})`);
   });
 }
 

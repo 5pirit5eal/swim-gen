@@ -30,6 +30,32 @@ The primary responsibilities of this service are:
 - Cloud Run verifies this token to authenticate the BFF service
 - In development mode (`NODE_ENV=development`), this token is skipped for local testing
 
+## Logging Configuration
+
+The BFF uses a configurable logging system controlled by the `LOG_LEVEL` environment variable.
+
+### Supported Log Levels
+
+| Level   | Description                                      |
+|---------|--------------------------------------------------|
+| `DEBUG` | Detailed debugging info (e.g., request proxying) |
+| `INFO`  | General informational messages (default)         |
+| `WARN`  | Warning messages                                 |
+| `ERROR` | Error messages only                              |
+
+### Configuration
+
+Set the `LOG_LEVEL` environment variable to control which messages are logged:
+
+```env
+LOG_LEVEL=DEBUG  # Enable all logging including request details
+LOG_LEVEL=INFO   # Default - standard informational messages
+LOG_LEVEL=WARN   # Only warnings and errors
+LOG_LEVEL=ERROR  # Only errors
+```
+
+When deployed, this is configured via the `log_level` Terraform variable in `deployments/prod/1-services/terraform.tfvars` or `deployments/dev/1-services/terraform.tfvars`.
+
 ## Tech Stack
 
 - **Runtime**: Node.js
