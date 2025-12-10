@@ -44,9 +44,8 @@ async function handleLogin() {
   loading.value = true
   try {
     await auth.signInWithPassword(email.value, password.value)
-    sidebarStore.open()
     toast.success(t('login.loginSuccess'))
-    router.push('/')
+    router.push('/') // Tutorial will be triggered by HomeView watcher/onMounted
   } catch (error) {
     console.error('Login failed:', error) // Log the full error
     if (error instanceof Error) {
@@ -294,7 +293,7 @@ async function handleSignUp() {
 
 .login-box {
   height: 100%;
-  width: fit-content;
+  width: 350px;
   padding: 2rem;
   background-color: var(--color-background-soft);
   border: 1px solid var(--color-border);

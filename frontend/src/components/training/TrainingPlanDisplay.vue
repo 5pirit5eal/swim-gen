@@ -111,7 +111,7 @@ function autoResize(event: Event) {
 </script>
 
 <template>
-  <div class="training-plan-display">
+  <div class="training-plan-display" id="tutorial-plan-display">
     <div v-if="store.isLoading" class="loading-state">
       <div class="loading-spinner"></div>
       <p>{{ t('display.generating_plan_message') }}</p>
@@ -372,7 +372,7 @@ function autoResize(event: Event) {
       <IconEdit v-else class="icon" />
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
     </button>
-    <SharePlanButton v-if="showShareButton" :store="store" />
+    <SharePlanButton v-if="showShareButton" :store="store" id="tutorial-share-btn" />
     <ExportPlanButton :store="store" />
   </div>
 </template>

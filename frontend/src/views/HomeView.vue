@@ -5,13 +5,15 @@ import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, onActivated, onMounted, ref, watch } from 'vue'
+import { useTutorial } from '@/tutorial/useTutorial'
 
 const trainingPlanStore = useTrainingPlanStore()
 const authStore = useAuthStore()
 const { t } = useI18n()
 const router = useRouter()
 const planDisplayContainer = ref<HTMLDivElement | null>(null)
+const { startHomeTutorial } = useTutorial()
 
 function navigateToLogin() {
   router.push({ name: 'login' })
@@ -44,7 +46,25 @@ onMounted(async () => {
   if (trainingPlanStore.currentPlan) {
     scrollToPlan()
   }
+  if (authStore.user) {
+    startHomeTutorial()
+  }
 })
+
+onActivated(() => {
+  if (authStore.user) {
+    startHomeTutorial()
+  }
+})
+
+watch(
+  () => authStore.user,
+  (user) => {
+    if (user) {
+      startHomeTutorial()
+    }
+  },
+)
 </script>
 
 <template>

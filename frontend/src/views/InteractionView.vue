@@ -7,17 +7,20 @@ import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useAuthStore } from '@/stores/auth'
 import type { RAGResponse, Message } from '@/types'
 import { storeToRefs } from 'pinia'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onActivated, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
 import FeedbackForm from '@/components/forms/FeedbackForm.vue'
+
+import { useTutorial } from '@/tutorial/useTutorial'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const trainingStore = useTrainingPlanStore()
 const authStore = useAuthStore()
+const { startInteractionTutorial } = useTutorial()
 
 const { currentPlan, isLoading, isFetchingConversation, error, conversation, historyMetadata } =
   storeToRefs(trainingStore)
@@ -164,10 +167,15 @@ onMounted(async () => {
   await initializeView()
   planMetadata.value = getMetadata()
   window.scrollTo(0, 0)
+  startInteractionTutorial()
 })
 
 onUnmounted(() => {
   trainingStore.clear()
+})
+
+onActivated(() => {
+  startInteractionTutorial()
 })
 
 watch(
@@ -179,6 +187,7 @@ watch(
       await initializeView()
       // Update metadata for the new plan
       planMetadata.value = getMetadata()
+      startInteractionTutorial()
     }
   },
 )
@@ -188,22 +197,24 @@ watch(
   <div class="interaction-view">
     <div v-if="currentPlan" class="layout-container">
       <!-- Tab Switcher -->
-      <div class="tab-switcher">
-        <button
-          class="tab-button"
-          :class="{ active: activeTab === 'plan' }"
-          @click="activeTab = 'plan'"
-        >
-          {{ t('interaction.plan_tab') }}
-        </button>
-        <button
-          class="tab-button"
-          :class="{ active: activeTab === 'chat' }"
-          @click="activeTab = 'chat'"
-        >
-          {{ t('interaction.conversation_tab') }}
-        </button>
-        <button class="rate-plan-button" @click="showFeedbackForm = true">
+      <div class="tab-header">
+        <div class="tab-switcher" id="tutorial-tab-switcher">
+          <button
+            class="tab-button"
+            :class="{ active: activeTab === 'plan' }"
+            @click="activeTab = 'plan'"
+          >
+            {{ t('interaction.plan_tab') }}
+          </button>
+          <button
+            class="tab-button"
+            :class="{ active: activeTab === 'chat' }"
+            @click="activeTab = 'chat'"
+          >
+            {{ t('interaction.conversation_tab') }}
+          </button>
+        </div>
+        <button class="rate-plan-button" @click="showFeedbackForm = true" id="tutorial-rate-btn">
           {{ t('interaction.rate_plan') }}
         </button>
       </div>
@@ -390,13 +401,18 @@ watch(
   gap: 1rem;
 }
 
-.tab-switcher {
+.tab-header {
   display: flex;
   gap: 1rem;
   margin: 1rem 0;
   padding: 0.5rem 0;
   position: relative;
   z-index: 10;
+}
+
+.tab-switcher {
+  display: flex;
+  gap: 1rem;
 }
 
 .tab-button {
@@ -424,6 +440,14 @@ watch(
   color: white;
   border-color: var(--color-primary);
   box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary), transparent 70%);
+}
+
+@media (max-width: 400px) {
+  .tab-button {
+    text-wrap: wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
 }
 
 .rate-plan-button {
