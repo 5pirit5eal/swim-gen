@@ -175,9 +175,7 @@ onUnmounted(() => {
 })
 
 onActivated(() => {
-  if (authStore.user) {
-    startInteractionTutorial()
-  }
+  startInteractionTutorial()
 })
 
 watch(
@@ -199,8 +197,8 @@ watch(
   <div class="interaction-view">
     <div v-if="currentPlan" class="layout-container">
       <!-- Tab Switcher -->
-      <div class="tabs-header">
-        <div class="tabs-switcher" id="tutorial-tab-switcher">
+      <div class="tab-header">
+        <div class="tab-switcher" id="tutorial-tab-switcher">
           <button
             class="tab-button"
             :class="{ active: activeTab === 'plan' }"
@@ -403,7 +401,7 @@ watch(
   gap: 1rem;
 }
 
-.tabs-header {
+.tab-header {
   display: flex;
   margin: 1rem 0;
   padding: 0.5rem 0;
@@ -411,7 +409,7 @@ watch(
   z-index: 10;
 }
 
-.tabs-switcher {
+.tab-switcher {
   display: flex;
   gap: 1rem;
 }
