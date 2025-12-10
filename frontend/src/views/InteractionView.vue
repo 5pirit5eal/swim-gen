@@ -403,6 +403,7 @@ watch(
 
 .tab-header {
   display: flex;
+  gap: 1rem;
   margin: 1rem 0;
   padding: 0.5rem 0;
   position: relative;
@@ -439,6 +440,14 @@ watch(
   color: white;
   border-color: var(--color-primary);
   box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary), transparent 70%);
+}
+
+@media (max-width: 400px) {
+  .tab-button {
+    text-wrap: wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
 }
 
 .rate-plan-button {
