@@ -1,3 +1,15 @@
+## [2.14.0](https://github.com/5pirit5eal/swim-gen/compare/v2.13.0...v2.14.0) (2025-12-10)
+
+### Features
+
+* added a user tutorial after first page visit ([8816568](https://github.com/5pirit5eal/swim-gen/commit/881656804c49fd2076a262a43d73bb7f2382a774))
+* added a user tutorial after first page visit ([#146](https://github.com/5pirit5eal/swim-gen/issues/146)) ([e2af96c](https://github.com/5pirit5eal/swim-gen/commit/e2af96cebb71712271bca2ff7d51a2e09b7720a8))
+* removed unnecessary auth check ([c0338a4](https://github.com/5pirit5eal/swim-gen/commit/c0338a4aafc8483241786111d003cdd27df1f201))
+
+### Bug Fixes
+
+* added gap between buttons ([4627ce5](https://github.com/5pirit5eal/swim-gen/commit/4627ce57775b3813cdbb2ecd8bbab259d0f5bfb1))
+
 ## [2.13.0](https://github.com/5pirit5eal/swim-gen/compare/v2.12.0...v2.13.0) (2025-12-09)
 
 ### Features
