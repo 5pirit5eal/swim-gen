@@ -446,6 +446,13 @@ watch(
     text-wrap: wrap;
     word-break: break-word;
     overflow-wrap: break-word;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .rate-plan-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
   }
 }
 
