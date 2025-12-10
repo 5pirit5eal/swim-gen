@@ -256,7 +256,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Lets the user keep a plan forever, does nothing if the plan is already kept forever
   async function keepForever(planId: string) {
-    if (!userStore.user || !planId) return
+    if (!userStore.user) return
     const metadataEntry = historyMetadata.value.find((entry) => entry.plan_id === planId)
     if (!metadataEntry) return
     if (metadataEntry.keep_forever) return
