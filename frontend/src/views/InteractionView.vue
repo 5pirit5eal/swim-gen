@@ -196,22 +196,24 @@ watch(
   <div class="interaction-view">
     <div v-if="currentPlan" class="layout-container">
       <!-- Tab Switcher -->
-      <div class="tab-switcher">
-        <button
-          class="tab-button"
-          :class="{ active: activeTab === 'plan' }"
-          @click="activeTab = 'plan'"
-        >
-          {{ t('interaction.plan_tab') }}
-        </button>
-        <button
-          class="tab-button"
-          :class="{ active: activeTab === 'chat' }"
-          @click="activeTab = 'chat'"
-        >
-          {{ t('interaction.conversation_tab') }}
-        </button>
-        <button class="rate-plan-button" @click="showFeedbackForm = true">
+      <div class="tab-header">
+        <div class="tab-switcher" id="tutorial-tab-switcher">
+          <button
+            class="tab-button"
+            :class="{ active: activeTab === 'plan' }"
+            @click="activeTab = 'plan'"
+          >
+            {{ t('interaction.plan_tab') }}
+          </button>
+          <button
+            class="tab-button"
+            :class="{ active: activeTab === 'chat' }"
+            @click="activeTab = 'chat'"
+          >
+            {{ t('interaction.conversation_tab') }}
+          </button>
+        </div>
+        <button class="rate-plan-button" @click="showFeedbackForm = true" id="tutorial-rate-btn">
           {{ t('interaction.rate_plan') }}
         </button>
       </div>
