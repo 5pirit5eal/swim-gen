@@ -40,7 +40,11 @@ export const useSettingsStore = defineStore('settings', () => {
   // Actions for tutorials
   function markTutorialSeen(tutorial: keyof typeof tutorials.value) {
     tutorials.value[tutorial] = true
-    localStorage.setItem('swim-gen-tutorials', JSON.stringify(tutorials.value))
+    try {
+      localStorage.setItem('swim-gen-tutorials', JSON.stringify(tutorials.value))
+    } catch (e) {
+      console.error('Failed to persist tutorial state to localStorage for', tutorial, e)
+    }
   }
 
   // Actions for filters
