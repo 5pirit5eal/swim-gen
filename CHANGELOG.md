@@ -1,3 +1,10 @@
+## [2.15.0](https://github.com/5pirit5eal/swim-gen/compare/v2.14.0...v2.15.0) (2025-12-10)
+
+### Features
+
+* cleaned up logging for frontend and bff ([720b5b8](https://github.com/5pirit5eal/swim-gen/commit/720b5b802980a6af5da8542f6736067b5cc0c402))
+* cleaned up logging for frontend and bff ([#147](https://github.com/5pirit5eal/swim-gen/issues/147)) ([c4f7017](https://github.com/5pirit5eal/swim-gen/commit/c4f701703218d5aca4eeb2e93d1765e5fc81ac10))
+
 ## [2.14.0](https://github.com/5pirit5eal/swim-gen/compare/v2.13.0...v2.14.0) (2025-12-10)
 
 ### Features
