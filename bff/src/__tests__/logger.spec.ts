@@ -5,10 +5,10 @@ describe("Logger", () => {
   const originalLogLevel = process.env.LOG_LEVEL;
 
   beforeEach(() => {
-    vi.spyOn(console, "debug").mockImplementation(() => { });
-    vi.spyOn(console, "info").mockImplementation(() => { });
-    vi.spyOn(console, "warn").mockImplementation(() => { });
-    vi.spyOn(console, "error").mockImplementation(() => { });
+    vi.spyOn(console, "debug").mockImplementation(() => {});
+    vi.spyOn(console, "info").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -103,7 +103,9 @@ describe("Logger", () => {
       logger.info("test message");
 
       expect(console.info).toHaveBeenCalledWith(
-        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z\] \[INFO\] test message$/),
+        expect.stringMatching(
+          /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z\] \[INFO\] test message$/,
+        ),
       );
     });
 
