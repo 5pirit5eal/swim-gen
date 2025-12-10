@@ -499,5 +499,52 @@
     "submit": "Submit",
     "loading": "Loading...",
     "optional": "optional"
+  },
+  "tutorial": {
+    "next": "Next",
+    "prev": "Previous",
+    "done": "Done",
+    "home": {
+      "sidebar": {
+        "title": "Main Menu",
+        "description": "Access your training history, created plans, and uploaded files here."
+      },
+      "profile": {
+        "title": "Your Profile",
+        "description": "Manage your account settings, preferences, and swimming experience level here."
+      }
+    },
+    "interaction": {
+      "plan": {
+        "title": "Your Training Plan",
+        "description": "This is your generated plan. You can add/remove rows and edit cells in this plan in editing mode."
+      },
+      "tabs": {
+        "title": "Switch Views",
+        "description": "Switch between the plan view and the interactive chat to refine your plan with AI."
+      },
+      "rate": {
+        "title": "Rate Plan",
+        "description": "Let us know how the training went to improve future generations."
+      },
+      "share": {
+        "title": "Share Plan",
+        "description": "Share this plan with friends or coaches via a public link."
+      }
+    },
+    "sidebar": {
+      "history": {
+        "title": "History",
+        "description": "Your previous plans are stored here for easy access."
+      },
+      "new_plan": {
+        "title": "Create New Plan",
+        "description": "Start a new training plan generation."
+      },
+      "upload": {
+        "title": "Upload Plan",
+        "description": "Upload a PDF or image of an existing plan to digitize it."
+      }
+    }
   }
 }

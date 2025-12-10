@@ -19,6 +19,7 @@ import type { HistoryMetadata, RAGResponse, SharedHistoryItem } from '@/types'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import { useTutorial } from '@/tutorial/useTutorial'
 
 // Search debounce utility
 function debounce<T extends (...args: Parameters<T>) => void>(fn: T, delay: number): T {
@@ -74,6 +75,17 @@ const debouncedSearch = debounce((query: string) => {
 watch(searchQuery, (query) => {
   debouncedSearch(query)
 })
+
+const { startSidebarTutorial } = useTutorial()
+
+watch(
+  () => sidebarStore.isOpen,
+  (isOpen) => {
+    if (isOpen) {
+      startSidebarTutorial()
+    }
+  },
+)
 
 async function loadPlan(plan: RAGResponse & HistoryMetadata) {
   // Load plan and fetch conversation before navigation
@@ -304,7 +316,12 @@ async function loadUploadedPlan(plan_id: string) {
     </div>
     <div class="sidebar-content">
       <div class="action-buttons">
-        <button @click="createNewPlan" class="create-new-btn" :title="t('sidebar.create_new')">
+        <button
+          @click="createNewPlan"
+          class="create-new-btn"
+          :title="t('sidebar.create_new')"
+          id="tutorial-new-plan-btn"
+        >
           <IconPlus class="icon-small" />
           <span>{{ t('sidebar.create_new') }}</span>
         </button>
@@ -312,13 +329,14 @@ async function loadUploadedPlan(plan_id: string) {
           @click="showDonationForm = true"
           class="create-new-btn"
           :title="t('sidebar.upload_plan')"
+          id="tutorial-upload-btn"
         >
           <IconUpload class="icon-small" />
           <span>{{ t('sidebar.upload_plan') }}</span>
         </button>
       </div>
       <section>
-        <div class="section-header">
+        <div class="section-header" id="tutorial-history-generated">
           <h3>{{ t('sidebar.generated') }}</h3>
           <div v-if="trainingPlanStore.isFetchingHistory" class="loading-spinner"></div>
         </div>

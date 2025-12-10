@@ -9,6 +9,23 @@ export const useSettingsStore = defineStore('settings', () => {
   const preferredMethod = ref<'choose' | 'generate'>('generate')
   const useProfilePreferences = ref(true)
 
+  // Tutorial settings
+  const tutorials = ref({
+    home: false,
+    interaction: false,
+    sidebar: false,
+  })
+
+  // Load from localStorage on init
+  const storedTutorials = localStorage.getItem('swim-gen-tutorials')
+  if (storedTutorials) {
+    try {
+      tutorials.value = { ...tutorials.value, ...JSON.parse(storedTutorials) }
+    } catch (e) {
+      console.error('Failed to parse stored tutorials settings', e)
+    }
+  }
+
   // Filter settings
   const filters = ref<Filter>({
     freistil: undefined,
@@ -19,6 +36,12 @@ export const useSettingsStore = defineStore('settings', () => {
     schwierigkeitsgrad: undefined,
     trainingstyp: undefined,
   })
+
+  // Actions for tutorials
+  function markTutorialSeen(tutorial: keyof typeof tutorials.value) {
+    tutorials.value[tutorial] = true
+    localStorage.setItem('swim-gen-tutorials', JSON.stringify(tutorials.value))
+  }
 
   // Actions for filters
   function updateStrokeFilter(
@@ -47,8 +70,10 @@ export const useSettingsStore = defineStore('settings', () => {
     preferredMethod,
     useProfilePreferences,
     filters,
+    tutorials,
     // Actions
     updateStrokeFilter,
     clearFilters,
+    markTutorialSeen,
   }
 })

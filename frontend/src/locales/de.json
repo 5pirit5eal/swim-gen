@@ -499,5 +499,52 @@
     "submit": "Absenden",
     "loading": "Lade...",
     "optional": "optional"
+  },
+  "tutorial": {
+    "next": "Weiter",
+    "prev": "Zurück",
+    "done": "Fertig",
+    "home": {
+      "sidebar": {
+        "title": "Hauptmenü",
+        "description": "Hier findest du deinen Trainingsverlauf, deine Pläne und hochgeladenen Dateien."
+      },
+      "profile": {
+        "title": "Dein Profil",
+        "description": "Verwalte hier deine Kontoeinstellungen, Präferenzen und deine Schwimmerfahrung."
+      }
+    },
+    "interaction": {
+      "plan": {
+        "title": "Dein Trainingsplan",
+        "description": "Das ist dein generierter Plan. Du kannst Reihen hinzufügen/entfernen und Zellen bearbeiten."
+      },
+      "tabs": {
+        "title": "Ansicht wechseln",
+        "description": "Wechsle zwischen der Planansicht und dem interaktiven Chat, um deinen Plan mit KI zu verfeinern."
+      },
+      "rate": {
+        "title": "Plan bewerten",
+        "description": "Lass uns wissen, wie das Training war, um zukünftige Pläne zu verbessern."
+      },
+      "share": {
+        "title": "Plan teilen",
+        "description": "Teile diesen Plan mit Freunden oder Trainern über einen öffentlichen Link."
+      }
+    },
+    "sidebar": {
+      "history": {
+        "title": "Verlauf",
+        "description": "Deine früheren Pläne werden hier gespeichert, damit du jederzeit darauf zugreifen kannst."
+      },
+      "new_plan": {
+        "title": "Neuen Plan erstellen",
+        "description": "Starte eine neue Trainingsplangenerierung."
+      },
+      "upload": {
+        "title": "Plan hochladen",
+        "description": "Lade ein PDF oder Bild eines bestehenden Plans hoch, um ihn zu digitalisieren."
+      }
+    }
   }
 }
