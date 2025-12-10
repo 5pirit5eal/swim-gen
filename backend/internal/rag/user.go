@@ -84,7 +84,7 @@ func (db *RAGDB) IncrementExportCount(ctx context.Context, userID, planID string
 		return fmt.Errorf("error committing transaction: %w", err)
 	}
 
-	logger.Info("Export count incremented successfully", "plan_id", planID)
+	logger.Debug("Export count incremented successfully", "plan_id", planID)
 	return nil
 }
 

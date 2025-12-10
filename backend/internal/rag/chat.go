@@ -19,7 +19,7 @@ func (db *RAGDB) ChatWithContext(
 	poolLength any,
 ) (*models.Plan, *models.Message, error) {
 	logger := httplog.LogEntry(ctx)
-	logger.Info("Starting chat interaction", "plan_id", planID, "user_id", userID)
+	logger.Debug("Starting chat interaction", "plan_id", planID, "user_id", userID)
 
 	// Require planID - application flow ensures plan exists before chat
 	if planID == "" {
@@ -133,7 +133,7 @@ func (db *RAGDB) ChatWithContext(
 		return nil, nil, fmt.Errorf("failed to store AI message: %w", err)
 	}
 
-	logger.Info("Chat interaction completed successfully", "plan_id", planID)
+	logger.Debug("Chat interaction completed successfully", "plan_id", planID)
 	return updatedPlan, aiMsg, nil
 }
 

@@ -198,7 +198,7 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 		})
 
 		tables++
-		logger.Info(fmt.Sprintf("Found table nr. %d", tables), "length", len(table), "title", title)
+		logger.Debug(fmt.Sprintf("Found table nr. %d", tables), "length", len(table), "title", title)
 		logger.Debug("Found description", "description", desc)
 
 		if len(table) > 0 {
@@ -252,13 +252,13 @@ func (db *RAGDB) ScrapeURL(ctx context.Context, url string) error {
 	logger := httplog.LogEntry(ctx)
 	// Set the embedder to document embedding mode
 	db.Client.DocumentMode()
-	logger.Info("Starting to scrape")
+	logger.Debug("Starting to scrape")
 	// Load urls in the database into the scraper
 	alreadyVisited, err := db.GetAlreadyVisitedURLs(ctx)
 	if err != nil {
 		return fmt.Errorf("db.GetAlreadyVisitedURLs: %w", err)
 	}
-	logger.Info("Queried database successfully")
+	logger.Debug("Queried database successfully")
 
 	// Scrape the URL
 	dc := make(chan models.Document)
@@ -273,7 +273,7 @@ Forloop:
 		select {
 		case doc, dcOpen := <-dc:
 			if !dcOpen {
-				logger.Info("Document channel closed, stopping scraping")
+				logger.Debug("Document channel closed, stopping scraping")
 				break Forloop
 			}
 			// Filter out empty documents
@@ -282,24 +282,24 @@ Forloop:
 			}
 		case err, ecOpen := <-ec:
 			if !ecOpen {
-				logger.Info("Error channel closed, stopping scraping")
+				logger.Debug("Error channel closed, stopping scraping")
 				break Forloop
 			}
 			errors = append(errors, err)
 		case <-ctx.Done():
-			logger.Info("Context done, stopping scraping")
+			logger.Debug("Context done, stopping scraping")
 			break Forloop
 		case <-time.After(3600 * time.Second):
 			errors = append(errors, fmt.Errorf("timeout while scraping"))
 			break Forloop
 		}
 	}
-	logger.Info("Scraping finished", "documents", len(documents), "errors", len(errors))
+	logger.Debug("Scraping finished", "documents", len(documents), "errors", len(errors))
 
 	if len(errors) > 0 {
 		logger.Warn("Failed to improve plans or errors during scraping", "err", slog.AnyValue(errors))
 	}
-	logger.Info("Adding documents to the database", "documents", len(documents))
+	logger.Debug("Adding documents to the database", "documents", len(documents))
 
 	// Store documents and their embeddings in the database
 	for i := range documents {
@@ -332,7 +332,7 @@ Forloop:
 			return fmt.Errorf("Store.AddDocuments: %w", err)
 		}
 	}
-	logger.Info("Added documents to the database successfully")
+	logger.Debug("Added documents to the database successfully")
 
 	var collectionUUID string
 	err = pgxscan.Get(ctx, db.Conn, &collectionUUID,
@@ -346,8 +346,8 @@ Forloop:
 		logger.Error("Failed to add scraped plans to the database", httplog.ErrAttr(err))
 		return fmt.Errorf("failed to add scraped plans to the database: %w", err)
 	}
-	logger.Info("Added scraped plans to the database successfully")
-	logger.Info("Scraping and adding data finished successfully", "documents", len(documents), "errors", len(errors))
+	logger.Debug("Added scraped plans to the database successfully")
+	logger.Debug("Scraping and adding data finished successfully", "documents", len(documents), "errors", len(errors))
 
 	return nil
 }
@@ -372,7 +372,7 @@ func (db *RAGDB) GetAlreadyVisitedURLs(ctx context.Context) ([]string, error) {
 
 func (db *RAGDB) AddScrapedPlans(ctx context.Context, collectionUUID string, documents []models.Document) error {
 	logger := httplog.LogEntry(ctx)
-	logger.Info("Adding scraped plans and visited urls to the database")
+	logger.Debug("Adding scraped plans and visited urls to the database")
 
 	// Start transaction
 	tx, err := db.Conn.Begin(ctx)
@@ -385,7 +385,7 @@ func (db *RAGDB) AddScrapedPlans(ctx context.Context, collectionUUID string, doc
 		if err := tx.Rollback(ctx); err != nil && !errors.Is(err, pgx.ErrTxClosed) {
 			logger.Error("Failed to rollback transaction", httplog.ErrAttr(err))
 		} else if err == nil {
-			logger.Info("Transaction rolled back")
+			logger.Debug("Transaction rolled back")
 		}
 	}()
 	// Add the scraped urls to the database
@@ -458,7 +458,7 @@ func (db *RAGDB) AddScrapedPlans(ctx context.Context, collectionUUID string, doc
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	logger.Info("Inserted scraped URLs into database successfully", slog.Int("n_urls", len(documents)))
+	logger.Debug("Inserted scraped URLs into database successfully", slog.Int("n_urls", len(documents)))
 
 	return nil
 }

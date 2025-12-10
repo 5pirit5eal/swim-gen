@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
@@ -43,6 +44,7 @@ func (rs *RAGService) DeleteMessageHandler(w http.ResponseWriter, req *http.Requ
 		http.Error(w, "message_id is required", http.StatusBadRequest)
 		return
 	}
+	httplog.LogEntrySetField(req.Context(), "message_id", slog.StringValue(dmr.MessageID))
 
 	err = rs.db.Memory.DeleteMessage(req.Context(), dmr.MessageID)
 	if err != nil {
@@ -94,6 +96,7 @@ func (rs *RAGService) DeleteMessagesAfterHandler(w http.ResponseWriter, req *htt
 		http.Error(w, "message_id is required", http.StatusBadRequest)
 		return
 	}
+	httplog.LogEntrySetField(req.Context(), "message_id", slog.StringValue(dmar.MessageID))
 
 	err = rs.db.Memory.DeleteMessagesAfter(req.Context(), dmar.MessageID)
 	if err != nil {
@@ -145,6 +148,7 @@ func (rs *RAGService) DeleteConversationHandler(w http.ResponseWriter, req *http
 		http.Error(w, "plan_id is required", http.StatusBadRequest)
 		return
 	}
+	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(dcr.PlanID))
 
 	err = rs.db.Memory.DeleteConversation(req.Context(), dcr.PlanID)
 	if err != nil {
@@ -189,6 +193,7 @@ func (rs *RAGService) GetConversationHandler(w http.ResponseWriter, req *http.Re
 		http.Error(w, "plan_id is required", http.StatusBadRequest)
 		return
 	}
+	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(planID))
 
 	messages, err := rs.db.Memory.GetConversation(req.Context(), planID)
 	if err != nil {

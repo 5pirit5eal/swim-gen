@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -43,6 +44,7 @@ func (rs *RAGService) SupabaseAuthMiddleware(next http.Handler) http.Handler {
 		userId := user.ID
 
 		logger.Debug("Successfully verified user", "user_id", userId)
+		httplog.LogEntrySetField(r.Context(), "user_id", slog.StringValue(userId.String()))
 
 		ctx := context.WithValue(r.Context(), models.UserIdCtxKey, userId.String())
 		next.ServeHTTP(w, r.WithContext(ctx))

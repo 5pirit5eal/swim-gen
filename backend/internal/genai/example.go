@@ -11,7 +11,7 @@ import (
 
 func (c *GoogleGenAIClient) GeneratePrompt(ctx context.Context, req models.GeneratePromptRequest) (string, error) {
 	logger := httplog.LogEntry(ctx)
-	logger.Info("Generating prompt example...")
+	logger.Debug("Generating prompt example...")
 
 	prompt := fmt.Sprintf(generatePromptTemplateStr, req.Language)
 
@@ -31,6 +31,6 @@ func (c *GoogleGenAIClient) GeneratePrompt(ctx context.Context, req models.Gener
 		return "", err
 	}
 
-	logger.Info("Prompt generated successfully")
+	logger.Debug("Prompt generated successfully")
 	return answer.Text(), nil
 }

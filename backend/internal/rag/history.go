@@ -113,7 +113,7 @@ func (db *RAGDB) UpsertPlan(ctx context.Context, plan models.Plan, userID string
 		return "", fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	logger.Info("Plan upserted successfully", "plan_id", plan.PlanID)
+	logger.Debug("Plan upserted successfully", "plan_id", plan.PlanID)
 	return plan.PlanID, nil
 }
 
@@ -157,7 +157,7 @@ func (db *RAGDB) AddPlanToHistory(ctx context.Context, plan *models.Plan, userID
 		return fmt.Errorf("error committing transaction: %w", err)
 	}
 
-	logger.Info("Plan added to user history successfully", "user_id", userID, "plan_id", plan.PlanID)
+	logger.Debug("Plan added to user history successfully", "user_id", userID, "plan_id", plan.PlanID)
 	return nil
 }
 
@@ -186,7 +186,7 @@ func (db *RAGDB) SharePlan(ctx context.Context, planID, userID string, method mo
 			return "", fmt.Errorf("failed to share plan: %w", err)
 		}
 
-		logger.Info("Plan shared successfully", "plan_id", planID, "user_id", userID, "url_hash", urlHash)
+		logger.Debug("Plan shared successfully", "plan_id", planID, "user_id", userID, "url_hash", urlHash)
 		return urlHash, nil
 	case models.SharingMethodEmail:
 		// proceed
@@ -246,7 +246,7 @@ func (db *RAGDB) DeletePlan(ctx context.Context, planID, userID string) error {
 
 	if hasFeedback {
 		// Plan has feedback - preserve the plan, only remove from history and mark feedback
-		logger.Info("Plan has feedback, preserving plan data", "plan_id", planID)
+		logger.Debug("Plan has feedback, preserving plan data", "plan_id", planID)
 
 		// Remove from user's history only
 		_, err = tx.Exec(ctx,
@@ -288,7 +288,7 @@ func (db *RAGDB) DeletePlan(ctx context.Context, planID, userID string) error {
 			return fmt.Errorf("failed to mark feedback as removed: %w", err)
 		}
 
-		logger.Info("Plan removed from history, feedback preserved", "plan_id", planID, "user_id", userID)
+		logger.Debug("Plan removed from history, feedback preserved", "plan_id", planID, "user_id", userID)
 	} else {
 		// No feedback - delete the plan entirely
 		// This will CASCADE to: history, conversation, shared_plans, shared_history
@@ -301,7 +301,7 @@ func (db *RAGDB) DeletePlan(ctx context.Context, planID, userID string) error {
 			return fmt.Errorf("failed to delete plan: %w", err)
 		}
 
-		logger.Info("Plan deleted successfully", "plan_id", planID, "user_id", userID)
+		logger.Debug("Plan deleted successfully", "plan_id", planID, "user_id", userID)
 	}
 
 	// Commit transaction
