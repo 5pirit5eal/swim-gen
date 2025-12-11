@@ -1,3 +1,12 @@
+## [2.15.1](https://github.com/5pirit5eal/swim-gen/compare/v2.15.0...v2.15.1) (2025-12-11)
+
+### Bug Fixes
+
+* fixed rebase error ([f5b032a](https://github.com/5pirit5eal/swim-gen/commit/f5b032a354074021424d91094ca92db2c136f0a9))
+* fixed some formatting for mobil ([acc9691](https://github.com/5pirit5eal/swim-gen/commit/acc96918d494ad6b375e10006dc68820329f312b))
+* updated logging for backend ([d8ace11](https://github.com/5pirit5eal/swim-gen/commit/d8ace11030cdabb00ccfa0c55f6fccade562e7e3))
+* updated logging for backend ([#148](https://github.com/5pirit5eal/swim-gen/issues/148)) ([0ee0772](https://github.com/5pirit5eal/swim-gen/commit/0ee0772647efd156eb60f36884ef5dc40bcdbbaa))
+
 ## [2.15.0](https://github.com/5pirit5eal/swim-gen/compare/v2.14.0...v2.15.0) (2025-12-10)
 
 ### Features
