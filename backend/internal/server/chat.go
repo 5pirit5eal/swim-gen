@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
@@ -24,7 +25,6 @@ import (
 // @Router /chat [post]
 func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
-	logger.Info("Processing chat request...")
 
 	// Get authenticated user ID
 	userID, ok := req.Context().Value(models.UserIdCtxKey).(string)
@@ -34,12 +34,16 @@ func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	logger.Info("Processing chat request...", "user_id", userID)
 	// Parse request
 	var chatReq models.ChatRequest
 	if err := json.NewDecoder(req.Body).Decode(&chatReq); err != nil {
 		logger.Error("Failed to decode request body", httplog.ErrAttr(err))
 		http.Error(w, fmt.Sprintf("invalid request body: %v", err), http.StatusBadRequest)
 		return
+	}
+	if chatReq.PlanID != "" {
+		httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(chatReq.PlanID))
 	}
 
 	// Set defaults
@@ -92,5 +96,5 @@ func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 		logger.Error("Failed to encode response", httplog.ErrAttr(err))
 	}
 
-	logger.Info("Chat request completed successfully", "plan_id", response.PlanID)
+	logger.Info("Chat request completed successfully", "user_id", userID, "plan_id", response.PlanID)
 }

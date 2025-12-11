@@ -23,7 +23,7 @@ func (db *RAGDB) AddFeedback(ctx context.Context, feedback *models.Feedback) err
 		logger.Error("Error creating feedback", httplog.ErrAttr(err))
 		return err
 	}
-	logger.Info("Feedback created successfully", "feedback", feedback)
+	logger.Debug("Feedback created successfully", "feedback", feedback)
 	return nil
 }
 
@@ -89,7 +89,7 @@ func (db *RAGDB) UpdateFeedback(ctx context.Context, feedback *models.Feedback) 
 		logger.Error("Error updating feedback", httplog.ErrAttr(err))
 		return err
 	}
-	logger.Info("Feedback updated successfully", "feedback", feedback)
+	logger.Debug("Feedback updated successfully", "feedback", feedback)
 	return nil
 }
 
@@ -103,7 +103,7 @@ func (db *RAGDB) DeleteFeedback(ctx context.Context, userID string, planID strin
 		logger.Error("Error deleting feedback", httplog.ErrAttr(err))
 		return err
 	}
-	logger.Info("Feedback deleted successfully", "user_id", userID, "plan_id", planID)
+	logger.Debug("Feedback deleted successfully", "user_id", userID, "plan_id", planID)
 	return nil
 }
 
@@ -117,6 +117,6 @@ func (db *RAGDB) DeleteAllFeedbackFromUser(ctx context.Context, userID string) e
 		logger.Error("Error deleting feedback", httplog.ErrAttr(err))
 		return err
 	}
-	logger.Info("All feedback deleted successfully", "user_id", userID)
+	logger.Debug("All feedback deleted successfully", "user_id", userID)
 	return nil
 }

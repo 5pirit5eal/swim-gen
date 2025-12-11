@@ -42,7 +42,7 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 		logger.Error("Error searching for documents", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error searching for documents: %w", err)
 	}
-	logger.Info("Documents found", "count", len(docs))
+	logger.Debug("Documents found", "count", len(docs))
 	logger.Debug("Documents:", "docs", docs)
 	var plan models.Planable
 	switch method {

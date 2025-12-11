@@ -261,6 +261,7 @@ func (rs *RAGService) GetUploadedPlansHandler(w http.ResponseWriter, req *http.R
 		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
 		return
 	}
+	httplog.LogEntrySetField(req.Context(), "user_id", slog.StringValue(userId))
 
 	plans, err := rs.db.GetUploadedPlans(req.Context(), userId)
 	if err != nil {
@@ -297,6 +298,7 @@ func (rs *RAGService) GetUploadedPlanHandler(w http.ResponseWriter, req *http.Re
 		http.Error(w, "Plan ID is required", http.StatusBadRequest)
 		return
 	}
+	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(planID))
 
 	plan, err := rs.db.GetUploadedPlan(req.Context(), planID)
 	if err != nil {
@@ -371,6 +373,7 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	if userId != "" {
 		// Add a plan id to the newly created plan
 		p.PlanID = uuid.NewString()
+		httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(p.PlanID))
 		logger.Info("Adding plan to user history", "user_id", userId, "plan_id", p.PlanID)
 		err = rs.db.AddPlanToHistory(req.Context(), p, userId)
 		if err != nil {
@@ -431,6 +434,7 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 
 	// Increment the export count for the user profile if UserID is provided
 	if qr.PlanID != "" {
+		httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(qr.PlanID))
 		err = rs.db.IncrementExportCount(req.Context(), req.Context().Value(models.UserIdCtxKey).(string), qr.PlanID)
 		if err != nil {
 			logger.Error("Failed to increment export count", httplog.ErrAttr(err))
@@ -554,7 +558,8 @@ func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request
 
 	// Respond with the plan ID
 	answer := &models.UpsertPlanResponse{PlanID: resp}
-	logger.Info("Plan upserted successfully", "plan_id", resp)
+	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(resp))
+	logger.Info("Plan upserted successfully")
 	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
@@ -593,6 +598,7 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 
 	// Generate a new PlanID for the snapshot
 	plan.PlanID = uuid.NewString()
+	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(plan.PlanID))
 
 	// Add to user history
 	err = rs.db.AddPlanToHistory(req.Context(), plan.Plan(), userID)
@@ -607,7 +613,7 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 		Message: "Plan added to history successfully",
 		PlanID:  plan.PlanID,
 	}
-	logger.Info("Plan added to history successfully", "plan_id", plan.PlanID)
+	logger.Info("Plan added to history successfully")
 	if err := models.WriteResponseJSON(w, http.StatusOK, response); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
@@ -635,6 +641,9 @@ func (rs *RAGService) SharePlanHandler(w http.ResponseWriter, req *http.Request)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+	if spr.PlanID != "" {
+		httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(spr.PlanID))
 	}
 
 	userId := req.Context().Value(models.UserIdCtxKey).(string)
@@ -680,6 +689,9 @@ func (rs *RAGService) FeedbackHandler(w http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+	if fr.PlanID != "" {
+		httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(fr.PlanID))
 	}
 
 	userId := req.Context().Value(models.UserIdCtxKey).(string)
@@ -749,6 +761,7 @@ func (rs *RAGService) DeletePlanHandler(w http.ResponseWriter, req *http.Request
 		http.Error(w, "Plan ID is required", http.StatusBadRequest)
 		return
 	}
+	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(planID))
 
 	userID := req.Context().Value(models.UserIdCtxKey).(string)
 	if userID == "" {
