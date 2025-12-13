@@ -62,18 +62,17 @@ const sidebarStore = useSidebarStore()
 
 .main-content {
   container-type: inherit;
-  padding: 0 2rem;
   position: relative;
   z-index: 1;
 }
 
 @media (max-width: 1124px) {
-  .main-content {
-    padding: 0 1rem;
+  .app-layout {
+    zoom: 0.85;
   }
 
   .content-wrapper.sidebar-open {
-    margin-left: 100px;
+    margin-left: 300px;
   }
 }
 
