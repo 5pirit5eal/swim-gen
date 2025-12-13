@@ -1,3 +1,16 @@
+## [2.17.0](https://github.com/5pirit5eal/swim-gen/compare/v2.16.1...v2.17.0) (2025-12-13)
+
+### Features
+
+* added some extra text for tutorial ([0639161](https://github.com/5pirit5eal/swim-gen/commit/063916121e07d75eb1a8e1f2c373781c03264c73))
+* made formats more mobile friendly ([332773f](https://github.com/5pirit5eal/swim-gen/commit/332773fd5aec40c7dc092ef32ac6bee3e7a76ff3))
+
+### Bug Fixes
+
+* 154 apply feedback ([#155](https://github.com/5pirit5eal/swim-gen/issues/155)) ([9ea6130](https://github.com/5pirit5eal/swim-gen/commit/9ea61304534ed7bf99162efaaf316ade511db6e4))
+* Update frontend/src/layout/AppSidebar.vue ([52d0ad9](https://github.com/5pirit5eal/swim-gen/commit/52d0ad93c2475c1f74207378e90be03b48d87d4f))
+* Update frontend/src/layout/AppSidebar.vue ([e887d2a](https://github.com/5pirit5eal/swim-gen/commit/e887d2a966a7d995c129715bff680373929fd0b5))
+
 ## [2.16.1](https://github.com/5pirit5eal/swim-gen/compare/v2.16.0...v2.16.1) (2025-12-13)
 
 ### Bug Fixes
