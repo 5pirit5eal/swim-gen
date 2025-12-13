@@ -172,8 +172,8 @@ input:focus {
   color: var(--color-error);
   margin-bottom: 1rem;
   padding: 0.5rem;
-  background: rgba(220, 38, 38, 0.1);
-  border-radius: 4px;
+  background: var(--color-background);
+  border-radius: 8px;
   text-align: center;
 }
 
@@ -182,8 +182,8 @@ input:focus {
   /* Assuming variable, otherwise fallback to green */
   margin-bottom: 1rem;
   padding: 0.5rem;
-  background: rgba(16, 185, 129, 0.1);
-  border-radius: 4px;
+  background: var(--color-background-soft);
+  border-radius: 8px;
   text-align: center;
 }
 </style>

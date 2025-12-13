@@ -17,6 +17,8 @@ vi.mock('@/api/client', async (importOriginal) => {
       query: vi.fn(),
       upsertPlan: vi.fn(),
       getConversation: vi.fn(),
+      addPlanToHistory: vi.fn(),
+      addMessage: vi.fn(),
     },
     formatError: vi.fn((error) => `${error.message}: ${error.details}`),
   }
@@ -53,6 +55,9 @@ vi.mock('vue', async () => {
 // --- Mock Casts ---
 const mockedApiQuery = apiClient.query as Mock
 const mockedApiUpsert = apiClient.upsertPlan as Mock
+const mockedApiAddPlanToHistory = apiClient.addPlanToHistory as Mock
+const mockedApiAddMessage = apiClient.addMessage as Mock
+const mockedApiGetConversation = apiClient.getConversation as Mock
 const mockedSupabase = supabase as unknown as {
   from: Mock
   select: Mock
@@ -668,6 +673,60 @@ describe('trainingPlan Store', () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(dbError)
       consoleErrorSpy.mockRestore()
+    })
+
+    it('links anonymous plan to user history', async () => {
+      const store = useTrainingPlanStore()
+      const mockPlan = createMockPlan()
+      delete mockPlan.plan_id // Ensure it's anonymous
+      store.currentPlan = mockPlan
+      store.initialQuery = 'test query'
+
+      mockedApiAddPlanToHistory.mockResolvedValue({
+        success: true,
+        data: { plan_id: 'new-plan-id', message: 'Success' },
+      })
+      mockedApiAddMessage.mockResolvedValue({
+        success: true,
+        data: { message_id: 'msg-1' },
+      })
+      mockedApiGetConversation.mockResolvedValue({
+        success: true,
+        data: [],
+      })
+
+      // Mock fetchHistory and fetchConversation to avoid errors
+      mockedSupabase.from.mockImplementation(() => ({
+        select: vi.fn().mockReturnThis(),
+        order: vi.fn().mockReturnThis(),
+        range: vi.fn().mockResolvedValue({ data: [], error: null }),
+        eq: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+        in: vi.fn().mockReturnThis(),
+      }))
+
+      await store.linkAnonymousPlan()
+
+      expect(mockedApiAddPlanToHistory).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: mockPlan.title,
+          description: mockPlan.description,
+        }),
+      )
+      expect(store.currentPlan?.plan_id).toBe('new-plan-id')
+      expect(mockedApiAddMessage).toHaveBeenCalledTimes(2)
+      // First call: User message
+      expect(mockedApiAddMessage).toHaveBeenNthCalledWith(1, 'new-plan-id', 'user', 'test query')
+      // Second call: Assistant message
+      expect(mockedApiAddMessage).toHaveBeenNthCalledWith(
+        2,
+        'new-plan-id',
+        'ai',
+        mockPlan.description,
+        'msg-1',
+        expect.objectContaining({ plan_id: 'new-plan-id' }),
+      )
+      expect(store.initialQuery).toBe('')
     })
   })
 })

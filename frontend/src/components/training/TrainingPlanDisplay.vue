@@ -466,7 +466,7 @@ function autoResize(event: Event) {
 }
 
 .table-container {
-  padding: 1.5rem;
+  padding: 1.25rem;
   background: var(--color-background-soft);
   width: inherit;
   /* Set table to take full width of its container */
@@ -622,10 +622,7 @@ function autoResize(event: Event) {
 .summary-section {
   display: flex;
   justify-content: space-around;
-  padding-bottom: 1rem;
-  padding-top: 0rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding: 0 1rem 1rem 1rem;
   background: var(--color-background-soft);
   gap: 3rem;
   border-bottom-right-radius: 8px;
@@ -714,7 +711,7 @@ function autoResize(event: Event) {
 .button-section {
   display: flex;
   justify-content: space-between;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   border: 1px solid var(--color-border);
   padding: 1.5rem;
   background: var(--color-background-soft);
@@ -729,7 +726,7 @@ function autoResize(event: Event) {
   color: white;
   border: none;
   padding: 0.75rem 1rem;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;

@@ -39,6 +39,7 @@ export const useUploadStore = defineStore('upload', () => {
 
   // Fetch all uploaded plans for the user
   async function fetchUploadedPlans(reset = true) {
+    console.debug('[UploadStore] fetchUploadedPlans', { reset })
     if (!userStore.user) return
     if (reset) {
       displayCount.value = PAGE_SIZE
@@ -68,6 +69,7 @@ export const useUploadStore = defineStore('upload', () => {
 
   // Fetch a specific uploaded plan
   async function fetchUploadedPlan(planId: string): Promise<boolean> {
+    console.debug('[UploadStore] fetchUploadedPlan', { planId })
     isLoading.value = true
     error.value = null
     const result = await apiClient.getUploadedPlan(planId)
@@ -79,8 +81,8 @@ export const useUploadStore = defineStore('upload', () => {
         description: result.data.description,
         table: result.data.table,
       }
-      ensureRowIds(currentPlan.value.table)
       recalculateTotalSum()
+      ensureRowIds(currentPlan.value.table)
       isLoading.value = false
       return true
     } else {
@@ -108,6 +110,7 @@ export const useUploadStore = defineStore('upload', () => {
   }
 
   async function upsertCurrentPlan(): Promise<string> {
+    console.debug('[UploadStore] upsertCurrentPlan', { planId: currentPlan.value?.plan_id })
     if (!userStore.user) throw new Error('User is not available')
     if (!currentPlan.value) throw new Error('No current plan to upsert')
 

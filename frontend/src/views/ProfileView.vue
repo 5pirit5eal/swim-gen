@@ -908,7 +908,7 @@ async function handleResetPassword() {
   background: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.2s;

@@ -13,6 +13,7 @@
   color: var(--color-text) !important;
   border: 1px solid var(--color-border) !important;
   border-radius: 8px !important;
+  padding: 20px !important;
   box-shadow: 0 4px 12px var(--color-shadow) !important;
   font-family:
     Inter,
@@ -31,24 +32,36 @@
 
 .driver-popover-title {
   color: var(--color-heading) !important;
-  font-size: 1.25rem !important;
+  font-size: 1.5rem !important;
   font-weight: 600 !important;
 }
 
 .driver-popover-description {
   color: var(--color-text) !important;
-  line-height: 1.5 !important;
+  font-size: 1.125rem !important;
+  line-height: 1.6 !important;
+}
+
+.driver-popover-progress-text {
+  font-size: 1rem !important;
+  color: var(--color-text) !important;
+}
+
+.driver-popover-navigation-btns {
+  gap: 0.5rem;
 }
 
 .driver-popover-footer button {
   background-color: var(--color-primary) !important;
   color: var(--vt-c-white) !important;
   border: none !important;
-  border-radius: 6px !important;
-  padding: 6px 14px !important;
+  border-radius: 8px !important;
+  padding: 10px 18px !important;
+  font-size: 1rem !important;
   font-weight: 600 !important;
   text-shadow: none !important;
   transition: background-color 0.2s !important;
+  margin-left: 1rem;
 }
 
 .driver-popover-footer button:hover {
@@ -67,8 +80,37 @@
 
 .driver-popover-close-btn {
   color: var(--color-text) !important;
+  font-size: 1.25rem !important;
 }
 
 .driver-popover-close-btn:hover {
   color: var(--color-heading) !important;
+}
+
+@media (max-width: 400px) {
+  .driver-popover {
+    padding: 15px !important;
+  }
+
+  .driver-popover-title {
+    font-size: 1.25rem !important;
+  }
+
+  .driver-popover-description {
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .driver-popover-progress-text {
+    font-size: 0.75rem !important;
+  }
+
+  .driver-popover-footer button {
+    padding: 6px 14px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .driver-popover-close-btn {
+    font-size: 1rem !important;
+  }
 }

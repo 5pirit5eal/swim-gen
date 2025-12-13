@@ -9,7 +9,7 @@
   "home": {
     "banner": {
       "not_logged_in": {
-        "text": "Wenn du einen zukünftigen Plan speichern oder interaktive Bearbeitung nutzen möchtest, erstelle ein Konto oder melde dich an.",
+        "text": "Wenn du diesen Plan speichern oder interaktive Bearbeitung nutzen möchtest, erstelle ein Konto oder melde dich an.",
         "button": "Anmelden"
       },
       "logged_in": {
@@ -535,7 +535,7 @@
     "sidebar": {
       "history": {
         "title": "Verlauf",
-        "description": "Deine früheren Pläne werden hier gespeichert, damit du jederzeit darauf zugreifen kannst."
+        "description": "Deine generierten Pläne werden hier gespeichert. Pläne mit Sanduhrsymbol werden nach 2 Tagen gelöscht!"
       },
       "new_plan": {
         "title": "Neuen Plan erstellen",

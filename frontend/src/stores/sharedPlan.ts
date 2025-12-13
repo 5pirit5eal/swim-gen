@@ -50,6 +50,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
 
   // Fetches a shared plan by its hash
   async function fetchSharedPlanByHash(hash: string): Promise<string | null> {
+    console.debug('[SharedPlanStore] fetchSharedPlanByHash', { hash })
     isLoading.value = true
     error.value = null
     isForked.value = false
@@ -182,6 +183,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
 
   // Fetches the user's shared plan history with pagination
   async function fetchSharedHistory(reset = true) {
+    console.debug('[SharedPlanStore] fetchSharedHistory', { reset, page: historyPage.value })
     if (!authStore.user) return
 
     if (reset) {
@@ -281,6 +283,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
 
   // Load plan from history
   async function loadPlanFromHistory(item: SharedHistoryItem) {
+    console.debug('[SharedPlanStore] loadPlanFromHistory', { planId: item.plan_id })
     isLoading.value = true
     error.value = null
     sharedPlan.value = null
@@ -304,6 +307,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         sharer_id: item.user_id,
       }
       if (sharedPlan.value?.plan) {
+        recalculateTotalSum()
         ensureRowIds(sharedPlan.value.plan.table)
       }
     } catch (e) {

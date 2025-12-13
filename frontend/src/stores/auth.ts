@@ -10,6 +10,7 @@ export const useAuthStore = defineStore('auth', () => {
   const hasInitialized = ref(false)
 
   supabase.auth.onAuthStateChange((event, newSession) => {
+    console.debug('Auth state changed:', event, newSession)
     if (event === 'INITIAL_SESSION' && !hasInitialized.value) {
       hasInitialized.value = true
     }
@@ -21,6 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // --- ACTIONS ---
   async function signInWithPassword(email: string, password: string) {
+    console.debug('[AuthStore] signInWithPassword', { email })
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -30,6 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function signUp(email: string, password: string, username: string) {
+    console.debug('[AuthStore] signUp', { email, username })
     // Check if the username is already taken
     const { data: existingUser, error: existingUserError } = await supabase
       .from('profiles')
@@ -71,6 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function signOut() {
+    console.debug('[AuthStore] signOut')
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   }

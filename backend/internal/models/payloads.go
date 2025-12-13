@@ -32,6 +32,26 @@ type RAGResponse struct {
 	Table       Table  `json:"table"`
 }
 
+func (r *RAGResponse) Plan() *Plan {
+	if r == nil {
+		return nil
+	}
+	return &Plan{
+		PlanID:      r.PlanID,
+		Title:       r.Title,
+		Description: r.Description,
+		Table:       r.Table,
+	}
+}
+
+func (r *RAGResponse) Map() map[string]any {
+	return map[string]any{
+		"plan_id":     r.PlanID,
+		"title":       r.Title,
+		"description": r.Description,
+	}
+}
+
 // PlanToPDFRequest represents the request for PDF export
 // @Description Request payload for exporting a training plan to PDF format
 type PlanToPDFRequest struct {
@@ -154,6 +174,16 @@ type DeleteMessagesAfterRequest struct {
 // @Description Request payload for deleting an entire conversation and all its messages
 type DeleteConversationRequest struct {
 	PlanID string `json:"plan_id" example:"plan_123" binding:"required"` // PlanID identifies the conversation to delete
+}
+
+// AddMessageRequest represents the request body for adding a message to the conversation history
+// @Description Request payload for adding a message to the conversation history
+type AddMessageRequest struct {
+	PlanID            string       `json:"plan_id" binding:"required"`
+	Role              Role         `json:"role" binding:"required"`
+	Content           string       `json:"content" binding:"required"`
+	PreviousMessageID string       `json:"previous_message_id,omitempty"`
+	PlanSnapshot      *RAGResponse `json:"plan_snapshot,omitempty"`
 }
 
 // AddPlanToHistoryRequest represents the request payload for adding a plan to history

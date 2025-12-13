@@ -199,7 +199,7 @@ func (t *Table) AddSum() {
 func (t *Table) UpdateSum() {
 	total := 0
 	for i, row := range *t {
-		if strings.Contains(row.Content, "Gesamt") {
+		if strings.Contains(row.Content, "Gesamt") || strings.Contains(row.Content, "Total") {
 			(*t)[i].Sum = total
 		} else {
 			(*t)[i].Sum = row.Amount * row.Distance

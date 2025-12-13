@@ -99,7 +99,7 @@ function onSave() {
 <style scoped>
 .simple-plan-display {
   background: var(--color-background);
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid var(--color-border);
   overflow: hidden;
 }
@@ -212,7 +212,7 @@ function onSave() {
   color: white;
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;

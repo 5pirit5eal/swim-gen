@@ -60,6 +60,58 @@ func (rs *RAGService) DeleteMessageHandler(w http.ResponseWriter, req *http.Requ
 	}
 }
 
+// AddMessageHandler handles adding a new message to the conversation history.
+// @Summary Add a message to conversation
+// @Description Add a new message to the conversation history
+// @Tags Memory
+// @Accept json
+// @Produce json
+// @Param request body models.AddMessageRequest true "Request to add a message"
+// @Success 200 {object} map[string]string "Message added successfully"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
+// @Router /memory/message [post]
+func (rs *RAGService) AddMessageHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Adding message...")
+
+	// Get authenticated user ID
+	userID, ok := req.Context().Value(models.UserIdCtxKey).(string)
+	if !ok || userID == "" {
+		logger.Error("User ID not found in context")
+		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		return
+	}
+
+	amr := &models.AddMessageRequest{}
+	err := models.GetRequestJSON(req, amr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var prevMsgID *string
+	if amr.PreviousMessageID != "" {
+		prevMsgID = &amr.PreviousMessageID
+	}
+
+	msg, err := rs.db.Memory.AddMessage(req.Context(), amr.PlanID, userID, amr.Role, amr.Content, prevMsgID, amr.PlanSnapshot.Plan())
+	if err != nil {
+		logger.Error("Failed to add message", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with success and the new MessageID
+	response := map[string]string{
+		"message_id": msg.ID,
+	}
+	if err := models.WriteResponseJSON(w, http.StatusOK, response); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
 // DeleteMessagesAfterHandler handles the deletion of a message and all subsequent messages.
 // This is useful for "branching" conversations by removing everything after a certain point.
 // @Summary Delete a message and all subsequent messages

@@ -4,6 +4,7 @@ import { useExportStore } from '@/stores/export'
 import IconDownload from '@/components/icons/IconDownload.vue'
 import type { PlanToPDFRequest, PlanStore } from '@/types'
 import { useI18n } from 'vue-i18n'
+import { toast } from 'vue3-toastify'
 
 const props = defineProps<{
   store: PlanStore
@@ -75,6 +76,7 @@ async function handleExport() {
     exportPhase.value = 'done'
   } catch (e) {
     console.error('PDF export failed', e)
+    toast.error(t('errors.failed_to_export_plan'))
     exportPhase.value = 'idle'
   }
 }
@@ -151,7 +153,7 @@ async function handleExport() {
   color: white;
   border: none;
   padding: 0.75rem 1rem;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -210,7 +212,7 @@ async function handleExport() {
   width: 100%;
   background-color: var(--color-background-soft);
   border: 1px solid var(--color-border);
-  border-radius: 0.25rem;
+  border-radius: 8px;
   padding: 0.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 10;

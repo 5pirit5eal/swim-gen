@@ -80,7 +80,7 @@ const emit = defineEmits<{
   background-color: transparent;
   cursor: pointer;
   position: relative;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   transition: var(--color-primary-hover) 0.2s;
 }
 

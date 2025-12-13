@@ -198,4 +198,38 @@ describe('LoginView.vue', () => {
     expect(toast.success).toHaveBeenCalledWith('login.userExistsLoginSuccess')
     expect(mockPush).toHaveBeenCalledWith({ path: '/', state: { redirectedFromLogin: true } })
   })
+
+  it('saves anonymous plan to localStorage on Google login', async () => {
+    const wrapper = mount(LoginView, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            initialState: {
+              trainingPlan: {
+                currentPlan: { title: 'Anon Plan', table: [] }, // No plan_id
+                initialQuery: 'anon query',
+              },
+            },
+          }),
+        ],
+        stubs: {
+          RouterLink: RouterLinkStub,
+        },
+      },
+    })
+    const auth = useAuthStore()
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem')
+
+    await wrapper.findComponent({ name: 'IconGoogle' }).trigger('click')
+
+    expect(setItemSpy).toHaveBeenCalledWith(
+      'anonymousPlan',
+      JSON.stringify({ title: 'Anon Plan', table: [] }),
+    )
+    expect(setItemSpy).toHaveBeenCalledWith('anonymousQuery', 'anon query')
+    expect(auth.signInWithOAuth).toHaveBeenCalled()
+
+    setItemSpy.mockRestore()
+  })
 })
