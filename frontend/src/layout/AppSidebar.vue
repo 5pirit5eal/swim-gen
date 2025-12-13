@@ -84,7 +84,6 @@ watch(
       setTimeout(() => {
         startSidebarTutorial()
       }, 300)
-
     }
   },
 )
