@@ -85,7 +85,6 @@ watch(
         startSidebarTutorial()
       }, 300)
 
-      startSidebarTutorial()
     }
   },
 )
