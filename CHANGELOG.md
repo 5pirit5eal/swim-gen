@@ -1,3 +1,14 @@
+## [2.18.0](https://github.com/5pirit5eal/swim-gen/compare/v2.17.0...v2.18.0) (2025-12-13)
+
+### Features
+
+* added multilanguage emails ([3df63f7](https://github.com/5pirit5eal/swim-gen/commit/3df63f7dd79014bf3ee1fda4fc345d4d1784b8f9))
+* added multilanguage emails ([#157](https://github.com/5pirit5eal/swim-gen/issues/157)) ([538ebfb](https://github.com/5pirit5eal/swim-gen/commit/538ebfb7d6b6f375e6e07f4a69e29a066cdf49e4))
+
+### Bug Fixes
+
+* fixed tests ([0e79dc8](https://github.com/5pirit5eal/swim-gen/commit/0e79dc8bc0965ad983e6713dcc28d05b8fc452b2))
+
 ## [2.17.0](https://github.com/5pirit5eal/swim-gen/compare/v2.16.1...v2.17.0) (2025-12-13)
 
 ### Features
