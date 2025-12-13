@@ -38,14 +38,16 @@ export const useAuthStore = defineStore('auth', () => {
       .from('profiles')
       .select('username')
       .eq('username', username)
-      .single()
+      .maybeSingle()
 
     if (existingUserError && existingUserError.code !== 'PGRST116') {
       throw existingUserError
     }
 
     if (existingUser) {
-      throw new Error('Username already taken')
+      const error = new Error('Username already taken')
+      Object.assign(error, { code: 'username_taken' })
+      throw error
     }
 
     const { data, error } = await supabase.auth.signUp({
@@ -55,8 +57,10 @@ export const useAuthStore = defineStore('auth', () => {
         data: {
           username,
         },
+        emailRedirectTo: `${window.location.origin}/login`,
       },
     })
+    console.debug('[AuthStore] signUp response', { data, error })
     if (error) throw error
     return data
   }

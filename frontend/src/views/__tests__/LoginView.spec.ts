@@ -48,6 +48,7 @@ vi.mock('@/router', () => ({
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string) => key,
+    te: () => true,
   }),
 }))
 
@@ -126,7 +127,7 @@ describe('LoginView.vue', () => {
     await wrapper.find('form').trigger('submit.prevent')
 
     expect(auth.signInWithPassword).toHaveBeenCalledWith('test@example.com', 'password')
-    expect(toast.success).toHaveBeenCalledWith('login.loginSuccess')
+    expect(toast.success).toHaveBeenCalledWith('login.loginSuccess', { autoClose: 8000 })
     expect(mockPush).toHaveBeenCalledWith('/')
   })
 
@@ -146,7 +147,7 @@ describe('LoginView.vue', () => {
     await wrapper.find('input#password').setValue('password')
     await wrapper.find('form').trigger('submit.prevent')
 
-    expect(toast.error).toHaveBeenCalledWith('login.invalidLogin')
+    expect(toast.error).toHaveBeenCalledWith('login.invalidLogin', { autoClose: 8000 })
   })
 
   it('calls signUp on sign-up form submission', async () => {
@@ -160,7 +161,7 @@ describe('LoginView.vue', () => {
       },
     })
     const auth = useAuthStore()
-    ;(auth.signUp as Mock).mockResolvedValue({ user: { identities: [{}] } })
+    ;(auth.signUp as Mock).mockResolvedValue({ user: { identities: [{}] }, session: { user: {} } })
 
     await wrapper.find('input#username').setValue('newuser')
     await wrapper.find('input#email').setValue('new@example.com')
@@ -168,7 +169,7 @@ describe('LoginView.vue', () => {
     await wrapper.find('form').trigger('submit.prevent')
 
     expect(auth.signUp).toHaveBeenCalledWith('new@example.com', 'newpassword', 'newuser')
-    expect(toast.success).toHaveBeenCalledWith('login.registrationSuccess')
+    expect(toast.success).toHaveBeenCalledWith('login.registrationSuccess', { autoClose: 8000 })
     expect(mockPush).toHaveBeenCalledWith('/login')
   })
 
@@ -183,8 +184,7 @@ describe('LoginView.vue', () => {
       },
     })
     const auth = useAuthStore()
-    ;(auth.signUp as Mock).mockResolvedValue({ user: { identities: [] } })
-    ;(auth.signInWithPassword as Mock).mockResolvedValue(undefined)
+    ;(auth.signUp as Mock).mockResolvedValue({ session: null }) // Simulate user exists (no session returned, though in reality it might throw or return empty session depending on provider/config, but here we cover the "if (!session)" check logic)
 
     await wrapper.find('input#username').setValue('existinguser')
     await wrapper.find('input#email').setValue('existing@example.com')
@@ -194,9 +194,7 @@ describe('LoginView.vue', () => {
     // Wait for promises
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(auth.signInWithPassword).toHaveBeenCalledWith('existing@example.com', 'password')
-    expect(toast.success).toHaveBeenCalledWith('login.userExistsLoginSuccess')
-    expect(mockPush).toHaveBeenCalledWith({ path: '/', state: { redirectedFromLogin: true } })
+    expect(toast.error).toHaveBeenCalledWith('login.user_exists', { autoClose: 8000 })
   })
 
   it('saves anonymous plan to localStorage on Google login', async () => {
