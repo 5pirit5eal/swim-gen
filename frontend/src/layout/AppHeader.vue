@@ -205,14 +205,14 @@ async function handleLogout() {
   border: 1px solid var(--color-error);
 }
 
-@media (max-width: 400px) {
+@media (max-width: 740px) {
   .logo-icon {
     width: 28px;
     height: 28px;
   }
 
   .logo h1 {
-    font-size: 1.25rem;
+    font-size: 1rem;
   }
 }
 </style>

@@ -37,6 +37,7 @@ const sidebarStore = useSidebarStore()
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
+const { startSidebarTutorial } = useTutorial()
 
 // Track which menu is open
 const openMenuPlanId = ref<string | null>(null)
@@ -76,13 +77,13 @@ watch(searchQuery, (query) => {
   debouncedSearch(query)
 })
 
-const { startSidebarTutorial } = useTutorial()
-
 watch(
   () => sidebarStore.isOpen,
   (isOpen) => {
     if (isOpen) {
-      startSidebarTutorial()
+      setTimeout(() => {
+        startSidebarTutorial()
+      }, 300)
     }
   },
 )
@@ -943,7 +944,27 @@ async function loadUploadedPlan(plan_id: string) {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1124px) {
+  .sidebar {
+    left: -300px;
+    width: 300px;
+    background-color: var(--color-background-soft);
+    backdrop-filter: none;
+  }
+
+  .plan-list li {
+    border: 1px solid transparent;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+}
+
+@media (max-width: 740px) {
   .sidebar {
     left: -100%;
     width: 100%;
