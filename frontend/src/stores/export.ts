@@ -10,6 +10,7 @@ export const useExportStore = defineStore('export', () => {
 
   // Actions
   async function exportToPDF(request: PlanToPDFRequest): Promise<string | null> {
+    console.debug('[ExportStore] exportToPDF', { request })
     if (request.table.length <= 1) {
       exportError.value = 'Cannot export an empty plan.'
       return null

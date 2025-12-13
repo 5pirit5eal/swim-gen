@@ -511,6 +511,58 @@
             }
         },
         "/memory/message": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add a new message to the conversation history",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Memory"
+                ],
+                "summary": "Add a message to conversation",
+                "parameters": [
+                    {
+                        "description": "Request to add a message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AddMessageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message added successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -1007,6 +1059,36 @@
         }
     },
     "definitions": {
+        "models.AddMessageRequest": {
+            "description": "Request payload for adding a message to the conversation history",
+            "type": "object",
+            "required": [
+                "content",
+                "plan_id",
+                "role"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "plan_snapshot": {
+                    "$ref": "#/definitions/models.RAGResponse"
+                },
+                "previous_message_id": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string",
+                    "enum": [
+                        "user",
+                        "assistant"
+                    ]
+                }
+            }
+        },
         "models.AddPlanToHistoryRequest": {
             "description": "Request payload for adding a plan to the authenticated user's history",
             "type": "object",

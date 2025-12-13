@@ -15,6 +15,41 @@ const router = useRouter()
 const planDisplayContainer = ref<HTMLDivElement | null>(null)
 const { startHomeTutorial } = useTutorial()
 
+// Restore anonymous plan from localStorage if it exists (e.g. after OAuth redirect)
+onMounted(() => {
+  console.debug('Checking for anonymous plan restoration...')
+  const savedQuery = localStorage.getItem('anonymousQuery')
+  const savedPlan = localStorage.getItem('anonymousPlan')
+
+  if (savedPlan && savedQuery) {
+    try {
+      const plan = JSON.parse(savedPlan)
+      trainingPlanStore.currentPlan = plan
+      trainingPlanStore.initialQuery = savedQuery
+      // Clean up
+      localStorage.removeItem('anonymousPlan')
+      localStorage.removeItem('anonymousQuery')
+    } catch (e) {
+      console.error('Failed to restore anonymous plan', e)
+    }
+  }
+})
+
+watch(
+  () => (authStore.user, trainingPlanStore.initialQuery),
+  async () => {
+    console.debug(
+      'Checking for anonymous plan linking...',
+      authStore.user,
+      trainingPlanStore.initialQuery,
+    )
+    if (authStore.user && trainingPlanStore.currentPlan && trainingPlanStore.initialQuery) {
+      await trainingPlanStore.linkAnonymousPlan()
+    }
+  },
+  { immediate: true, deep: true },
+)
+
 function navigateToLogin() {
   router.push({ name: 'login' })
 }
@@ -184,6 +219,7 @@ watch(
   border: none;
   border-radius: 8px;
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s;
 }

@@ -63,6 +63,22 @@ class ApiClient {
         }
       }
 
+      let bodyLog: unknown = options.body
+      if (typeof options.body === 'string') {
+        try {
+          bodyLog = JSON.parse(options.body)
+        } catch {
+          // ignore
+        }
+      } else if (options.body instanceof FormData) {
+        bodyLog = 'FormData'
+      }
+
+      console.debug(
+        `[API] Request: ${options.method || 'GET'} ${endpoint}`,
+        bodyLog ? { body: bodyLog } : '',
+      )
+
       const response = await fetch(`${this.baseUrl}/${endpoint}`, {
         ...options,
         headers,
@@ -70,6 +86,8 @@ class ApiClient {
       })
 
       clearTimeout(timeoutId)
+
+      console.debug(`[API] Response: ${endpoint} ${response.status}`)
 
       if (!response.ok) {
         return {
@@ -320,6 +338,36 @@ class ApiClient {
         body: formData,
       },
       this.QUERY_TIMEOUT_MS, // This might take a while
+      true,
+    )
+  }
+
+  /**
+   * Add a message to the conversation history
+   */
+  async addMessage(
+    planId: string,
+    role: 'user' | 'ai',
+    content: string,
+    previousMessageId?: string,
+    planSnapshot?: RAGResponse,
+  ): Promise<ApiResult<{ message_id: string }>> {
+    return this._fetch<{ message_id: string }>(
+      ApiEndpoints.ADD_MESSAGE,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          plan_id: planId,
+          role,
+          content,
+          previous_message_id: previousMessageId,
+          plan_snapshot: planSnapshot,
+        }),
+      },
+      this.DEFAULT_TIMEOUT_MS,
       true,
     )
   }

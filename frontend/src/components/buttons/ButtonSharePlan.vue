@@ -116,7 +116,7 @@ async function copyUrl() {
   background: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;

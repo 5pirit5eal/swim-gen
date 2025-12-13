@@ -80,6 +80,12 @@ async function handleResetPassword() {
 }
 
 async function handleGoogleLogin() {
+  // Save anonymous plan if exists to persist across redirect
+  if (trainingPlanStore.currentPlan && trainingPlanStore.initialQuery) {
+    localStorage.setItem('anonymousPlan', JSON.stringify(trainingPlanStore.currentPlan))
+    localStorage.setItem('anonymousQuery', trainingPlanStore.initialQuery)
+  }
+
   loading.value = true
   try {
     await auth.signInWithOAuth()

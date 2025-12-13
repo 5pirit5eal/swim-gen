@@ -47,7 +47,7 @@ async function handleSubmit() {
 
   const success = await trainingStore.generatePlan(request)
   if (!success) {
-    trainingStore.error = t('form.failed_to_generate_plan')
+    trainingStore.error = t('errors.failed_to_generate_plan')
   }
 }
 
@@ -66,7 +66,7 @@ async function handlePromptGeneration() {
   } else {
     trainingStore.error = response.error
       ? formatError(response.error)
-      : t('form.failed_to_generate_prompt')
+      : t('errors.failed_to_generate_prompt')
   }
 
   generatingPrompt.value = false
@@ -410,7 +410,7 @@ async function handlePromptGeneration() {
 .form-container {
   background: var(--color-background-soft);
   padding: 2rem;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   border: 1px solid var(--color-border);
   width: 100%;
   box-sizing: border-box;
@@ -437,7 +437,7 @@ async function handlePromptGeneration() {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--color-border);
-  border-radius: 0.25rem;
+  border-radius: 8px;
   font-family: inherit;
   font-size: 1rem;
   resize: vertical;
@@ -485,7 +485,7 @@ async function handlePromptGeneration() {
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -506,7 +506,7 @@ async function handlePromptGeneration() {
   background: #fef2f2;
   color: var(--color-error);
   padding: 0.75rem;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   border: 1px solid #fecaca;
   display: flex;
   justify-content: space-between;
@@ -526,7 +526,7 @@ async function handlePromptGeneration() {
   background: var(--color-background);
   border: 1px solid var(--color-border);
   padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   cursor: pointer;
   margin-bottom: 1rem;
   color: var(--color-heading);
@@ -544,7 +544,7 @@ async function handlePromptGeneration() {
 .advanced-settings {
   background: var(--color-background);
   padding: 1.5rem;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   border: 1px solid var(--color-border);
   margin-bottom: 1.5rem;
 }
@@ -614,7 +614,7 @@ async function handlePromptGeneration() {
 .select-input {
   padding: 0.5rem;
   border: 1px solid var(--color-border);
-  border-radius: 0.25rem;
+  border-radius: 8px;
   font-family: inherit;
   font-size: 0.9rem;
   background: var(--color-background);
@@ -636,7 +636,7 @@ async function handlePromptGeneration() {
   background: var(--color-background-soft);
   border: 1px solid var(--color-border);
   padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
   color: var(--color-text);

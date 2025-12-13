@@ -20,6 +20,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   const isFetchingHistory = ref(false)
   const isFetchingConversation = ref(false)
   const error = ref<string | null>(null)
+  const initialQuery = ref<string>('')
   const generationHistory = ref<RAGResponse[]>([])
   const historyMetadata = ref<HistoryMetadata[]>([])
   const conversation = ref<Message[]>([])
@@ -76,6 +77,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Fetches the user's plan history with pagination
   async function fetchHistory(reset = true) {
+    console.debug('[TrainingPlanStore] fetchHistory', { reset, page: historyPage.value })
     if (!userStore.user) return
     if (reset) {
       historyPage.value = 0
@@ -95,6 +97,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     if (error) {
       console.error(error)
     } else if (data) {
+      console.debug('[TrainingPlanStore] fetchHistory success', { count: data.length })
       // Check if there are more results
       historyHasMore.value = data.length === PAGE_SIZE
 
@@ -165,6 +168,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Searches plans by title or description
   async function searchPlans(query: string) {
+    console.debug('[TrainingPlanStore] searchPlans', { query })
     searchQuery.value = query
     if (!query.trim()) {
       searchResults.value = []
@@ -225,6 +229,9 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
           exported_at: metadata?.exported_at,
         }
       })
+      console.debug('[TrainingPlanStore] searchPlans success', {
+        count: searchResults.value.length,
+      })
     } finally {
       isSearching.value = false
     }
@@ -265,8 +272,12 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Generates a new training plan
   async function generatePlan(request: QueryRequest): Promise<boolean> {
+    console.debug('[TrainingPlanStore] generatePlan', { request })
     isLoading.value = true
     error.value = null
+    if (!userStore.user) {
+      initialQuery.value = request.content
+    }
 
     const result = await apiClient.query(request)
 
@@ -289,6 +300,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
   // Upserts the current plan
   async function upsertCurrentPlan(): Promise<string> {
+    console.debug('[TrainingPlanStore] upsertCurrentPlan', { planId: currentPlan.value?.plan_id })
     if (!userStore.user) throw new Error('User is not available')
     if (!currentPlan.value) throw new Error('No current plan to upsert')
     // Strip _id from table rows before sending to backend
@@ -311,6 +323,59 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         : i18n.global.t('errors.training_plan_failed')
       throw new Error(error.value)
     }
+  }
+
+  // Links an anonymous plan to the user's history
+  async function linkAnonymousPlan() {
+    console.debug('Linking anonymous plan to user account')
+    if (!userStore.user || !currentPlan.value || !initialQuery.value) return
+
+    // 1. Add plan to history (gets a new plan_id)
+    // We need to strip _id from table rows
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const tableWithoutIds = currentPlan.value.table.map(({ _id, ...rest }) => rest)
+
+    const addPlanResult = await apiClient.addPlanToHistory({
+      title: currentPlan.value.title,
+      description: currentPlan.value.description,
+      table: tableWithoutIds,
+    })
+
+    if (!addPlanResult.success || !addPlanResult.data) {
+      console.error('Failed to add plan to history:', addPlanResult.error)
+      return
+    }
+
+    const newPlanId = addPlanResult.data.plan_id
+    currentPlan.value.plan_id = newPlanId
+
+    // 2. Add User Message
+    const userMsgResult = await apiClient.addMessage(newPlanId, 'user', initialQuery.value)
+
+    if (!userMsgResult.success || !userMsgResult.data) {
+      console.error('Failed to add user message:', userMsgResult.error)
+      return
+    }
+
+    // 3. Add Assistant Message (with plan snapshot)
+    await apiClient.addMessage(
+      newPlanId,
+      'ai',
+      currentPlan.value.description,
+      userMsgResult.data.message_id,
+      {
+        ...currentPlan.value,
+        plan_id: newPlanId,
+        table: tableWithoutIds,
+      },
+    )
+
+    // Refresh history and conversation
+    await fetchHistory()
+    await fetchConversation(newPlanId)
+
+    // Clear initialQuery to prevent re-linking
+    initialQuery.value = ''
   }
 
   // Loads a plan from history into the editor
@@ -544,6 +609,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     generationHistory,
     historyMetadata,
     conversation,
+    initialQuery,
     // Pagination state
     historyHasMore,
     isLoadingMore,
@@ -575,5 +641,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     saveSnapshot,
     sendMessage,
     submitFeedback,
+    linkAnonymousPlan,
   }
 })

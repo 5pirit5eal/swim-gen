@@ -1,5 +1,26 @@
 basePath: /
 definitions:
+  models.AddMessageRequest:
+    description: Request payload for adding a message to the conversation history
+    properties:
+      content:
+        type: string
+      plan_id:
+        type: string
+      plan_snapshot:
+        $ref: '#/definitions/models.RAGResponse'
+      previous_message_id:
+        type: string
+      role:
+        enum:
+        - user
+        - assistant
+        type: string
+    required:
+    - content
+    - plan_id
+    - role
+    type: object
   models.AddPlanToHistoryRequest:
     description: Request payload for adding a plan to the authenticated user's history
     properties:
@@ -805,6 +826,39 @@ paths:
       security:
       - BearerAuth: []
       summary: Delete a single message from conversation
+      tags:
+      - Memory
+    post:
+      consumes:
+      - application/json
+      description: Add a new message to the conversation history
+      parameters:
+      - description: Request to add a message
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Message added successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Add a message to conversation
       tags:
       - Memory
   /memory/messages-after:

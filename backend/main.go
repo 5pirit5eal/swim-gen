@@ -157,6 +157,7 @@ func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Confi
 		r.Delete("/plan/{plan_id}", ragServer.DeletePlanHandler)
 		r.Delete("/user", ragServer.DeleteUserHandler)
 		// Memory management endpoints
+		r.Post("/memory/message", ragServer.AddMessageHandler)
 		r.Delete("/memory/message", ragServer.DeleteMessageHandler)
 		r.Delete("/memory/messages-after", ragServer.DeleteMessagesAfterHandler)
 		r.Delete("/memory/conversation", ragServer.DeleteConversationHandler)
