@@ -97,9 +97,9 @@ async function handleGoogleLogin() {
 async function handleSignUp() {
   loading.value = true
   try {
-    const { session } = await auth.signUp(email.value, password.value, username.value)
+    const { session, user } = await auth.signUp(email.value, password.value, username.value)
 
-    if (!session) {
+    if (!session && user?.identities?.length === 0) {
       const error = new Error('User already exists')
       Object.assign(error, { code: 'user_exists' })
       throw error

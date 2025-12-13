@@ -89,6 +89,7 @@ describe('auth Store', () => {
       options: {
         data: {
           username: 'newuser',
+          language: 'en-US',
         },
         emailRedirectTo: `${window.location.origin}/login`,
       },

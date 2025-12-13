@@ -11,13 +11,23 @@
       <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Swim Gen</h1>
     </div>
     <div style="padding: 30px;">
+      {{ if eq .Data.language "de" }}
+      <h2 style="margin-top: 0; color: #2c3e50;">Bestätige deine Anmeldung</h2>
+      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+        Danke, dass du dich bei Swim Gen angemeldet hast, {{ .Data.username }}. Um sicherzustellen, dass dieses Konto einem echten Benutzer gehört, musst du deine E-Mail-Adresse bestätigen. Folge diesem Link, um deinen Benutzer zu bestätigen:
+      </p>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="{{ .ConfirmationURL }}" style="background-color: #3b82f6; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">E-Mail bestätigen</a>
+      </div>
+      {{ else }}
       <h2 style="margin-top: 0; color: #2c3e50;">Confirm Your Signup</h2>
       <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-        Thank you for signing up for Swim Gen. To ensure this account belongs to an actual user, we need you to confirm your email address. Follow this link to confirm your user:
+        Thank you, {{ .Data.username }} for signing up for Swim Gen. To ensure this account belongs to an actual user, we need you to confirm your email address. Follow this link to confirm your user:
       </p>
       <div style="text-align: center; margin: 30px 0;">
         <a href="{{ .ConfirmationURL }}" style="background-color: #3b82f6; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">Confirm your mail</a>
       </div>
+      {{ end }}
     </div>
     <div style="background-color: #f3f4f6; padding: 15px; text-align: center; font-size: 12px; color: #6b7280;">
       <p style="margin: 0;">&copy; 2025 Swim Gen. All rights reserved.</p>
