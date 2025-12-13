@@ -96,7 +96,7 @@ func (rs *RAGService) AddMessageHandler(w http.ResponseWriter, req *http.Request
 		prevMsgID = &amr.PreviousMessageID
 	}
 
-	msg, err := rs.db.Memory.AddMessage(req.Context(), amr.PlanID, userID, models.Role(amr.Role), amr.Content, prevMsgID, amr.PlanSnapshot.Plan())
+	msg, err := rs.db.Memory.AddMessage(req.Context(), amr.PlanID, userID, amr.Role, amr.Content, prevMsgID, amr.PlanSnapshot.Plan())
 	if err != nil {
 		logger.Error("Failed to add message", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -36,7 +36,7 @@ onMounted(() => {
 })
 
 watch(
-  () => (authStore.user, trainingPlanStore.initialQuery),
+  () => authStore.user,
   async () => {
     console.debug(
       'Checking for anonymous plan linking...',

@@ -180,7 +180,7 @@ type DeleteConversationRequest struct {
 // @Description Request payload for adding a message to the conversation history
 type AddMessageRequest struct {
 	PlanID            string       `json:"plan_id" binding:"required"`
-	Role              string       `json:"role" binding:"required" validate:"oneof=user assistant"`
+	Role              Role         `json:"role" binding:"required"`
 	Content           string       `json:"content" binding:"required"`
 	PreviousMessageID string       `json:"previous_message_id,omitempty"`
 	PlanSnapshot      *RAGResponse `json:"plan_snapshot,omitempty"`
