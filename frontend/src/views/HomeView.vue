@@ -87,6 +87,9 @@ onMounted(async () => {
 })
 
 onActivated(() => {
+  if (trainingPlanStore.currentPlan) {
+    scrollToPlan()
+  }
   if (authStore.user) {
     startHomeTutorial()
   }
