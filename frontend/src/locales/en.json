@@ -538,7 +538,7 @@
     "sidebar": {
       "history": {
         "title": "History",
-        "description": "Your previous plans are stored here for easy access. Plans with an hourglass icon are temporary and will be deleted after 2 days."
+        "description": "Your previous plans are stored here for easy access. Plans with an hourglass icon are temporary and will be deleted after 2 days. Toggle the icon to keep them forever."
       },
       "new_plan": {
         "title": "Create New Plan",

@@ -538,7 +538,7 @@
     "sidebar": {
       "history": {
         "title": "Verlauf",
-        "description": "Deine generierten Pläne werden hier gespeichert. Pläne mit Sanduhrsymbol werden nach 2 Tagen gelöscht!"
+        "description": "Deine generierten Pläne werden hier gespeichert. Pläne mit Sanduhrsymbol werden nach 2 Tagen gelöscht! Klicke auf das Symbol, um sie dauerhaft zu speichern."
       },
       "new_plan": {
         "title": "Neuen Plan erstellen",
