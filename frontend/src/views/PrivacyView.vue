@@ -102,7 +102,7 @@ const responsiblePartyDetails = computed(() => {
 
 <style scoped>
 .legal-page {
-  padding: 0.25rem 0 2rem 0;
+  padding: 0;
 }
 
 .container {
@@ -156,7 +156,7 @@ const responsiblePartyDetails = computed(() => {
   margin-bottom: 1.5rem;
 }
 
-.privacy-policy section + section {
+.privacy-policy section+section {
   margin-top: 1.5rem;
 }
 

@@ -20,18 +20,29 @@
   },
   "header": {
     "home": "Startseite",
-    "about": "Über uns",
+    "about": "Über Swim Gen",
     "profile": "Profil"
+  },
+  "about": {
+    "title": "Über Swim Gen",
+    "greeting": "Hallo! Ich bin Ruben.",
+    "intro_text": "Swim Gen ist ein Hobbyprojekt, das aus meiner eigenen Leidenschaft für Schwimmen und Triathlon entstanden ist. Als Athlet brauchte ich oft schnell eine strukturierte, aber qualitativ hochwertige Trainingseinheit, wenn ich es nicht zum Vereinstraining schaffte oder einfach nach meinem eigenen Zeitplan schwimmen wollte.",
+    "origin_story": "Ich habe Swim Gen entwickelt, um dieses Problem für mich selbst zu lösen – um abwechslungsreiche, effektive Workouts auf Abruf zu generieren, ohne Stunden mit der Planung zu verbringen. Mir wurde klar, dass auch andere Schwimmer, Triathleten und möglicherweise sogar Trainer von diesem Tool profitieren könnten. Deshalb habe ich beschlossen, es als Webanwendung für alle zur Verfügung zu stellen, damit jeder es nach Herzenslust nutzen kann.",
+    "mission": "Egal, ob du ein Anfänger bist, der Anleitung sucht, ein Triathlet, der eine Einheit einschiebt, oder ein Leistungsschwimmer, der ein spezifisches Set benötigt – mein Ziel ist es, ein Tool bereitzustellen, das dir hilft, deine Ziele ohne Qualitätsabstriche zu erreichen.",
+    "personal_note": "Dieses Projekt wird von mir in meiner Freizeit entwickelt und gepflegt. Ich hoffe, es hilft dir, deine Zeit im Wasser genauso zu genießen wie ich!",
+    "cheers": "Viel Spaß beim Schwimmen,",
+    "support_text": "Wenn dir Swim Gen gefällt und du die Entwicklung unterstützen möchtest, kannst du mir gerne",
+    "support_link": "einen Kaffee ausgeben."
   },
   "footer": {
     "privacy_legal": "Datenschutz & Rechtliches",
     "privacy_policy": "Datenschutzerklärung",
     "terms_of_service": "Nutzungsbedingungen",
     "impressum": "Impressum",
-    "about": "Über uns",
+    "about": "Über Swim Gen",
+    "project": "Projekt",
     "contact": "Kontakt",
     "github": "GitHub",
-    "roadmap": "Roadmap",
     "sponsor": "Unterstütze dieses Projekt",
     "copyright": "© 2025 Swim Gen. Erstellt mit Vue.js und TypeScript."
   },
@@ -145,7 +156,7 @@
   },
   "privacy_policy": {
     "title": "Datenschutzerklärung",
-    "last_updated": "Zuletzt aktualisiert: 09. Dezember 2025",
+    "last_updated": "Zuletzt aktualisiert: 13. Dezember 2025",
     "data_protection_at_a_glance_title": "1. Datenschutz auf einen Blick",
     "general_notes_title": "Allgemeine Hinweise",
     "general_notes_text": "Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können. Ausführliche Informationen zum Thema Datenschutz entnehmen Sie unserer unter diesem Text aufgeführten Datenschutzerklärung.",
@@ -192,7 +203,7 @@
     "ssl_tls_encryption_text": "Diese Seite nutzt aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher Inhalte, wie zum Beispiel Bestellungen oder Anfragen, die Sie an uns als Seitenbetreiber senden, eine SSL- bzw. TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie daran, dass die Adresszeile des Browsers von „http://“ auf „https://“ wechselt und an dem Schloss-Symbol in Ihrer Browserzeile. Wenn die SSL- bzw. TLS-Verschlüsselung aktiviert ist, können die Daten, die Sie an uns übermitteln, nicht von Dritten mitgelesen werden."
   },
   "terms_of_service": {
-    "last_updated": "Zuletzt aktualisiert: 09. Dezember 2025",
+    "last_updated": "Zuletzt aktualisiert: 13. Dezember 2025",
     "title": "Nutzungsbedingungen von Swim Gen",
     "intro": "Diese Bedingungen regeln die Nutzung dieser Anwendung sowie alle damit verbundenen Vereinbarungen oder Rechtsverhältnisse mit dem Betreiber in rechtlich verbindlicher Weise. Großgeschriebene Begriffe sind im entsprechenden Abschnitt dieses Dokuments definiert.",
     "read_carefully": "Bitte lesen Sie dieses Dokument sorgfältig.",
@@ -302,6 +313,7 @@
     "logoutFailed": "Die Abmeldung ist fehlgeschlagen. Bitte versuche es erneut.",
     "signInWithGoogle": "Mit Google anmelden",
     "forgot_password": "Passwort vergessen?",
+    "legal_notice": "Mit der Registrierung stimmst du unserer {privacy} und den {terms} zu.",
     "or": "Oder",
     "features": {
       "title": "Erstelle dein kostenloses Konto",

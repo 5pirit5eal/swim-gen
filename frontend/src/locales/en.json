@@ -19,19 +19,28 @@
     }
   },
   "header": {
-    "home": "Home",
-    "about": "About",
     "profile": "Profile"
+  },
+  "about": {
+    "title": "About Swim Gen",
+    "greeting": "Hi there! I'm Ruben.",
+    "intro_text": "Swim Gen is a hobby project born out of my own passion for swimming and triathlon. As an athlete, I often found myself needing a quick, structured, but high-quality training session when I couldn't make it to the club practice or simply wanted to swim on my own schedule.",
+    "origin_story": "I created Swim Gen to solve this problem for myself—to generate varied, effective workouts on demand without spending hours planning them. I realized that other swimmers, triathletes, and potentially even coaches could benefit from this tool, so I decided to open it up as a web application for everyone to use to their heart's content.",
+    "mission": "Whether you are a beginner looking for guidance, a triathlete squeezing in a session, or a competitive swimmer needing a specific set, my goal is to provide a tool that helps you achieve your goals without quality compromise.",
+    "personal_note": "This project is built and maintained by me in my free time. I hope it helps you enjoy your time in the water as much as I do!",
+    "cheers": "Happy Swimming,",
+    "support_text": "If you enjoy using Swim Gen and want to support its development, you can",
+    "support_link": "buy me a coffee."
   },
   "footer": {
     "privacy_legal": "Privacy & Legal",
     "privacy_policy": "Privacy Policy",
     "terms_of_service": "Terms of Service",
     "impressum": "Impressum",
-    "about": "About",
+    "about": "About Swim Gen",
+    "project": "Project",
     "contact": "Contact",
     "github": "GitHub",
-    "roadmap": "Roadmap",
     "sponsor": "Support this Project",
     "copyright": "© 2025 Swim Gen. Built with Vue.js and TypeScript."
   },
@@ -145,7 +154,7 @@
   },
   "privacy_policy": {
     "title": "Privacy Policy",
-    "last_updated": "Last Updated: December 9, 2025",
+    "last_updated": "Last Updated: December 13, 2025",
     "data_protection_at_a_glance_title": "1. Data Protection at a Glance",
     "general_notes_title": "General Information",
     "general_notes_text": "The following notes provide a simple overview of what happens to your personal data when you visit this website. Personal data is any data with which you could be personally identified. Detailed information on the subject of data protection can be found in our privacy policy listed below this text.",
@@ -192,7 +201,7 @@
     "ssl_tls_encryption_text": "For security reasons and to protect the transmission of confidential content, such as orders or inquiries that you send to us as the site operator, this site uses SSL or TLS encryption. You can recognize an encrypted connection by the fact that the address line of the browser changes from “http://” to “https://” and by the lock symbol in your browser line. If SSL or TLS encryption is activated, the data you transmit to us cannot be read by third parties."
   },
   "terms_of_service": {
-    "last_updated": "Last Updated: December 9, 2025",
+    "last_updated": "Last Updated: December 13, 2025",
     "title": "Terms and Conditions of Swim Gen",
     "intro": "These Terms govern the use of this Application, and, any other related Agreement or legal relationship with the Owner in a legally binding way. Capitalized words are defined in the relevant dedicated section of this document.",
     "read_carefully": "The User must read this document carefully.",
@@ -302,6 +311,7 @@
     "logoutFailed": "Logout failed. Please try again.",
     "signInWithGoogle": "Sign in with Google",
     "forgot_password": "Forgot Password?",
+    "legal_notice": "By registering, you agree to our {privacy} and {terms}.",
     "or": "Or",
     "features": {
       "title": "Create your free account",
