@@ -55,7 +55,7 @@ async function handleLogin() {
         toast.error(t('login.unknownError'), toastOptions)
       }
     } else {
-      toast.error(t('login.unknownError'))
+      toast.error(t('login.unknownError'), toastOptions)
     }
   } finally {
     loading.value = false
