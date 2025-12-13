@@ -1088,11 +1088,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
-                    "type": "string",
-                    "enum": [
-                        "user",
-                        "assistant"
-                    ]
+                    "$ref": "#/definitions/models.Role"
                 }
             }
         },

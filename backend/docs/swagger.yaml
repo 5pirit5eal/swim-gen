@@ -12,10 +12,7 @@ definitions:
       previous_message_id:
         type: string
       role:
-        enum:
-        - user
-        - assistant
-        type: string
+        $ref: '#/definitions/models.Role'
     required:
     - content
     - plan_id
