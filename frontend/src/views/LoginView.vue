@@ -2,18 +2,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
-import { useSharedPlanStore } from '@/stores/sharedPlan'
-import { useSidebarStore } from '@/stores/sidebar'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue3-toastify'
 import IconGoogle from '@/components/icons/IconGoogle.vue'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 const auth = useAuthStore()
 const trainingPlanStore = useTrainingPlanStore()
-const sharedPlanStore = useSharedPlanStore()
-const sidebarStore = useSidebarStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -23,6 +19,8 @@ const username = ref('')
 const loading = ref(false)
 
 const features = ['history', 'share', 'upload', 'personalize', 'interactive'] as const
+const TOAST_DURATION = 8000
+const toastOptions = { autoClose: TOAST_DURATION }
 
 onMounted(() => {
   if (auth.user) {
@@ -44,20 +42,20 @@ async function handleLogin() {
   loading.value = true
   try {
     await auth.signInWithPassword(email.value, password.value)
-    toast.success(t('login.loginSuccess'))
+    toast.success(t('login.loginSuccess'), toastOptions)
     router.push('/') // Tutorial will be triggered by HomeView watcher/onMounted
   } catch (error) {
     console.error('Login failed:', error) // Log the full error
     if (error instanceof Error) {
       if (error.message.includes('Invalid login credentials')) {
-        toast.error(t('login.invalidLogin'))
+        toast.error(t('login.invalidLogin'), toastOptions)
       } else if (error.message.includes('Email not confirmed')) {
-        toast.error(t('login.emailNotConfirmed'))
+        toast.error(t('login.emailNotConfirmed'), toastOptions)
       } else {
-        toast.error(t('login.unknownError'))
+        toast.error(t('login.unknownError'), toastOptions)
       }
     } else {
-      toast.error(t('login.unknownError'))
+      toast.error(t('login.unknownError'), toastOptions)
     }
   } finally {
     loading.value = false
@@ -70,10 +68,10 @@ async function handleResetPassword() {
   try {
     const redirectTo = `${window.location.origin}/profile/update-password`
     await auth.resetPassword(email.value, redirectTo)
-    toast.success(t('profile.reset_password_success'))
+    toast.success(t('profile.reset_password_success'), toastOptions)
   } catch (error) {
     console.error('Reset password failed:', error)
-    toast.error((error as Error).message || t('profile.reset_password_error'))
+    toast.error((error as Error).message || t('profile.reset_password_error'), toastOptions)
   } finally {
     loading.value = false
   }
@@ -91,53 +89,49 @@ async function handleGoogleLogin() {
     await auth.signInWithOAuth()
   } catch (error) {
     console.error('Google Login failed:', error)
-    toast.error(t('login.unknownError'))
+    toast.error(t('login.unknownError'), toastOptions)
     loading.value = false
   }
 }
 
 async function handleSignUp() {
   loading.value = true
-  let response
   try {
-    response = await auth.signUp(email.value, password.value, username.value)
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.includes('Username already taken')) {
-        toast.error(t('login.usernameTaken'))
-        loading.value = false
-        return
-      } else if (error.message.includes('User already registered')) {
-        console.log('User exists, attempting login...')
-      } else {
-        toast.error(t('login.unknownError'))
-      }
-    } else {
-      toast.error(t('login.unknownError'))
-    }
-  }
+    const { session } = await auth.signUp(email.value, password.value, username.value)
 
-  if (!response?.user?.identities?.length) {
-    try {
-      response = await auth.signInWithPassword(email.value, password.value)
-      await trainingPlanStore.fetchHistory()
-      await sharedPlanStore.fetchSharedHistory()
-      sidebarStore.open()
-      toast.success(t('login.userExistsLoginSuccess'))
-      router.push({ path: '/', state: { redirectedFromLogin: true } })
-    } catch {
-      toast.error(t('login.userExistsLoginFailed'))
-    } finally {
-      loading.value = false
+    if (!session) {
+      const error = new Error('User already exists')
+      Object.assign(error, { code: 'user_exists' })
+      throw error
     }
-  } else {
-    toast.success(t('login.registrationSuccess'))
+
+    toast.success(t('login.registrationSuccess'), toastOptions)
     // Clear form
     email.value = ''
     password.value = ''
+    loading.value = false
     router.push('/login')
+  } catch (err: unknown) {
+    const error = err as { code?: string; message?: string }
+    if (error?.code && te(`login.${error.code}`)) {
+      toast.error(t(`login.${error.code}`), toastOptions)
+      loading.value = false
+      return
+    }
+
+    if (error instanceof Error) {
+      if (error.message.includes('User already registered')) {
+        console.debug('User already registered', error)
+      } else {
+        toast.error(t('login.unknownError'), toastOptions)
+        console.debug('Unknown error', error)
+      }
+    } else {
+      toast.error(t('login.unknownError'), toastOptions)
+      console.debug('Unknown error', error)
+    }
+    loading.value = false
   }
-  loading.value = false
 }
 </script>
 
@@ -194,7 +188,9 @@ async function handleSignUp() {
           <div class="switch-form">
             <router-link v-if="isSignUp" to="/login">{{ t('login.haveAccount') }}</router-link>
             <div v-else class="login-links">
-              <router-link to="/login?register=true">{{ t('login.needAccount') }}</router-link>
+              <router-link to="/login?register=true" class="text-btn">{{
+                t('login.needAccount')
+              }}</router-link>
               <button
                 type="button"
                 class="text-btn"

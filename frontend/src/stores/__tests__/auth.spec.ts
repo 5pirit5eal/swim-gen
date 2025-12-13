@@ -19,7 +19,7 @@ vi.mock('@/plugins/supabase', () => ({
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
-          single: vi.fn().mockResolvedValue({ data: null, error: null }),
+          maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
         })),
       })),
     })),
@@ -90,6 +90,7 @@ describe('auth Store', () => {
         data: {
           username: 'newuser',
         },
+        emailRedirectTo: `${window.location.origin}/login`,
       },
     })
   })
