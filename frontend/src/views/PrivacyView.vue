@@ -156,7 +156,7 @@ const responsiblePartyDetails = computed(() => {
   margin-bottom: 1.5rem;
 }
 
-.privacy-policy section+section {
+.privacy-policy section + section {
   margin-top: 1.5rem;
 }
 
