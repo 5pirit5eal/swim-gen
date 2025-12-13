@@ -1,3 +1,12 @@
+## [2.16.1](https://github.com/5pirit5eal/swim-gen/compare/v2.16.0...v2.16.1) (2025-12-13)
+
+### Bug Fixes
+
+* fixed communication of registration ([2d1c981](https://github.com/5pirit5eal/swim-gen/commit/2d1c9812e7ff65570277864ee12320202be89edd))
+* fixed communication of registration ([#153](https://github.com/5pirit5eal/swim-gen/issues/153)) ([be55ac3](https://github.com/5pirit5eal/swim-gen/commit/be55ac336408ac6a4a01d879683a3a54c224d3e5))
+* Update frontend/src/locales/de.json ([f0b3f8f](https://github.com/5pirit5eal/swim-gen/commit/f0b3f8f15ca386e71b3c3125a84d64c2a291bfe9))
+* Update frontend/src/views/LoginView.vue ([9daf206](https://github.com/5pirit5eal/swim-gen/commit/9daf2066ec99d1c7d2c8b9b541ffbbe17f516ed5))
+
 ## [2.16.0](https://github.com/5pirit5eal/swim-gen/compare/v2.15.1...v2.16.0) (2025-12-13)
 
 ### Features
