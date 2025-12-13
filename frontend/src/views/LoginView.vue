@@ -97,9 +97,9 @@ async function handleGoogleLogin() {
 async function handleSignUp() {
   loading.value = true
   try {
-    const { session } = await auth.signUp(email.value, password.value, username.value)
+    const { session, user } = await auth.signUp(email.value, password.value, username.value)
 
-    if (!session) {
+    if (!session && user?.identities?.length == 0) {
       const error = new Error('User already exists')
       Object.assign(error, { code: 'user_exists' })
       throw error
@@ -157,33 +157,15 @@ async function handleSignUp() {
         <form @submit.prevent="isSignUp ? handleSignUp() : handleLogin()">
           <div class="form-group" v-if="isSignUp">
             <label for="username">{{ t('login.username') }}*</label>
-            <input
-              id="username"
-              type="text"
-              :placeholder="t('login.username')"
-              v-model="username"
-              required
-            />
+            <input id="username" type="text" :placeholder="t('login.username')" v-model="username" required />
           </div>
           <div class="form-group">
             <label for="email">{{ t('login.email') }}*</label>
-            <input
-              id="email"
-              type="email"
-              :placeholder="t('login.email')"
-              v-model="email"
-              required
-            />
+            <input id="email" type="email" :placeholder="t('login.email')" v-model="email" required />
           </div>
           <div class="form-group">
             <label for="password">{{ t('login.password') }}*</label>
-            <input
-              id="password"
-              type="password"
-              :placeholder="t('login.password')"
-              v-model="password"
-              required
-            />
+            <input id="password" type="password" :placeholder="t('login.password')" v-model="password" required />
           </div>
           <div class="switch-form">
             <router-link v-if="isSignUp" to="/login">{{ t('login.haveAccount') }}</router-link>
@@ -191,12 +173,7 @@ async function handleSignUp() {
               <router-link to="/login?register=true" class="text-btn">{{
                 t('login.needAccount')
               }}</router-link>
-              <button
-                type="button"
-                class="text-btn"
-                @click="handleResetPassword"
-                :disabled="!email || loading"
-              >
+              <button type="button" class="text-btn" @click="handleResetPassword" :disabled="!email || loading">
                 {{ t('login.forgot_password') }}
               </button>
             </div>

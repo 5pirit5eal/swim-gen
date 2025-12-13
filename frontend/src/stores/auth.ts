@@ -56,6 +56,7 @@ export const useAuthStore = defineStore('auth', () => {
       options: {
         data: {
           username,
+          language: globalThis.navigator.language,
         },
         emailRedirectTo: `${window.location.origin}/login`,
       },
