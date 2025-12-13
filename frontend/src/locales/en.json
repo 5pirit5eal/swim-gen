@@ -9,7 +9,7 @@
   "home": {
     "banner": {
       "not_logged_in": {
-        "text": "If you want to save a future plan or use interactive editing create an account or log in.",
+        "text": "If you want to save this plan or use interactive editing create an account or log in.",
         "button": "Login"
       },
       "logged_in": {
@@ -535,7 +535,7 @@
     "sidebar": {
       "history": {
         "title": "History",
-        "description": "Your previous plans are stored here for easy access."
+        "description": "Your previous plans are stored here for easy access. Plans with an hourglass icon are temporary and will be deleted after 2 days."
       },
       "new_plan": {
         "title": "Create New Plan",
