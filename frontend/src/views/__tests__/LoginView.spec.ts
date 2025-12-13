@@ -184,7 +184,7 @@ describe('LoginView.vue', () => {
       },
     })
     const auth = useAuthStore()
-    ;(auth.signUp as Mock).mockResolvedValue({ session: null }) // Simulate user exists (no session returned, though in reality it might throw or return empty session depending on provider/config, but here we cover the "if (!session)" check logic)
+    ;(auth.signUp as Mock).mockResolvedValue({ session: null, user: { identities: [] } }) // Simulate user exists
 
     await wrapper.find('input#username').setValue('existinguser')
     await wrapper.find('input#email').setValue('existing@example.com')
