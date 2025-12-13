@@ -1,3 +1,16 @@
+## [2.16.0](https://github.com/5pirit5eal/swim-gen/compare/v2.15.1...v2.16.0) (2025-12-13)
+
+### Features
+
+* added addition of plan after login ([f4cc145](https://github.com/5pirit5eal/swim-gen/commit/f4cc145bef326e65b498c6166c63dd5a1958e346))
+* added conditional formatting for tutorial ([2c40b97](https://github.com/5pirit5eal/swim-gen/commit/2c40b97106b38beb213f10b35fa3c3cc18c12c67))
+* added info on deletion to tutorial ([e787296](https://github.com/5pirit5eal/swim-gen/commit/e787296a2b74019cead6e97e831b6153b39af2df))
+
+### Bug Fixes
+
+* fixed some issues with payload and watchers ([1db9072](https://github.com/5pirit5eal/swim-gen/commit/1db90720d4d7cbdf7e624f51c4f1b8490ac0edb0))
+* fixed the total meters display for english plans ([463d744](https://github.com/5pirit5eal/swim-gen/commit/463d7440b738abb0128d44b20ef9338cbb46abea))
+
 ## [2.15.1](https://github.com/5pirit5eal/swim-gen/compare/v2.15.0...v2.15.1) (2025-12-11)
 
 ### Bug Fixes
