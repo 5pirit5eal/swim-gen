@@ -1,3 +1,10 @@
+## [2.20.0](https://github.com/5pirit5eal/swim-gen/compare/v2.19.0...v2.20.0) (2025-12-14)
+
+### Features
+
+* added plan title as filename ([0f01bd9](https://github.com/5pirit5eal/swim-gen/commit/0f01bd9023701dcd22ad2f989b6c3888afbd44e4))
+* added plan title as filename ([#160](https://github.com/5pirit5eal/swim-gen/issues/160)) ([0e37f66](https://github.com/5pirit5eal/swim-gen/commit/0e37f66a427a220db89cdf17557f41f32f215c99))
+
 ## [2.19.0](https://github.com/5pirit5eal/swim-gen/compare/v2.18.0...v2.19.0) (2025-12-14)
 
 ### Features
