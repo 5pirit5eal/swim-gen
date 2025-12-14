@@ -1,3 +1,10 @@
+## [2.20.1](https://github.com/5pirit5eal/swim-gen/compare/v2.20.0...v2.20.1) (2025-12-14)
+
+### Bug Fixes
+
+* fixed the missing dot ([b7a6d8b](https://github.com/5pirit5eal/swim-gen/commit/b7a6d8b5e9d091db6bcf8ab10ba5fd169afc196c))
+* fixed the missing dot ([#162](https://github.com/5pirit5eal/swim-gen/issues/162)) ([2cfccbb](https://github.com/5pirit5eal/swim-gen/commit/2cfccbb1265757c618f62462953028e8a589042f))
+
 ## [2.20.0](https://github.com/5pirit5eal/swim-gen/compare/v2.19.0...v2.20.0) (2025-12-14)
 
 ### Features
