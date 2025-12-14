@@ -1,3 +1,10 @@
+## [2.21.2](https://github.com/5pirit5eal/swim-gen/compare/v2.21.1...v2.21.2) (2025-12-14)
+
+### Bug Fixes
+
+* added privacy html to the project ([a8bc445](https://github.com/5pirit5eal/swim-gen/commit/a8bc44504834a16fa838140b99ab78cfc4c3aebc))
+* added privacy html to the project ([#166](https://github.com/5pirit5eal/swim-gen/issues/166)) ([0e034af](https://github.com/5pirit5eal/swim-gen/commit/0e034af33f45f35446995f1b7527f37303fe8d62))
+
 ## [2.21.1](https://github.com/5pirit5eal/swim-gen/compare/v2.21.0...v2.21.1) (2025-12-14)
 
 ### Bug Fixes
