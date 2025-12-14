@@ -1,3 +1,12 @@
+## [2.22.0](https://github.com/5pirit5eal/swim-gen/compare/v2.21.2...v2.22.0) (2025-12-14)
+
+### Features
+
+* 167 update images and add logo image for oauth ([#168](https://github.com/5pirit5eal/swim-gen/issues/168)) ([f26ad1f](https://github.com/5pirit5eal/swim-gen/commit/f26ad1f4769d8b1e0de14ff748600e54c339a8f2))
+* added optimization of build chunks ([169d9dc](https://github.com/5pirit5eal/swim-gen/commit/169d9dc48402b8979282dee05b6293bf368a0036))
+* split node modules into more granular chunks ([5056d54](https://github.com/5pirit5eal/swim-gen/commit/5056d54d99d8fdeb81081c5b4deba26a49dc8610))
+* updated the light mode images ([f5c2e67](https://github.com/5pirit5eal/swim-gen/commit/f5c2e676d4ef9b4dcefdef84f0e7fc66fd0fad5a))
+
 ## [2.21.2](https://github.com/5pirit5eal/swim-gen/compare/v2.21.1...v2.21.2) (2025-12-14)
 
 ### Bug Fixes
