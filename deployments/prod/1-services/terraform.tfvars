@@ -15,7 +15,7 @@ resend_dns_records = [
   },
   {
     name  = "send"
-    value = "10 feedback-smtp.eu-west-1.amazonses.com"
+    value = "10 feedback-smtp.eu-west-1.amazonses.com."
     type  = "MX"
     ttl   = 300
   },
