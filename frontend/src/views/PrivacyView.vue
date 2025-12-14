@@ -102,7 +102,7 @@ const responsiblePartyDetails = computed(() => {
 
 <style scoped>
 .legal-page {
-  padding: 0.25rem 0 2rem 0;
+  padding: 0;
 }
 
 .container {

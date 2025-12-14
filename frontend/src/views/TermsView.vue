@@ -132,7 +132,7 @@ const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL
 
 <style scoped>
 .legal-page {
-  padding: 0.25rem 0 2rem 0;
+  padding: 0;
 }
 
 .container {

@@ -213,6 +213,19 @@ async function handleSignUp() {
             <IconGoogle class="google-icon" />
             {{ t('login.signInWithGoogle') }}
           </button>
+
+          <i18n-t keypath="login.legal_notice" tag="p" v-if="isSignUp" class="legal-notice">
+            <template #privacy>
+              <router-link to="/privacy" class="legal-link">{{
+                t('footer.privacy_policy')
+              }}</router-link>
+            </template>
+            <template #terms>
+              <router-link to="/terms" class="legal-link">{{
+                t('footer.terms_of_service')
+              }}</router-link>
+            </template>
+          </i18n-t>
         </form>
       </div>
     </div>
@@ -386,6 +399,25 @@ button:disabled {
 .google-icon {
   width: 22px;
   height: 22px;
+}
+
+.legal-notice {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--color-text);
+  text-align: center;
+  margin-top: 1rem;
+  opacity: 0.8;
+}
+
+.legal-link {
+  text-decoration: underline;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.legal-link:hover {
+  color: var(--color-primary);
 }
 
 .error-message {

@@ -30,16 +30,14 @@ const { t } = useI18n()
         </div>
 
         <div class="footer-section">
-          <h4>{{ t('footer.about') }}</h4>
+          <h4>{{ t('footer.project') }}</h4>
           <ul class="footer-links">
             <li>
-              <a href="https://github.com/5pirit5eal/swim-gen" target="_blank" rel="noopener">{{
-                t('footer.github')
-              }}</a>
+              <router-link to="/about">{{ t('footer.about') }}</router-link>
             </li>
             <li>
               <a href="https://github.com/5pirit5eal/swim-gen" target="_blank" rel="noopener">{{
-                t('footer.roadmap')
+                t('footer.github')
               }}</a>
             </li>
             <li>

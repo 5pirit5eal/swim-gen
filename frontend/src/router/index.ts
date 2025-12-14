@@ -63,6 +63,11 @@ const router = createRouter({
       name: 'impressum',
       component: () => import('@/views/ImpressumView.vue'),
     },
+    {
+      path: '/about',
+      name: 'about',
+      component: () => import('@/views/AboutView.vue'),
+    },
   ],
 })
 
