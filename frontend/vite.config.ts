@@ -59,5 +59,20 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              // Extract the package name from the path
+              const parts = id.split('node_modules/')[1].split('/');
+              // Handle scoped packages
+              const pkgName = parts[0].startsWith('@') ? parts.slice(0, 2).join('/') : parts[0];
+              return `vendor-${pkgName}`;
+            }
+          },
+        },
+      },
+    },
   }
 })
