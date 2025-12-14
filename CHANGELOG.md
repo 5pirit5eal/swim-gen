@@ -1,3 +1,10 @@
+## [2.19.0](https://github.com/5pirit5eal/swim-gen/compare/v2.18.0...v2.19.0) (2025-12-14)
+
+### Features
+
+* updated the terraform config for prod and added about me view ([4190944](https://github.com/5pirit5eal/swim-gen/commit/4190944f175f676906632606e3b2222c503e23f3))
+* updated the terraform config for prod and added about me view ([#158](https://github.com/5pirit5eal/swim-gen/issues/158)) ([b0e5cdd](https://github.com/5pirit5eal/swim-gen/commit/b0e5cdda1e795b47a5ddb4e8be4395b56840aef1))
+
 ## [2.18.0](https://github.com/5pirit5eal/swim-gen/compare/v2.17.0...v2.18.0) (2025-12-13)
 
 ### Features
