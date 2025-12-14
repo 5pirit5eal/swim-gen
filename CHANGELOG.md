@@ -1,3 +1,10 @@
+## [2.21.1](https://github.com/5pirit5eal/swim-gen/compare/v2.21.0...v2.21.1) (2025-12-14)
+
+### Bug Fixes
+
+* added a noscript section to index.html ([9ac51c2](https://github.com/5pirit5eal/swim-gen/commit/9ac51c24fe8ab7ef5f389c71d4956df00b6dc999))
+* added a noscript section to index.html ([#165](https://github.com/5pirit5eal/swim-gen/issues/165)) ([fd0d306](https://github.com/5pirit5eal/swim-gen/commit/fd0d3069d77767d648b080291579a72951d51b27))
+
 ## [2.21.0](https://github.com/5pirit5eal/swim-gen/compare/v2.20.1...v2.21.0) (2025-12-14)
 
 ### Features
