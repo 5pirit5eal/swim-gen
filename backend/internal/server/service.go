@@ -458,8 +458,22 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
+	// Determine storage path
+	var username string
+	userID := req.Context().Value(models.UserIdCtxKey).(string)
+	if userID != "" {
+		profile, err := rs.db.GetUserProfile(req.Context(), userID)
+		if err != nil {
+			logger.Warn("Failed to get user profile for PDF path generation", httplog.ErrAttr(err))
+		} else if profile != nil {
+			username = profile.Username
+		}
+	}
+
+	storagePath := pdf.GenerateStoragePath(username, qr.PlanID, qr.Title)
+
 	// Upload the PDF to cloud storage
-	uri, err := pdf.UploadPDF(req.Context(), rs.cfg.Bucket.ServiceAccount, rs.cfg.Bucket.Name, pdf.GenerateFilename(), planPDF)
+	uri, err := pdf.UploadPDF(req.Context(), rs.cfg.Bucket.ServiceAccount, rs.cfg.Bucket.Name, storagePath, planPDF)
 	if err != nil {
 		logger.Error("PDF upload failed", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)

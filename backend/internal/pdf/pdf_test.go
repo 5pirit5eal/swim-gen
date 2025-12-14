@@ -309,3 +309,62 @@ um dich optimal auf die Sprints vorzubereiten.`,
 	err = os.Remove("plan.pdf")
 	assert.NoError(t, err, "Cleanup failed")
 }
+
+func TestGenerateStoragePath(t *testing.T) {
+	tests := []struct {
+		name     string
+		username string
+		planID   string
+		title    string
+		want     string
+	}{
+		{
+			name:     "Authenticated user with title",
+			username: "johndoe",
+			planID:   "plan123",
+			title:    "My Training Plan",
+			want:     "johndoe/my_training_plan.pdf",
+		},
+		{
+			name:     "Authenticated user with special chars in title",
+			username: "johndoe",
+			planID:   "plan123",
+			title:    "Technik-Tüftler & Ausdauer-As",
+			want:     "johndoe/technik-tueftler_ausdauer-as.pdf",
+		},
+		{
+			name:     "Authenticated user empty title",
+			username: "johndoe",
+			planID:   "plan123",
+			title:    "",
+			want:     "johndoe/training-plan.pdf",
+		},
+		{
+			name:     "Anonymous with PlanID",
+			username: "",
+			planID:   "plan123",
+			title:    "My Plan",
+			want:     "plan123/my_plan.pdf",
+		},
+		{
+			name:     "Anonymous with PlanID empty title",
+			username: "",
+			planID:   "plan123",
+			title:    "",
+			want:     "plan123/training-plan.pdf",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := pdf.GenerateStoragePath(tt.username, tt.planID, tt.title)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+
+	t.Run("Fallback to anonymous uuid", func(t *testing.T) {
+		got := pdf.GenerateStoragePath("", "", "Some Title")
+		assert.Contains(t, got, "anonymous/")
+		assert.True(t, len(got) > len("anonymous/.pdf"))
+	})
+}
