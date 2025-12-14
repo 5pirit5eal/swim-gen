@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -115,6 +117,56 @@ func UploadPDF(ctx context.Context, serviceAccount, bucketName, objectName strin
 
 func GenerateFilename() string {
 	return path.Join("anonymous", uuid.NewString()+".pdf")
+}
+
+func GenerateStoragePath(username, planID, title string) string {
+	sanitizedTitle := sanitizeFilename(title)
+	if sanitizedTitle == "" {
+		sanitizedTitle = "training-plan"
+	}
+	filename := sanitizedTitle + ".pdf"
+
+	if username != "" {
+		return path.Join(username, filename)
+	}
+
+	if planID != "" {
+		return path.Join(planID, filename)
+	}
+
+	return GenerateFilename()
+}
+
+func sanitizeFilename(name string) string {
+	name = strings.ToLower(name)
+
+	// Transliterate German characters
+	replacements := []struct {
+		original    string
+		replacement string
+	}{
+		{"ä", "ae"},
+		{"ö", "oe"},
+		{"ü", "ue"},
+		{"ß", "ss"},
+	}
+
+	for _, r := range replacements {
+		name = strings.ReplaceAll(name, r.original, r.replacement)
+	}
+
+	// Replace spaces with underscores
+	name = strings.ReplaceAll(name, " ", "_")
+
+	// Remove all characters except alphanumeric, underscores, and hyphens
+	reg := regexp.MustCompile(`[^a-z0-9_\-]`)
+	name = reg.ReplaceAllString(name, "")
+
+	// Collapse multiple underscores
+	reg = regexp.MustCompile(`_{2,}`)
+	name = reg.ReplaceAllString(name, "_")
+
+	return name
 }
 
 func getMaroto(ho bool) core.Maroto {
