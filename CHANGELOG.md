@@ -1,3 +1,11 @@
+## [2.23.1](https://github.com/5pirit5eal/swim-gen/compare/v2.23.0...v2.23.1) (2025-12-17)
+
+### Bug Fixes
+
+* fixed plan import ([cf8f2a6](https://github.com/5pirit5eal/swim-gen/commit/cf8f2a6a8c500b3c95ad950473ee33d2ddf0c7f5))
+* fixed plan import ([#178](https://github.com/5pirit5eal/swim-gen/issues/178)) ([745ade4](https://github.com/5pirit5eal/swim-gen/commit/745ade4544e8851ac31d88dd249ba4fea20c6292))
+* Update frontend/src/views/HomeView.vue ([28a5e91](https://github.com/5pirit5eal/swim-gen/commit/28a5e916b15dc21c4b482004118d27fe0249a868))
+
 ## [2.23.0](https://github.com/5pirit5eal/swim-gen/compare/v2.22.0...v2.23.0) (2025-12-17)
 
 ### Features
