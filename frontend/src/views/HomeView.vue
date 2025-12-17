@@ -20,7 +20,7 @@ const { startHomeTutorial } = useTutorial()
 async function checkAndLinkAnonymousPlan() {
   console.debug(
     'Checking for anonymous plan linking...',
-    authStore.user?.email,
+    authStore.user,
     trainingPlanStore.initialQuery,
   )
   if (authStore.user && trainingPlanStore.currentPlan && trainingPlanStore.initialQuery) {
