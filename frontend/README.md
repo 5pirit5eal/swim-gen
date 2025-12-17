@@ -63,8 +63,7 @@ To run the entire application stack (frontend, BFF, and backend) using Docker, y
 3. **Run the following command:**
 
     ```sh
-    docker compose build \ 
-    --build-arg VITE_IMPRESSUM_NAME=$VITE_IMPRESSUM_NAME \
+    docker compose build --build-arg VITE_IMPRESSUM_NAME=$VITE_IMPRESSUM_NAME \
     --build-arg VITE_IMPRESSUM_ADDRESS=$VITE_IMPRESSUM_ADDRESS \
     --build-arg VITE_IMPRESSUM_CITY=$VITE_IMPRESSUM_CITY \
     --build-arg VITE_IMPRESSUM_PHONE=$VITE_IMPRESSUM_PHONE \
