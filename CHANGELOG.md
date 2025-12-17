@@ -1,3 +1,10 @@
+## [2.23.0](https://github.com/5pirit5eal/swim-gen/compare/v2.22.0...v2.23.0) (2025-12-17)
+
+### Features
+
+* removed scraping endpoint and optimized bff for multipart data ([b4d501f](https://github.com/5pirit5eal/swim-gen/commit/b4d501fd864f5f721b3cd1a362023e784e091f8a))
+* removed scraping endpoint and optimized bff for multipart data ([#177](https://github.com/5pirit5eal/swim-gen/issues/177)) ([e2e4daf](https://github.com/5pirit5eal/swim-gen/commit/e2e4dafa1058b18a803348b1768e5e315cd86088))
+
 ## [2.22.0](https://github.com/5pirit5eal/swim-gen/compare/v2.21.2...v2.22.0) (2025-12-14)
 
 ### Features
