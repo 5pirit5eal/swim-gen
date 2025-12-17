@@ -75,21 +75,14 @@ async function proxyRequest(req: express.Request, res: express.Response) {
 
     if (isMultipart) {
       // For multipart requests, stream the raw body and preserve the original Content-Type
-      // Collect the raw body data
-      const chunks: Buffer[] = [];
-      for await (const chunk of req as unknown as AsyncIterable<Buffer>) {
-        chunks.push(chunk);
-      }
-      const rawBody = Buffer.concat(chunks);
-
       response = await axios({
         method,
         url: targetUrl,
-        data: rawBody,
+        data: req,
         headers: {
           ...authHeaders,
           "Content-Type": contentType, // Preserve original multipart Content-Type with boundary
-          "Content-Length": rawBody.length.toString(),
+          ...(req.headers["content-length"] && { "Content-Length": req.headers["content-length"] }),
         },
         maxBodyLength: Infinity,
         maxContentLength: Infinity,
@@ -121,11 +114,6 @@ async function proxyRequest(req: express.Request, res: express.Response) {
 
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
-});
-
-// Block the /api/scrape endpoint
-app.use("/api/scrape", (req, res) => {
-  res.status(403).send("This endpoint is not available.");
 });
 
 // All API routes from the frontend are prefixed with /api

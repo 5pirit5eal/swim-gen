@@ -138,12 +138,6 @@ describe("BFF Server", () => {
   });
 
   describe("Security", () => {
-    it("should block requests to /api/scrape", async () => {
-      const response = await request(app).get("/api/scrape");
-      expect(response.status).toBe(403);
-      expect(response.text).toBe("This endpoint is not available.");
-    });
-
     it("should allow requests from the configured frontend URL", async () => {
       const response = await request(app)
         .get("/api/some-endpoint")

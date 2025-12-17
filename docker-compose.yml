@@ -25,6 +25,7 @@ services:
       - BACKEND_URL=http://backend:8080
       - FRONTEND_URL=http://frontend:80
       - PORT=8081
+      - LOG_LEVEL=DEBUG
     depends_on:
       - backend
 

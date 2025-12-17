@@ -783,47 +783,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/scrape": {
-            "get": {
-                "description": "Scrape and import training plans from external websites",
-                "produces": [
-                    "text/plain"
-                ],
-                "tags": [
-                    "Web Scraping"
-                ],
-                "summary": "Scrape training plans from web",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "URL to scrape training plans from",
-                        "name": "url",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Scraping completed successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request - Missing url parameter",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/share-plan": {
             "post": {
                 "security": [

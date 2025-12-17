@@ -72,6 +72,18 @@ docker-build-and-run() {
   docker-run $(docker images --format "{{.ID}}" | head -n 1)
 }
 
+scrape() {
+  local url=$1
+  if [ -z "$url" ]; then
+    echo "Error: URL parameter is required"
+    echo "Usage: task scrape -- <url>"
+    exit 1
+  fi
+
+  shift
+  go run ./cmd/scrape --url "$url" "$@"
+}
+
 # Check if the provided argument matches any of the functions
 if [ -n "$1" ] && ! declare -f "$1" > /dev/null; then
   echo "Error: Unknown task '$1'"
