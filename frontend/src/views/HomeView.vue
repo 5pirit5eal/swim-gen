@@ -16,7 +16,20 @@ const planDisplayContainer = ref<HTMLDivElement | null>(null)
 const { startHomeTutorial } = useTutorial()
 
 // Restore anonymous plan from localStorage if it exists (e.g. after OAuth redirect)
-onMounted(() => {
+
+async function checkAndLinkAnonymousPlan() {
+  console.debug(
+    'Checking for anonymous plan linking...',
+    authStore.user?.email,
+    trainingPlanStore.initialQuery,
+  )
+  if (authStore.user && trainingPlanStore.currentPlan && trainingPlanStore.initialQuery) {
+    await trainingPlanStore.linkAnonymousPlan()
+  }
+}
+
+// Restore anonymous plan from localStorage if it exists (e.g. after OAuth redirect)
+onMounted(async () => {
   console.debug('Checking for anonymous plan restoration...')
   const savedQuery = localStorage.getItem('anonymousQuery')
   const savedPlan = localStorage.getItem('anonymousPlan')
@@ -33,19 +46,15 @@ onMounted(() => {
       console.error('Failed to restore anonymous plan', e)
     }
   }
+
+  // Try to link immediately after potential restoration
+  await checkAndLinkAnonymousPlan()
 })
 
 watch(
   () => authStore.user,
   async () => {
-    console.debug(
-      'Checking for anonymous plan linking...',
-      authStore.user,
-      trainingPlanStore.initialQuery,
-    )
-    if (authStore.user && trainingPlanStore.currentPlan && trainingPlanStore.initialQuery) {
-      await trainingPlanStore.linkAnonymousPlan()
-    }
+    await checkAndLinkAnonymousPlan()
   },
   { immediate: true, deep: true },
 )
