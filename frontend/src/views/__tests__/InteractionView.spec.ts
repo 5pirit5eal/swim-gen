@@ -35,9 +35,9 @@ vi.mock('@/components/forms/FeedbackForm.vue', () => ({
 describe('InteractionView.vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-      ; (useRoute as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        params: { id: 'test-plan-id' },
-      })
+    ;(useRoute as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      params: { id: 'test-plan-id' },
+    })
     window.scrollTo = vi.fn()
   })
 
