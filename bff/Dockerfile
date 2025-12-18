@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:22-slim AS builder
+FROM node:24-slim AS builder
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -20,7 +20,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Stage 2: Create the production image
-FROM node:22-slim
+FROM node:24-slim
 
 # Set the working directory
 WORKDIR /usr/src/app

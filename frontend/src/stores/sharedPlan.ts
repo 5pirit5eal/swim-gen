@@ -367,7 +367,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   function recalculateTotalSum() {
     if (currentPlan.value && currentPlan.value.table.length > 0) {
       const lastRowIndex = currentPlan.value.table.length - 1
-      const lastRow = currentPlan.value.table[lastRowIndex]
+      const lastRow = currentPlan.value.table[lastRowIndex]!
       lastRow.Sum = currentPlan.value.table.slice(0, -1).reduce((acc, r) => acc + (r.Sum || 0), 0)
     }
   }
@@ -413,7 +413,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
 
     const newIndex = isMovingUp ? rowIndex - 1 : rowIndex + 1
     const [movedRow] = table.splice(rowIndex, 1)
-    table.splice(newIndex, 0, movedRow)
+    table.splice(newIndex, 0, movedRow!)
   }
 
   // Upserts the current plan. If it's the first edit (not forked yet),

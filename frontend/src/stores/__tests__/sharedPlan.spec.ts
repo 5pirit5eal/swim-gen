@@ -221,7 +221,7 @@ describe('sharedPlan Store', () => {
       await store.fetchSharedHistory()
 
       expect(store.sharedHistory).toHaveLength(1)
-      expect(store.sharedHistory[0].plan?.title).toBe('Plan 1')
+      expect(store.sharedHistory[0]!.plan?.title).toBe('Plan 1')
       expect(store.isLoading).toBe(false)
     })
   })

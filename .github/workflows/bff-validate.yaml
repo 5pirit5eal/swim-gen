@@ -2,18 +2,18 @@ name: 🚦Validate BFF (Format, Lint, Test)
 
 on:
   workflow_call:
-      inputs:
-        checkout_repo:
-          required: false
-          type: string
-        checkout_ref:
-          required: false
-          type: string
-        env:
-          required: false
-          type: string
-          description: Environment to setup for
-          default: dev
+    inputs:
+      checkout_repo:
+        required: false
+        type: string
+      checkout_ref:
+        required: false
+        type: string
+      env:
+        required: false
+        type: string
+        description: Environment to setup for
+        default: dev
   pull_request:
     branches: [main]
     paths:
@@ -31,10 +31,10 @@ on:
 
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: write  # This is required for actions/checkout
+  contents: write # This is required for actions/checkout
 
 concurrency:
-  group:  bff-validate-${{ github.workflow }}-${{ github.ref }}
+  group: bff-validate-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -60,7 +60,7 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
 
       - name: 📦 Install dependencies
         run: npm install

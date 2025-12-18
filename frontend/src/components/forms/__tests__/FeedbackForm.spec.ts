@@ -47,13 +47,13 @@ describe('FeedbackForm.vue', () => {
     })
 
     const stars = wrapper.findAll('.star')
-    await stars[2].trigger('click') // 3rd star (index 2)
+    await stars[2]!.trigger('click') // 3rd star (index 2)
 
     // Check if stars up to 3 are active
-    expect(stars[0].classes()).toContain('active')
-    expect(stars[1].classes()).toContain('active')
-    expect(stars[2].classes()).toContain('active')
-    expect(stars[3].classes()).not.toContain('active')
+    expect(stars[0]!.classes()).toContain('active')
+    expect(stars[1]!.classes()).toContain('active')
+    expect(stars[2]!.classes()).toContain('active')
+    expect(stars[3]!.classes()).not.toContain('active')
   })
 
   it('disables submit button when invalid', async () => {
@@ -65,7 +65,7 @@ describe('FeedbackForm.vue', () => {
     expect(submitBtn.attributes('disabled')).toBeDefined()
 
     // Rate it to make it valid
-    await wrapper.findAll('.star')[0].trigger('click')
+    await wrapper.findAll('.star')[0]!.trigger('click')
     expect(submitBtn.attributes('disabled')).toBeUndefined()
   })
 
@@ -75,7 +75,7 @@ describe('FeedbackForm.vue', () => {
     })
 
     // Fill form
-    await wrapper.findAll('.star')[3].trigger('click') // 4 stars
+    await wrapper.findAll('.star')[3]!.trigger('click') // 4 stars
     await wrapper.find('input[type="checkbox"]').setValue(true) // Swam it
     await wrapper.find('input[type="range"]').setValue(7) // Difficulty
     await wrapper.find('textarea').setValue('Great plan!')
@@ -83,7 +83,7 @@ describe('FeedbackForm.vue', () => {
     await wrapper.find('.submit-btn').trigger('click')
 
     expect(wrapper.emitted('submit')).toBeTruthy()
-    const payload = wrapper.emitted('submit')![0][0]
+    const payload = wrapper.emitted('submit')![0]![0]
     expect(payload).toEqual({
       rating: 4,
       was_swam: true,
@@ -98,7 +98,7 @@ describe('FeedbackForm.vue', () => {
     })
 
     // Set some values
-    await wrapper.findAll('.star')[0].trigger('click')
+    await wrapper.findAll('.star')[0]!.trigger('click')
     await wrapper.find('textarea').setValue('Test')
 
     // Close
