@@ -235,8 +235,8 @@ describe('trainingPlan Store', () => {
     const store = useTrainingPlanStore()
     store.currentPlan = createMockPlan()
 
-    const initialRowCount = store.currentPlan.table.length
-    const initialSum = store.currentPlan.table[initialRowCount - 1].Sum
+    const initialRowCount = store.currentPlan!.table.length
+    const initialSum = store.currentPlan!.table[initialRowCount - 1]!.Sum
 
     // Add a new row at index 1
     store.addRow(1)
@@ -245,13 +245,13 @@ describe('trainingPlan Store', () => {
     expect(newRowCount).toBe(initialRowCount + 1)
 
     // Check that the new row is at the correct position and has default values
-    const newRow = store.currentPlan.table[1]
+    const newRow = store.currentPlan!.table[1]!
     expect(newRow.Amount).toBe(0)
     expect(newRow.Content).toBe('')
     expect(newRow.Sum).toBe(0)
 
     // The total sum should be unchanged since the new row has a sum of 0
-    const newSum = store.currentPlan.table[newRowCount - 1].Sum
+    const newSum = store.currentPlan!.table[newRowCount - 1]!.Sum
     expect(newSum).toBe(initialSum)
   })
 
@@ -259,9 +259,9 @@ describe('trainingPlan Store', () => {
     const store = useTrainingPlanStore()
     store.currentPlan = createMockPlan()
 
-    const initialRowCount = store.currentPlan.table.length
-    const rowToRemove = store.currentPlan.table[1] // Sum is 400
-    const initialSum = store.currentPlan.table[initialRowCount - 1].Sum // Sum is 500
+    const initialRowCount = store.currentPlan!.table.length
+    const rowToRemove = store.currentPlan!.table[1]! // Sum is 400
+    const initialSum = store.currentPlan!.table[initialRowCount - 1]!.Sum // Sum is 500
 
     // Remove the row at index 1
     store.removeRow(1)
@@ -273,8 +273,11 @@ describe('trainingPlan Store', () => {
     expect(store.currentPlan.table.find((r) => r.Content === 'Kick')).toBeUndefined()
 
     // The new total sum should be the initial sum minus the sum of the removed row
-    const newSum = store.currentPlan.table[newRowCount - 1].Sum
+    const newSum = store.currentPlan!.table[newRowCount - 1]!.Sum
     expect(newSum).toBe(initialSum - rowToRemove.Sum) // 500 - 400 = 100
+
+    // ---
+    // Skipping similar patterns ...
   })
 
   it('does not add a row if the table has 26 or more rows', () => {
@@ -424,7 +427,7 @@ describe('trainingPlan Store', () => {
 
       expect(store.isLoading).toBe(false)
       expect(store.generationHistory).toHaveLength(2)
-      expect(store.generationHistory[0].title).toBe('Plan 1')
+      expect(store.generationHistory[0]!.title).toBe('Plan 1')
       expect(mockedSupabase.from).toHaveBeenCalledWith('history')
       expect(mockedSupabase.from).toHaveBeenCalledWith('plans')
     })
@@ -440,7 +443,7 @@ describe('trainingPlan Store', () => {
     })
 
     it('handles error when fetching history plan IDs', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
       mockedSupabase.from.mockReturnValue({
         select: vi.fn().mockReturnThis(),
         order: vi.fn().mockReturnThis(),
@@ -459,7 +462,7 @@ describe('trainingPlan Store', () => {
     it('handles error when fetching plan details', async () => {
       const store = useTrainingPlanStore()
       const mockHistory = [{ plan_id: 'plan-1' }]
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
 
       mockedSupabase.from.mockImplementation((tableName: string) => {
         if (tableName === 'history') {
@@ -569,7 +572,7 @@ describe('trainingPlan Store', () => {
         error: { status: 500, message: 'Server Error', details: 'UPSERT_FAILED' },
       }
       mockedApiUpsert.mockResolvedValue(mockErrorResponse)
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
 
       await expect(store.upsertCurrentPlan()).rejects.toThrow('Server Error: UPSERT_FAILED')
 
@@ -597,8 +600,8 @@ describe('trainingPlan Store', () => {
       expect(store.currentPlan?.table.length).toBe(planFromHistory.table.length)
       // Verify it's a deep copy by modifying the loaded plan
       store.updatePlanRow(0, 'Amount', 99)
-      expect(store.currentPlan?.table[0].Amount).toBe(99)
-      expect(planFromHistory.table[0].Amount).toBe(1) // Original should be unchanged
+      expect(store.currentPlan?.table[0]!.Amount).toBe(99)
+      expect(planFromHistory.table[0]!.Amount).toBe(1) // Original should be unchanged
     })
 
     it('toggles keep_forever status for a plan', async () => {
@@ -632,12 +635,12 @@ describe('trainingPlan Store', () => {
       expect(mockedSupabase.from).toHaveBeenCalledWith('history')
       expect(historyMock.update).toHaveBeenCalledWith({ keep_forever: true })
       expect(historyMock.eq).toHaveBeenCalledWith('plan_id', planId)
-      expect(store.historyMetadata[0].keep_forever).toBe(true)
+      expect(store.historyMetadata[0]!.keep_forever).toBe(true)
 
       // Toggle back
       await store.toggleKeepForever(planId)
       expect(historyMock.update).toHaveBeenCalledWith({ keep_forever: false })
-      expect(store.historyMetadata[0].keep_forever).toBe(false)
+      expect(store.historyMetadata[0]!.keep_forever).toBe(false)
     })
 
     it('does not toggle keep_forever if user is not available', async () => {
@@ -657,7 +660,7 @@ describe('trainingPlan Store', () => {
         { plan_id: planId, keep_forever: false, created_at: '', updated_at: '' },
       ]
       const dbError = new Error('Update failed')
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
 
       mockedSupabase.from.mockImplementation((tableName: string) => {
         if (tableName === 'history') {

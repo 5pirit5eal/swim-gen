@@ -145,7 +145,7 @@ describe('TrainingPlanForm.vue', () => {
       },
     })
 
-    const promptButton = wrapper.findAll('.toggle-settings-btn')[1]
+    const promptButton = wrapper.findAll('.toggle-settings-btn')[1]!
     const textarea = wrapper.find('textarea')
 
     // Initially, the button should be enabled

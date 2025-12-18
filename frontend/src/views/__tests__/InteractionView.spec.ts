@@ -35,9 +35,9 @@ vi.mock('@/components/forms/FeedbackForm.vue', () => ({
 describe('InteractionView.vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(useRoute as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      params: { id: 'test-plan-id' },
-    })
+      ; (useRoute as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+        params: { id: 'test-plan-id' },
+      })
     window.scrollTo = vi.fn()
   })
 
@@ -92,10 +92,10 @@ describe('InteractionView.vue', () => {
     })
 
     const tabs = wrapper.findAll('.tab-button')
-    expect(tabs[0].classes()).toContain('active') // Plan tab default
+    expect(tabs[0]!.classes()).toContain('active') // Plan tab default
 
-    await tabs[1].trigger('click') // Chat tab
-    expect(tabs[1].classes()).toContain('active')
+    await tabs[1]!.trigger('click') // Chat tab
+    expect(tabs[1]!.classes()).toContain('active')
     expect(wrapper.find('.chat-container').isVisible()).toBe(true)
   })
 
@@ -127,7 +127,7 @@ describe('InteractionView.vue', () => {
     store.sendMessage = vi.fn().mockResolvedValue(true)
 
     // Switch to chat tab
-    await wrapper.findAll('.tab-button')[1].trigger('click')
+    await wrapper.findAll('.tab-button')[1]!.trigger('click')
 
     const input = wrapper.find('.chat-input')
     await input.setValue('Make it harder')

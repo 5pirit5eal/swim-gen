@@ -99,8 +99,8 @@ describe('AppSidebar.vue', () => {
     })
 
     const buttons = wrapper.findAll('.create-new-btn')
-    expect(buttons[0].text()).toBe(i18n.global.t('sidebar.create_new'))
-    expect(buttons[1].text()).toBe(i18n.global.t('sidebar.upload_plan'))
+    expect(buttons[0]!.text()).toBe(i18n.global.t('sidebar.create_new'))
+    expect(buttons[1]!.text()).toBe(i18n.global.t('sidebar.upload_plan'))
   })
 
   it('toggles the menu when dots icon is clicked', async () => {

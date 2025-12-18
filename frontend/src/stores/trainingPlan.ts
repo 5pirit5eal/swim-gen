@@ -395,7 +395,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
     if (currentPlan.value && currentPlan.value.table[rowIndex]) {
       const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
+        ; (row[field] as string | number) = value
 
       if (field === 'Amount' || field === 'Distance') {
         row.Sum = row.Amount * row.Distance
@@ -407,7 +407,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   function recalculateTotalSum() {
     if (currentPlan.value && currentPlan.value.table.length > 0) {
       const lastRowIndex = currentPlan.value.table.length - 1
-      const lastRow = currentPlan.value.table[lastRowIndex]
+      const lastRow = currentPlan.value.table[lastRowIndex]!
       lastRow.Sum = currentPlan.value.table.slice(0, -1).reduce((acc, r) => acc + (r.Sum || 0), 0)
     }
   }
@@ -453,7 +453,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
 
     const newIndex = isMovingUp ? rowIndex - 1 : rowIndex + 1
     const [movedRow] = table.splice(rowIndex, 1)
-    table.splice(newIndex, 0, movedRow)
+    table.splice(newIndex, 0, movedRow!)
   }
 
   function clearError() {
@@ -537,11 +537,11 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         next_message_id: null,
         plan_snapshot: result.data.table
           ? {
-              plan_id: result.data.plan_id,
-              title: result.data.title || '',
-              description: result.data.description || '',
-              table: result.data.table,
-            }
+            plan_id: result.data.plan_id,
+            title: result.data.title || '',
+            description: result.data.description || '',
+            table: result.data.table,
+          }
           : undefined,
       }
       conversation.value.push(aiMsg)

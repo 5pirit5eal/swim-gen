@@ -90,7 +90,7 @@ describe('TrainingPlanDisplay.vue', () => {
       // Find all inputs and get the first one (Amount column)
       const inputs = wrapper.findAll('.anchor-cell input')
       expect(inputs.length).toBeGreaterThan(0)
-      const input = inputs[0]
+      const input = inputs[0]!
       await input.setValue('5')
       await input.trigger('blur')
 
@@ -118,12 +118,12 @@ describe('TrainingPlanDisplay.vue', () => {
       // Find all inputs and get the first one (Amount column)
       const inputs = wrapper.findAll('.anchor-cell input')
       expect(inputs.length).toBeGreaterThan(0)
-      const input = inputs[0]
+      const input = inputs[0]!
       await input.setValue('abc')
       await input.trigger('blur')
 
       // Check that updatePlanRow was called with the original value
-      expect(store.updatePlanRow).toHaveBeenCalledWith(0, 'Amount', mockPlan.table[0].Amount)
+      expect(store.updatePlanRow).toHaveBeenCalledWith(0, 'Amount', mockPlan.table[0]!.Amount)
     })
   })
 })

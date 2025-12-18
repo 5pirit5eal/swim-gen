@@ -127,7 +127,7 @@ describe('auth Store', () => {
     const store = useAuthStore()
     expect(mockedOnAuthStateChange).toHaveBeenCalled()
 
-    const callback = mockedOnAuthStateChange.mock.calls[0][0]
+    const callback = mockedOnAuthStateChange.mock.calls[0]![0]
     const newSession = {
       access_token: 'new-token',
       user: { id: 'user-id' },

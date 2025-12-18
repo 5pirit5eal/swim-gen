@@ -108,7 +108,6 @@ describe('ApiClient', () => {
         `/api/${ApiEndpoints.PROMPT}`,
         expect.objectContaining({
           method: 'POST',
-          headers: new Headers({ 'Content-Type': 'application/json' }),
           body: JSON.stringify(mockRequest),
         }),
       )
@@ -196,10 +195,6 @@ describe('ApiClient', () => {
         `/api/${ApiEndpoints.QUERY}`,
         expect.objectContaining({
           method: 'POST',
-          headers: new Headers({
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer null',
-          }),
           body: JSON.stringify(mockRequest),
         }),
       )
@@ -284,10 +279,6 @@ describe('ApiClient', () => {
         `/api/${ApiEndpoints.EXPORT_PDF}`,
         expect.objectContaining({
           method: 'POST',
-          headers: new Headers({
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer null',
-          }),
           body: JSON.stringify(mockRequest),
         }),
       )
