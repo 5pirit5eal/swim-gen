@@ -3,6 +3,7 @@ import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 import IconSend from '@/components/icons/IconSend.vue'
 import { useSharedPlanStore } from '@/stores/sharedPlan'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
+import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import { onMounted, onUnmounted, watch, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -13,8 +14,13 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const sharedPlanStore = useSharedPlanStore()
+const authStore = useAuthStore()
 
 const { sharedPlan, isLoading, error } = storeToRefs(sharedPlanStore)
+
+function navigateToLogin() {
+  router.push({ name: 'login' })
+}
 
 const chatInput = ref('')
 
@@ -110,19 +116,31 @@ async function handleStartConversation() {
 
           <!-- Chat Transition Area -->
           <section class="chat-transition">
-            <label class="input-label">{{ t('shared.start_conversation') }}</label>
-            <form @submit.prevent="handleStartConversation" class="chat-form">
-              <input
-                v-model="chatInput"
-                type="text"
-                :placeholder="t('interaction.describe_changes') + '...'"
-                class="chat-input"
-                :disabled="isLoading"
-              />
-              <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
-                <IconSend class="send-icon" />
+            <div v-if="!authStore.user" class="cta-content">
+              <p>{{ t('home.banner.not_logged_in.text') }}</p>
+              <button @click="navigateToLogin" class="cta-button">
+                {{ t('home.banner.not_logged_in.button') }}
               </button>
-            </form>
+            </div>
+            <div v-else>
+              <label class="input-label">{{ t('shared.start_conversation') }}</label>
+              <form @submit.prevent="handleStartConversation" class="chat-form">
+                <input
+                  v-model="chatInput"
+                  type="text"
+                  :placeholder="t('interaction.describe_changes') + '...'"
+                  class="chat-input"
+                  :disabled="isLoading"
+                />
+                <button
+                  type="submit"
+                  class="send-button"
+                  :disabled="isLoading || !chatInput.trim()"
+                >
+                  <IconSend class="send-icon" />
+                </button>
+              </form>
+            </div>
           </section>
         </div>
       </div>
@@ -325,5 +343,37 @@ async function handleStartConversation() {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.cta-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: left;
+}
+
+.cta-content p {
+  font-size: 1.1rem;
+  color: var(--color-heading);
+  max-width: 600px;
+  margin: 0;
+}
+
+.cta-button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cta-button:hover {
+  background-color: var(--color-primary-hover);
 }
 </style>
