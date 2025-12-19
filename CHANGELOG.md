@@ -1,3 +1,10 @@
+## [2.24.1](https://github.com/5pirit5eal/swim-gen/compare/v2.24.0...v2.24.1) (2025-12-19)
+
+### Bug Fixes
+
+* added correct error code ([d5c9f20](https://github.com/5pirit5eal/swim-gen/commit/d5c9f20e95db286af8b0e63d8a5a4127288a742d))
+* fixed displaying interaction for user that are not logged in ([0df6eb8](https://github.com/5pirit5eal/swim-gen/commit/0df6eb8852c4a2c99f4ea9c854daa83f10e7c4cc))
+
 ## [2.24.0](https://github.com/5pirit5eal/swim-gen/compare/v2.23.2...v2.24.0) (2025-12-19)
 
 ### Features
