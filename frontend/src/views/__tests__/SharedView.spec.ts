@@ -21,6 +21,31 @@ vi.mock('vue3-toastify', () => ({
   },
 }))
 
+vi.mock('@/plugins/supabase', () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => ({
+            range: vi.fn(() => Promise.resolve({ data: [], error: null })),
+          })),
+        })),
+        in: vi.fn(() => ({
+          order: vi.fn(() => ({
+            range: vi.fn(() => Promise.resolve({ data: [], error: null })),
+          })),
+        })),
+      })),
+    })),
+    auth: {
+      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+      getSession: vi.fn(() => Promise.resolve({ data: { session: null }, error: null })),
+    },
+  },
+}))
+
+const pushMock = vi.fn()
+
 // Mock useRoute
 vi.mock('vue-router', async (importOriginal) => {
   const actual = (await importOriginal()) as typeof import('vue-router')
@@ -32,7 +57,7 @@ vi.mock('vue-router', async (importOriginal) => {
       },
     })),
     useRouter: vi.fn(() => ({
-      push: vi.fn(),
+      push: pushMock,
     })),
   }
 })
@@ -40,6 +65,7 @@ vi.mock('vue-router', async (importOriginal) => {
 describe('SharedView.vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    pushMock.mockClear()
   })
 
   it('fetches the shared plan on mount', async () => {
@@ -202,5 +228,70 @@ describe('SharedView.vue', () => {
     const sharedPlanStore = useSharedPlanStore()
     expect(displayComponent.props('store')).toBe(sharedPlanStore)
     expect(displayComponent.props('showShareButton')).toBe(false)
+  })
+
+  describe('Interaction Area', () => {
+    it('shows login CTA when user is not logged in', async () => {
+      const wrapper = mount(SharedView, {
+        global: {
+          plugins: [
+            createTestingPinia({
+              createSpy: vi.fn,
+              initialState: {
+                sharedPlan: {
+                  sharedPlan: {
+                    sharer_username: 'Test User',
+                    plan: { title: 'Test Plan' },
+                  },
+                },
+                auth: {
+                  user: null,
+                },
+              },
+            }),
+            i18n,
+          ],
+          stubs: {
+            TrainingPlanDisplay: true,
+          },
+        },
+      })
+
+      expect(wrapper.find('.cta-content').exists()).toBe(true)
+      expect(wrapper.find('.chat-form').exists()).toBe(false)
+
+      await wrapper.find('.cta-button').trigger('click')
+      expect(pushMock).toHaveBeenCalledWith({ name: 'login' })
+    })
+
+    it('shows chat form when user is logged in', async () => {
+      const wrapper = mount(SharedView, {
+        global: {
+          plugins: [
+            createTestingPinia({
+              createSpy: vi.fn,
+              initialState: {
+                sharedPlan: {
+                  sharedPlan: {
+                    sharer_username: 'Test User',
+                    plan: { title: 'Test Plan' },
+                  },
+                },
+                auth: {
+                  user: { id: 'test-user' },
+                },
+              },
+            }),
+            i18n,
+          ],
+          stubs: {
+            TrainingPlanDisplay: true,
+          },
+        },
+      })
+
+      expect(wrapper.find('.cta-content').exists()).toBe(false)
+      expect(wrapper.find('.chat-form').exists()).toBe(true)
+    })
   })
 })
