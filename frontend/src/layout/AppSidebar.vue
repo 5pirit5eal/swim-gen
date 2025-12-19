@@ -16,10 +16,12 @@ import { useSidebarStore } from '@/stores/sidebar'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useUploadStore } from '@/stores/uploads'
 import type { HistoryMetadata, RAGResponse, SharedHistoryItem } from '@/types'
+import { isIOS } from '@/utils/platform'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useTutorial } from '@/tutorial/useTutorial'
+import { toast } from 'vue3-toastify'
 
 // Search debounce utility
 function debounce<T extends (...args: Parameters<T>) => void>(fn: T, delay: number): T {
@@ -44,6 +46,11 @@ const openMenuPlanId = ref<string | null>(null)
 const editingPlanId = ref<string | null>(null)
 const editingTitle = ref('')
 
+// Share functionality state (two-step process for iOS compatibility)
+const shareUrl = ref<string | null>(null)
+const sharingPlanId = ref<string | null>(null)
+const sharingSuccess = ref<string | null>(null)
+
 // Compute currently viewed plan ID from route
 const currentPlanId = computed(() => {
   if (route.name === 'plan' && route.params.id) {
@@ -61,11 +68,6 @@ const currentPlanId = computed(() => {
   }
   return null
 })
-
-// Share functionality state
-const shareUrl = ref<string | null>(null)
-const sharingPlanId = ref<string | null>(null)
-const copied = ref(false)
 
 // Search functionality
 const searchQuery = ref('')
@@ -195,38 +197,54 @@ async function saveUploadedTitle(planId: string) {
   editingPlanId.value = null
 }
 
-async function sharePlan(plan: RAGResponse & HistoryMetadata) {
-  // If we already have a URL for this plan, copy it
-  if (shareUrl.value && sharingPlanId.value === plan.plan_id) {
-    await copyShareUrl()
-    return
-  }
+// Helper to copy URL to clipboard and show success state
+async function copyToClipboard(url: string, planId: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(url)
+    toast.success(t('share.copied'))
 
-  // Otherwise, create a new share URL
-  sharingPlanId.value = plan.plan_id
-  shareUrl.value = null
-  copied.value = false
-
-  // Keep forever and create share URL
-  if (!plan.keep_forever) await trainingPlanStore.toggleKeepForever(plan.plan_id)
-  const result = await apiClient.createShareUrl({ plan_id: plan.plan_id, method: 'link' })
-
-  if (result.success && result.data) {
-    shareUrl.value = `${window.location.origin}/shared/${result.data.url_hash}`
+    sharingSuccess.value = planId
+    setTimeout(() => {
+      sharingSuccess.value = null
+      shareUrl.value = null
+      sharingPlanId.value = null
+    }, 2000)
+    return true
+  } catch (err) {
+    console.error('Failed to copy:', err)
+    toast.error(t('share.copy_error'))
+    return false
   }
 }
 
-async function copyShareUrl() {
-  if (shareUrl.value) {
-    try {
-      await navigator.clipboard.writeText(shareUrl.value)
-      copied.value = true
-      setTimeout(() => {
-        copied.value = false
-      }, 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
+async function sharePlan(plan: RAGResponse & HistoryMetadata) {
+  // iOS two-step process: Step 2 - Copy existing URL to clipboard
+  if (isIOS() && shareUrl.value && sharingPlanId.value === plan.plan_id) {
+    await copyToClipboard(shareUrl.value, plan.plan_id)
+    return
+  }
+
+  // Generate share URL
+  try {
+    if (!plan.keep_forever) await trainingPlanStore.toggleKeepForever(plan.plan_id)
+    const result = await apiClient.createShareUrl({ plan_id: plan.plan_id, method: 'link' })
+
+    if (result.success && result.data) {
+      const url = `${window.location.origin}/shared/${result.data.url_hash}`
+      if (isIOS()) {
+        // iOS: Store URL for second click to copy
+        shareUrl.value = url
+        sharingPlanId.value = plan.plan_id
+      } else {
+        // Non-iOS: Copy immediately in same user gesture
+        await copyToClipboard(url, plan.plan_id)
+      }
+    } else {
+      toast.error(t('share.create_error'))
     }
+  } catch (err) {
+    console.error('Failed to create share URL:', err)
+    toast.error(t('share.create_error'))
   }
 }
 
@@ -265,22 +283,32 @@ async function deleteUploadedPlan(planId: string) {
 }
 
 async function shareUploadedPlan(plan: { plan_id: string; title: string }) {
-  // If we already have a URL for this plan, copy it
-  if (shareUrl.value && sharingPlanId.value === plan.plan_id) {
-    await copyShareUrl()
+  // iOS two-step process: Step 2 - Copy existing URL to clipboard
+  if (isIOS() && shareUrl.value && sharingPlanId.value === plan.plan_id) {
+    await copyToClipboard(shareUrl.value, plan.plan_id)
     return
   }
 
-  // Otherwise, create a new share URL
-  sharingPlanId.value = plan.plan_id
-  shareUrl.value = null
-  copied.value = false
+  // Generate share URL
+  try {
+    const result = await apiClient.createShareUrl({ plan_id: plan.plan_id, method: 'link' })
 
-  // Create share URL for uploaded plan
-  const result = await apiClient.createShareUrl({ plan_id: plan.plan_id, method: 'link' })
-
-  if (result.success && result.data) {
-    shareUrl.value = `${window.location.origin}/shared/${result.data.url_hash}`
+    if (result.success && result.data) {
+      const url = `${window.location.origin}/shared/${result.data.url_hash}`
+      if (isIOS()) {
+        // iOS: Store URL for second click to copy
+        shareUrl.value = url
+        sharingPlanId.value = plan.plan_id
+      } else {
+        // Non-iOS: Copy immediately in same user gesture
+        await copyToClipboard(url, plan.plan_id)
+      }
+    } else {
+      toast.error(t('share.create_error'))
+    }
+  } catch (err) {
+    console.error('Failed to create share URL:', err)
+    toast.error(t('share.create_error'))
   }
 }
 
@@ -405,20 +433,15 @@ async function loadUploadedPlan(plan_id: string) {
                     </button>
                     <button class="menu-item" @click="sharePlan(plan)">
                       <transition name="scale" mode="out-in">
-                        <IconCheck
-                          v-if="copied && sharingPlanId === plan.plan_id"
-                          class="menu-icon"
-                        />
+                        <IconCheck v-if="sharingSuccess === plan.plan_id" class="menu-icon" />
                         <IconCopy
-                          v-else-if="shareUrl && sharingPlanId === plan.plan_id"
+                          v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id"
                           class="menu-icon"
                         />
                         <IconShare v-else class="menu-icon" />
                       </transition>
-                      <span v-if="copied && sharingPlanId === plan.plan_id">{{
-                        t('share.copied')
-                      }}</span>
-                      <span v-else-if="shareUrl && sharingPlanId === plan.plan_id">{{
+                      <span v-if="sharingSuccess === plan.plan_id">{{ t('share.copied') }}</span>
+                      <span v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id">{{
                         t('share.copy')
                       }}</span>
                       <span v-else>{{ t('sidebar.menu_share') }}</span>
@@ -541,20 +564,15 @@ async function loadUploadedPlan(plan_id: string) {
                     </button>
                     <button class="menu-item" @click="shareUploadedPlan(plan)">
                       <transition name="scale" mode="out-in">
-                        <IconCheck
-                          v-if="copied && sharingPlanId === plan.plan_id"
-                          class="menu-icon"
-                        />
+                        <IconCheck v-if="sharingSuccess === plan.plan_id" class="menu-icon" />
                         <IconCopy
-                          v-else-if="shareUrl && sharingPlanId === plan.plan_id"
+                          v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id"
                           class="menu-icon"
                         />
                         <IconShare v-else class="menu-icon" />
                       </transition>
-                      <span v-if="copied && sharingPlanId === plan.plan_id">{{
-                        t('share.copied')
-                      }}</span>
-                      <span v-else-if="shareUrl && sharingPlanId === plan.plan_id">{{
+                      <span v-if="sharingSuccess === plan.plan_id">{{ t('share.copied') }}</span>
+                      <span v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id">{{
                         t('share.copy')
                       }}</span>
                       <span v-else>{{ t('sidebar.menu_share') }}</span>

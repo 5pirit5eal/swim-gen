@@ -23,16 +23,54 @@ vi.mock('vue-router', async (importOriginal) => {
 })
 
 // Mock apiClient
+const { mockCreateShareUrl } = vi.hoisted(() => ({
+  mockCreateShareUrl: vi.fn(),
+}))
+
 vi.mock('@/api/client', () => ({
   apiClient: {
     deletePlan: vi.fn().mockResolvedValue({ success: true }),
     upsertPlan: vi.fn().mockResolvedValue({ success: true }),
+    createShareUrl: mockCreateShareUrl,
   },
 }))
 
+// Mock platform detection
+const { getMockIsIOS, setMockIsIOS } = vi.hoisted(() => {
+  let mockIsIOS = false
+  return {
+    getMockIsIOS: () => mockIsIOS,
+    setMockIsIOS: (value: boolean) => {
+      mockIsIOS = value
+    },
+  }
+})
+
+vi.mock('@/utils/platform', () => ({
+  isIOS: () => getMockIsIOS(),
+}))
+
 describe('AppSidebar.vue', () => {
+  let mockClipboard: { writeText: ReturnType<typeof vi.fn> }
+
   beforeEach(() => {
     vi.clearAllMocks()
+    setMockIsIOS(false)
+
+    // Mock clipboard API
+    mockClipboard = {
+      writeText: vi.fn().mockResolvedValue(undefined),
+    }
+    Object.defineProperty(navigator, 'clipboard', {
+      value: mockClipboard,
+      configurable: true,
+    })
+
+    // Mock API response for share
+    mockCreateShareUrl.mockResolvedValue({
+      success: true,
+      data: { url_hash: 'test-hash' },
+    })
     const pinia = createTestingPinia({
       createSpy: vi.fn,
     })
@@ -197,5 +235,101 @@ describe('AppSidebar.vue', () => {
 
     // Input should disappear
     expect(wrapper.find('input.title-input').exists()).toBe(false)
+  })
+
+  describe('share functionality', () => {
+    describe('Non-iOS behavior (one-step share)', () => {
+      beforeEach(() => {
+        setMockIsIOS(false)
+      })
+
+      it('creates share URL and copies immediately for generated plans', async () => {
+        const wrapper = mount(Sidebar, {
+          global: {
+            plugins: [i18n],
+          },
+        })
+
+        const trainingPlanStore = useTrainingPlanStore()
+        const { apiClient } = await import('@/api/client')
+
+        // Open menu
+        await wrapper.find('.menu-button').trigger('click')
+
+        // Click share
+        const shareButton = wrapper
+          .findAll('.menu-item')
+          .find((b) => b.text() === i18n.global.t('sidebar.menu_share'))
+        await shareButton?.trigger('click')
+
+        // Should call toggleKeepForever
+        expect(trainingPlanStore.toggleKeepForever).toHaveBeenCalledWith('1')
+
+        // Should create share URL
+        expect(apiClient.createShareUrl).toHaveBeenCalledWith({
+          plan_id: '1',
+          method: 'link',
+        })
+
+        await wrapper.vm.$nextTick()
+
+        // Should copy to clipboard immediately
+        expect(mockClipboard.writeText).toHaveBeenCalledWith(
+          `${window.location.origin}/shared/test-hash`,
+        )
+      })
+    })
+
+    describe('iOS behavior (two-step share)', () => {
+      beforeEach(() => {
+        setMockIsIOS(true)
+      })
+
+      it('first click creates URL, second click copies for generated plans', async () => {
+        const wrapper = mount(Sidebar, {
+          global: {
+            plugins: [i18n],
+          },
+        })
+
+        const trainingPlanStore = useTrainingPlanStore()
+        const { apiClient } = await import('@/api/client')
+
+        // Open menu
+        await wrapper.find('.menu-button').trigger('click')
+
+        // First click - create URL
+        const shareButton = wrapper
+          .findAll('.menu-item')
+          .find((b) => b.text().includes(i18n.global.t('sidebar.menu_share')))
+        await shareButton?.trigger('click')
+
+        expect(trainingPlanStore.toggleKeepForever).toHaveBeenCalledWith('1')
+        expect(apiClient.createShareUrl).toHaveBeenCalledWith({
+          plan_id: '1',
+          method: 'link',
+        })
+
+        await wrapper.vm.$nextTick()
+
+        // Should NOT copy yet on iOS
+        expect(mockClipboard.writeText).not.toHaveBeenCalled()
+
+        // Button text should change to "Copy"
+        await wrapper.vm.$nextTick()
+        const shareButtonAfter = wrapper
+          .findAll('.menu-item')
+          .find((b) => b.text().includes(i18n.global.t('share.copy')))
+        expect(shareButtonAfter).toBeTruthy()
+
+        // Second click - copy URL
+        await shareButtonAfter?.trigger('click')
+        await wrapper.vm.$nextTick()
+
+        expect(mockClipboard.writeText).toHaveBeenCalledWith(
+          `${window.location.origin}/shared/test-hash`,
+        )
+      })
+    })
   })
 })

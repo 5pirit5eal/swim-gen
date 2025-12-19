@@ -730,6 +730,7 @@ function autoResize(event: Event) {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
+  width: fit-content;
   max-width: 200px;
   display: flex;
   align-items: center;
@@ -766,9 +767,4 @@ function autoResize(event: Event) {
   opacity: 0;
   transform: translateX(30px);
 }
-
-/* Ensure the leaving item is taken out of flow so others can move */
-/* Note: position: absolute on table rows can be tricky, but often needed for smooth 'move' during 'leave' */
-/* If this breaks table layout during animation, remove the absolute positioning */
-/* .list-leave-active { position: absolute; } */
 </style>
