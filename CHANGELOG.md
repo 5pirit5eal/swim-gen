@@ -1,3 +1,10 @@
+## [2.23.2](https://github.com/5pirit5eal/swim-gen/compare/v2.23.1...v2.23.2) (2025-12-19)
+
+### Bug Fixes
+
+* fixed wrong RLS policy for shared plans ([ee4ad87](https://github.com/5pirit5eal/swim-gen/commit/ee4ad8702d20aaf8c1dce3e0aded4ce3e7b92fb9))
+* fixed wrong RLS policy for shared plans ([#182](https://github.com/5pirit5eal/swim-gen/issues/182)) ([23568f7](https://github.com/5pirit5eal/swim-gen/commit/23568f7ff1a57035528246c1604799004d59f929))
+
 ## [2.23.1](https://github.com/5pirit5eal/swim-gen/compare/v2.23.0...v2.23.1) (2025-12-17)
 
 ### Bug Fixes
