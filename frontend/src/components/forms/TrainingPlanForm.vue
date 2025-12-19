@@ -7,8 +7,10 @@ import type { QueryRequest, PromptGenerationRequest } from '@/types'
 import { DIFFICULTY_OPTIONS, TRAINING_TYPE_OPTIONS } from '@/types'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/stores/auth'
 
 // Store access
+const authStore = useAuthStore()
 const trainingStore = useTrainingPlanStore()
 const settingsStore = useSettingsStore()
 
@@ -337,7 +339,7 @@ async function handlePromptGeneration() {
               <input
                 type="checkbox"
                 v-model="settingsStore.useProfilePreferences"
-                :disabled="trainingStore.isLoading"
+                :disabled="trainingStore.isLoading || !authStore.user"
               />
               {{ t('form.use_profile_preferences') }}
               <BaseTooltip>
