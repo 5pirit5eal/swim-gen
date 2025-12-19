@@ -1,3 +1,14 @@
+## [2.24.0](https://github.com/5pirit5eal/swim-gen/compare/v2.23.2...v2.24.0) (2025-12-19)
+
+### Features
+
+* made sharing and exporting single click and more prominent ([#183](https://github.com/5pirit5eal/swim-gen/issues/183)) ([c857d2f](https://github.com/5pirit5eal/swim-gen/commit/c857d2f69619796d1ac294b272fd6c68ebe056d7))
+* rewrote sharing to be ios and other optimized and more prominent ([283b723](https://github.com/5pirit5eal/swim-gen/commit/283b723d8fcca85669c11f5b361d2a1276467d1c))
+
+### Bug Fixes
+
+* added specific fix for ios ([404ba73](https://github.com/5pirit5eal/swim-gen/commit/404ba733f98a7da4f37331688a737e6c22e38d68))
+
 ## [2.23.2](https://github.com/5pirit5eal/swim-gen/compare/v2.23.1...v2.23.2) (2025-12-19)
 
 ### Bug Fixes
