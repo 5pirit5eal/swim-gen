@@ -463,8 +463,12 @@
     "fetching_url": "Fetching shareable URL...",
     "show_url": "Share this URL to share your training plan:",
     "copy": "Copy Link",
-    "copied": "Copied!",
-    "share_plan": "Share Plan"
+    "copied": "Copied to clipboard!",
+    "share_plan": "Share Plan",
+    "copy_error": "Failed to copy to clipboard",
+    "create_error": "Failed to create share URL",
+    "generate_prompt": "No share link yet.",
+    "generate_link": "Generate Link"
   },
   "interaction": {
     "save_to_history": "Add to History",

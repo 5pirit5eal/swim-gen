@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useExportStore } from '@/stores/export'
 import IconDownload from '@/components/icons/IconDownload.vue'
 import type { PlanToPDFRequest, PlanStore } from '@/types'
@@ -18,6 +18,15 @@ const pdfUrl = ref<string | null>(null)
 const exportHorizontal = ref(false)
 const exportLargeFont = ref(false)
 const isExportMenuOpen = ref(false)
+
+const isIOS = computed(() => {
+  const userAgent = navigator.userAgent
+  return (
+    /iPhone|iPad|iPod/.test(userAgent) ||
+    // iPad on iOS 13+ detection (reports as Mac but has touch)
+    (userAgent.includes('Mac') && 'ontouchend' in document)
+  )
+})
 
 // Reset export if plan changes (deep watch) or options change
 watch(
@@ -39,12 +48,18 @@ function resetExportState() {
   exportPhase.value = 'idle'
 }
 
-async function handleExport() {
-  isExportMenuOpen.value = false // Close menu on export
-  // Phase 2: user clicks "Open PDF"
-  if (exportPhase.value === 'done' && pdfUrl.value) {
+function openPDF() {
+  if (pdfUrl.value) {
     const w = window.open(pdfUrl.value, '_blank')
     if (!w) window.location.href = pdfUrl.value
+  }
+}
+
+async function handleExport() {
+  isExportMenuOpen.value = false // Close menu on export
+  // Phase 2: user clicks "Open PDF" (mostly for iOS or if auto-open fails)
+  if (exportPhase.value === 'done' && pdfUrl.value) {
+    openPDF()
     return
   }
 
@@ -74,6 +89,12 @@ async function handleExport() {
       return
     }
     exportPhase.value = 'done'
+
+    // Auto-open for non-iOS
+    if (!isIOS.value) {
+      openPDF()
+      exportPhase.value = 'idle' // On non-iOS, reset so user can re-export with different options; iOS keeps "done" so a second tap just re-opens the existing PDF
+    }
   } catch (e) {
     console.error('PDF export failed', e)
     toast.error(t('errors.failed_to_export_plan'))
@@ -128,6 +149,7 @@ async function handleExport() {
   display: flex;
   flex: 1;
   position: relative;
+  width: fit-content;
   max-width: 200px;
 }
 

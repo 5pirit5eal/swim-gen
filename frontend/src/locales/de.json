@@ -464,9 +464,13 @@
   "share": {
     "fetching_url": "Generiere Freigabe-Link...",
     "copy": "Link kopieren",
-    "copied": "Kopiert!",
+    "copied": "In die Zwischenablage kopiert!",
     "show_url": "Teile diesen Link, um mit anderen diesen Trainingsplan zu teilen:",
-    "share_plan": "Plan teilen"
+    "share_plan": "Plan teilen",
+    "copy_error": "Kopieren in die Zwischenablage fehlgeschlagen",
+    "create_error": "Fehler beim Erstellen des Freigabe-Links",
+    "generate_prompt": "Noch kein Freigabe-Link.",
+    "generate_link": "Link generieren"
   },
   "interaction": {
     "save_to_history": "In \"Deine Pläne\" speichern",

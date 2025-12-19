@@ -3,9 +3,11 @@ import IconCheck from '@/components/icons/IconCheck.vue'
 import IconCopy from '@/components/icons/IconCopy.vue'
 import IconShare from '@/components/icons/IconShare.vue'
 import type { PlanStore, ShareUrlRequest } from '@/types'
-import { ref, watch } from 'vue'
+import { isIOS } from '@/utils/platform'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { apiClient, formatError } from '@/api/client'
+import { apiClient } from '@/api/client'
+import { toast } from 'vue3-toastify'
 
 const props = defineProps<{
   store: PlanStore
@@ -14,31 +16,39 @@ const props = defineProps<{
 const { t } = useI18n()
 
 const isLoading = ref(false)
-const error = ref<string | null>(null)
 const shareUrl = ref<string | null>(null)
-const copied = ref(false)
-
-// Reset share URL when the plan changes
-watch(
-  () => props.store.currentPlan,
-  () => {
-    shareUrl.value = null
-  },
-)
+const justCopied = ref(false)
 
 // Creates a shareable URL for a plan
 async function createShareUrl(request: ShareUrlRequest): Promise<string | null> {
   isLoading.value = true
-  error.value = null
   const result = await apiClient.createShareUrl(request)
   isLoading.value = false
 
   if (result.success && result.data) {
-    shareUrl.value = `${window.location.origin}/shared/${result.data.url_hash}`
-    return shareUrl.value
+    return `${window.location.origin}/shared/${result.data.url_hash}`
   } else {
-    error.value = result.error ? formatError(result.error) : t('errors.share_plan_failed')
+    toast.error(t('share.create_error'))
     return null
+  }
+}
+
+// Helper to copy URL to clipboard and show success state
+async function copyToClipboard(url: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(url)
+    toast.success(t('share.copied'))
+
+    justCopied.value = true
+    setTimeout(() => {
+      justCopied.value = false
+      shareUrl.value = null
+    }, 2000)
+    return true
+  } catch (err) {
+    console.error('Failed to copy:', err)
+    toast.error(t('share.copy_error'))
+    return false
   }
 }
 
@@ -46,60 +56,53 @@ async function handleShare() {
   if (!props.store.currentPlan || !props.store.currentPlan.plan_id) {
     return
   }
-  await props.store.keepForever(props.store.currentPlan.plan_id)
-  await createShareUrl({ plan_id: props.store.currentPlan.plan_id, method: 'link' })
-}
 
-async function copyUrl() {
-  if (shareUrl.value) {
-    try {
-      await navigator.clipboard.writeText(shareUrl.value)
-      copied.value = true
-      setTimeout(() => {
-        copied.value = false
-      }, 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
+  // iOS two-step process: Step 2 - Copy existing URL to clipboard
+  if (isIOS() && shareUrl.value) {
+    await copyToClipboard(shareUrl.value)
+    return
+  }
+
+  // Generate share URL
+  try {
+    await props.store.keepForever(props.store.currentPlan.plan_id)
+
+    const url = await createShareUrl({
+      plan_id: props.store.currentPlan.plan_id,
+      method: 'link',
+    })
+
+    if (url) {
+      if (isIOS()) {
+        // iOS: Store URL for second click to copy
+        shareUrl.value = url
+      } else {
+        // Non-iOS: Copy immediately in same user gesture
+        await copyToClipboard(url)
+      }
     }
+  } catch (err) {
+    console.error('Failed to create share URL:', err)
+    toast.error(t('share.create_error'))
   }
 }
 </script>
 
 <template>
   <div class="share-container">
-    <transition name="fade" mode="out-in">
-      <!-- Initial Share Button -->
-      <button
-        v-if="!shareUrl"
-        @click="handleShare"
-        :disabled="isLoading"
-        class="share-btn"
-        key="share-btn"
-      >
-        <span v-if="isLoading" class="loading-spinner"></span>
-        <template v-else>
-          <IconShare class="icon" />
-          {{ t('share.share_plan') }}
-        </template>
-      </button>
-
-      <!-- Copy Link Button (Success State) -->
-      <button
-        v-else
-        @click="copyUrl"
-        class="share-btn copy-link-btn"
-        :class="{ copied: copied }"
-        key="copy-btn"
-      >
+    <button @click="handleShare" :disabled="isLoading" class="share-btn" :class="{ success: justCopied }">
+      <span v-if="isLoading" class="loading-spinner"></span>
+      <template v-else>
         <transition name="scale" mode="out-in">
-          <IconCheck v-if="copied" class="icon" />
-          <IconCopy v-else class="icon" />
+          <IconCheck v-if="justCopied" class="icon" />
+          <IconCopy v-else-if="shareUrl && isIOS()" class="icon" />
+          <IconShare v-else class="icon" />
         </transition>
-        <span>{{ copied ? t('share.copied') : t('share.copy') }}</span>
-      </button>
-    </transition>
-
-    <p v-if="error" class="error-message">{{ error }}</p>
+        <span v-if="justCopied">{{ t('share.copied') }}</span>
+        <span v-else-if="shareUrl && isIOS()">{{ t('share.copy') }}</span>
+        <span v-else>{{ t('share.share_plan') }}</span>
+      </template>
+    </button>
   </div>
 </template>
 
@@ -110,7 +113,7 @@ async function copyUrl() {
 }
 
 .share-btn {
-  width: 100%;
+  width: fit-content;
   height: 100%;
   padding: 0.75rem 1rem;
   background: var(--color-primary);
@@ -130,6 +133,14 @@ async function copyUrl() {
   background-color: var(--color-primary-hover);
 }
 
+.share-btn.success {
+  background-color: var(--color-success);
+}
+
+.share-btn.success:hover {
+  background-color: var(--color-success);
+}
+
 .share-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
@@ -141,23 +152,10 @@ async function copyUrl() {
   }
 
   .share-btn {
-    padding: 0.25rem 0.5rem;
+    padding: 0.75rem 0.5rem;
     overflow-wrap: break-word;
     font-size: 0.8rem;
   }
-}
-
-.copy-link-btn {
-  background-color: var(--color-primary);
-}
-
-.copy-link-btn span {
-  font-weight: 600;
-}
-
-.copy-link-btn.copied {
-  background-color: var(--color-success);
-  cursor: default;
 }
 
 .icon {
@@ -174,34 +172,13 @@ async function copyUrl() {
   animation: spin 0.8s linear infinite;
 }
 
-.error-message {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: 0.5rem;
-  color: var(--color-error);
-  font-size: 0.8rem;
-  text-align: center;
-}
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-/* Transitions */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
+/* Icon transition */
 .scale-enter-active,
 .scale-leave-active {
   transition: all 0.2s ease;
