@@ -1,3 +1,10 @@
+## [2.24.2](https://github.com/5pirit5eal/swim-gen/compare/v2.24.1...v2.24.2) (2025-12-19)
+
+### Bug Fixes
+
+* disable setting for anonymous users ([486ed35](https://github.com/5pirit5eal/swim-gen/commit/486ed35a19307f72cbd89213d2cf064c1a500f7d))
+* disable setting for anonymous users ([#187](https://github.com/5pirit5eal/swim-gen/issues/187)) ([3b5f6e8](https://github.com/5pirit5eal/swim-gen/commit/3b5f6e8bae3f736e9a4162a586f23e8e5b2c5e5c))
+
 ## [2.24.1](https://github.com/5pirit5eal/swim-gen/compare/v2.24.0...v2.24.1) (2025-12-19)
 
 ### Bug Fixes
