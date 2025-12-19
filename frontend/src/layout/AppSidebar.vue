@@ -345,13 +345,21 @@ async function loadUploadedPlan(plan_id: string) {
     </div>
     <div class="sidebar-content">
       <div class="action-buttons">
-        <button @click="createNewPlan" class="create-new-btn" :title="t('sidebar.create_new')"
-          id="tutorial-new-plan-btn">
+        <button
+          @click="createNewPlan"
+          class="create-new-btn"
+          :title="t('sidebar.create_new')"
+          id="tutorial-new-plan-btn"
+        >
           <IconPlus class="icon-small" />
           <span>{{ t('sidebar.create_new') }}</span>
         </button>
-        <button @click="showDonationForm = true" class="create-new-btn" :title="t('sidebar.upload_plan')"
-          id="tutorial-upload-btn">
+        <button
+          @click="showDonationForm = true"
+          class="create-new-btn"
+          :title="t('sidebar.upload_plan')"
+          id="tutorial-upload-btn"
+        >
           <IconUpload class="icon-small" />
           <span>{{ t('sidebar.upload_plan') }}</span>
         </button>
@@ -364,30 +372,52 @@ async function loadUploadedPlan(plan_id: string) {
         <!-- Search input -->
         <div class="search-container">
           <IconSearch class="search-icon" />
-          <input v-model="searchQuery" type="search" :placeholder="t('sidebar.search_placeholder')"
-            class="search-input" />
+          <input
+            v-model="searchQuery"
+            type="search"
+            :placeholder="t('sidebar.search_placeholder')"
+            class="search-input"
+          />
           <div v-if="trainingPlanStore.isSearching" class="loading-spinner small" />
         </div>
         <p v-if="trainingPlanStore.planHistory.length === 0 && !searchQuery">
           {{ t('sidebar.generated_placeholder') }}
         </p>
-        <p v-else-if="trainingPlanStore.planHistory.length === 0 && searchQuery" class="search-info">
+        <p
+          v-else-if="trainingPlanStore.planHistory.length === 0 && searchQuery"
+          class="search-info"
+        >
           {{ t('sidebar.search_no_results') }}
         </p>
         <ul v-else class="plan-list">
-          <li v-for="plan in trainingPlanStore.planHistory" :key="plan.plan_id"
-            :class="{ 'active-plan': currentPlanId === plan.plan_id }">
+          <li
+            v-for="plan in trainingPlanStore.planHistory"
+            :key="plan.plan_id"
+            :class="{ 'active-plan': currentPlanId === plan.plan_id }"
+          >
             <div class="plan-item-main">
-              <div class="status-icon-container" :title="plan.keep_forever
-                ? t('sidebar.tooltip_permanent')
-                : t('sidebar.tooltip_temporary')
-                " @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)">
+              <div
+                class="status-icon-container"
+                :title="
+                  plan.keep_forever
+                    ? t('sidebar.tooltip_permanent')
+                    : t('sidebar.tooltip_temporary')
+                "
+                @click.stop="trainingPlanStore.toggleKeepForever(plan.plan_id)"
+              >
                 <IconHeart v-if="plan.keep_forever" class="status-icon" />
                 <IconHourglass v-else class="status-icon" />
               </div>
               <div v-if="editingPlanId === plan.plan_id" class="plan-title-edit">
-                <input ref="titleInputRef" v-model="editingTitle" type="text" class="title-input"
-                  @keyup.enter="saveTitle(plan.plan_id)" @keyup.escape="cancelEdit" @blur="saveTitle(plan.plan_id)" />
+                <input
+                  ref="titleInputRef"
+                  v-model="editingTitle"
+                  type="text"
+                  class="title-input"
+                  @keyup.enter="saveTitle(plan.plan_id)"
+                  @keyup.escape="cancelEdit"
+                  @blur="saveTitle(plan.plan_id)"
+                />
               </div>
               <div v-else class="plan-title" @click="loadPlan(plan)">
                 <span>{{ plan.title }}</span>
@@ -404,12 +434,16 @@ async function loadUploadedPlan(plan_id: string) {
                     <button class="menu-item" @click="sharePlan(plan)">
                       <transition name="scale" mode="out-in">
                         <IconCheck v-if="sharingSuccess === plan.plan_id" class="menu-icon" />
-                        <IconCopy v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id" class="menu-icon" />
+                        <IconCopy
+                          v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id"
+                          class="menu-icon"
+                        />
                         <IconShare v-else class="menu-icon" />
                       </transition>
                       <span v-if="sharingSuccess === plan.plan_id">{{ t('share.copied') }}</span>
-                      <span v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id">{{ t('share.copy')
-                        }}</span>
+                      <span v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id">{{
+                        t('share.copy')
+                      }}</span>
                       <span v-else>{{ t('sidebar.menu_share') }}</span>
                     </button>
                     <button class="menu-item delete" @click="deletePlan(plan.plan_id)">
@@ -422,19 +456,26 @@ async function loadUploadedPlan(plan_id: string) {
           </li>
         </ul>
         <!-- Search results info -->
-        <p v-if="
-          searchQuery &&
-          trainingPlanStore.planHistory.length > 0 &&
-          trainingPlanStore.searchHitLimit
-        " class="search-info search-limit-warning">
+        <p
+          v-if="
+            searchQuery &&
+            trainingPlanStore.planHistory.length > 0 &&
+            trainingPlanStore.searchHitLimit
+          "
+          class="search-info search-limit-warning"
+        >
           {{ t('sidebar.search_limit_hit', { count: trainingPlanStore.planHistory.length }) }}
         </p>
         <p v-else-if="searchQuery && trainingPlanStore.planHistory.length > 0" class="search-info">
           {{ t('sidebar.search_results_info', { count: trainingPlanStore.planHistory.length }) }}
         </p>
         <!-- Load more button for generated plans -->
-        <button v-if="trainingPlanStore.historyHasMore && !searchQuery" @click="trainingPlanStore.fetchMoreHistory()"
-          :disabled="trainingPlanStore.isLoadingMore" class="load-more-btn">
+        <button
+          v-if="trainingPlanStore.historyHasMore && !searchQuery"
+          @click="trainingPlanStore.fetchMoreHistory()"
+          :disabled="trainingPlanStore.isLoadingMore"
+          class="load-more-btn"
+        >
           <span v-if="trainingPlanStore.isLoadingMore">{{ t('common.loading') }}</span>
           <span v-else>{{ t('sidebar.load_more') }}</span>
         </button>
@@ -448,8 +489,11 @@ async function loadUploadedPlan(plan_id: string) {
           {{ t('sidebar.shared_placeholder') }}
         </p>
         <ul v-else class="plan-list">
-          <li v-for="item in sharedPlanStore.sharedHistory" :key="item.plan_id"
-            :class="{ 'active-plan': currentPlanId === item.plan_id }">
+          <li
+            v-for="item in sharedPlanStore.sharedHistory"
+            :key="item.plan_id"
+            :class="{ 'active-plan': currentPlanId === item.plan_id }"
+          >
             <div class="plan-item-main">
               <div class="plan-title" @click="loadSharedPlan(item)">
                 <span>{{ item.plan.title }}</span>
@@ -470,8 +514,12 @@ async function loadUploadedPlan(plan_id: string) {
           </li>
         </ul>
         <!-- Load more button for shared plans -->
-        <button v-if="sharedPlanStore.historyHasMore" @click="sharedPlanStore.fetchMoreSharedHistory()"
-          :disabled="sharedPlanStore.isLoadingMore" class="load-more-btn">
+        <button
+          v-if="sharedPlanStore.historyHasMore"
+          @click="sharedPlanStore.fetchMoreSharedHistory()"
+          :disabled="sharedPlanStore.isLoadingMore"
+          class="load-more-btn"
+        >
           <span v-if="sharedPlanStore.isLoadingMore">{{ t('common.loading') }}</span>
           <span v-else>{{ t('sidebar.load_more') }}</span>
         </button>
@@ -485,13 +533,22 @@ async function loadUploadedPlan(plan_id: string) {
           {{ t('sidebar.uploaded_placeholder') }}
         </p>
         <ul v-else class="plan-list">
-          <li v-for="plan in donationStore.uploadedPlans" :key="plan.plan_id"
-            :class="{ 'active-plan': currentPlanId === plan.plan_id }">
+          <li
+            v-for="plan in donationStore.uploadedPlans"
+            :key="plan.plan_id"
+            :class="{ 'active-plan': currentPlanId === plan.plan_id }"
+          >
             <div class="plan-item-main">
               <div v-if="editingPlanId === plan.plan_id" class="plan-title-edit">
-                <input ref="titleInputRef" v-model="editingTitle" type="text" class="title-input"
-                  @keyup.enter="saveUploadedTitle(plan.plan_id)" @keyup.escape="cancelEdit"
-                  @blur="saveUploadedTitle(plan.plan_id)" />
+                <input
+                  ref="titleInputRef"
+                  v-model="editingTitle"
+                  type="text"
+                  class="title-input"
+                  @keyup.enter="saveUploadedTitle(plan.plan_id)"
+                  @keyup.escape="cancelEdit"
+                  @blur="saveUploadedTitle(plan.plan_id)"
+                />
               </div>
               <div v-else class="plan-title" @click="loadUploadedPlan(plan.plan_id)">
                 <span>{{ plan.title }}</span>
@@ -508,12 +565,16 @@ async function loadUploadedPlan(plan_id: string) {
                     <button class="menu-item" @click="shareUploadedPlan(plan)">
                       <transition name="scale" mode="out-in">
                         <IconCheck v-if="sharingSuccess === plan.plan_id" class="menu-icon" />
-                        <IconCopy v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id" class="menu-icon" />
+                        <IconCopy
+                          v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id"
+                          class="menu-icon"
+                        />
                         <IconShare v-else class="menu-icon" />
                       </transition>
                       <span v-if="sharingSuccess === plan.plan_id">{{ t('share.copied') }}</span>
-                      <span v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id">{{ t('share.copy')
-                        }}</span>
+                      <span v-else-if="isIOS() && shareUrl && sharingPlanId === plan.plan_id">{{
+                        t('share.copy')
+                      }}</span>
                       <span v-else>{{ t('sidebar.menu_share') }}</span>
                     </button>
                     <button class="menu-item delete" @click="deleteUploadedPlan(plan.plan_id)">
@@ -526,8 +587,12 @@ async function loadUploadedPlan(plan_id: string) {
           </li>
         </ul>
         <!-- Load more button for uploaded plans -->
-        <button v-if="donationStore.historyHasMore" @click="donationStore.fetchMoreUploadedPlans()"
-          :disabled="donationStore.isLoadingMore" class="load-more-btn">
+        <button
+          v-if="donationStore.historyHasMore"
+          @click="donationStore.fetchMoreUploadedPlans()"
+          :disabled="donationStore.isLoadingMore"
+          class="load-more-btn"
+        >
           <span v-if="donationStore.isLoadingMore">{{ t('common.loading') }}</span>
           <span v-else>{{ t('sidebar.load_more') }}</span>
         </button>

@@ -90,7 +90,12 @@ async function handleShare() {
 
 <template>
   <div class="share-container">
-    <button @click="handleShare" :disabled="isLoading" class="share-btn" :class="{ success: justCopied }">
+    <button
+      @click="handleShare"
+      :disabled="isLoading"
+      class="share-btn"
+      :class="{ success: justCopied }"
+    >
       <span v-if="isLoading" class="loading-spinner"></span>
       <template v-else>
         <transition name="scale" mode="out-in">
