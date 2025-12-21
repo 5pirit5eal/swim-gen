@@ -83,6 +83,8 @@ func main() {
 
 	// Upload training drills
 	// TODO: Implement language specific upload here
+	// TODO: Implement progress indication
+	// TODO: Implement image upload to GCS for static serving
 
 	fmt.Println("Upload completed successfully")
 }
