@@ -850,5 +850,240 @@
             "Hobbyschwimmer",
             "Leistungsschwimmer"
         ]
+    },
+    {
+        "slag": "Rückenbeine Streamline",
+        "targets": [
+            "Beinschlag",
+            "Wasserlage",
+            "Körperspannung"
+        ],
+        "short_description": "Rückenbeinschlag in gestreckter Haltung (Streamline).",
+        "img_name": "rueckenbeine_streamline.png",
+        "img_description": "Schwimmer in Rückenlage, Arme gestreckt hinter dem Kopf, Hände übereinander.",
+        "title": "Rückenbeine in Streamline-Position",
+        "description": [
+            "Stoße dich in Rückenlage vom Beckenrand ab. Strecke deine Arme weit hinter den Kopf, die Hände liegen übereinander (Streamline-Position).",
+            "Führe einen kontinuierlichen Kraulbeinschlag aus der Hüfte durch. Die Knie bleiben unter der Wasseroberfläche, nur das Wasser brodelt leicht an der Oberfläche.",
+            "Achte auf eine stabile Körpermitte und eine gestreckte Haltung. Der Kopf liegt ruhig im Wasser, der Blick geht nach oben.",
+            "Diese Übung verbessert deine Wasserlage und stärkt die Rumpfmuskulatur."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Leicht",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Doppelarmrücken",
+        "targets": [
+            "Wassergefühl",
+            "Koordination",
+            "Symmetrie"
+        ],
+        "short_description": "Gleichzeitiger Armzug beider Arme in Rückenlage.",
+        "img_name": "doppelarmruecken.png",
+        "img_description": "Schwimmer führt mit beiden Armen gleichzeitig einen Rückenarmzug aus.",
+        "title": "Doppelarmrücken - Symmetrie und Wassergefühl",
+        "description": [
+            "Schwimme in Rückenlage, führe aber den Armzug mit beiden Armen gleichzeitig aus.",
+            "Nach der Rückholphase tauchen beide Hände hinter dem Kopf ein. Führe dann die Druckphase kräftig bis zu den Oberschenkeln aus.",
+            "Nutze die Gleitphase, wenn die Hände an den Oberschenkeln sind, bevor du den nächsten Zyklus beginnst.",
+            "Diese Übung hilft, Ungleichgewichte im Armzug zu erkennen und verbessert das Gefühl für den Abdruck im Wasser."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer"
+        ]
+    },
+    {
+        "slag": "Rücken mit Becher",
+        "targets": [
+            "Kopfhaltung",
+            "Wasserlage",
+            "Ruhe"
+        ],
+        "short_description": "Rückenschwimmen mit einem gefüllten Becher auf der Stirn.",
+        "img_name": "ruecken_becher.png",
+        "img_description": "Schwimmer schwimmt Rücken mit einem Becher auf der Stirn.",
+        "title": "Rücken mit Becher - Kopfhaltung stabilisieren",
+        "description": [
+            "Platziere einen mit Wasser gefüllten Plastikbecher auf deiner Stirn.",
+            "Schwimme nun Rücken (ganze Lage oder nur Beine), ohne dass der Becher herunterfällt.",
+            "Diese Übung zwingt dich zu einer absolut ruhigen Kopfhaltung, was essentiell für eine gute Wasserlage im Rückenschwimmen ist.",
+            "Vermeide hektische Bewegungen und konzentriere dich auf eine saubere Rotation des Körpers um die Längsachse, während der Kopf fixiert bleibt."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Rücken Einarmig",
+        "targets": [
+            "Armzug",
+            "Rotation",
+            "Koordination"
+        ],
+        "short_description": "Rückenschwimmen mit nur einem Arm, der andere liegt an.",
+        "img_name": "ruecken_einarmig.png",
+        "img_description": "Schwimmer nutzt nur einen Arm für den Rückenarmzug.",
+        "title": "Einarmiges Rückenschwimmen",
+        "description": [
+            "Lege einen Arm entspannt neben dem Körper oder auf dem Bauch ab.",
+            "Schwimme nur mit dem anderen Arm. Konzentriere dich auf eine saubere Rotation zur Seite des aktiven Arms beim Eintauchen und der Druckphase.",
+            "Achte darauf, dass der Körper rotiert, der Kopf aber ruhig bleibt.",
+            "Wechsele nach einer Bahn den Arm. Dies stärkt das Gefühl für den einzelnen Armzug und die notwendige Körperrotation."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Rücken-Roll-Drill",
+        "targets": [
+            "Rotation",
+            "Wasserlage",
+            "Beinschlag"
+        ],
+        "short_description": "Rückenbeinschlag mit betonter Rotation von Seite zu Seite.",
+        "img_name": "ruecken_roll_drill.png",
+        "img_description": "Schwimmer in Rückenlage, rotiert stark von einer Seite zur anderen.",
+        "title": "Rücken-Roll-Drill (Schulterrotation)",
+        "description": [
+            "Schwimme Rückenbeine, die Arme liegen am Körper an.",
+            "Rotiere nun mit jedem 6. bis 10. Beinschlag den Körper von einer Seite auf die andere (ca. 45 Grad bis 90 Grad), sodass eine Schulter aus dem Wasser schaut.",
+            "Der Kopf bleibt dabei ruhig und blickt zur Decke/Himmel.",
+            "Diese Übung schult die für das Rückenschwimmen wichtige Rotation um die Längsachse."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "L-Drill",
+        "targets": [
+            "Armhaltung",
+            "Rotation",
+            "Wassergefühl"
+        ],
+        "short_description": "Rückenbeine mit einem Arm senkrecht nach oben gestreckt.",
+        "img_name": "l_drill.png",
+        "img_description": "Schwimmer in Seitenlage, ein Arm zeigt senkrecht nach oben.",
+        "title": "L-Drill (Arm senkrecht)",
+        "description": [
+            "Schwimme in Seitenlage Beine. Ein Arm liegt gestreckt vorne (oder am Körper), der andere Arm wird senkrecht nach oben zur Decke gestreckt.",
+            "Halte diese Position für einige Sekunden oder Beinschläge.",
+            "Achte darauf, dass der nach oben gestreckte Arm wirklich senkrecht ist und nicht zur Seite kippt. Dies hilft, die Schulterposition und Stabilität zu überprüfen.",
+            "Wechsele die Seite."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Rücken altdeutsch",
+        "targets": [
+            "Armzug",
+            "Wasserlage",
+            "Koordination"
+        ],
+        "short_description": "Rückenschwimmen mit Doppelarmzug und Brustbeine.",
+        "img_name": "ruecken_altdeutsch.png",
+        "img_description": "Schwimmer führt Rückenschwimmen mit Doppelarmzug und Brustbeinen durch.",
+        "title": "Rücken altdeutsch - Koordination und Wasserlage",
+        "description": [
+            "Diese Übung kombiniert den Doppelarmzug mit dem Brustbeinschlag, um die Koordination und Wasserlage im Rückenschwimmen zu verbessern.",
+            "Führe den Armzug mit beiden Armen gleichzeitig aus, während du den Brustbeinschlag ausführst. Achte darauf, dass du während der Bewegung eine stabile Wasserlage beibehältst und die Bewegungen kontrolliert ausführst.",
+            "Diese Übung fördert die Gesamtkoordination und stärkt die Muskulatur, die für eine gute Wasserlage und Schwimmtechnik wichtig ist."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer"
+        ]
+    },
+    {
+        "slag": "3-Punkt Rücken",
+        "targets": [
+            "Armzug",
+            "Wasserlage",
+            "Koordination"
+        ],
+        "short_description": "Rückenschwimmen mit 3 Berührungspunkten pro Seite.",
+        "img_name": "3_punkt_ruecken.png",
+        "img_description": "Schwimmer führt Rückenschwimmen mit 3 Berührungspunkten pro Seite durch.",
+        "title": "3-Punkt Rücken - Koordination und Wasserlage verbessern",
+        "description": [
+            "Diese Übung hilft dir, die Koordination und Wasserlage im Rückenschwimmen zu verbessern.",
+            "Beim 3-Punkt Rücken schwimmst du so, dass in der Rückholphase die Hand an 3 Stellen den Körper/das Wasser berührt: zuerst am Oberschenkel, dann an der Achsel und schließlich am maximal gestreckt vorne im Wasser.",
+            "Achte darauf, dass du während der Bewegung eine stabile Wasserlage beibehältst und die Bewegungen kontrolliert ausführst. Die Schulter sollte rotieren, das Gesicht zeigt immer zur Decke.",
+            "Diese Übung fördert die Gesamtkoordination und stärkt die Muskulatur, die für eine gute Wasserlage und Schwimmtechnik wichtig ist."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
     }
 ]
