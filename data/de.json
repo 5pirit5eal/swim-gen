@@ -1085,5 +1085,243 @@
             "Hobbyschwimmer",
             "Leistungsschwimmer"
         ]
+    },
+    {
+        "slag": "Delfinbeine in Rückenlage",
+        "targets": [
+            "Beinschlag",
+            "Wasserlage",
+            "Körperspannung"
+        ],
+        "short_description": "Delfinbeinschlag in Rückenlage zur Kontrolle der Kniebewegung.",
+        "img_name": "delfinbeine_ruecken.png",
+        "img_description": "Schwimmer in Rückenlage, Arme gestreckt oder am Körper, führt Delfinbeinschlag aus.",
+        "title": "Delfinbeine in Rückenlage - Kniekontrolle",
+        "description": [
+            "Stoße dich in Rückenlage ab. Die Arme können gestreckt hinter dem Kopf (Streamline) oder seitlich am Körper liegen.",
+            "Führe den Delfinbeinschlag aus der Hüfte und dem Rumpf heraus aus. Achte darauf, dass die Knie nicht zu stark aus dem Wasser kommen.",
+            "Diese Übung hilft, eine zu starke Kniebeugung zu vermeiden und den Aufwärtsschlag (Up-Kick) zu betonen.",
+            "Der Bauch sollte bei jedem Kick kurz die Wasseroberfläche durchbrechen."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Delfinbeine in Seitenlage",
+        "targets": [
+            "Beinschlag",
+            "Symmetrie",
+            "Wassergefühl"
+        ],
+        "short_description": "Delfinbeinschlag in Seitenlage für symmetrische Bewegung.",
+        "img_name": "delfinbeine_seite.png",
+        "img_description": "Schwimmer in Seitenlage, ein Arm gestreckt vorne, führt Wellenbewegung aus.",
+        "title": "Delfinbeine in Seitenlage",
+        "description": [
+            "Lege dich auf die Seite, der untere Arm ist gestreckt vorne, der obere liegt auf der Hüfte.",
+            "Führe eine wellenförmige Bewegung mit dem ganzen Körper aus. Der Impuls kommt aus der Brustwirbelsäule und setzt sich bis in die Zehenspitzen fort.",
+            "Achte darauf, dass die Bewegung nach vorne und hinten (in Bezug auf den Körper) gleich groß ist.",
+            "Wechsele nach jeder Bahn die Seite."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Einarmiges Delfin",
+        "targets": [
+            "Armzug",
+            "Atmung",
+            "Rhythmus"
+        ],
+        "short_description": "Delfinschwimmen mit nur einem aktiven Arm.",
+        "img_name": "delfin_einarmig.png",
+        "img_description": "Schwimmer führt Delfinbewegung mit einem Arm aus, der andere liegt vorne.",
+        "title": "Einarmiges Delfin - Rhythmus und Atmung",
+        "description": [
+            "Der passive Arm liegt gestreckt vorne. Atme zur Seite des aktiven Arms oder nach vorne.",
+            "Führe den Delfinarmzug mit einem Arm durch. Der Beinschlagrhythmus bleibt wie beim ganzen Schwimmen (2 Kicks pro Zyklus).",
+            "Diese Übung erleichtert die Rückholphase und hilft, den Rhythmus von Kick und Zug zu koordinieren.",
+            "Wechsele den Arm bahnenweise oder nach einer bestimmten Anzahl von Zügen."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin",
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "2-2-2 Delfin",
+        "targets": [
+            "Koordination",
+            "Ausdauer",
+            "Techniktransfer"
+        ],
+        "short_description": "Kombination aus einarmigem und ganzem Delfinschwimmen.",
+        "img_name": "delfin_2_2_2.png",
+        "img_description": "Schwimmer wechselt zwischen linkem Arm, rechtem Arm und beiden Armen.",
+        "title": "2-2-2 Delfin Drill",
+        "description": [
+            "Schwimme 2 Züge nur mit dem linken Arm, dann 2 Züge nur mit dem rechten Arm, und anschließend 2 Züge ganzes Delfin.",
+            "Versuche, das Gefühl der Leichtigkeit aus den einarmigen Zügen in die ganzen Züge mitzunehmen.",
+            "Achte auf einen kontinuierlichen Rhythmus und vermeide Pausen beim Wechsel.",
+            "Die Atmung erfolgt bei den einarmigen Zügen zur Seite, bei den ganzen Zügen nach vorne."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Delfinbeine mit Brett",
+        "targets": [
+            "Beinschlag",
+            "Kraft",
+            "Körperspannung"
+        ],
+        "short_description": "Isolierter Delfinbeinschlag mit Schwimmbrett.",
+        "img_name": "delfinbeine_brett.png",
+        "img_description": "Schwimmer hält Brett vorne und führt Delfinbeinschlag aus.",
+        "title": "Delfinbeine mit Brett",
+        "description": [
+            "Halte ein Schwimmbrett mit gestreckten Armen vorne. Das Gesicht kann im Wasser liegen (zum Atmen heben) oder über Wasser gehalten werden.",
+            "Führe kräftige Delfinbeinschläge aus. Die Bewegung startet in der Körpermitte, nicht erst in den Knien.",
+            "Vermeide es, mit dem Oberkörper auf das Brett zu drücken (Wippen). Der Oberkörper sollte möglichst ruhig bleiben.",
+            "Diese Übung kräftigt die Rumpf- und Beinmuskulatur."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Stehende Delfinwelle",
+        "targets": [
+            "Beinschlag",
+            "Wassergefühl",
+            "Rumpfkraft"
+        ],
+        "short_description": "Vertikaler Delfinbeinschlag im tiefen Wasser.",
+        "img_name": "stehende_delfinwelle.png",
+        "img_description": "Schwimmer steht senkrecht im Wasser und hält sich durch Delfinkicks oben.",
+        "title": "Stehende Delfinwelle (Vertical Kicking)",
+        "description": [
+            "Suche dir eine Stelle im Becken, wo du nicht stehen kannst.",
+            "Halte dich senkrecht im Wasser und verschränke die Arme vor der Brust oder halte sie über Wasser.",
+            "Führe den Delfinbeinschlag aus, um den Kopf über Wasser zu halten. Die Bewegung muss aus dem Rumpf kommen.",
+            "Diese Übung ist sehr intensiv und fördert die Rumpfkraft sowie das Gefühl für den effektiven Beinschlag in beide Richtungen (vorne und hinten)."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Leistungsschwimmer",
+            "Wasserballer"
+        ]
+    },
+    {
+        "slag": "Delfin mit Kraulbeinen",
+        "targets": [
+            "Armzug",
+            "Frequenz",
+            "Armkraft"
+        ],
+        "short_description": "Delfinarmzug kombiniert mit Kraulbeinschlag.",
+        "img_name": "delfin_kraulbeine.png",
+        "img_description": "Schwimmer führt Delfinarmzüge aus, Beine machen Kraulschlag.",
+        "title": "Delfin mit Kraulbeinen",
+        "description": [
+            "Führe den normalen Delfinarmzug aus, aber mache dazu einen kontinuierlichen, kräftigen Kraulbeinschlag.",
+            "Dies hilft, den Körper konstant an der Wasseroberfläche zu halten und erschwert die Rückholphase der Arme.",
+            "Konzentriere dich auf eine saubere, schnelle Armbewegung und das Überwasserbringen der Arme.",
+            "Diese Übung eignet sich gut, um die Armkraft zu trainieren, ohne durch den Rhythmus des Delfinbeinschlags limitiert zu sein."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin",
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Unterwasser-Delfinkicks",
+        "targets": [
+            "Tauchphase",
+            "Streamline",
+            "Lungenvolumen"
+        ],
+        "short_description": "Lange Tauchphasen mit Delfinkicks in Streamline-Position.",
+        "img_name": "unterwasser_delfin.png",
+        "img_description": "Schwimmer taucht tief in gestreckter Haltung und macht Delfinkicks.",
+        "title": "Unterwasser-Delfinkicks (The Fifth Stroke)",
+        "description": [
+            "Stoße dich kräftig von der Wand ab und nimm eine perfekte Streamline-Position ein (Hände übereinander, Arme hinter den Ohren gestreckt).",
+            "Führe unter Wasser kleine, schnelle und kraftvolle Delfinkicks aus.",
+            "Versuche, so weit wie möglich zu tauchen (z.B. bis zur 15m Markierung), bevor du auftauchst.",
+            "Achte darauf, die Spannung im ganzen Körper zu halten und die Amplitude der Kicks nicht zu groß werden zu lassen."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin",
+            "Allgemein"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Leistungsschwimmer",
+            "Hobbyschwimmer"
+        ]
     }
 ]
