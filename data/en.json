@@ -1,0 +1,1327 @@
+[
+    {
+        "slag": "Starfish",
+        "targets": [
+            "Gliding",
+            "Water Resistance",
+            "Water Feel"
+        ],
+        "short_description": "Exercise to experience water resistance and gliding ability.",
+        "img_name": "seestern.png",
+        "img_description": "The swimmer pushes off the pool wall and stretches arms and legs far away from the body.",
+        "title": "The Starfish - A simple exercise for water feel while gliding",
+        "description": [
+            "Correct gliding technique is a prerequisite for learning the front crawl, but is also important for other strokes.",
+            "This exercise is about getting a feel for how water resistance affects gliding distance.",
+            "Push off vigorously from the pool edge and stretch your arms and legs away from your body like a starfish. By stretching, you slow down the glide and you will notice how far you can glide with this posture.",
+            "Feel free to try this exercise on your back as well."
+        ],
+        "video_url": [
+            "https://www.youtube.com/watch?v=xtuRdL8PTSA&list=PLylrIIV_u33iQsIG9Dqj_B93B6KDJnsJ0&index=1"
+        ],
+        "styles": [
+            "General"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Beginner"
+        ]
+    },
+    {
+        "slag": "Squeeze Ears",
+        "targets": [
+            "Gliding",
+            "Water Resistance",
+            "Water Feel"
+        ],
+        "short_description": "Optimization of the gliding position through a stretched body posture.",
+        "img_name": "ohren_klemmen.png",
+        "img_description": "The swimmer glides with stretched arms, hands lie flat on top of each other and ears are squeezed between the shoulders.",
+        "title": "Squeeze Ears - Basics of Gliding",
+        "description": [
+            "Use this exercise to experience how far and fast you can glide when water resistance is minimized.",
+            "Push off vigorously from the pool edge, place your hands flat on top of each other and squeeze your ears between your shoulders. Stretch your arms and shoulders far forward. Glide as far as you can until you stand still or run out of air.",
+            "You can also perform the same exercise on your side and back to further improve your water feel."
+        ],
+        "video_url": [
+            "https://www.youtube.com/watch?v=TvJz8Pm41yQ&list=PLylrIIV_u33iQsIG9Dqj_B93B6KDJnsJ0&index=2"
+        ],
+        "styles": [
+            "General"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Beginner"
+        ]
+    },
+    {
+        "slag": "Flutter Kick",
+        "targets": [
+            "Kick",
+            "Body Position",
+            "Body Tension"
+        ],
+        "short_description": "Flutter kick with kickboard to focus on leg work.",
+        "img_name": "kraulbeine_brett.png",
+        "img_description": "Swimmer with kickboard, arms and shoulders are stretched far forward, face is in the water.",
+        "title": "Flutter Kick: Shoulder Extension",
+        "description": [
+            "The arms and shoulders are stretched forward. The forearms rest on the kickboard.",
+            "Place your hands shoulder-width apart on the board and grip the outer edges. Put your face in the water and stretch your arms so far forward that your shoulders almost touch your ears."
+        ],
+        "video_url": [
+            "https://www.knsu.de/individualsportarten/schwimmen/kraul/methodische-uebungsreihe-zum-kraulschwimmen#video4"
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner"
+        ]
+    },
+    {
+        "slag": "Catch-up Drill",
+        "targets": [
+            "Coordination",
+            "Arm Stroke",
+            "Gliding"
+        ],
+        "short_description": "Alternating arm stroke with a pause in the extension.",
+        "img_name": "abschlagschwimmen.png",
+        "img_description": "Swimmer performs an arm stroke alternately while the other arm waits stretched out in front.",
+        "title": "Freestyle Catch-up Drill",
+        "description": [
+            "In catch-up swimming, the swimmer performs the movement alternately with one arm while the other rests in a stretched position in front.",
+            "Imagine your hands passing a baton at the front. Only when the right one has arrived, the left one may start."
+        ],
+        "video_url": [
+            "https://www.knsu.de/individualsportarten/schwimmen/kraul/methodische-uebungsreihe-zum-kraulschwimmen#video7"
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "Freestyle No Breathing",
+        "targets": [
+            "Overall Coordination",
+            "Sprint"
+        ],
+        "short_description": "Short distances freestyle swimming without breathing.",
+        "img_name": "kraul_ohne_atmung.png",
+        "img_description": "Swimmer in full freestyle motion, head remains underwater.",
+        "title": "Overall Coordination: Freestyle No Breathing",
+        "description": [
+            "The freestyle movement is performed without swimming aids and without breathing across the width of the pool.",
+            "Take a deep breath before leaving the wall. The propulsion comes only from arm and leg work."
+        ],
+        "video_url": [
+            "https://www.knsu.de/individualsportarten/schwimmen/kraul/methodische-uebungsreihe-zum-kraulschwimmen#video8"
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Beginner"
+        ]
+    },
+    {
+        "slag": "Breathing while Walking",
+        "targets": [
+            "Breathing",
+            "Head Rotation"
+        ],
+        "short_description": "Exercise of lateral inhalation while walking in water.",
+        "img_name": "atmen_im_gehen.png",
+        "img_description": "Practitioner walks through the water, turns head to the side to breathe and forms a 'window' with the arm.",
+        "title": "Breathing: Breathing while Walking",
+        "description": [
+            "Inhale after every third arm stroke to train both sides.",
+            "Turn your head and upper body to the side you are inhaling from. The elbow points to the ceiling."
+        ],
+        "video_url": [
+            "https://www.knsu.de/individualsportarten/schwimmen/kraul/methodische-uebungsreihe-zum-kraulschwimmen#video10"
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner"
+        ]
+    },
+    {
+        "slag": "Single Arm Freestyle",
+        "targets": [
+            "Arm Stroke",
+            "Torso Rotation",
+            "Body Position"
+        ],
+        "short_description": "Freestyle swimming with only one arm with emphasized rotation and pressure.",
+        "img_name": "kraul_einarmig.png",
+        "img_description": "Swimmer swims freestyle with only one arm, the other arm is close to the body.",
+        "title": "Single Arm Freestyle - Focus on Arm Stroke and Torso Rotation",
+        "description": [
+            "This exercise helps you improve the technique of the freestyle arm stroke and emphasize torso rotation.",
+            "In single-arm freestyle swimming, you swim with only one arm while the other arm remains close to the body. Focus on performing the arm stroke with the active arm powerfully and efficiently: Catch, Pull, Push, and Recovery.",
+            "Make sure you maintain good torso rotation during the arm stroke to optimize body position and maximize propulsion. It helps to consciously lift the passive arm and shoulder slightly out of the water as soon as the active arm enters the water.",
+            "This exercise promotes coordination and awareness of arm movement in freestyle swimming. In addition, the isolation strengthens the shoulder muscles of the active arm. Accordingly, the exercise should be performed alternately on both sides."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Hard",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "Sculling",
+        "targets": [
+            "Water Feel",
+            "Hand Position",
+            "Catch Phase"
+        ],
+        "short_description": "Freestyle sculling to improve water feel and hand position.",
+        "img_name": "kraul_skulling.png",
+        "img_description": "Swimmer performs freestyle sculling with slightly bent arms, hands move laterally in the water.",
+        "title": "Freestyle Sculling - Improving Water Feel",
+        "description": [
+            "This exercise helps you develop a better feel for the water and optimize hand position during the freestyle arm stroke.",
+            "In freestyle sculling, you move your hands laterally in the water while your arms remain slightly bent. The movement resembles an '8'-shaped pattern, with the hands gripping the water and exerting pressure.",
+            "Make sure your hands remain flat throughout the movement and fingers are slightly spread. Focus on gripping the water effectively and exerting pressure to maximize propulsion.",
+            "This exercise promotes awareness of hand position and the catch phase of the freestyle arm stroke."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "Pullbuoy between Feet",
+        "targets": [
+            "Arm Stroke",
+            "Body Position",
+            "Body Tension"
+        ],
+        "short_description": "Freestyle swimming with pullbuoy between feet to focus on arm stroke.",
+        "img_name": "pullbuoy_zwischen_fuessen.png",
+        "img_description": "Swimmer swims freestyle with pullbuoy between feet, arms in full freestyle motion.",
+        "title": "Pullbuoy between Feet - Focus on Arm Stroke",
+        "description": [
+            "This exercise helps you concentrate on the arm stroke in freestyle swimming by supporting the leg kick through the use of a pullbuoy.",
+            "Place the pullbuoy between your feet, and press your feet together, as the pullbuoy sits more insecurely now. This forces you to control your body tension and body position particularly well.",
+            "Make sure you don't lose the pullbuoy while swimming and lie as flat as possible in the water. Focus on a high elbow and efficient arm movement."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "Water Polo Freestyle",
+        "targets": [
+            "Body Position",
+            "Freestyle Technique",
+            "Strength Endurance"
+        ],
+        "short_description": "Freestyle swimming like in water polo, head remains above water.",
+        "img_name": "wasserballkraul.png",
+        "img_description": "Swimmer with head above water and splashing water.",
+        "title": "Water Polo Freestyle - Freestyle Technique with Head Above Water",
+        "description": [
+            "This exercise helps you feel how body position affects freestyle technique by swimming inefficiently.",
+            "In water polo freestyle, your head remains above water, similar to the game of water polo. This changes your body position and increases water resistance.",
+            "Make sure you maintain a clean freestyle technique despite the changed body position. Focus on a high elbow and efficient arm movement.",
+            "This exercise promotes awareness of the importance of body position. For already experienced swimmers, however, this exercise is of lesser value. Through more strenuous swimming, it strengthens leg and shoulder muscles.",
+            "For triathletes, a good exercise to train swimming with a higher head and also maintain good technique when orienting in open water."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Triathlete",
+            "Beginner",
+            "Hobby Swimmer"
+        ]
+    },
+    {
+        "slag": "Flutter Kick without Board",
+        "targets": [
+            "Kick",
+            "Body Position",
+            "Body Tension"
+        ],
+        "short_description": "Flutter kick without board in prone and side position.",
+        "img_name": "kraulbeine_ohne_brett.png",
+        "img_description": "Swimmer with arms and shoulders stretched far forward, face is in the water.",
+        "title": "Flutter Kick: Shoulder Extension",
+        "description": [
+            "The arms and shoulders are stretched forward. The head is clamped between the arms in \"Streamline\" position. The isolation of the legs allows for better focus on leg work.",
+            "Put your hands together above your head with arms stretched. Put your face in the water and stretch your arms so far forward that your shoulders touch your ears. Hold this position throughout the kick. A freestyle arm stroke can be performed for breathing.",
+            "This exercise should also be performed on the side. To do this, leave one arm stretched forward and the other close along the body. The head remains in the water line.",
+            "Pay attention to a high position in the water and stable body tension."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "Fists Freestyle",
+        "targets": [
+            "Arm Stroke",
+            "Water Feel",
+            "Catch Phase"
+        ],
+        "short_description": "Freestyle swimming with clenched fists to improve water feel.",
+        "img_name": "kraul_mit_fausten.png",
+        "img_description": "Swimmer in full freestyle motion with clenched fists.",
+        "title": "Fists Freestyle - Improving Water Feel",
+        "description": [
+            "This exercise helps you develop a better feel for the water and optimize hand position during the freestyle arm stroke.",
+            "In freestyle swimming with fists, you swim with clenched hands. Make sure your fists remain stable throughout the arm stroke and fingers are held closely together.",
+            "Focus on gripping the water effectively and exerting pressure to maximize propulsion.",
+            "This exercise promotes awareness of hand position and the catch phase of the freestyle arm stroke."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "3-Point Zipper Freestyle",
+        "targets": [
+            "Arm Stroke",
+            "Shoulder Rotation",
+            "Body Position"
+        ],
+        "short_description": "Freestyle swimming with 3 touch points, high elbow and tight arm stroke.",
+        "img_name": "3_punkt_reissverschlusskraul.png",
+        "img_description": "Swimmer performs freestyle arm stroke with high elbow and tight arm stroke.",
+        "title": "3-Point Zipper Freestyle - Refining Freestyle Technique",
+        "description": [
+            "This exercise helps you improve the technique of the freestyle arm stroke and emphasize torso rotation.",
+            "In 3-point zipper freestyle, you swim with a tight arm stroke and a high elbow. Make sure your hand stays close to your body throughout the arm stroke and the elbow is always positioned above the hand. Use the touch points as orientation for the arm movement.",
+            "The three touch points are in the recovery phase: 1) The exit of the hand from the water at the thigh, 2) The armpit with the thumb, and 3) The entry of the hand into the water with an almost stretched arm.",
+            "Pay attention to a clean underwater pull phase and good torso rotation to optimize body position and maximize propulsion.",
+            "This exercise promotes coordination and awareness of arm movement in freestyle swimming and strengthens shoulder muscles."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "Windmills",
+        "targets": [
+            "Arm Stroke",
+            "Body Position",
+            "Shoulder Mobility"
+        ],
+        "short_description": "Freestyle or backstroke swimming with fully stretched arms.",
+        "img_name": "windmuehlen.png",
+        "img_description": "Swimmer performs the arm stroke stretched.",
+        "title": "Windmills - Freestyle Technique with Stretched Arms",
+        "description": [
+            "This exercise helps you improve arm movement in freestyle or backstroke swimming and develop a better feel for body position.",
+            "In the windmill arm stroke, you swim with fully stretched arms. Make sure your arms remain stretched throughout the arm stroke, both above and below water. Focus on pulling the arms powerfully through the water and maintaining an efficient body position.",
+            "This exercise promotes shoulder mobility and strength in the arm stroke.",
+            "Pay attention to the change in water resistance and effort due to the changed leverage."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Freestyle",
+            "Backstroke"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Sprinter",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Finger Drag",
+        "targets": [
+            "Arm Stroke",
+            "Water Feel",
+            "Shoulder Rotation"
+        ],
+        "short_description": "Freestyle swimming \"dragging\" fingers over the water surface during arm stroke.",
+        "img_name": "fingerschleifen.png",
+        "img_description": "Swimmer drags fingers over the water surface during freestyle arm stroke.",
+        "title": "Finger Drag - Refining Freestyle Technique",
+        "description": [
+            "This exercise helps you develop a better feel for the water surface and optimize hand position during the freestyle arm stroke.",
+            "After the underwater part of the arm stroke, try to drag your fingertips lightly over the water surface all the way back during recovery.",
+            "Make sure your hand is relaxed and fingers remain slightly spread. The goal is a high elbow and an efficient recovery movement.",
+            "This exercise promotes shoulder rotation and elbow position during the arm stroke."
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "3 Strokes, 12 Kicks",
+        "targets": [
+            "Coordination",
+            "Arm Stroke",
+            "Kick"
+        ],
+        "short_description": "3 arm strokes with 6 kicks and then 6 kicks on the side.",
+        "img_name": "3_zuege_12_kicks.png",
+        "img_description": "Swimmer performs 3 freestyle arm strokes, followed by 12 freestyle kicks on the side.",
+        "title": "3 Strokes, 12 Kicks - Improving Freestyle Coordination",
+        "description": [
+            "This exercise helps you improve coordination between arm stroke and kick.",
+            "Perform 3 complete freestyle arm strokes, followed by 6 freestyle kicks. Then switch to the side position and do another 6 freestyle kicks.",
+            "Make sure you maintain a good body position during the arm strokes and perform the kicks powerfully and evenly.",
+            "This exercise promotes overall coordination and timing in freestyle swimming."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "Silent Freestyle",
+        "targets": [
+            "Mindfulness",
+            "Body Position",
+            "Freestyle Technique"
+        ],
+        "short_description": "Freestyle swimming with minimal noise generation and full mindfulness.",
+        "img_name": "stilles_kraul.png",
+        "img_description": "Swimmer in full freestyle motion, concentrated on a quiet and silent execution.",
+        "title": "Silent Freestyle - Mindfulness in Water",
+        "description": [
+            "In silent freestyle swimming, the focus is on a quiet and controlled execution of movements to generate as little noise as possible.",
+            "Make sure your movements are gentle and fluid. Avoid hectic or abrupt movements that could cause unnecessary waves or splashes.",
+            "Focus on your senses and your breathing and try to breathe evenly and deeply to support a calm body position.",
+            "This exercise promotes not only technique but also mindfulness and awareness of one's own body in the water.",
+            "Excellent exercise for getting into training or cooling down afterwards."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "Bathtub",
+        "targets": [
+            "Body Tension",
+            "Water Feel",
+            "Strengthening"
+        ],
+        "short_description": "Sculling exercise for body tension, strengthening and water feel.",
+        "img_name": "badewanne.png",
+        "img_description": "Swimmer in supine position, arms slightly stretched sideways in the water.",
+        "title": "Bathtub - Sculling Exercise for Body Tension and Water Feel",
+        "description": [
+            "The bathtub is a sculling exercise that helps you improve your body tension, strengthen your muscles and train your water feel.",
+            "Lie flat on your back in the water, feet pointing forward. Your arms point forward and perform circular, short arm strokes.",
+            "Make sure your body forms a straight line and you maintain stable body tension. The circular movements of the hands and forearms should be small and controlled to grip the water effectively.",
+            "This exercise promotes perception of the water and strengthens the muscles that are important for good body position and swimming technique."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Backstroke",
+            "Freestyle",
+            "General"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "High Breaststroke",
+        "targets": [
+            "Arm Stroke",
+            "Water Resistance",
+            "Water Feel"
+        ],
+        "short_description": "Breaststroke swimming with maximum emergence from the water during arm stroke.",
+        "img_name": "hohes_brust.png",
+        "img_description": "Swimmer performs breaststroke arm stroke with high emergence from the water.",
+        "title": "High Breaststroke - Developing Feel for the Catch Phase",
+        "description": [
+            "This exercise helps you develop a better feel for the catch phase of the breaststroke arm stroke and sense water resistance.",
+            "In high breaststroke swimming, you perform the arm stroke so that your shoulders come out of the water as much as possible. Make sure you perform a controlled movement during the arm stroke and hands dip effectively into the water.",
+            "Focus on sensing water resistance and maximizing the power of the arm stroke to increase propulsion.",
+            "This exercise promotes awareness of the catch phase of the breaststroke arm stroke and the optimal balance of propulsion and emergence from the water.",
+            "Feel free to combine this exercise with the \"Flat Breaststroke\" exercise to feel the other extreme."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Breaststroke"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Flat Breaststroke",
+        "targets": [
+            "Arm Stroke",
+            "Water Resistance",
+            "Water Feel"
+        ],
+        "short_description": "Breaststroke swimming as flat as possible in the water, without emerging.",
+        "img_name": "flaches_brust.png",
+        "img_description": "Swimmer performs breaststroke arm stroke flat in the water.",
+        "title": "Flat Breaststroke - Developing Feel for the Catch Phase",
+        "description": [
+            "This exercise helps you develop a better feel for the catch phase of the breaststroke arm stroke and sense water resistance.",
+            "In flat breaststroke swimming, you perform the arm stroke so that your shoulders come out of the water as little as possible. Perform the extension phase of the arms underwater.",
+            "Focus on sensing water resistance and maximizing the power of the arm stroke to increase propulsion.",
+            "This exercise promotes awareness of the catch phase of the breaststroke arm stroke and the optimal balance of propulsion and emergence from the water.",
+            "Feel free to combine this exercise with the \"High Breaststroke\" exercise to feel the other extreme."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Breaststroke"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Flat Breaststroke",
+        "targets": [
+            "Arm Stroke",
+            "Water Resistance",
+            "Water Feel"
+        ],
+        "short_description": "Breaststroke swimming as flat as possible in the water, without emerging.",
+        "img_name": "flaches_brust.png",
+        "img_description": "Swimmer performs breaststroke arm stroke flat in the water.",
+        "title": "Flat Breaststroke - Developing Feel for the Catch Phase",
+        "description": [
+            "This exercise helps you develop a better feel for the catch phase of the breaststroke arm stroke and sense water resistance.",
+            "In flat breaststroke swimming, you perform the arm stroke so that your shoulders come out of the water as much as possible. Make sure you perform a controlled movement during the arm stroke and hands dip effectively into the water.",
+            "Focus on sensing water resistance and maximizing the power of the arm stroke to increase propulsion.",
+            "This exercise promotes awareness of the catch phase of the breaststroke arm stroke and the optimal balance of propulsion and emergence from the water.",
+            "Feel free to combine this exercise with the \"High Breaststroke\" exercise to feel the other extreme."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Breaststroke"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Breaststroke Arms, Dolphin Kick",
+        "targets": [
+            "Overall Coordination",
+            "Gliding",
+            "Arm Stroke"
+        ],
+        "short_description": "Breaststroke swimming with dolphin kicks.",
+        "img_name": "brustarme_delfinbeine.png",
+        "img_description": "Swimmer performs breaststroke arm stroke with dolphin kicks.",
+        "title": "Breaststroke Arms, Dolphin Kick - Dynamic Arm Stroke with Core Training",
+        "description": [
+            "Through a combination of butterfly and breaststroke, a simple entry into the general wave movement in breaststroke can be practiced.",
+            "The arm stroke is performed powerfully with slightly increased frequency, while the legs follow the 2-kick rhythm usual for butterfly. The body performs a wave movement. Make sure the arms are guided above water in the extension phase.",
+            "This exercise is a less power-intensive alternative to pure butterfly swimming."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Breaststroke",
+            "Butterfly"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Diagonal Breaststroke",
+        "targets": [
+            "Overall Coordination",
+            "Body Tension"
+        ],
+        "short_description": "Alternating one-sided breaststroke swimming - diagonal arms to legs.",
+        "img_name": "diagonales_brust.png",
+        "img_description": "Swimmer performs diagonal breaststroke swimming, one arm and the opposite leg move simultaneously.",
+        "title": "Diagonal Breaststroke - Improving Coordination and Body Tension",
+        "description": [
+            "This exercise helps you improve coordination between arm and leg movements in breaststroke swimming and strengthen body tension.",
+            "In diagonal breaststroke swimming, you move one arm and the opposite leg simultaneously. Make sure you maintain stable body tension during the movement and perform the movements in a controlled manner.",
+            "The resting arm and leg should move as little as possible and remain stretched.",
+            "This exercise promotes overall coordination and strengthens the muscles that are important for good body position and swimming technique."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Breaststroke"
+        ],
+        "difficulty": "Hard",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "1 Pull, 2 Kicks Breaststroke",
+        "targets": [
+            "Coordination",
+            "Arm Stroke",
+            "Gliding"
+        ],
+        "short_description": "Alternating breaststroke arm stroke with 2 kicks and pause in extension.",
+        "img_name": "1_armzug_2_kicks_brust.png",
+        "img_description": "Swimmer swims breaststroke.",
+        "title": "1 Pull, 2 Kicks Breaststroke - Improving Coordination",
+        "description": [
+            "In 1 pull with 2 kicks, you alternately perform an arm stroke with a kick, followed by another kick where the arms remain stretched in front.",
+            "Maintain body tension and body position during the second kick to maximize propulsion. Make sure you maintain good body position during the arm stroke and perform the kicks powerfully and evenly.",
+            "Leave your head between your arms in the water line and inhale only during the arm stroke. Keep knees close together during the kick to minimize water resistance. The rotation of the lower legs determines propulsion."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Breaststroke"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Chair Swimming",
+        "targets": [
+            "Catch Phase",
+            "Water Feel",
+            "Strengthening"
+        ],
+        "short_description": "Sculling exercise to improve water feel and catch phase.",
+        "img_name": "stuhlschwimmen.png",
+        "img_description": "Swimmer in upright position in water, arms slightly stretched sideways.",
+        "title": "Chair Swimming - Sculling Exercise for Water Feel and Catch Phase",
+        "description": [
+            "Chair swimming is a sculling exercise that helps you improve your water feel and optimize the catch phase of the arm stroke.",
+            "Sit upright in the water so that your shoulders and head protrude from the water. Your legs are bent.",
+            "Variations of this exercise include stretched legs so that the body forms an L, or a simplification by placing feet on the pool floor.",
+            "Perform fast, short breaststroke arm strokes with your hands and forearms to grip the water and exert pressure.",
+            "Make sure you maintain stable body tension and perform the movements in a controlled manner."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "General",
+            "Breaststroke"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer"
+        ]
+    },
+    {
+        "slag": "Dog Paddle",
+        "targets": [
+            "Body Position",
+            "Body Tension",
+            "Strengthening"
+        ],
+        "short_description": "Sculling exercise to improve body position and body tension.",
+        "img_name": "hundepaddeln.png",
+        "img_description": "Swimmer in prone position, arms and legs slightly bent in water.",
+        "title": "Dog Paddle - Sculling Exercise for Body Position and Body Tension",
+        "description": [
+            "Dog paddle is a sculling exercise that helps you improve your body position and strengthen your body tension.",
+            "Lie flat on your stomach in the water, feet pointing backwards. Your arms are slightly bent and perform fast, short arm strokes to grip the water and exert pressure.",
+            "Make sure you maintain stable body tension and perform the movements in a controlled manner."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "General"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer"
+        ]
+    },
+    {
+        "slag": "Breaststroke Kick with Board between Thighs",
+        "targets": [
+            "Kick",
+            "Water Resistance"
+        ],
+        "short_description": "Breaststroke kick with board between thighs to learn correct leg work.",
+        "img_name": "brustbeine_mit_brett_zwischen_den_oberschenkeln.png",
+        "img_description": "Swimmer performs breaststroke kick with board between thighs.",
+        "title": "Breaststroke Kick: Board between Thighs",
+        "description": [
+            "The legs are fixed in the correct position by the board, which facilitates the correct execution of the breaststroke kick.",
+            "Place a kickboard or pullbuoy between your thighs. Perform the breaststroke kick while holding the board only with your legs. Make sure you perform the legs correctly, with an even and powerful movement.",
+            "This exercise helps you learn the correct technique of the breaststroke kick and strengthen the muscles that are important for effective leg work in breaststroke swimming.",
+            "The arms remain stretched in front of the body in gliding position. Propulsion comes exclusively from the legs. Pay attention to good rotation in the lower legs and thrust from the feet. The legs are moved symmetrically. Avoid a scissor movement."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Breaststroke"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Push against Resistance",
+        "targets": [
+            "Kick",
+            "Frequency",
+            "Explosiveness"
+        ],
+        "short_description": "Breaststroke kick against board, fellow swimmer or wall to strengthen leg muscles.",
+        "img_name": "schub_gegen_brett.png",
+        "img_description": "Swimmer performs breaststroke kick against a board.",
+        "title": "Breaststroke Kick: Push against Resistance",
+        "description": [
+            "This exercise helps you improve the power and explosiveness of your breaststroke kick by working against resistance.",
+            "Place a kickboard in front of you or swim against a fellow swimmer positioned opposite you. Perform the breaststroke kick while working against the resistance.",
+            "Make sure you perform the legs correctly, with an even, high-frequency and powerful movement. Focus on overcoming the resistance and maximizing propulsion.",
+            "This exercise strengthens the muscles that are important for effective leg work in breaststroke swimming."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Breaststroke",
+            "Partner Drill"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Starfish Breaststroke",
+        "targets": [
+            "Arm Stroke",
+            "Water Resistance",
+            "Water Feel"
+        ],
+        "short_description": "Breaststroke swimming with stretched legs and arms in pressure phase.",
+        "img_name": "seestern_brust.png",
+        "img_description": "Swimmer performs breaststroke arm stroke with stretched legs and arms in pressure phase.",
+        "title": "Starfish Breaststroke - Developing Feel for the Catch Phase",
+        "description": [
+            "This exercise helps you develop a better feel for the optimal execution of the pressure phase and the kick in breaststroke swimming.",
+            "In starfish breaststroke swimming, the pull phase is performed with arms stretched as far as possible. The kick is characterized by spread thighs.",
+            "You can notice how water resistance changes, the pressure phase costs more strength due to the larger lever, but propulsion does not increase significantly. This is caused by the greater friction of the spread limbs.",
+            "This exercise promotes awareness of the catch phase of the breaststroke arm stroke and the optimal balance of propulsion and water resistance."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Breaststroke"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Backstroke Kick Streamline",
+        "targets": [
+            "Kick",
+            "Body Position",
+            "Body Tension"
+        ],
+        "short_description": "Backstroke kick in stretched posture (Streamline).",
+        "img_name": "rueckenbeine_streamline.png",
+        "img_description": "Swimmer in supine position, arms stretched behind head, hands on top of each other.",
+        "title": "Backstroke Kick in Streamline Position",
+        "description": [
+            "Push off from the pool edge on your back. Stretch your arms far behind your head, hands lie on top of each other (Streamline position).",
+            "Perform a continuous flutter kick from the hip. The knees remain below the water surface, only the water bubbles slightly on the surface.",
+            "Pay attention to a stable core and a stretched posture. The head lies quietly in the water, the gaze goes upwards.",
+            "This exercise improves your body position and strengthens the core muscles."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Backstroke"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Double Arm Backstroke",
+        "targets": [
+            "Water Feel",
+            "Coordination",
+            "Symmetry"
+        ],
+        "short_description": "Simultaneous arm stroke of both arms in backstroke.",
+        "img_name": "doppelarmruecken.png",
+        "img_description": "Swimmer performs a backstroke arm stroke with both arms simultaneously.",
+        "title": "Double Arm Backstroke - Symmetry and Water Feel",
+        "description": [
+            "Swim on your back, but perform the arm stroke with both arms simultaneously.",
+            "After the recovery phase, both hands dip behind the head. Then perform the pressure phase powerfully up to the thighs.",
+            "Use the gliding phase when the hands are on the thighs before starting the next cycle.",
+            "This exercise helps to detect imbalances in the arm stroke and improves the feel for the push in the water."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Backstroke"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer"
+        ]
+    },
+    {
+        "slag": "Backstroke with Cup",
+        "targets": [
+            "Head Position",
+            "Body Position",
+            "Calmness"
+        ],
+        "short_description": "Backstroke swimming with a filled cup on the forehead.",
+        "img_name": "ruecken_becher.png",
+        "img_description": "Swimmer swims backstroke with a cup on the forehead.",
+        "title": "Backstroke with Cup - Stabilizing Head Position",
+        "description": [
+            "Place a plastic cup filled with water on your forehead.",
+            "Now swim backstroke (whole stroke or just legs) without the cup falling off.",
+            "This exercise forces you to keep your head absolutely still, which is essential for a good body position in backstroke swimming.",
+            "Avoid hectic movements and concentrate on a clean rotation of the body around the longitudinal axis while the head remains fixed."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Backstroke"
+        ],
+        "difficulty": "Hard",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "Single Arm Backstroke",
+        "targets": [
+            "Arm Stroke",
+            "Rotation",
+            "Coordination"
+        ],
+        "short_description": "Backstroke swimming with only one arm, the other lies close.",
+        "img_name": "ruecken_einarmig.png",
+        "img_description": "Swimmer uses only one arm for backstroke arm stroke.",
+        "title": "Single Arm Backstroke",
+        "description": [
+            "Lay one arm relaxed next to the body or on the stomach.",
+            "Swim only with the other arm. Focus on a clean rotation to the side of the active arm during immersion and the pressure phase.",
+            "Make sure the body rotates but the head remains calm.",
+            "Switch arms after one lane. This strengthens the feeling for the individual arm stroke and the necessary body rotation."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Backstroke"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "Backstroke Roll Drill",
+        "targets": [
+            "Rotation",
+            "Body Position",
+            "Kick"
+        ],
+        "short_description": "Backstroke kick with emphasized rotation from side to side.",
+        "img_name": "ruecken_roll_drill.png",
+        "img_description": "Swimmer in supine position, rotates strongly from one side to the other.",
+        "title": "Backstroke Roll Drill (Shoulder Rotation)",
+        "description": [
+            "Swim backstroke legs, arms lie close to the body.",
+            "Now rotate the body from one side to the other (approx. 45 degrees to 90 degrees) with every 6th to 10th kick, so that one shoulder looks out of the water.",
+            "The head remains calm and looks to the ceiling/sky.",
+            "This exercise trains the rotation around the longitudinal axis, which is important for backstroke swimming."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Backstroke"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "L-Drill",
+        "targets": [
+            "Arm Position",
+            "Rotation",
+            "Water Feel"
+        ],
+        "short_description": "Backstroke legs with one arm stretched vertically upwards.",
+        "img_name": "l_drill.png",
+        "img_description": "Swimmer in side position, one arm points vertically upwards.",
+        "title": "L-Drill (Arm Vertical)",
+        "description": [
+            "Swim legs in side position. One arm lies stretched forward (or on the body), the other arm is stretched vertically upwards to the ceiling.",
+            "Hold this position for a few seconds or kicks.",
+            "Make sure the arm stretched upwards is really vertical and does not tilt to the side. This helps to check shoulder position and stability.",
+            "Switch sides."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Backstroke"
+        ],
+        "difficulty": "Hard",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Old German Backstroke",
+        "targets": [
+            "Arm Stroke",
+            "Body Position",
+            "Coordination"
+        ],
+        "short_description": "Backstroke swimming with double arm stroke and breaststroke legs.",
+        "img_name": "ruecken_altdeutsch.png",
+        "img_description": "Swimmer performs backstroke swimming with double arm stroke and breaststroke legs.",
+        "title": "Old German Backstroke - Coordination and Body Position",
+        "description": [
+            "This exercise combines the double arm stroke with the breaststroke kick to improve coordination and body position in backstroke swimming.",
+            "Perform the arm stroke with both arms simultaneously while performing the breaststroke kick. Make sure you maintain a stable body position during the movement and perform the movements in a controlled manner.",
+            "This exercise promotes overall coordination and strengthens the muscles that are important for good body position and swimming technique."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Backstroke"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer"
+        ]
+    },
+    {
+        "slag": "3-Point Backstroke",
+        "targets": [
+            "Arm Stroke",
+            "Body Position",
+            "Coordination"
+        ],
+        "short_description": "Backstroke swimming with 3 touch points per side.",
+        "img_name": "3_punkt_ruecken.png",
+        "img_description": "Swimmer performs backstroke swimming with 3 touch points per side.",
+        "title": "3-Point Backstroke - Improving Coordination and Body Position",
+        "description": [
+            "This exercise helps you improve coordination and body position in backstroke swimming.",
+            "In 3-point backstroke, you swim so that in the recovery phase the hand touches the body/water at 3 places: first at the thigh, then at the armpit and finally maximally stretched forward in the water.",
+            "Make sure you maintain a stable body position during the movement and perform the movements in a controlled manner. The shoulder should rotate, the face always points to the ceiling.",
+            "This exercise promotes overall coordination and strengthens the muscles that are important for good body position and swimming technique."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Backstroke"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Dolphin Kick on Back",
+        "targets": [
+            "Kick",
+            "Body Position",
+            "Body Tension"
+        ],
+        "short_description": "Dolphin kick in supine position to control knee movement.",
+        "img_name": "delfinbeine_ruecken.png",
+        "img_description": "Swimmer in supine position, arms stretched or on body, performs dolphin kick.",
+        "title": "Dolphin Kick on Back - Knee Control",
+        "description": [
+            "Push off on your back. Arms can be stretched behind the head (Streamline) or lie laterally on the body.",
+            "Perform the dolphin kick from the hip and torso. Make sure the knees do not come out of the water too much.",
+            "This exercise helps to avoid excessive knee bending and emphasize the up-kick.",
+            "The belly should briefly break the water surface with each kick."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Butterfly"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Dolphin Kick on Side",
+        "targets": [
+            "Kick",
+            "Symmetry",
+            "Water Feel"
+        ],
+        "short_description": "Dolphin kick in side position for symmetrical movement.",
+        "img_name": "delfinbeine_seite.png",
+        "img_description": "Swimmer in side position, one arm stretched forward, performs wave movement.",
+        "title": "Dolphin Kick on Side",
+        "description": [
+            "Lie on your side, the lower arm is stretched forward, the upper one lies on the hip.",
+            "Perform a wave-like movement with the whole body. The impulse comes from the thoracic spine and continues to the toes.",
+            "Make sure the movement forward and backward (in relation to the body) is equal in size.",
+            "Switch sides after each lane."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Butterfly"
+        ],
+        "difficulty": "Hard",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Single Arm Butterfly",
+        "targets": [
+            "Arm Stroke",
+            "Breathing",
+            "Rhythm"
+        ],
+        "short_description": "Butterfly swimming with only one active arm.",
+        "img_name": "delfin_einarmig.png",
+        "img_description": "Swimmer performs butterfly movement with one arm, the other lies forward.",
+        "title": "Single Arm Butterfly - Rhythm and Breathing",
+        "description": [
+            "The passive arm lies stretched forward. Breathe to the side of the active arm or forward.",
+            "Perform the butterfly arm stroke with one arm. The kick rhythm remains as in whole swimming (2 kicks per cycle).",
+            "This exercise facilitates the recovery phase and helps to coordinate the rhythm of kick and pull.",
+            "Switch arms lane by lane or after a certain number of strokes."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Butterfly",
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Triathlete"
+        ]
+    },
+    {
+        "slag": "2-2-2 Butterfly",
+        "targets": [
+            "Coordination",
+            "Endurance",
+            "Technique Transfer"
+        ],
+        "short_description": "Combination of single-arm and full butterfly swimming.",
+        "img_name": "delfin_2_2_2.png",
+        "img_description": "Swimmer switches between left arm, right arm and both arms.",
+        "title": "2-2-2 Butterfly Drill",
+        "description": [
+            "Swim 2 strokes only with the left arm, then 2 strokes only with the right arm, and then 2 strokes full butterfly.",
+            "Try to take the feeling of lightness from the single-arm strokes into the full strokes.",
+            "Pay attention to a continuous rhythm and avoid pauses when switching.",
+            "Breathing occurs to the side during single-arm strokes, forward during full strokes."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Butterfly"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Dolphin Kick with Board",
+        "targets": [
+            "Kick",
+            "Strength",
+            "Body Tension"
+        ],
+        "short_description": "Isolated dolphin kick with kickboard.",
+        "img_name": "delfinbeine_brett.png",
+        "img_description": "Swimmer holds board in front and performs dolphin kick.",
+        "title": "Dolphin Kick with Board",
+        "description": [
+            "Hold a kickboard with stretched arms in front. The face can lie in the water (lift to breathe) or be held above water.",
+            "Perform powerful dolphin kicks. The movement starts in the middle of the body, not just in the knees.",
+            "Avoid pressing on the board with your upper body (bobbing). The upper body should remain as calm as possible.",
+            "This exercise strengthens the core and leg muscles."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Butterfly"
+        ],
+        "difficulty": "Easy",
+        "target_groups": [
+            "Beginner",
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Vertical Dolphin Kick",
+        "targets": [
+            "Kick",
+            "Water Feel",
+            "Core Strength"
+        ],
+        "short_description": "Vertical dolphin kick in deep water.",
+        "img_name": "stehende_delfinwelle.png",
+        "img_description": "Swimmer stands vertically in the water and keeps himself up by dolphin kicks.",
+        "title": "Vertical Dolphin Kick (Vertical Kicking)",
+        "description": [
+            "Find a place in the pool where you cannot stand.",
+            "Hold yourself vertically in the water and cross your arms in front of your chest or hold them above water.",
+            "Perform the dolphin kick to keep your head above water. The movement must come from the torso.",
+            "This exercise is very intense and promotes core strength as well as the feeling for the effective kick in both directions (front and back)."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Butterfly"
+        ],
+        "difficulty": "Hard",
+        "target_groups": [
+            "Competitive Swimmer",
+            "Water Polo Player"
+        ]
+    },
+    {
+        "slag": "Butterfly with Flutter Kick",
+        "targets": [
+            "Arm Stroke",
+            "Frequency",
+            "Arm Strength"
+        ],
+        "short_description": "Butterfly arm stroke combined with flutter kick.",
+        "img_name": "delfin_kraulbeine.png",
+        "img_description": "Swimmer performs butterfly arm strokes, legs do flutter kick.",
+        "title": "Butterfly with Flutter Kick",
+        "description": [
+            "Perform the normal butterfly arm stroke, but do a continuous, powerful flutter kick with it.",
+            "This helps to keep the body constantly on the water surface and makes the recovery phase of the arms more difficult.",
+            "Focus on a clean, fast arm movement and bringing the arms over water.",
+            "This exercise is well suited to train arm strength without being limited by the rhythm of the dolphin kick."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Butterfly",
+            "Freestyle"
+        ],
+        "difficulty": "Medium",
+        "target_groups": [
+            "Hobby Swimmer",
+            "Competitive Swimmer"
+        ]
+    },
+    {
+        "slag": "Underwater Dolphin Kicks",
+        "targets": [
+            "Dive Phase",
+            "Streamline",
+            "Lung Volume"
+        ],
+        "short_description": "Long dive phases with dolphin kicks in streamline position.",
+        "img_name": "unterwasser_delfin.png",
+        "img_description": "Swimmer dives deep in stretched posture and does dolphin kicks.",
+        "title": "Underwater Dolphin Kicks (The Fifth Stroke)",
+        "description": [
+            "Push off vigorously from the wall and assume a perfect streamline position (hands on top of each other, arms stretched behind ears).",
+            "Perform small, fast and powerful dolphin kicks underwater.",
+            "Try to dive as far as possible (e.g. to the 15m mark) before surfacing.",
+            "Make sure to keep the tension in the whole body and not let the amplitude of the kicks become too large."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Butterfly",
+            "General"
+        ],
+        "difficulty": "Hard",
+        "target_groups": [
+            "Competitive Swimmer",
+            "Hobby Swimmer"
+        ]
+    }
+]
