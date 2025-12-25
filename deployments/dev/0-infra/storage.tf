@@ -41,3 +41,12 @@ resource "google_storage_bucket_iam_member" "public_images_iam" {
   role   = "roles/storage.objectViewer"
   member = "allUsers"
 }
+
+# Upload images to the public bucket
+resource "google_storage_bucket_object" "public_images_objects" {
+  for_each = fileset("${path.module}/../../../data/images", "*.png")
+
+  name   = each.value
+  source = "${path.module}/../../../data/images/${each.value}"
+  bucket = google_storage_bucket.public_images.name
+}
