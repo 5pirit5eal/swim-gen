@@ -14,6 +14,7 @@ locals {
     secret_ids         = local.secret_ids
     secret_version_ids = local.secret_version_ids
     bucket_name        = google_storage_bucket.exported_pdfs.name
+    public_bucket_name = google_storage_bucket.public_images.name
     artifactregistry = {
       repository = google_artifact_registry_repository.docker.name
       location   = google_artifact_registry_repository.docker.location

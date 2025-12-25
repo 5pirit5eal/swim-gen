@@ -1,10 +1,11 @@
 locals {
   github_env_variables = {
-    PROJECT_ID   = var.project_id
-    REGION       = var.region
-    AR_REPO_NAME = google_artifact_registry_repository.docker.repository_id
-    WIF_PROVIDER = "projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.github.workload_identity_pool_provider_id}"
-    WIF_SA       = google_service_account.github_actions_sa.email
+    PROJECT_ID              = var.project_id
+    REGION                  = var.region
+    AR_REPO_NAME            = google_artifact_registry_repository.docker.repository_id
+    WIF_PROVIDER            = "projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.github.workload_identity_pool_provider_id}"
+    WIF_SA                  = google_service_account.github_actions_sa.email
+    VITE_PUBLIC_BUCKET_NAME = google_storage_bucket.public_images.name
   }
   github_env_secrets = {
     SUPABASE_ACCESS_TOKEN  = var.supabase_access_token

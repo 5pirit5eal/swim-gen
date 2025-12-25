@@ -21,6 +21,11 @@ variable "bucket_name" {
   type        = string
 }
 
+variable "public_bucket_name" {
+  description = "Public images bucket name"
+  type        = string
+}
+
 variable "supabase" {
   description = "Supabase project properties"
   type = object({
