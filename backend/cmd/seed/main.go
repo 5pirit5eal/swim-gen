@@ -37,7 +37,7 @@ func main() {
 	// Display help if requested
 	if *help {
 		fmt.Println("Upload training drills to the exercise database")
-		fmt.Println("Usage: scrape --lang <language> [--env <env_file>]")
+		fmt.Println("Usage: seed --lang <language> [--env <env_file>]")
 		fmt.Println("  --lang <language>  Languages for the training drills, can be specified multiple times")
 		fmt.Println("  --env <file>       Name of environment file (default: .env)")
 		fmt.Println("  --help             Display this help information")
