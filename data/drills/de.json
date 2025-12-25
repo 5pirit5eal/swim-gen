@@ -1,0 +1,1297 @@
+[
+    {
+        "slag": "Seestern",
+        "targets": [
+            "Gleiten",
+            "Wasserwiderstand",
+            "Wassergefühl"
+        ],
+        "short_description": "Übung zur Erfahrung des Wasserwiderstands und der Gleitfähigkeit.",
+        "img_name": "seestern.png",
+        "img_description": "Der Schwimmer stößt sich vom Beckenrand ab und streckt Arme und Beine weit vom Körper weg.",
+        "title": "Der Seestern - Eine einfache Übung für Wassergefühl beim Gleiten",
+        "description": [
+            "Die richtige Gleittechnik ist Voraussetzung zum Erlernen des Kraulschwimmens, ist aber auch für andere Lagen wichtig.",
+            "Bei dieser Übung geht es darum, ein Gefühl dafür zu bekommen, wie sich der Wasserwiderstand auf die Gleitweite auswirkt.",
+            "Stoßt euch kräftig vom Beckenrand ab und streckt Arme und Beine wie ein Seestern vom Körper weg. Durch das Strecken, bremst du das Gleiten ab und du wirst merken, wie weit du mit dieser Haltung gleiten kannst.",
+            "Probiere diese Übung gerne auch in Rückenlage."
+        ],
+        "video_url": [
+            "https://www.youtube.com/watch?v=xtuRdL8PTSA&list=PLylrIIV_u33iQsIG9Dqj_B93B6KDJnsJ0&index=1"
+        ],
+        "styles": [
+            "Allgemein"
+        ],
+        "difficulty": "Leicht",
+        "target_groups": [
+            "Anfänger"
+        ]
+    },
+    {
+        "slag": "Ohren klemmen",
+        "targets": [
+            "Gleiten",
+            "Wasserwiderstand",
+            "Wassergefühl"
+        ],
+        "short_description": "Optimierung der Gleitlage durch eine gestreckte Körperhaltung.",
+        "img_name": "ohren_klemmen.png",
+        "img_description": "Der Schwimmer gleitet mit gestreckten Armen, die Hände liegen flach übereinander und die Ohren sind zwischen den Schultern eingeklemmt.",
+        "title": "Ohren klemmen - Grundlagen des Gleitens",
+        "description": [
+            "Nutze diese Übung um zu erfahren, wie weit und schnell du gleiten kannst, wenn der Wasserwiderstand minimiert wird.",
+            "Stoße dich kräftig vom Beckenrand ab, lege die Hände flach übereinander und klemme die Ohren zwischen den Schultern ein. Strecke Arme und Schultern weit nach vorne. Gleite soweit du kannst, bis du still stehst oder keine Luft mehr hast.",
+            "Dieselbe Übung kannst du auch in Seiten und Rückenlage durchführen, um das Wassergefühl weiter zu verbessern."
+        ],
+        "video_url": [
+            "https://www.youtube.com/watch?v=TvJz8Pm41yQ&list=PLylrIIV_u33iQsIG9Dqj_B93B6KDJnsJ0&index=2"
+        ],
+        "styles": [
+            "Allgemein"
+        ],
+        "difficulty": "Leicht",
+        "target_groups": [
+            "Anfänger"
+        ]
+    },
+    {
+        "slag": "Kraulbeinschlag",
+        "targets": [
+            "Beinschlag",
+            "Wasserlage",
+            "Körperspannung"
+        ],
+        "short_description": "Kraulbeinschlag mit Schwimmbrett zur Fokussierung auf die Beinarbeit.",
+        "img_name": "kraulbeine_brett.png",
+        "img_description": "Schwimmer mit Schwimmbrett, Arme und Schultern sind weit nach vorne gestreckt, das Gesicht liegt im Wasser.",
+        "title": "Kraulbeinschlag: Schulterstreckung",
+        "description": [
+            "Die Arme samt Schultern sind nach vorne gestreckt. Dabei liegen die Unterarme auf dem Schwimmbrett auf.",
+            "Lege die Hände schulterbreit auf das Brett und umgreife die Außenkanten. Lege dein Gesicht ins Wasser und strecke die Arme so weit nach vorne, dass deine Schultern fast deine Ohren berühren."
+        ],
+        "video_url": [
+            "https://www.knsu.de/individualsportarten/schwimmen/kraul/methodische-uebungsreihe-zum-kraulschwimmen#video4"
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger"
+        ]
+    },
+    {
+        "slag": "Abschlagschwimmen",
+        "targets": [
+            "Koordination",
+            "Armzug",
+            "Gleiten"
+        ],
+        "short_description": "Wechselseitiger Armzug mit Pause in der Streckung.",
+        "img_name": "abschlagschwimmen.png",
+        "img_description": "Schwimmer führt abwechselnd einen Armzug durch, während der andere Arm gestreckt vorne wartet.",
+        "title": "Kraul-Abschlagschwimmen",
+        "description": [
+            "Beim Abschlagschwimmen führt der Schwimmer abwechselnd mit einem Arm die Bewegung aus, während der andere in gestreckter Haltung vorne ruht.",
+            "Stellt euch vor, eure Hände übergeben sich vorne ein Staffelholz. Erst wenn der rechte angekommen ist, darf der linke loslegen."
+        ],
+        "video_url": [
+            "https://www.knsu.de/individualsportarten/schwimmen/kraul/methodische-uebungsreihe-zum-kraulschwimmen#video7"
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Kraul ohne Atmung",
+        "targets": [
+            "Gesamtkoordination",
+            "Sprint"
+        ],
+        "short_description": "Kurze Strecken Kraulschwimmen ohne zu atmen.",
+        "img_name": "kraul_ohne_atmung.png",
+        "img_description": "Schwimmer in voller Kraulbewegung, Kopf bleibt unter Wasser.",
+        "title": "Gesamtkoordination: Kraul ohne Atmung",
+        "description": [
+            "Die Kraulbewegung wird ohne Schwimmhilfen und ohne die Atmung über die Querbahn durchgeführt.",
+            "Holt vor dem Verlassen der Wand tief Luft. Der Antrieb kommt nur aus der Arm- und Beinarbeit."
+        ],
+        "video_url": [
+            "https://www.knsu.de/individualsportarten/schwimmen/kraul/methodische-uebungsreihe-zum-kraulschwimmen#video8"
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Anfänger"
+        ]
+    },
+    {
+        "slag": "Atmen im Gehen",
+        "targets": [
+            "Atmung",
+            "Kopfrotation"
+        ],
+        "short_description": "Übung der seitlichen Einatmung während des Gehens im Wasser.",
+        "img_name": "atmen_im_gehen.png",
+        "img_description": "Übender geht durch das Wasser, dreht den Kopf zur Seite zum Atmen und bildet mit dem Arm ein 'Fenster'.",
+        "title": "Atmung: Atmen im Gehen",
+        "description": [
+            "Es wird nach jedem dritten Armzug eingeatmet, um beide Seiten zu schulen.",
+            "Drehe deinen Kopf und Oberkörper zu der Seite, über die du einatmest. Der Ellenbogen zeigt dabei zur Decke."
+        ],
+        "video_url": [
+            "https://www.knsu.de/individualsportarten/schwimmen/kraul/methodische-uebungsreihe-zum-kraulschwimmen#video10"
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger"
+        ]
+    },
+    {
+        "slag": "Kraul Einarmig",
+        "targets": [
+            "Armzug",
+            "Rumpfrotation",
+            "Wasserlage"
+        ],
+        "short_description": "Kraulschwimmen mit nur einem Arm mit betonter Rotation und Druck.",
+        "img_name": "kraul_einarmig.png",
+        "img_description": "Schwimmer schwimmt Kraul mit nur einem Arm, der andere Arm ist am Körper angelegt.",
+        "title": "Kraul Einarmig - Fokus auf Armzug und Rumpfrotation",
+        "description": [
+            "Diese Übung hilft dir, die Technik des Kraularmzugs zu verbessern und die Rumpfrotation zu betonen.",
+            "Beim einarmigen Kraulschwimmen schwimmst du mit nur einem Arm, während der andere Arm am Körper angelegt bleibt. Konzentriere dich darauf, den Armzug mit dem aktiven Arm kraftvoll und effizient durchzuführen: Anziehen, Pull, Push und Recovery.",
+            "Achte darauf, dass du während des Armzugs eine gute Rumpfrotation beibehältst, um die Wasserlage zu optimieren und den Vortrieb zu maximieren. Dazu hilft es den passiven Arm und Schulter bewusst etwas aus dem Wasser zu heben, sobald der aktive Arm ins Wasser eintaucht.",
+            "Diese Übung fördert die Koordination und das Bewusstsein für die Armbewegung im Kraulschwimmen. Außerdem stärkt die Isolation die Schultermuskulatur des aktiven Arms. Dementsprechend sollte die Übung abwechselnd beidseitig durchgeführt werden."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Skulling",
+        "targets": [
+            "Wassergefühl",
+            "Handposition",
+            "Anzieh-Phase"
+        ],
+        "short_description": "Kraulskulling zur Verbesserung des Wassergefühls und der Handposition.",
+        "img_name": "kraul_skulling.png",
+        "img_description": "Schwimmer führt Kraulskulling mit leicht gebeugten Armen durch, Hände bewegen sich seitlich im Wasser.",
+        "title": "Kraulskulling - Verbesserung des Wassergefühls",
+        "description": [
+            "Diese Übung hilft dir, ein besseres Gefühl für das Wasser zu entwickeln und die Handposition während des Kraularmzugs zu optimieren.",
+            "Beim Kraulskulling bewegst du deine Hände seitlich im Wasser, während deine Arme leicht gebeugt bleiben. Die Bewegung ähnelt einem '8'-förmigen Muster, wobei die Hände das Wasser greifen und Druck ausüben.",
+            "Achte darauf, dass deine Hände während der gesamten Bewegung flach bleiben und die Finger leicht gespreizt sind. Konzentriere dich darauf, das Wasser effektiv zu greifen und Druck auszuüben, um den Vortrieb zu maximieren.",
+            "Diese Übung fördert das Bewusstsein für die Handposition und die Anzieh-Phase des Kraularmzugs."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Pullbuoy zwischen den Füßen",
+        "targets": [
+            "Armzug",
+            "Wasserlage",
+            "Körperspannung"
+        ],
+        "short_description": "Kraulschwimmen mit Pullbuoy zwischen den Füßen zur Fokussierung auf den Armzug.",
+        "img_name": "pullbuoy_zwischen_fuessen.png",
+        "img_description": "Schwimmer schwimmt Kraul mit Pullbuoy zwischen den Füßen, Arme in voller Kraulbewegung.",
+        "title": "Pullbuoy zwischen den Füßen - Fokus auf Armzug",
+        "description": [
+            "Diese Übung hilft dir, dich auf den Armzug im Kraulschwimmen zu konzentrieren, indem der Beinschlag durch den Einsatz eines Pullbuoys unterstützt wird.",
+            "Platziere den Pullbuoy zwischen deinen Füßen, und presse die Füße zusammen, da der Pullbuoy jetzt unsicherer sitzt. Dadurch musst du deine Körperspannung und Wasserlage besonders gut kontrollieren.",
+            "Achte darauf, dass du während des Schwimmens den Pullbuoy nicht verlierst und möglichst flach im Wasser liegst. Konzentriere dich auf einen hohen Ellenbogen und eine effiziente Armbewegung."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Wasserballkraul",
+        "targets": [
+            "Wasserlage",
+            "Kraultechnik",
+            "Kraftausdauer"
+        ],
+        "short_description": "Kraulschwimmen wie beim Wasserball, Kopf bleibt über Wasser.",
+        "img_name": "wasserballkraul.png",
+        "img_description": "Schwimmer mit Kopf über Wasser und spritzendem Wasser.",
+        "title": "Wasserballkraul - Kraultechnik mit Kopf über Wasser",
+        "description": [
+            "Diese Übung hilft dir zu spüren, wie sich die Wasserlage auf die Kraultechnik auswirkt, indem du ineffizient schwimmst.",
+            "Beim Wasserballkraul bleibt dein Kopf über Wasser, ähnlich wie beim Wasserballspiel. Dies verändert deine Wasserlage und erhöht den Wasserwiderstand.",
+            "Achte darauf, dass du trotz der veränderten Wasserlage eine saubere Kraultechnik beibehältst. Konzentriere dich auf einen hohen Ellenbogen und eine effiziente Armbewegung.",
+            "Diese Übung fördert das Bewusstsein für die Bedeutung der Wasserlage. Für bereits erfahrene Schwimmer ist diese Übung jedoch von geringerem Wert. Durch eine angestrengteres Schwimmen kräftigt sie Bein- und Schultermuskulatur.",
+            "Für Triathleten eine gute Übung, um das Schwimmen mit höherem Kopf zu trainieren und auch bei der Orientierung im offenen Wasser eine gute Technik zu behalten."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Triathlet",
+            "Anfänger",
+            "Hobbyschwimmer"
+        ]
+    },
+    {
+        "slag": "Kraulbeine ohne Brett",
+        "targets": [
+            "Beinschlag",
+            "Wasserlage",
+            "Körperspannung"
+        ],
+        "short_description": "Kraulbeinschlag ohne Brett in Bauch- und Seitenlage.",
+        "img_name": "kraulbeine_ohne_brett.png",
+        "img_description": "Schwimmer mit Armen und Schultern weit nach vorne gestreckt, das Gesicht liegt im Wasser.",
+        "title": "Kraulbeinschlag: Schulterstreckung",
+        "description": [
+            "Die Arme samt Schultern sind nach vorne gestreckt. Der Kopf ist zwischen den Armen geklemmt in \"Streamline\" Position. Die Isolation der Beine erlaubt einen besseren Fokus auf die Beinarbeit.",
+            "Lege die Hände über dem Kopf zusammen mit Armen gestreckt. Lege dein Gesicht ins Wasser und strecke die Arme so weit nach vorne, dass deine Schultern deine Ohren berühren. Halte diese Position während des gesamten Beinschlags. Zur Atmung kann ein Kraularmzug durchgeführt werden.",
+            "Diese Übung sollte auch in Seitenlage durchgeführt werden. Lass dazu einen Arm nach vorne gestreckt und den anderen angelegt entlang des Körpers. Der Kopf bleibt in der Wasserlinie.",
+            "Achte auf eine hohe Position im Wasser und eine stabile Körperspannung."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Kraul mit Fäusten",
+        "targets": [
+            "Armzug",
+            "Wassergefühl",
+            "Anzieh-Phase"
+        ],
+        "short_description": "Kraulschwimmen mit geballten Fäusten zur Verbesserung des Wassergefühls.",
+        "img_name": "kraul_mit_fausten.png",
+        "img_description": "Schwimmer in voller Kraulbewegung mit geballten Fäusten.",
+        "title": "Kraul mit Fäusten - Verbesserung des Wassergefühls",
+        "description": [
+            "Diese Übung hilft dir, ein besseres Gefühl für das Wasser zu entwickeln und die Handposition während des Kraularmzugs zu optimieren.",
+            "Beim Kraulschwimmen mit Fäusten schwimmst du mit geballten Händen. Achte darauf, dass deine Fäuste während des gesamten Armzugs stabil bleiben und die Finger eng zusammengehalten werden.",
+            "Konzentriere dich darauf, das Wasser effektiv zu greifen und Druck auszuüben, um den Vortrieb zu maximieren.",
+            "Diese Übung fördert das Bewusstsein für die Handposition und die Anzieh-Phase des Kraularmzugs."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "3-Punkt Reißverschlusskraul",
+        "targets": [
+            "Armzug",
+            "Schulterrotation",
+            "Wasserlage"
+        ],
+        "short_description": "Kraulschwimmen mit 3 Berührungspunkten, hohem Ellbogen und engem Armzug.",
+        "img_name": "3_punkt_reissverschlusskraul.png",
+        "img_description": "Schwimmer führt Kraularmzug mit hohem Ellenbogen und engem Armzug durch.",
+        "title": "3-Punkt Reißverschlusskraul - Kraultechnik verfeinern",
+        "description": [
+            "Diese Übung hilft dir, die Technik des Kraularmzugs zu verbessern und die Rumpfrotation zu betonen.",
+            "Beim 3-Punkt Reißverschlusskraul schwimmst du mit einem engen Armzug und einem hohen Ellenbogen. Achte darauf, dass deine Hand während des gesamten Armzugs nah am Körper bleibt und der Ellenbogen stets über der Hand positioniert ist. Nutze die Berührungspunkte als Orientierung für die Armbewegung.",
+            "Die drei Berührungspunkte sind in der Erholungsphase: 1) Der Austritt der Hand aus dem Wasser am Oberschenkel, 2) Die Achsel mit dem Daumen, und 3) Der Eintritt der Hand ins Wasser bei fast gestrecktem Arm.",
+            "Achte auf eine saubere Unterwasserzugphase und eine gute Rumpfrotation, um die Wasserlage zu optimieren und den Vortrieb zu maximieren.",
+            "Diese Übung fördert die Koordination und das Bewusstsein für die Armbewegung im Kraulschwimmen und stärkt die Schultermuskulatur."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Windmühlen",
+        "targets": [
+            "Armzug",
+            "Wasserlage",
+            "Schulterbeweglichkeit"
+        ],
+        "short_description": "Kraul- oder Rückenschwimmen mit vollständig gestreckten Armen.",
+        "img_name": "windmuehlen.png",
+        "img_description": "Schwimmer führt den Armzug gestreckt durch.",
+        "title": "Windmühlen - Kraultechnik mit gestreckten Armen",
+        "description": [
+            "Diese Übung hilft dir, die Armbewegung im Kraul- oder Rückenschwimmen zu verbessern und ein besseres Gefühl für die Wasserlage zu entwickeln.",
+            "Beim Windmühlen-Armzug schwimmst du mit vollständig gestreckten Armen. Achte darauf, dass deine Arme während des gesamten Armzugs gestreckt bleiben, sowohl über als auch unter Wasser. Konzentriere dich darauf, die Arme kraftvoll durch das Wasser zu ziehen und eine effiziente Wasserlage beizubehalten.",
+            "Diese Übung fördert die Schulterbeweglichkeit und die Kraft im Armzug.",
+            "Achte auf die Veränderung des Wasserwiderstands und der Anstrengung durch die veränderte Hebelwirkung."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Kraul",
+            "Rücken"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Sprinter",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Fingerschleifen",
+        "targets": [
+            "Armzug",
+            "Wassergefühl",
+            "Schulterrotation"
+        ],
+        "short_description": "Kraulschwimmen mit Fingern über die Wasseroberfläche \"schleifen\" beim Armzug.",
+        "img_name": "fingerschleifen.png",
+        "img_description": "Schwimmer schleift Finger über die Wasseroberfläche während des Kraularmzugs.",
+        "title": "Fingerschleifen - Kraultechnik verfeinern",
+        "description": [
+            "Diese Übung hilft dir, ein besseres Gefühl für die Wasseroberfläche zu entwickeln und die Handposition während des Kraularmzugs zu optimieren.",
+            "Nach der Unterwasser des Armzugs versuchst du beim zurückholen, deine Fingerspitzen den ganzen Weg leicht über die Wasseroberfläche zu schleifen.",
+            "Achte darauf, dass deine Hand entspannt ist und die Finger leicht gespreizt bleiben. Das Ziel ist ein hoher Ellenbogen und eine effiziente Rückholbewegung.",
+            "Diese Übung fördert die Rotation der Schultern und die Position des Ellenbogens während des Armzugs."
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "3 Züge, 12 Kicks",
+        "targets": [
+            "Koordination",
+            "Armzug",
+            "Beinschlag"
+        ],
+        "short_description": "3 Armzüge mit 6 Kicks und dann 6 Kicks in Seitenlage.",
+        "img_name": "3_zuege_12_kicks.png",
+        "img_description": "Schwimmer führt 3 Kraularmzüge durch, gefolgt von 12 Kraulbeinschlägen in Seitenlage.",
+        "title": "3 Züge, 12 Kicks - Kraulkoordination verbessern",
+        "description": [
+            "Diese Übung hilft dir, die Koordination zwischen Armzug und Beinschlag zu verbessern.",
+            "Führe 3 vollständige Kraularmzüge durch, gefolgt von 6 Kraulbeinschlägen. Danach wechselst du in die Seitenlage und machst weitere 6 Kraulbeinschläge.",
+            "Achte darauf, dass du während der Armzüge eine gute Wasserlage beibehältst und die Beinschläge kräftig und gleichmäßig ausführst.",
+            "Diese Übung fördert die Gesamtkoordination und das Timing im Kraulschwimmen."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Stilles Kraul",
+        "targets": [
+            "Achtsamkeit",
+            "Wasserlage",
+            "Kraultechnik"
+        ],
+        "short_description": "Kraulschwimmen mit minimalem Geräuscherzeugen und voller Achtsamkeit.",
+        "img_name": "stilles_kraul.png",
+        "img_description": "Schwimmer in voller Kraulbewegung, konzentriert auf eine ruhige und leise Ausführung.",
+        "title": "Stilles Kraul - Achtsamkeit im Wasser",
+        "description": [
+            "Beim stillen Kraulschwimmen liegt der Fokus auf einer ruhigen und kontrollierten Ausführung der Bewegungen, um möglichst wenig Geräusche zu erzeugen.",
+            "Achte darauf, dass deine Bewegungen sanft und fließend sind. Vermeide hektische oder abrupte Bewegungen, die unnötige Wellen oder Spritzer verursachen könnten.",
+            "Konzentriere dich auf deine Sinne und deine Atmung und versuche, gleichmäßig und tief zu atmen, um eine ruhige Wasserlage zu unterstützen.",
+            "Diese Übung fördert nicht nur die Technik, sondern auch die Achtsamkeit und das Bewusstsein für den eigenen Körper im Wasser.",
+            "Exzellente Übung zum Reinkommen ins Training oder zum Runterkommen danach."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Badewanne",
+        "targets": [
+            "Körperspannung",
+            "Wassergefühl",
+            "Kräftigung"
+        ],
+        "short_description": "Scullingübung für Körperspannung, Kräftigung und Wassergefühl.",
+        "img_name": "badewanne.png",
+        "img_description": "Schwimmer in Rückenlage, Arme leicht seitlich ausgestreckt im Wasser.",
+        "title": "Badewanne - Scullingübung für Körperspannung und Wassergefühl",
+        "description": [
+            "Die Badewanne ist eine Scullingübung, die dir hilft, deine Körperspannung zu verbessern, deine Muskulatur zu kräftigen und dein Wassergefühl zu schulen.",
+            "Lege dich in Rückenlage flach ins Wasser, die Füße zeigen nach vorne. Deine Arme zeigen nach vorne und führen kreisende, kurze Armzüge durch.",
+            "Achte darauf, dass dein Körper eine gerade Linie bildet und du eine stabile Körperspannung beibehältst. Die kreisenden Bewegungen der Hände und Unterarme sollten klein und kontrolliert sein, um das Wasser effektiv zu greifen.",
+            "Diese Übung fördert die Wahrnehmung des Wassers und stärkt die Muskulatur, die für eine gute Wasserlage und Schwimmtechnik wichtig ist."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken",
+            "Kraul",
+            "Allgemein"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Hohes Brust",
+        "targets": [
+            "Armzug",
+            "Wasserwiderstand",
+            "Wassergefühl"
+        ],
+        "short_description": "Brustschwimmen mit maximalem Herauskommen aus dem Wasser beim Armzug.",
+        "img_name": "hohes_brust.png",
+        "img_description": "Schwimmer führt Brustarmzug mit hohem Herauskommen aus dem Wasser durch.",
+        "title": "Hohes Brust - Entwicklung von Gefühl für die Anzieh-phase",
+        "description": [
+            "Diese Übung hilft dir, ein besseres Gefühl für die Anzieh-Phase des Brustarmzugs zu entwickeln und den Wasserwiderstand zu spüren.",
+            "Beim hohen Brustschwimmen führst du den Armzug so aus, dass deine Schultern so weit aus dem Wasser herauskommen wie möglich. Achte darauf, dass du während des Armzugs eine kontrollierte Bewegung ausführst und die Hände effektiv ins Wasser eintauchen.",
+            "Konzentriere dich darauf, den Wasserwiderstand zu spüren und die Kraft des Armzugs zu maximieren, um den Vortrieb zu erhöhen.",
+            "Diese Übung fördert das Bewusstsein für die Anzieh-Phase des Brustarmzugs und der optimalen Balance aus Vortrieb und Herauskommens aus dem Wasser.",
+            "Kombiniere diese Übung gerne mit der \"Flachen Brust\" Übung, um das andere Extrem zu fühlen."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Brust"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Flaches Brust",
+        "targets": [
+            "Armzug",
+            "Wasserwiderstand",
+            "Wassergefühl"
+        ],
+        "short_description": "Brustschwimmen möglichst flach im Wasser, ohne Herauskommen.",
+        "img_name": "flaches_brust.png",
+        "img_description": "Schwimmer führt Brustarmzug flach im Wasser durch.",
+        "title": "Flaches Brust - Entwicklung von Gefühl für die Anzieh-phase",
+        "description": [
+            "Diese Übung hilft dir, ein besseres Gefühl für die Anzieh-Phase des Brustarmzugs zu entwickeln und den Wasserwiderstand zu spüren.",
+            "Beim flachen Brustschwimmen führst du den Armzug so aus, dass dein Körper so flach wie möglich im Wasser bleibt und deine Schultern nur minimal aus dem Wasser auftauchen. Achte darauf, dass du während des Armzugs eine kontrollierte Bewegung ausführst und die Hände effektiv ins Wasser eintauchen.",
+            "Konzentriere dich darauf, den Wasserwiderstand zu spüren und die Kraft des Armzugs zu maximieren, um den Vortrieb zu erhöhen.",
+            "Diese Übung fördert das Bewusstsein für die Anzieh-Phase des Brustarmzugs und der optimalen Balance aus Vortrieb und Herauskommens aus dem Wasser.",
+            "Kombiniere diese Übung gerne mit der \"Hohes Brust\" Übung, um das andere Extrem zu fühlen."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Brust"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Brustarme-Delfinbeine",
+        "targets": [
+            "Gesamtkoordination",
+            "Gleiten",
+            "Armzug"
+        ],
+        "short_description": "Brustschwimmen mit Delfinbeinen.",
+        "img_name": "brustarme_delfinbeine.png",
+        "img_description": "Schwimmer führt Brustarmzug mit Delfinbeinen durch.",
+        "title": "Brustarme-Delfinbeine - Dynamischer Armzug mit Rumpftraining",
+        "description": [
+            "Durch eine Kombination von Delfin und Brust kann ein einfacher Einstieg in die allgemeine Wellenbewegung bei Brust geübt werden.",
+            "Der Armzug wird kraftvoll mit leicht erhöhter Frequenz durchgeführt, während die Beine dem für Delfin üblichen 2 Beinschlagrythmus folgen. Der Körper führt dabei eine Wellenbewegung durch. Achte darauf das die Arme in der Streckphase über Wasser geführt werden.",
+            "Diese Übung ist eine weniger kraftintensive Alternative zu reinem Delfinschwimmen."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Brust",
+            "Delfin"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Diagonales Brust",
+        "targets": [
+            "Gesamtkoordination",
+            "Körperspannung"
+        ],
+        "short_description": "Abwechselnd einseitiges Brustschwimmen - diagonal Arme zu Beine.",
+        "img_name": "diagonales_brust.png",
+        "img_description": "Schwimmer führt diagonales Brustschwimmen durch, ein Arm und das gegenüberliegende Bein bewegen sich gleichzeitig.",
+        "title": "Diagonales Brust - Koordination und Körperspannung verbessern",
+        "description": [
+            "Diese Übung hilft dir, die Koordination zwischen Arm- und Beinbewegungen im Brustschwimmen zu verbessern und die Körperspannung zu stärken.",
+            "Beim diagonalen Brustschwimmen bewegst du abwechselnd einen Arm und das gegenüberliegende Bein gleichzeitig. Achte darauf, dass du während der Bewegung eine stabile Körperspannung beibehältst und die Bewegungen kontrolliert ausführst.",
+            "Der ruhende Arm und Bein sollten sich möglichst wenig bewegen und bleiben gestreckt.",
+            "Diese Übung fördert die Gesamtkoordination und stärkt die Muskulatur, die für eine gute Wasserlage und Schwimmtechnik wichtig ist."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Brust"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "1-Armzug, 2-Kicks Brust",
+        "targets": [
+            "Koordination",
+            "Armzug",
+            "Gleiten"
+        ],
+        "short_description": "Wechselseitiger Brustarmzug mit 2 Kicks und Pause in der Streckung.",
+        "img_name": "1_armzug_2_kicks_brust.png",
+        "img_description": "Schwimmer schwimmt Brust.",
+        "title": "1-Armzug, 2-Kicks Brust - Koordination verbessern",
+        "description": [
+            "Beim 1-Armzug mit 2 Kicks führst du abwechselnd einen Armzug mit einem Beinschlag durch, gefolgt von einem weiteren Beinschlag bei dem die Arme gestreckt vorne bleiben.",
+            "Behaltet die Körperspannung und Wasserlage beim zweiten Beinschlag bei, um den Vortrieb zu maximieren. Achte darauf, dass du während des Armzugs eine gute Wasserlage beibehältst und die Beinschläge kräftig und gleichmäßig ausführst.",
+            "Lass deinen Kopf zwischen den Armen in der Wasserlinie und atme nur beim Armzug ein. Halte die Knie eng beieinander während des Kicks um den Wasserwiderstand zu minimieren. Die Rotation der Unterschenkel bestimmt den Vortrieb."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Brust"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Stuhlschwimmen",
+        "targets": [
+            "Anzieh-Phase",
+            "Wassergefühl",
+            "Kräftigung"
+        ],
+        "short_description": "Scullingübung zur Verbesserung des Wassergefühls und der Anzieh-Phase.",
+        "img_name": "stuhlschwimmen.png",
+        "img_description": "Schwimmer in aufrechter Position im Wasser, Arme leicht seitlich ausgestreckt.",
+        "title": "Stuhlschwimmen - Scullingübung für Wassergefühl und Anzieh-Phase",
+        "description": [
+            "Stuhlschwimmen ist eine Scullingübung, die dir hilft, dein Wassergefühl zu verbessern und die Anzieh-Phase des Armzugs zu optimieren.",
+            "Setze dich aufrecht ins Wasser, sodass deine Schultern und Kopf aus dem Wasser ragen. Deine Beine sind angewinkelt.",
+            "Variationen dieser Übung beinhalten gestreckte Beine, sodass der Körper ein L bildet, oder eine Vereinfachung durch Absetzen der Füße am Beckenboden.",
+            "Führe mit deinen Händen und Unterarmen schnelle, kurze Brustarmzüge durch, um das Wasser zu greifen und Druck auszuüben.",
+            "Achte darauf, dass du eine stabile Körperspannung beibehältst und die Bewegungen kontrolliert ausführst."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Allgemein",
+            "Brust"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer"
+        ]
+    },
+    {
+        "slag": "Hundepaddeln",
+        "targets": [
+            "Wasserlage",
+            "Körperspannung",
+            "Kräftigung"
+        ],
+        "short_description": "Scullingübung zur Verbesserung der Wasserlage und Körperspannung.",
+        "img_name": "hundepaddeln.png",
+        "img_description": "Schwimmer in Bauchlage, Arme und Beine leicht angewinkelt im Wasser.",
+        "title": "Hundepaddeln - Scullingübung für Wasserlage und Körperspannung",
+        "description": [
+            "Hundepaddeln ist eine Scullingübung, die dir hilft, deine Wasserlage zu verbessern und deine Körperspannung zu stärken.",
+            "Lege dich in Bauchlage flach ins Wasser, die Füße zeigen nach hinten. Deine Arme sind leicht angewinkelt und führen schnelle, kurze Armzüge durch, um das Wasser zu greifen und Druck auszuüben.",
+            "Achte darauf, dass du eine stabile Körperspannung beibehältst und die Bewegungen kontrolliert ausführst."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Allgemein"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer"
+        ]
+    },
+    {
+        "slag": "Brustbeine mit Brett zwischen den Oberschenkeln",
+        "targets": [
+            "Beinschlag",
+            "Wasserwiderstand"
+        ],
+        "short_description": "Brustbeinschlag mit Brett zwischen den Oberschenkeln zum Erlernen der korrekten Beinarbeit.",
+        "img_name": "brustbeine_mit_brett_zwischen_den_oberschenkeln.png",
+        "img_description": "Schwimmer führt Brustbeinschlag mit Brett zwischen den Oberschenkeln durch.",
+        "title": "Brustbeinschlag: Brett zwischen den Oberschenkeln",
+        "description": [
+            "Die Beine sind durch das Brett in der richtigen Position fixiert, was die korrekte Ausführung des Brustbeinschlags erleichtert.",
+            "Lege ein Schwimmbrett oder Pullbuoy zwischen deine Oberschenkel. Führe den Brustbeinschlag aus, während du das Brett nur mit deinen Beinen festhältst. Achte darauf, dass du die Beine korrekt ausführst, mit einer gleichmäßigen und kraftvollen Bewegung.",
+            "Diese Übung hilft dir, die richtige Technik des Brustbeinschlags zu erlernen und die Muskulatur zu stärken, die für eine effektive Beinarbeit im Brustschwimmen wichtig ist.",
+            "Die Arme bleiben vor dem Körper gestreckt in Gleitposition. Der Vortrieb kommt ausschließlich aus den Beinen. Achte auf eine gute Rotation in den Unterschenkeln und Schub aus den Füßen. Die Beine werden symmetrisch bewegt. Vermeide eine Scherenbewegung."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Brust"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Schub gegen Widerstand",
+        "targets": [
+            "Beinschlag",
+            "Frequenz",
+            "Explosivität"
+        ],
+        "short_description": "Brustbeinschlag gegen Brett, Mitschwimmer oder Wand zur Kräftigung der Beinmuskulatur.",
+        "img_name": "schub_gegen_brett.png",
+        "img_description": "Schwimmer führt Brustbeinschlag gegen ein Brett durch.",
+        "title": "Brustbeinschlag: Schub gegen Widerstand",
+        "description": [
+            "Diese Übung hilft dir, die Kraft und Explosivität deines Brustbeinschlags zu verbessern, indem du gegen einen Widerstand arbeitest.",
+            "Platziere ein Schwimmbrett vor dir oder schwimme gegen einen Mitschwimmer, der dir gegenüber positioniert ist. Führe den Brustbeinschlag aus, während du gegen den Widerstand arbeitest.",
+            "Achte darauf, dass du die Beine korrekt ausführst, mit einer gleichmäßigen, hochfrequenten und kraftvollen Bewegung. Konzentriere dich darauf, den Widerstand zu überwinden und den Vortrieb zu maximieren.",
+            "Diese Übung stärkt die Muskulatur, die für eine effektive Beinarbeit im Brustschwimmen wichtig ist."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Brust",
+            "Partnerübung"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Seestern Brust",
+        "targets": [
+            "Armzug",
+            "Wasserwiderstand",
+            "Wassergefühl"
+        ],
+        "short_description": "Brustschwimmen mit gestreckten Beinen und Armen in Druckphase.",
+        "img_name": "seestern_brust.png",
+        "img_description": "Schwimmer führt Brustarmzug mit gestreckten Beinen und Armen in Druckphase durch.",
+        "title": "Seestern Brust - Entwicklung von Gefühl für die Anzieh-phase",
+        "description": [
+            "Diese Übung hilft dir, ein besseres Gefühl für die optimale Durchführung der Druckphase und des Beinschlags beim Brustschwimmen zu entwickeln.",
+            "Beim Seestern Brustschwimmen wird die Zugphase mit möglichst weit gestreckten Armen durchgeführt. Der Beinschlag zeichnet sich durch abgespreizte Oberschenkel aus.",
+            "Du kannst dabei bemerken wie sich der Wasserwiderstand verändert, die Druckphase kostet mehr Kraft durch den größeren Hebel, der Vortrieb nimmt jedoch nicht signifikant zu. Das wird durch die größere Reibung der gespreizten Gliedmaßen verursacht.",
+            "Diese Übung fördert das Bewusstsein für die Anzieh-Phase des Brustarmzugs und der optimalen Balance aus Vortrieb und Wasserwiderstand."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Brust"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Rückenbeine Streamline",
+        "targets": [
+            "Beinschlag",
+            "Wasserlage",
+            "Körperspannung"
+        ],
+        "short_description": "Rückenbeinschlag in gestreckter Haltung (Streamline).",
+        "img_name": "rueckenbeine_streamline.png",
+        "img_description": "Schwimmer in Rückenlage, Arme gestreckt hinter dem Kopf, Hände übereinander.",
+        "title": "Rückenbeine in Streamline-Position",
+        "description": [
+            "Stoße dich in Rückenlage vom Beckenrand ab. Strecke deine Arme weit hinter den Kopf, die Hände liegen übereinander (Streamline-Position).",
+            "Führe einen kontinuierlichen Kraulbeinschlag aus der Hüfte durch. Die Knie bleiben unter der Wasseroberfläche, nur das Wasser brodelt leicht an der Oberfläche.",
+            "Achte auf eine stabile Körpermitte und eine gestreckte Haltung. Der Kopf liegt ruhig im Wasser, der Blick geht nach oben.",
+            "Diese Übung verbessert deine Wasserlage und stärkt die Rumpfmuskulatur."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Leicht",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Doppelarmrücken",
+        "targets": [
+            "Wassergefühl",
+            "Koordination",
+            "Symmetrie"
+        ],
+        "short_description": "Gleichzeitiger Armzug beider Arme in Rückenlage.",
+        "img_name": "doppelarmruecken.png",
+        "img_description": "Schwimmer führt mit beiden Armen gleichzeitig einen Rückenarmzug aus.",
+        "title": "Doppelarmrücken - Symmetrie und Wassergefühl",
+        "description": [
+            "Schwimme in Rückenlage, führe aber den Armzug mit beiden Armen gleichzeitig aus.",
+            "Nach der Rückholphase tauchen beide Hände hinter dem Kopf ein. Führe dann die Druckphase kräftig bis zu den Oberschenkeln aus.",
+            "Nutze die Gleitphase, wenn die Hände an den Oberschenkeln sind, bevor du den nächsten Zyklus beginnst.",
+            "Diese Übung hilft, Ungleichgewichte im Armzug zu erkennen und verbessert das Gefühl für den Abdruck im Wasser."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer"
+        ]
+    },
+    {
+        "slag": "Rücken mit Becher",
+        "targets": [
+            "Kopfhaltung",
+            "Wasserlage",
+            "Ruhe"
+        ],
+        "short_description": "Rückenschwimmen mit einem gefüllten Becher auf der Stirn.",
+        "img_name": "ruecken_becher.png",
+        "img_description": "Schwimmer schwimmt Rücken mit einem Becher auf der Stirn.",
+        "title": "Rücken mit Becher - Kopfhaltung stabilisieren",
+        "description": [
+            "Platziere einen mit Wasser gefüllten Plastikbecher auf deiner Stirn.",
+            "Schwimme nun Rücken (ganze Lage oder nur Beine), ohne dass der Becher herunterfällt.",
+            "Diese Übung zwingt dich zu einer absolut ruhigen Kopfhaltung, was essentiell für eine gute Wasserlage im Rückenschwimmen ist.",
+            "Vermeide hektische Bewegungen und konzentriere dich auf eine saubere Rotation des Körpers um die Längsachse, während der Kopf fixiert bleibt."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Rücken Einarmig",
+        "targets": [
+            "Armzug",
+            "Rotation",
+            "Koordination"
+        ],
+        "short_description": "Rückenschwimmen mit nur einem Arm, der andere liegt an.",
+        "img_name": "ruecken_einarmig.png",
+        "img_description": "Schwimmer nutzt nur einen Arm für den Rückenarmzug.",
+        "title": "Einarmiges Rückenschwimmen",
+        "description": [
+            "Lege einen Arm entspannt neben dem Körper oder auf dem Bauch ab.",
+            "Schwimme nur mit dem anderen Arm. Konzentriere dich auf eine saubere Rotation zur Seite des aktiven Arms beim Eintauchen und der Druckphase.",
+            "Achte darauf, dass der Körper rotiert, der Kopf aber ruhig bleibt.",
+            "Wechsele nach einer Bahn den Arm. Dies stärkt das Gefühl für den einzelnen Armzug und die notwendige Körperrotation."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "Rücken-Roll-Drill",
+        "targets": [
+            "Rotation",
+            "Wasserlage",
+            "Beinschlag"
+        ],
+        "short_description": "Rückenbeinschlag mit betonter Rotation von Seite zu Seite.",
+        "img_name": "ruecken_roll_drill.png",
+        "img_description": "Schwimmer in Rückenlage, rotiert stark von einer Seite zur anderen.",
+        "title": "Rücken-Roll-Drill (Schulterrotation)",
+        "description": [
+            "Schwimme Rückenbeine, die Arme liegen am Körper an.",
+            "Rotiere nun mit jedem 6. bis 10. Beinschlag den Körper von einer Seite auf die andere (ca. 45 Grad bis 90 Grad), sodass eine Schulter aus dem Wasser schaut.",
+            "Der Kopf bleibt dabei ruhig und blickt zur Decke/Himmel.",
+            "Diese Übung schult die für das Rückenschwimmen wichtige Rotation um die Längsachse."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "L-Drill",
+        "targets": [
+            "Armhaltung",
+            "Rotation",
+            "Wassergefühl"
+        ],
+        "short_description": "Rückenbeine mit einem Arm senkrecht nach oben gestreckt.",
+        "img_name": "l_drill.png",
+        "img_description": "Schwimmer in Seitenlage, ein Arm zeigt senkrecht nach oben.",
+        "title": "L-Drill (Arm senkrecht)",
+        "description": [
+            "Schwimme in Seitenlage Beine. Ein Arm liegt gestreckt vorne (oder am Körper), der andere Arm wird senkrecht nach oben zur Decke gestreckt.",
+            "Halte diese Position für einige Sekunden oder Beinschläge.",
+            "Achte darauf, dass der nach oben gestreckte Arm wirklich senkrecht ist und nicht zur Seite kippt. Dies hilft, die Schulterposition und Stabilität zu überprüfen.",
+            "Wechsele die Seite."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken",
+            "Kraul"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Rücken altdeutsch",
+        "targets": [
+            "Armzug",
+            "Wasserlage",
+            "Koordination"
+        ],
+        "short_description": "Rückenschwimmen mit Doppelarmzug und Brustbeine.",
+        "img_name": "ruecken_altdeutsch.png",
+        "img_description": "Schwimmer führt Rückenschwimmen mit Doppelarmzug und Brustbeinen durch.",
+        "title": "Rücken altdeutsch - Koordination und Wasserlage",
+        "description": [
+            "Diese Übung kombiniert den Doppelarmzug mit dem Brustbeinschlag, um die Koordination und Wasserlage im Rückenschwimmen zu verbessern.",
+            "Führe den Armzug mit beiden Armen gleichzeitig aus, während du den Brustbeinschlag ausführst. Achte darauf, dass du während der Bewegung eine stabile Wasserlage beibehältst und die Bewegungen kontrolliert ausführst.",
+            "Diese Übung fördert die Gesamtkoordination und stärkt die Muskulatur, die für eine gute Wasserlage und Schwimmtechnik wichtig ist."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer"
+        ]
+    },
+    {
+        "slag": "3-Punkt Rücken",
+        "targets": [
+            "Armzug",
+            "Wasserlage",
+            "Koordination"
+        ],
+        "short_description": "Rückenschwimmen mit 3 Berührungspunkten pro Seite.",
+        "img_name": "3_punkt_ruecken.png",
+        "img_description": "Schwimmer führt Rückenschwimmen mit 3 Berührungspunkten pro Seite durch.",
+        "title": "3-Punkt Rücken - Koordination und Wasserlage verbessern",
+        "description": [
+            "Diese Übung hilft dir, die Koordination und Wasserlage im Rückenschwimmen zu verbessern.",
+            "Beim 3-Punkt Rücken schwimmst du so, dass in der Rückholphase die Hand an 3 Stellen den Körper/das Wasser berührt: zuerst am Oberschenkel, dann an der Achsel und schließlich am maximal gestreckt vorne im Wasser.",
+            "Achte darauf, dass du während der Bewegung eine stabile Wasserlage beibehältst und die Bewegungen kontrolliert ausführst. Die Schulter sollte rotieren, das Gesicht zeigt immer zur Decke.",
+            "Diese Übung fördert die Gesamtkoordination und stärkt die Muskulatur, die für eine gute Wasserlage und Schwimmtechnik wichtig ist."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Rücken"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Delfinbeine in Rückenlage",
+        "targets": [
+            "Beinschlag",
+            "Wasserlage",
+            "Körperspannung"
+        ],
+        "short_description": "Delfinbeinschlag in Rückenlage zur Kontrolle der Kniebewegung.",
+        "img_name": "delfinbeine_ruecken.png",
+        "img_description": "Schwimmer in Rückenlage, Arme gestreckt oder am Körper, führt Delfinbeinschlag aus.",
+        "title": "Delfinbeine in Rückenlage - Kniekontrolle",
+        "description": [
+            "Stoße dich in Rückenlage ab. Die Arme können gestreckt hinter dem Kopf (Streamline) oder seitlich am Körper liegen.",
+            "Führe den Delfinbeinschlag aus der Hüfte und dem Rumpf heraus aus. Achte darauf, dass die Knie nicht zu stark aus dem Wasser kommen.",
+            "Diese Übung hilft, eine zu starke Kniebeugung zu vermeiden und den Aufwärtsschlag (Up-Kick) zu betonen.",
+            "Der Bauch sollte bei jedem Kick kurz die Wasseroberfläche durchbrechen."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Delfinbeine in Seitenlage",
+        "targets": [
+            "Beinschlag",
+            "Symmetrie",
+            "Wassergefühl"
+        ],
+        "short_description": "Delfinbeinschlag in Seitenlage für symmetrische Bewegung.",
+        "img_name": "delfinbeine_seite.png",
+        "img_description": "Schwimmer in Seitenlage, ein Arm gestreckt vorne, führt Wellenbewegung aus.",
+        "title": "Delfinbeine in Seitenlage",
+        "description": [
+            "Lege dich auf die Seite, der untere Arm ist gestreckt vorne, der obere liegt auf der Hüfte.",
+            "Führe eine wellenförmige Bewegung mit dem ganzen Körper aus. Der Impuls kommt aus der Brustwirbelsäule und setzt sich bis in die Zehenspitzen fort.",
+            "Achte darauf, dass die Bewegung nach vorne und hinten (in Bezug auf den Körper) gleich groß ist.",
+            "Wechsele nach jeder Bahn die Seite."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Einarmiges Delfin",
+        "targets": [
+            "Armzug",
+            "Atmung",
+            "Rhythmus"
+        ],
+        "short_description": "Delfinschwimmen mit nur einem aktiven Arm.",
+        "img_name": "delfin_einarmig.png",
+        "img_description": "Schwimmer führt Delfinbewegung mit einem Arm aus, der andere liegt vorne.",
+        "title": "Einarmiges Delfin - Rhythmus und Atmung",
+        "description": [
+            "Der passive Arm liegt gestreckt vorne. Atme zur Seite des aktiven Arms oder nach vorne.",
+            "Führe den Delfinarmzug mit einem Arm durch. Der Beinschlagrhythmus bleibt wie beim ganzen Schwimmen (2 Kicks pro Zyklus).",
+            "Diese Übung erleichtert die Rückholphase und hilft, den Rhythmus von Kick und Zug zu koordinieren.",
+            "Wechsele den Arm bahnenweise oder nach einer bestimmten Anzahl von Zügen."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin",
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Triathlet"
+        ]
+    },
+    {
+        "slag": "2-2-2 Delfin",
+        "targets": [
+            "Koordination",
+            "Ausdauer",
+            "Techniktransfer"
+        ],
+        "short_description": "Kombination aus einarmigem und ganzem Delfinschwimmen.",
+        "img_name": "delfin_2_2_2.png",
+        "img_description": "Schwimmer wechselt zwischen linkem Arm, rechtem Arm und beiden Armen.",
+        "title": "2-2-2 Delfin Drill",
+        "description": [
+            "Schwimme 2 Züge nur mit dem linken Arm, dann 2 Züge nur mit dem rechten Arm, und anschließend 2 Züge ganzes Delfin.",
+            "Versuche, das Gefühl der Leichtigkeit aus den einarmigen Zügen in die ganzen Züge mitzunehmen.",
+            "Achte auf einen kontinuierlichen Rhythmus und vermeide Pausen beim Wechsel.",
+            "Die Atmung erfolgt bei den einarmigen Zügen zur Seite, bei den ganzen Zügen nach vorne."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Delfinbeine mit Brett",
+        "targets": [
+            "Beinschlag",
+            "Kraft",
+            "Körperspannung"
+        ],
+        "short_description": "Isolierter Delfinbeinschlag mit Schwimmbrett.",
+        "img_name": "delfinbeine_brett.png",
+        "img_description": "Schwimmer hält Brett vorne und führt Delfinbeinschlag aus.",
+        "title": "Delfinbeine mit Brett",
+        "description": [
+            "Halte ein Schwimmbrett mit gestreckten Armen vorne. Das Gesicht kann im Wasser liegen (zum Atmen heben) oder über Wasser gehalten werden.",
+            "Führe kräftige Delfinbeinschläge aus. Die Bewegung startet in der Körpermitte, nicht erst in den Knien.",
+            "Vermeide es, mit dem Oberkörper auf das Brett zu drücken (Wippen). Der Oberkörper sollte möglichst ruhig bleiben.",
+            "Diese Übung kräftigt die Rumpf- und Beinmuskulatur."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin"
+        ],
+        "difficulty": "Einfach",
+        "target_groups": [
+            "Anfänger",
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Stehende Delfinwelle",
+        "targets": [
+            "Beinschlag",
+            "Wassergefühl",
+            "Rumpfkraft"
+        ],
+        "short_description": "Vertikaler Delfinbeinschlag im tiefen Wasser.",
+        "img_name": "stehende_delfinwelle.png",
+        "img_description": "Schwimmer steht senkrecht im Wasser und hält sich durch Delfinkicks oben.",
+        "title": "Stehende Delfinwelle (Vertical Kicking)",
+        "description": [
+            "Suche dir eine Stelle im Becken, wo du nicht stehen kannst.",
+            "Halte dich senkrecht im Wasser und verschränke die Arme vor der Brust oder halte sie über Wasser.",
+            "Führe den Delfinbeinschlag aus, um den Kopf über Wasser zu halten. Die Bewegung muss aus dem Rumpf kommen.",
+            "Diese Übung ist sehr intensiv und fördert die Rumpfkraft sowie das Gefühl für den effektiven Beinschlag in beide Richtungen (vorne und hinten)."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Leistungsschwimmer",
+            "Wasserballer"
+        ]
+    },
+    {
+        "slag": "Delfin mit Kraulbeinen",
+        "targets": [
+            "Armzug",
+            "Frequenz",
+            "Armkraft"
+        ],
+        "short_description": "Delfinarmzug kombiniert mit Kraulbeinschlag.",
+        "img_name": "delfin_kraulbeine.png",
+        "img_description": "Schwimmer führt Delfinarmzüge aus, Beine machen Kraulschlag.",
+        "title": "Delfin mit Kraulbeinen",
+        "description": [
+            "Führe den normalen Delfinarmzug aus, aber mache dazu einen kontinuierlichen, kräftigen Kraulbeinschlag.",
+            "Dies hilft, den Körper konstant an der Wasseroberfläche zu halten und erschwert die Rückholphase der Arme.",
+            "Konzentriere dich auf eine saubere, schnelle Armbewegung und das Überwasserbringen der Arme.",
+            "Diese Übung eignet sich gut, um die Armkraft zu trainieren, ohne durch den Rhythmus des Delfinbeinschlags limitiert zu sein."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin",
+            "Kraul"
+        ],
+        "difficulty": "Mittel",
+        "target_groups": [
+            "Hobbyschwimmer",
+            "Leistungsschwimmer"
+        ]
+    },
+    {
+        "slag": "Unterwasser-Delfinkicks",
+        "targets": [
+            "Tauchphase",
+            "Streamline",
+            "Lungenvolumen"
+        ],
+        "short_description": "Lange Tauchphasen mit Delfinkicks in Streamline-Position.",
+        "img_name": "unterwasser_delfin.png",
+        "img_description": "Schwimmer taucht tief in gestreckter Haltung und macht Delfinkicks.",
+        "title": "Unterwasser-Delfinkicks (The Fifth Stroke)",
+        "description": [
+            "Stoße dich kräftig von der Wand ab und nimm eine perfekte Streamline-Position ein (Hände übereinander, Arme hinter den Ohren gestreckt).",
+            "Führe unter Wasser kleine, schnelle und kraftvolle Delfinkicks aus.",
+            "Versuche, so weit wie möglich zu tauchen (z.B. bis zur 15m Markierung), bevor du auftauchst.",
+            "Achte darauf, die Spannung im ganzen Körper zu halten und die Amplitude der Kicks nicht zu groß werden zu lassen."
+        ],
+        "video_url": [
+            ""
+        ],
+        "styles": [
+            "Delfin",
+            "Allgemein"
+        ],
+        "difficulty": "Schwer",
+        "target_groups": [
+            "Leistungsschwimmer",
+            "Hobbyschwimmer"
+        ]
+    }
+]
