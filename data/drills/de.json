@@ -990,7 +990,8 @@
             ""
         ],
         "styles": [
-            "Rücken"
+            "Rücken",
+            "Kraul"
         ],
         "difficulty": "Schwer",
         "target_groups": [

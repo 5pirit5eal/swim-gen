@@ -976,7 +976,7 @@
             "Rotation",
             "Water Feel"
         ],
-        "short_description": "Backstroke legs with one arm stretched vertically upwards.",
+        "short_description": "Backstroke legs with one arm stretched vertically upwards. The upper body is turned to the side, the passive arm is straight upfront.",
         "img_name": "l_drill.png",
         "img_description": "Swimmer in side position, one arm points vertically upwards.",
         "title": "L-Drill (Arm Vertical)",
@@ -990,7 +990,8 @@
             ""
         ],
         "styles": [
-            "Backstroke"
+            "Backstroke",
+            "Freestyle"
         ],
         "difficulty": "Hard",
         "target_groups": [
@@ -999,7 +1000,7 @@
         ]
     },
     {
-        "slag": "Old German Backstroke",
+        "slag": "Old School Backstroke",
         "targets": [
             "Arm Stroke",
             "Body Position",
@@ -1008,7 +1009,7 @@
         "short_description": "Backstroke swimming with double arm stroke and breaststroke legs.",
         "img_name": "ruecken_altdeutsch.png",
         "img_description": "Swimmer performs backstroke swimming with double arm stroke and breaststroke legs.",
-        "title": "Old German Backstroke - Coordination and Body Position",
+        "title": "Old School Backstroke - Coordination and Body Position",
         "description": [
             "This exercise combines the double arm stroke with the breaststroke kick to improve coordination and body position in backstroke swimming.",
             "Perform the arm stroke with both arms simultaneously while performing the breaststroke kick. Make sure you maintain a stable body position during the movement and perform the movements in a controlled manner.",
