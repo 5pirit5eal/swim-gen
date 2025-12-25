@@ -1,3 +1,11 @@
+## [2.26.0](https://github.com/5pirit5eal/swim-gen/compare/v2.25.0...v2.26.0) (2025-12-25)
+
+### Features
+
+* added a public bucket to the infra and cicd ([20c5245](https://github.com/5pirit5eal/swim-gen/commit/20c5245185fd1cccb0cd4963fd08e55f79d98efa))
+* added a public bucket to the infra and cicd ([#190](https://github.com/5pirit5eal/swim-gen/issues/190)) ([b333795](https://github.com/5pirit5eal/swim-gen/commit/b33379557b82d77ec98f18ce40f80e35eef65241))
+* added image files to bucket ([a018591](https://github.com/5pirit5eal/swim-gen/commit/a0185913665c82629c930da49ff8dff2ad2ea3f6))
+
 ## [2.25.0](https://github.com/5pirit5eal/swim-gen/compare/v2.24.2...v2.25.0) (2025-12-25)
 
 ### Features
