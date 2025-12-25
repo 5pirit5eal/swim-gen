@@ -1,3 +1,21 @@
+## [2.25.0](https://github.com/5pirit5eal/swim-gen/compare/v2.24.2...v2.25.0) (2025-12-25)
+
+### Features
+
+* added all exercise images for breaststroke ([d5cc8f7](https://github.com/5pirit5eal/swim-gen/commit/d5cc8f781c6ddb4cd6937dbeff1a423702a15cd8))
+* added all images for freestyle ([c5824b0](https://github.com/5pirit5eal/swim-gen/commit/c5824b00f799855b5b11e388069baf0d64c826eb))
+* added basic cli template ([645e955](https://github.com/5pirit5eal/swim-gen/commit/645e9550d3ff1a43499a8b86e27d6dbdc8cce68f))
+* added drills for backstroke in german ([4be98c0](https://github.com/5pirit5eal/swim-gen/commit/4be98c03ad90b38c4fcf0acbc2e5e0354c22f6d1))
+* added drills for butterfly ([1f1008c](https://github.com/5pirit5eal/swim-gen/commit/1f1008c4fed67281fd55ac3584dc9087c6ceba96))
+* added freestyle in de ([3e7482a](https://github.com/5pirit5eal/swim-gen/commit/3e7482a1dc105d95cf8f88ed1f271648379e4187))
+* added german breast stroke drills ([555c8e7](https://github.com/5pirit5eal/swim-gen/commit/555c8e739369cc1d8a52f39c9b3bfec313d4a2be))
+* added git lfs for image files ([53c5963](https://github.com/5pirit5eal/swim-gen/commit/53c59635e3c30e49fde198e0715a51a18e80b81d))
+* added images for all remaining exercises ([d83a7fa](https://github.com/5pirit5eal/swim-gen/commit/d83a7fac84aae1b6e8b56baddcd73a8f58079564))
+* added images for backstroke drills ([cf37c97](https://github.com/5pirit5eal/swim-gen/commit/cf37c97b14e52fa94329010cdf661efcf95e331f))
+* added most freestyle images ([9640494](https://github.com/5pirit5eal/swim-gen/commit/964049450b467c3eeec83a98a837064d95573fd9))
+* added the first few images ([ebd04ea](https://github.com/5pirit5eal/swim-gen/commit/ebd04ea684bd594a0f3716d0bbe7df252f256a6b))
+* translated to english ([ea8570d](https://github.com/5pirit5eal/swim-gen/commit/ea8570d6bfdec940995b17f64ad21283962bf1d7))
+
 ## [2.24.2](https://github.com/5pirit5eal/swim-gen/compare/v2.24.1...v2.24.2) (2025-12-19)
 
 ### Bug Fixes
