@@ -86,6 +86,7 @@ jobs:
           --build-arg VITE_SITE_URL="${{ vars.VITE_SITE_URL }}" \
           --build-arg VITE_SUPABASE_URL="${{ secrets.VITE_SUPABASE_URL }}" \
           --build-arg VITE_SUPABASE_ANON_KEY="${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
+          --build-arg VITE_PUBLIC_BUCKET_NAME="${{ vars.VITE_PUBLIC_BUCKET_NAME }}" \
           .
         working-directory: frontend
       - name: Push Docker Image to Registry
