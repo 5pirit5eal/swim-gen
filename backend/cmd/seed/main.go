@@ -61,7 +61,9 @@ func main() {
 	}
 
 	// Load configuration
-	projectRoot := filepath.Dir(filepath.Dir(*path))
+	// Traverse two levels up from the drills path to get the project root (drills directory -> parent -> project root).
+	drillsParentDir := filepath.Dir(*path)
+	projectRoot := filepath.Dir(drillsParentDir)
 
 	// Expect the .env file to be in the backend directory
 	cfg, err := config.LoadConfig(filepath.Join(projectRoot, "backend", *envFile), true)
