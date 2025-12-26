@@ -121,14 +121,6 @@ onUnmounted(() => {
                         <h4 class="card-title">{{ preview.title }}</h4>
                         <p class="card-description">{{ preview.short_description }}</p>
                     </div>
-
-                    <!-- Footer: Style -->
-                    <div v-if="preview.style" class="card-footer">
-                        <div class="footer-item style">
-                            <!-- Optional: Add icon here if desired -->
-                            {{ preview.style }}
-                        </div>
-                    </div>
                 </template>
                 <div v-else class="card-error">
                     <p>Unable to load preview</p>
@@ -299,33 +291,7 @@ onUnmounted(() => {
     color: var(--color-text);
     margin: 0;
     line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
     opacity: 0.8;
-}
-
-/* Footer */
-.card-footer {
-    padding: 0.75rem 1.25rem;
-    border-top: 1px solid var(--color-border);
-    background: var(--color-background-soft);
-    display: flex;
-    align-items: center;
-}
-
-.footer-item {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--color-text);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.footer-item.style {
-    color: var(--color-primary);
 }
 
 /* Transitions */
