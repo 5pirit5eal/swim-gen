@@ -55,8 +55,11 @@ func main() {
 		log.Fatal("Error initializing RAG database:", err)
 	}
 	defer func() {
-		if err := db.Store.Close(); err != nil {
+		if err := db.PlanStore.Close(); err != nil {
 			log.Printf("Error closing database connection: %v", err)
+		}
+		if err := db.DrillStore.Close(); err != nil {
+			log.Printf("Error closing drill store connection: %v", err)
 		}
 	}()
 

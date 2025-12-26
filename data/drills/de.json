@@ -1,6 +1,6 @@
 [
     {
-        "slag": "Seestern",
+        "slug": "Seestern",
         "targets": [
             "Gleiten",
             "Wasserwiderstand",
@@ -28,7 +28,7 @@
         ]
     },
     {
-        "slag": "Ohren klemmen",
+        "slug": "Ohren klemmen",
         "targets": [
             "Gleiten",
             "Wasserwiderstand",
@@ -55,7 +55,7 @@
         ]
     },
     {
-        "slag": "Kraulbeinschlag",
+        "slug": "Kraulbeinschlag",
         "targets": [
             "Beinschlag",
             "Wasserlage",
@@ -81,7 +81,7 @@
         ]
     },
     {
-        "slag": "Abschlagschwimmen",
+        "slug": "Abschlagschwimmen",
         "targets": [
             "Koordination",
             "Armzug",
@@ -110,7 +110,7 @@
         ]
     },
     {
-        "slag": "Kraul ohne Atmung",
+        "slug": "Kraul ohne Atmung",
         "targets": [
             "Gesamtkoordination",
             "Sprint"
@@ -136,7 +136,7 @@
         ]
     },
     {
-        "slag": "Atmen im Gehen",
+        "slug": "Atmen im Gehen",
         "targets": [
             "Atmung",
             "Kopfrotation"
@@ -161,7 +161,7 @@
         ]
     },
     {
-        "slag": "Kraul Einarmig",
+        "slug": "Kraul Einarmig",
         "targets": [
             "Armzug",
             "Rumpfrotation",
@@ -191,7 +191,7 @@
         ]
     },
     {
-        "slag": "Skulling",
+        "slug": "Skulling",
         "targets": [
             "Wassergefühl",
             "Handposition",
@@ -221,7 +221,7 @@
         ]
     },
     {
-        "slag": "Pullbuoy zwischen den Füßen",
+        "slug": "Pullbuoy zwischen den Füßen",
         "targets": [
             "Armzug",
             "Wasserlage",
@@ -250,7 +250,7 @@
         ]
     },
     {
-        "slag": "Wasserballkraul",
+        "slug": "Wasserballkraul",
         "targets": [
             "Wasserlage",
             "Kraultechnik",
@@ -281,7 +281,7 @@
         ]
     },
     {
-        "slag": "Kraulbeine ohne Brett",
+        "slug": "Kraulbeine ohne Brett",
         "targets": [
             "Beinschlag",
             "Wasserlage",
@@ -312,7 +312,7 @@
         ]
     },
     {
-        "slag": "Kraul mit Fäusten",
+        "slug": "Kraul mit Fäusten",
         "targets": [
             "Armzug",
             "Wassergefühl",
@@ -342,7 +342,7 @@
         ]
     },
     {
-        "slag": "3-Punkt Reißverschlusskraul",
+        "slug": "3-Punkt Reißverschlusskraul",
         "targets": [
             "Armzug",
             "Schulterrotation",
@@ -373,7 +373,7 @@
         ]
     },
     {
-        "slag": "Windmühlen",
+        "slug": "Windmühlen",
         "targets": [
             "Armzug",
             "Wasserlage",
@@ -403,7 +403,7 @@
         ]
     },
     {
-        "slag": "Fingerschleifen",
+        "slug": "Fingerschleifen",
         "targets": [
             "Armzug",
             "Wassergefühl",
@@ -430,7 +430,7 @@
         ]
     },
     {
-        "slag": "3 Züge, 12 Kicks",
+        "slug": "3 Züge, 12 Kicks",
         "targets": [
             "Koordination",
             "Armzug",
@@ -460,7 +460,7 @@
         ]
     },
     {
-        "slag": "Stilles Kraul",
+        "slug": "Stilles Kraul",
         "targets": [
             "Achtsamkeit",
             "Wasserlage",
@@ -492,7 +492,7 @@
         ]
     },
     {
-        "slag": "Badewanne",
+        "slug": "Badewanne",
         "targets": [
             "Körperspannung",
             "Wassergefühl",
@@ -524,7 +524,7 @@
         ]
     },
     {
-        "slag": "Hohes Brust",
+        "slug": "Hohes Brust",
         "targets": [
             "Armzug",
             "Wasserwiderstand",
@@ -555,7 +555,7 @@
         ]
     },
     {
-        "slag": "Flaches Brust",
+        "slug": "Flaches Brust",
         "targets": [
             "Armzug",
             "Wasserwiderstand",
@@ -586,7 +586,7 @@
         ]
     },
     {
-        "slag": "Brustarme-Delfinbeine",
+        "slug": "Brustarme-Delfinbeine",
         "targets": [
             "Gesamtkoordination",
             "Gleiten",
@@ -616,7 +616,7 @@
         ]
     },
     {
-        "slag": "Diagonales Brust",
+        "slug": "Diagonales Brust",
         "targets": [
             "Gesamtkoordination",
             "Körperspannung"
@@ -645,7 +645,7 @@
         ]
     },
     {
-        "slag": "1-Armzug, 2-Kicks Brust",
+        "slug": "1-Armzug, 2-Kicks Brust",
         "targets": [
             "Koordination",
             "Armzug",
@@ -673,7 +673,7 @@
         ]
     },
     {
-        "slag": "Stuhlschwimmen",
+        "slug": "Stuhlschwimmen",
         "targets": [
             "Anzieh-Phase",
             "Wassergefühl",
@@ -704,7 +704,7 @@
         ]
     },
     {
-        "slag": "Hundepaddeln",
+        "slug": "Hundepaddeln",
         "targets": [
             "Wasserlage",
             "Körperspannung",
@@ -732,7 +732,7 @@
         ]
     },
     {
-        "slag": "Brustbeine mit Brett zwischen den Oberschenkeln",
+        "slug": "Brustbeine mit Brett zwischen den Oberschenkeln",
         "targets": [
             "Beinschlag",
             "Wasserwiderstand"
@@ -761,7 +761,7 @@
         ]
     },
     {
-        "slag": "Schub gegen Widerstand",
+        "slug": "Schub gegen Widerstand",
         "targets": [
             "Beinschlag",
             "Frequenz",
@@ -791,7 +791,7 @@
         ]
     },
     {
-        "slag": "Seestern Brust",
+        "slug": "Seestern Brust",
         "targets": [
             "Armzug",
             "Wasserwiderstand",
@@ -821,7 +821,7 @@
         ]
     },
     {
-        "slag": "Rückenbeine Streamline",
+        "slug": "Rückenbeine Streamline",
         "targets": [
             "Beinschlag",
             "Wasserlage",
@@ -851,7 +851,7 @@
         ]
     },
     {
-        "slag": "Doppelarmrücken",
+        "slug": "Doppelarmrücken",
         "targets": [
             "Wassergefühl",
             "Koordination",
@@ -880,7 +880,7 @@
         ]
     },
     {
-        "slag": "Rücken mit Becher",
+        "slug": "Rücken mit Becher",
         "targets": [
             "Kopfhaltung",
             "Wasserlage",
@@ -910,7 +910,7 @@
         ]
     },
     {
-        "slag": "Rücken Einarmig",
+        "slug": "Rücken Einarmig",
         "targets": [
             "Armzug",
             "Rotation",
@@ -940,7 +940,7 @@
         ]
     },
     {
-        "slag": "Rücken-Roll-Drill",
+        "slug": "Rücken-Roll-Drill",
         "targets": [
             "Rotation",
             "Wasserlage",
@@ -970,7 +970,7 @@
         ]
     },
     {
-        "slag": "L-Drill",
+        "slug": "L-Drill",
         "targets": [
             "Armhaltung",
             "Rotation",
@@ -1000,7 +1000,7 @@
         ]
     },
     {
-        "slag": "Rücken altdeutsch",
+        "slug": "Rücken altdeutsch",
         "targets": [
             "Armzug",
             "Wasserlage",
@@ -1028,7 +1028,7 @@
         ]
     },
     {
-        "slag": "3-Punkt Rücken",
+        "slug": "3-Punkt Rücken",
         "targets": [
             "Armzug",
             "Wasserlage",
@@ -1057,7 +1057,7 @@
         ]
     },
     {
-        "slag": "Delfinbeine in Rückenlage",
+        "slug": "Delfinbeine in Rückenlage",
         "targets": [
             "Beinschlag",
             "Wasserlage",
@@ -1087,7 +1087,7 @@
         ]
     },
     {
-        "slag": "Delfinbeine in Seitenlage",
+        "slug": "Delfinbeine in Seitenlage",
         "targets": [
             "Beinschlag",
             "Symmetrie",
@@ -1116,7 +1116,7 @@
         ]
     },
     {
-        "slag": "Einarmiges Delfin",
+        "slug": "Einarmiges Delfin",
         "targets": [
             "Armzug",
             "Atmung",
@@ -1147,7 +1147,7 @@
         ]
     },
     {
-        "slag": "2-2-2 Delfin",
+        "slug": "2-2-2 Delfin",
         "targets": [
             "Koordination",
             "Ausdauer",
@@ -1176,7 +1176,7 @@
         ]
     },
     {
-        "slag": "Delfinbeine mit Brett",
+        "slug": "Delfinbeine mit Brett",
         "targets": [
             "Beinschlag",
             "Kraft",
@@ -1206,7 +1206,7 @@
         ]
     },
     {
-        "slag": "Stehende Delfinwelle",
+        "slug": "Stehende Delfinwelle",
         "targets": [
             "Beinschlag",
             "Wassergefühl",
@@ -1235,7 +1235,7 @@
         ]
     },
     {
-        "slag": "Delfin mit Kraulbeinen",
+        "slug": "Delfin mit Kraulbeinen",
         "targets": [
             "Armzug",
             "Frequenz",
@@ -1265,7 +1265,7 @@
         ]
     },
     {
-        "slag": "Unterwasser-Delfinkicks",
+        "slug": "Unterwasser-Delfinkicks",
         "targets": [
             "Tauchphase",
             "Streamline",

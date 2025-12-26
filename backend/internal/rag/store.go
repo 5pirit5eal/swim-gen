@@ -19,11 +19,12 @@ import (
 const CollectionTableName string = "embedders"
 
 type RAGDB struct {
-	Conn   pgvector.PGXConn
-	Store  *pgvector.Store
-	Memory models.Memory
-	Client *genai.GoogleGenAIClient
-	cfg    config.Config
+	Conn       pgvector.PGXConn
+	PlanStore  *pgvector.Store
+	DrillStore *pgvector.Store
+	Memory     models.Memory
+	Client     *genai.GoogleGenAIClient
+	cfg        config.Config
 }
 
 func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
@@ -59,7 +60,7 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	slog.Info("Database connection created successfully")
 
 	// Create a new store
-	store, err := pgvector.New(
+	planStore, err := pgvector.New(
 		ctx, pgvector.WithConn(conn),
 		pgvector.WithEmbeddingTableName(cfg.Embedding.Name), // Ensure this matches your SQL table name
 		pgvector.WithCollectionTableName(CollectionTableName),
@@ -71,14 +72,32 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	slog.Info("Created langchaingo pgvector datastore successfully")
+	slog.Info("Created langchaingo pgvector datastore for plans successfully")
+
+	// Create a new store for drills
+	drillStore, err := pgvector.New(
+		ctx, pgvector.WithConn(conn),
+		pgvector.WithEmbeddingTableName(cfg.Embedding.DrillName), // Ensure this matches your SQL table name
+		pgvector.WithCollectionTableName(CollectionTableName),
+		// Separate the collections and documents by embedding model name
+		pgvector.WithCollectionName(cfg.Embedding.Model),
+		pgvector.WithEmbedder(embedder),
+		pgvector.WithVectorDimensions(cfg.Embedding.Size),
+	)
+	if err != nil {
+		return nil, err
+	}
+	slog.Info("Created langchaingo pgvector datastore for drills successfully")
 
 	memory := NewMemoryStore(conn)
-	return &RAGDB{Store: &store, Conn: conn, Client: client, cfg: cfg, Memory: memory}, nil
+	return &RAGDB{PlanStore: &planStore, DrillStore: &drillStore, Conn: conn, Client: client, cfg: cfg, Memory: memory}, nil
 }
 
 func (rag *RAGDB) Close() error {
-	if err := rag.Store.Close(); err != nil {
+	if err := rag.PlanStore.Close(); err != nil {
+		return err
+	}
+	if err := rag.DrillStore.Close(); err != nil {
 		return err
 	}
 	return nil

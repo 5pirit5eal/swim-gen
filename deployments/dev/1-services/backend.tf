@@ -9,6 +9,7 @@ locals {
     DB_PASS_LOCATION          = var.secret_version_ids.dbpassword_root
     EMBEDDING_MODEL           = var.embedding_model
     EMBEDDING_NAME            = var.embedding_name
+    EMBEDDING_DRILL_NAME      = var.embedding_drill_name
     EMBEDDING_SIZE            = var.embedding_size
     MODEL                     = var.model
     SMALL_MODEL               = var.small_model # fixed key (was SMALl_MODEL)
