@@ -42,10 +42,13 @@ async function handleMouseEnter(event: MouseEvent) {
         if (!preview.value) {
             isLoading.value = true
             const result = await drillsStore.fetchDrillPreview(props.drillId, locale.value)
-            if (result) {
-                preview.value = result
+            // Only update state if still hovering (prevents race condition)
+            if (isHovering.value) {
+                if (result) {
+                    preview.value = result
+                }
+                isLoading.value = false
             }
-            isLoading.value = false
         }
     }, 200)
 }

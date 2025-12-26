@@ -154,7 +154,7 @@ watch(locale, async () => {
                     <h2>{{ t('drill.video') }}</h2>
                     <div class="video-container">
                         <div v-for="videoId in videoIds" :key="videoId" class="video-wrapper">
-                            <iframe :src="`https://www.youtube.com/embed/${videoId}`" frameborder="0"
+                            <iframe :src="`https://www.youtube.com/embed/${videoId}`"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen class="video-iframe"></iframe>
                         </div>
