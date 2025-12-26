@@ -1,6 +1,6 @@
 [
     {
-        "slag": "Starfish",
+        "slug": "Starfish",
         "targets": [
             "Gliding",
             "Water Resistance",
@@ -28,7 +28,7 @@
         ]
     },
     {
-        "slag": "Squeeze Ears",
+        "slug": "Squeeze Ears",
         "targets": [
             "Gliding",
             "Water Resistance",
@@ -55,7 +55,7 @@
         ]
     },
     {
-        "slag": "Flutter Kick",
+        "slug": "Flutter Kick",
         "targets": [
             "Kick",
             "Body Position",
@@ -81,7 +81,7 @@
         ]
     },
     {
-        "slag": "Catch-up Drill",
+        "slug": "Catch-up Drill",
         "targets": [
             "Coordination",
             "Arm Stroke",
@@ -110,7 +110,7 @@
         ]
     },
     {
-        "slag": "Freestyle No Breathing",
+        "slug": "Freestyle No Breathing",
         "targets": [
             "Overall Coordination",
             "Sprint"
@@ -136,7 +136,7 @@
         ]
     },
     {
-        "slag": "Breathing while Walking",
+        "slug": "Breathing while Walking",
         "targets": [
             "Breathing",
             "Head Rotation"
@@ -161,7 +161,7 @@
         ]
     },
     {
-        "slag": "Single Arm Freestyle",
+        "slug": "Single Arm Freestyle",
         "targets": [
             "Arm Stroke",
             "Torso Rotation",
@@ -191,7 +191,7 @@
         ]
     },
     {
-        "slag": "Sculling",
+        "slug": "Sculling",
         "targets": [
             "Water Feel",
             "Hand Position",
@@ -221,7 +221,7 @@
         ]
     },
     {
-        "slag": "Pullbuoy between Feet",
+        "slug": "Pullbuoy between Feet",
         "targets": [
             "Arm Stroke",
             "Body Position",
@@ -250,7 +250,7 @@
         ]
     },
     {
-        "slag": "Water Polo Freestyle",
+        "slug": "Water Polo Freestyle",
         "targets": [
             "Body Position",
             "Freestyle Technique",
@@ -281,7 +281,7 @@
         ]
     },
     {
-        "slag": "Flutter Kick without Board",
+        "slug": "Flutter Kick without Board",
         "targets": [
             "Kick",
             "Body Position",
@@ -312,7 +312,7 @@
         ]
     },
     {
-        "slag": "Fists Freestyle",
+        "slug": "Fists Freestyle",
         "targets": [
             "Arm Stroke",
             "Water Feel",
@@ -342,7 +342,7 @@
         ]
     },
     {
-        "slag": "3-Point Zipper Freestyle",
+        "slug": "3-Point Zipper Freestyle",
         "targets": [
             "Arm Stroke",
             "Shoulder Rotation",
@@ -373,7 +373,7 @@
         ]
     },
     {
-        "slag": "Windmills",
+        "slug": "Windmills",
         "targets": [
             "Arm Stroke",
             "Body Position",
@@ -403,7 +403,7 @@
         ]
     },
     {
-        "slag": "Finger Drag",
+        "slug": "Finger Drag",
         "targets": [
             "Arm Stroke",
             "Water Feel",
@@ -430,7 +430,7 @@
         ]
     },
     {
-        "slag": "3 Strokes, 12 Kicks",
+        "slug": "3 Strokes, 12 Kicks",
         "targets": [
             "Coordination",
             "Arm Stroke",
@@ -460,7 +460,7 @@
         ]
     },
     {
-        "slag": "Silent Freestyle",
+        "slug": "Silent Freestyle",
         "targets": [
             "Mindfulness",
             "Body Position",
@@ -492,7 +492,7 @@
         ]
     },
     {
-        "slag": "Bathtub",
+        "slug": "Bathtub",
         "targets": [
             "Body Tension",
             "Water Feel",
@@ -524,7 +524,7 @@
         ]
     },
     {
-        "slag": "High Breaststroke",
+        "slug": "High Breaststroke",
         "targets": [
             "Arm Stroke",
             "Water Resistance",
@@ -555,7 +555,7 @@
         ]
     },
     {
-        "slag": "Flat Breaststroke",
+        "slug": "Flat Breaststroke",
         "targets": [
             "Arm Stroke",
             "Water Resistance",
@@ -586,7 +586,7 @@
         ]
     },
     {
-        "slag": "Breaststroke Arms, Dolphin Kick",
+        "slug": "Breaststroke Arms, Dolphin Kick",
         "targets": [
             "Overall Coordination",
             "Gliding",
@@ -616,7 +616,7 @@
         ]
     },
     {
-        "slag": "Diagonal Breaststroke",
+        "slug": "Diagonal Breaststroke",
         "targets": [
             "Overall Coordination",
             "Body Tension"
@@ -645,7 +645,7 @@
         ]
     },
     {
-        "slag": "1 Pull, 2 Kicks Breaststroke",
+        "slug": "1 Pull, 2 Kicks Breaststroke",
         "targets": [
             "Coordination",
             "Arm Stroke",
@@ -673,7 +673,7 @@
         ]
     },
     {
-        "slag": "Chair Swimming",
+        "slug": "Chair Swimming",
         "targets": [
             "Catch Phase",
             "Water Feel",
@@ -704,7 +704,7 @@
         ]
     },
     {
-        "slag": "Dog Paddle",
+        "slug": "Dog Paddle",
         "targets": [
             "Body Position",
             "Body Tension",
@@ -732,7 +732,7 @@
         ]
     },
     {
-        "slag": "Breaststroke Kick with Board between Thighs",
+        "slug": "Breaststroke Kick with Board between Thighs",
         "targets": [
             "Kick",
             "Water Resistance"
@@ -761,7 +761,7 @@
         ]
     },
     {
-        "slag": "Push against Resistance",
+        "slug": "Push against Resistance",
         "targets": [
             "Kick",
             "Frequency",
@@ -791,7 +791,7 @@
         ]
     },
     {
-        "slag": "Starfish Breaststroke",
+        "slug": "Starfish Breaststroke",
         "targets": [
             "Arm Stroke",
             "Water Resistance",
@@ -821,7 +821,7 @@
         ]
     },
     {
-        "slag": "Backstroke Kick Streamline",
+        "slug": "Backstroke Kick Streamline",
         "targets": [
             "Kick",
             "Body Position",
@@ -851,7 +851,7 @@
         ]
     },
     {
-        "slag": "Double Arm Backstroke",
+        "slug": "Double Arm Backstroke",
         "targets": [
             "Water Feel",
             "Coordination",
@@ -880,7 +880,7 @@
         ]
     },
     {
-        "slag": "Backstroke with Cup",
+        "slug": "Backstroke with Cup",
         "targets": [
             "Head Position",
             "Body Position",
@@ -910,7 +910,7 @@
         ]
     },
     {
-        "slag": "Single Arm Backstroke",
+        "slug": "Single Arm Backstroke",
         "targets": [
             "Arm Stroke",
             "Rotation",
@@ -940,7 +940,7 @@
         ]
     },
     {
-        "slag": "Backstroke Roll Drill",
+        "slug": "Backstroke Roll Drill",
         "targets": [
             "Rotation",
             "Body Position",
@@ -970,7 +970,7 @@
         ]
     },
     {
-        "slag": "L-Drill",
+        "slug": "L-Drill",
         "targets": [
             "Arm Position",
             "Rotation",
@@ -1000,7 +1000,7 @@
         ]
     },
     {
-        "slag": "Old School Backstroke",
+        "slug": "Old School Backstroke",
         "targets": [
             "Arm Stroke",
             "Body Position",
@@ -1028,7 +1028,7 @@
         ]
     },
     {
-        "slag": "3-Point Backstroke",
+        "slug": "3-Point Backstroke",
         "targets": [
             "Arm Stroke",
             "Body Position",
@@ -1057,7 +1057,7 @@
         ]
     },
     {
-        "slag": "Dolphin Kick on Back",
+        "slug": "Dolphin Kick on Back",
         "targets": [
             "Kick",
             "Body Position",
@@ -1087,7 +1087,7 @@
         ]
     },
     {
-        "slag": "Dolphin Kick on Side",
+        "slug": "Dolphin Kick on Side",
         "targets": [
             "Kick",
             "Symmetry",
@@ -1116,7 +1116,7 @@
         ]
     },
     {
-        "slag": "Single Arm Butterfly",
+        "slug": "Single Arm Butterfly",
         "targets": [
             "Arm Stroke",
             "Breathing",
@@ -1147,7 +1147,7 @@
         ]
     },
     {
-        "slag": "2-2-2 Butterfly",
+        "slug": "2-2-2 Butterfly",
         "targets": [
             "Coordination",
             "Endurance",
@@ -1176,7 +1176,7 @@
         ]
     },
     {
-        "slag": "Dolphin Kick with Board",
+        "slug": "Dolphin Kick with Board",
         "targets": [
             "Kick",
             "Strength",
@@ -1206,7 +1206,7 @@
         ]
     },
     {
-        "slag": "Vertical Dolphin Kick",
+        "slug": "Vertical Dolphin Kick",
         "targets": [
             "Kick",
             "Water Feel",
@@ -1235,7 +1235,7 @@
         ]
     },
     {
-        "slag": "Butterfly with Flutter Kick",
+        "slug": "Butterfly with Flutter Kick",
         "targets": [
             "Arm Stroke",
             "Frequency",
@@ -1265,7 +1265,7 @@
         ]
     },
     {
-        "slag": "Underwater Dolphin Kicks",
+        "slug": "Underwater Dolphin Kicks",
         "targets": [
             "Dive Phase",
             "Streamline",

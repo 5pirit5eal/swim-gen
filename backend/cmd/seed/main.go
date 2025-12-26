@@ -122,7 +122,7 @@ func main() {
 					drill.Difficulty,
 				),
 				Metadata: map[string]any{
-					"slag":              drill.Slag,
+					"slug":              drill.Slag,
 					"targets":           drill.Targets,
 					"short_description": drill.ShortDescription,
 					"img_name":          drill.ImgName,
