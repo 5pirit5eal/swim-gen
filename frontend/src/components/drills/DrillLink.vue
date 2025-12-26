@@ -88,7 +88,7 @@ onUnmounted(() => {
 <template>
     <span class="drill-link-wrapper" ref="linkRef" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
         <a class="drill-link" @click.prevent="navigateToDrill" href="#">
-            {{ text || drillId }}
+            {{ text }}
         </a>
 
         <Transition name="card">
@@ -101,13 +101,13 @@ onUnmounted(() => {
                     <div class="card-image-container">
                         <img :src="imageUrl" :alt="preview.title" class="card-image"
                             @error="($event.target as HTMLImageElement).style.display = 'none'" />
+                        <span class="card-difficulty" :class="difficultyClass">
+                            {{ preview.difficulty }}
+                        </span>
                     </div>
                     <div class="card-content">
                         <h4 class="card-title">{{ preview.title }}</h4>
                         <p class="card-description">{{ preview.short_description }}</p>
-                        <span class="card-difficulty" :class="difficultyClass">
-                            {{ preview.difficulty }}
-                        </span>
                     </div>
                 </template>
                 <div v-else class="card-error">
@@ -128,35 +128,39 @@ onUnmounted(() => {
     color: var(--color-primary);
     text-decoration: underline;
     text-decoration-style: dotted;
-    text-underline-offset: 2px;
+    text-underline-offset: 3px;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: all 0.2s;
+    font-weight: 500;
 }
 
 .drill-link:hover {
     color: var(--color-primary-hover);
     text-decoration-style: solid;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 4px;
 }
 
 .drill-preview-card {
     position: absolute;
     z-index: 1000;
-    top: calc(100% + 8px);
+    top: calc(100% + 12px);
     left: 0;
-    width: 300px;
+    width: 320px;
     background: var(--color-background);
     border: 1px solid var(--color-border);
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.1),
-        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(0, 0, 0, 0.05);
     overflow: hidden;
     pointer-events: none;
 }
 
 .drill-preview-card.position-top {
     top: auto;
-    bottom: calc(100% + 8px);
+    bottom: calc(100% + 12px);
 }
 
 .drill-preview-card.position-left {
@@ -169,8 +173,8 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    color: var(--color-text-mute);
+    padding: 2.5rem;
+    color: var(--color-text);
 }
 
 .loading-spinner-small {
@@ -190,26 +194,34 @@ onUnmounted(() => {
 
 .card-image-container {
     width: 100%;
-    height: 140px;
+    aspect-ratio: 16/9;
     background: var(--color-background-mute);
+    position: relative;
     overflow: hidden;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .card-image {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.drill-link-wrapper:hover .card-image {
+    transform: scale(1.05);
 }
 
 .card-content {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--color-background);
 }
 
 .card-title {
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 1.1rem;
+    font-weight: 700;
     color: var(--color-heading);
-    margin: 0 0 0.5rem 0;
+    margin: 0;
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -218,43 +230,50 @@ onUnmounted(() => {
 }
 
 .card-description {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: var(--color-text);
-    margin: 0 0 0.75rem 0;
-    line-height: 1.4;
+    margin: 0;
+    line-height: 1.5;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    opacity: 0.9;
 }
 
 .card-difficulty {
-    display: inline-block;
-    padding: 0.2rem 0.5rem;
-    border-radius: 12px;
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 700;
     color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(4px);
 }
 
 .card-difficulty.easy,
 .card-difficulty.leicht {
-    background-color: var(--color-success, #22c55e);
+    background-color: var(--color-success);
 }
 
 .card-difficulty.medium,
 .card-difficulty.mittel {
-    background-color: var(--color-warning, #f59e0b);
+    background-color: var(--color-warning);
 }
 
 .card-difficulty.hard,
 .card-difficulty.schwer {
-    background-color: var(--color-error, #ef4444);
+    background-color: var(--color-error);
 }
 
 /* Card transitions */
 .card-enter-active {
-    transition: all 0.2s ease-out;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-leave-active {
@@ -263,16 +282,16 @@ onUnmounted(() => {
 
 .card-enter-from {
     opacity: 0;
-    transform: translateY(-4px) scale(0.98);
+    transform: translateY(8px) scale(0.96);
 }
 
 .card-leave-to {
     opacity: 0;
-    transform: translateY(-4px) scale(0.98);
+    transform: translateY(8px) scale(0.96);
 }
 
 .position-top .card-enter-from,
 .position-top .card-leave-to {
-    transform: translateY(4px) scale(0.98);
+    transform: translateY(-8px) scale(0.96);
 }
 </style>

@@ -170,7 +170,7 @@ describe('DrillView.vue', () => {
             },
         })
 
-        const difficultyTag = wrapper.find('.tag.difficulty')
+        const difficultyTag = wrapper.find('.difficulty-badge')
         expect(difficultyTag.exists()).toBe(true)
         expect(difficultyTag.text()).toBe('Easy')
         expect(difficultyTag.classes()).toContain('easy')
@@ -195,7 +195,7 @@ describe('DrillView.vue', () => {
             },
         })
 
-        const styleTags = wrapper.findAll('.tag.style')
+        const styleTags = wrapper.findAll('.meta-tag.style')
         expect(styleTags.length).toBe(mockDrill.styles.length)
         expect(styleTags[0]?.text()).toBe('General')
     })
@@ -219,7 +219,7 @@ describe('DrillView.vue', () => {
             },
         })
 
-        const paragraphs = wrapper.findAll('.description-content p')
+        const paragraphs = wrapper.findAll('.description-text p')
         expect(paragraphs.length).toBe(mockDrill.description.length)
         expect(paragraphs[0]?.text()).toBe(mockDrill.description[0])
     })
@@ -243,10 +243,10 @@ describe('DrillView.vue', () => {
             },
         })
 
-        const targetTags = wrapper.findAll('.tag.target')
+        const targetTags = wrapper.findAll('.target-chip')
         expect(targetTags.length).toBe(mockDrill.targets.length)
         mockDrill.targets.forEach((target, index) => {
-            expect(targetTags[index]?.text()).toBe(target)
+            expect(targetTags[index]?.text()).toContain(target)
         })
     })
 
@@ -269,7 +269,7 @@ describe('DrillView.vue', () => {
             },
         })
 
-        const targetGroupTags = wrapper.findAll('.tag.target-group')
+        const targetGroupTags = wrapper.findAll('.meta-tag.group')
         expect(targetGroupTags.length).toBe(mockDrill.target_groups.length)
         expect(targetGroupTags[0]?.text()).toBe('Beginner')
     })
@@ -293,7 +293,7 @@ describe('DrillView.vue', () => {
             },
         })
 
-        const videoSection = wrapper.find('.drill-videos')
+        const videoSection = wrapper.find('.video-section')
         expect(videoSection.exists()).toBe(true)
 
         const iframe = wrapper.find('.video-iframe')
@@ -325,7 +325,7 @@ describe('DrillView.vue', () => {
             },
         })
 
-        const videoSection = wrapper.find('.drill-videos')
+        const videoSection = wrapper.find('.video-section')
         expect(videoSection.exists()).toBe(false)
     })
 
@@ -353,7 +353,7 @@ describe('DrillView.vue', () => {
             },
         })
 
-        const videoSection = wrapper.find('.drill-videos')
+        const videoSection = wrapper.find('.video-section')
         expect(videoSection.exists()).toBe(false)
     })
 
@@ -536,7 +536,7 @@ describe('DrillView.vue', () => {
                 },
             })
 
-            const difficultyTag = wrapper.find('.tag.difficulty')
+            const difficultyTag = wrapper.find('.difficulty-badge')
             expect(difficultyTag.text()).toBe(difficulty)
             expect(difficultyTag.classes()).toContain(expectedClass)
         })

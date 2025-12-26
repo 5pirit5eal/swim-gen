@@ -103,74 +103,79 @@ watch(locale, async () => {
     <!-- Drill Content -->
     <Transition name="fade">
       <div v-if="currentDrill && !isLoading" class="container">
-        <!-- Header Section -->
-        <section class="drill-header">
-          <div class="drill-image-container">
-            <img :src="imageUrl" :alt="currentDrill.img_description" class="drill-image"
-              @error="($event.target as HTMLImageElement).style.display = 'none'" />
-          </div>
-          <div class="drill-title-section">
-            <h1 class="drill-title">{{ currentDrill.title }}</h1>
-            <p class="drill-short-description">{{ currentDrill.short_description }}</p>
+        <!-- Main Card -->
+        <article class="drill-card">
+          <!-- Header Section -->
+          <header class="drill-header">
+            <div class="header-content">
+              <div class="drill-image-container">
+                <img :src="imageUrl" :alt="currentDrill.img_description" class="drill-image"
+                  @error="($event.target as HTMLImageElement).style.display = 'none'" />
+              </div>
+              <div class="drill-info">
+                <div class="title-row">
+                  <h1 class="drill-title">{{ currentDrill.title }}</h1>
+                  <!-- Difficulty Badge -->
+                  <span class="difficulty-badge" :class="currentDrill.difficulty.toLowerCase()">
+                    {{ currentDrill.difficulty }}
+                  </span>
+                </div>
 
-            <!-- Tags -->
-            <div class="drill-tags">
-              <span class="tag difficulty" :class="currentDrill.difficulty.toLowerCase()">
-                {{ currentDrill.difficulty }}
-              </span>
-              <span v-for="style in currentDrill.styles" :key="style" class="tag style">
-                {{ style }}
-              </span>
+                <p class="drill-short-description">{{ currentDrill.short_description }}</p>
+
+                <!-- Tags Row -->
+                <div class="drill-tags">
+                  <span v-for="style in currentDrill.styles" :key="style" class="meta-tag style">
+                    {{ style }}
+                  </span>
+                  <span v-for="group in currentDrill.target_groups" :key="group" class="meta-tag group">
+                    {{ group }}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
-        </section>
+          </header>
 
-        <!-- Description Section -->
-        <section class="drill-description">
-          <h2>{{ t('drill.description') }}</h2>
-          <div class="description-content">
-            <p v-for="(paragraph, index) in currentDrill.description" :key="index">
-              {{ paragraph }}
-            </p>
-          </div>
-        </section>
+          <div class="drill-body">
+            <!-- Description Section -->
+            <section class="content-section">
+              <h2>{{ t('drill.description') }}</h2>
+              <div class="description-text">
+                <p v-for="(paragraph, index) in currentDrill.description" :key="index">
+                  {{ paragraph }}
+                </p>
+              </div>
+            </section>
 
-        <!-- Targets Section -->
-        <section class="drill-targets">
-          <h2>{{ t('drill.targets') }}</h2>
-          <div class="target-list">
-            <span v-for="target in currentDrill.targets" :key="target" class="tag target">
-              {{ target }}
-            </span>
-          </div>
-        </section>
+            <!-- Targets Section -->
+            <section class="content-section">
+              <h2>{{ t('drill.targets') }}</h2>
+              <div class="targets-list">
+                <span v-for="target in currentDrill.targets" :key="target" class="target-chip">
+                  <span class="check-icon">✓</span>
+                  {{ target }}
+                </span>
+              </div>
+            </section>
 
-        <!-- Target Groups Section -->
-        <section class="drill-target-groups">
-          <h2>{{ t('drill.target_groups') }}</h2>
-          <div class="target-group-list">
-            <span v-for="group in currentDrill.target_groups" :key="group" class="tag target-group">
-              {{ group }}
-            </span>
+            <!-- Video Section -->
+            <section v-if="hasVideos" class="content-section video-section">
+              <h2>{{ t('drill.video') }}</h2>
+              <div class="video-grid">
+                <div v-for="videoId in videoIds" :key="videoId" class="video-wrapper">
+                  <iframe :src="`https://www.youtube.com/embed/${videoId}`" allow="
+                      accelerometer;
+                      autoplay;
+                      clipboard-write;
+                      encrypted-media;
+                      gyroscope;
+                      picture-in-picture;
+                    " allowfullscreen class="video-iframe"></iframe>
+                </div>
+              </div>
+            </section>
           </div>
-        </section>
-
-        <!-- Video Section -->
-        <section v-if="hasVideos" class="drill-videos">
-          <h2>{{ t('drill.video') }}</h2>
-          <div class="video-container">
-            <div v-for="videoId in videoIds" :key="videoId" class="video-wrapper">
-              <iframe :src="`https://www.youtube.com/embed/${videoId}`" allow="
-                  accelerometer;
-                  autoplay;
-                  clipboard-write;
-                  encrypted-media;
-                  gyroscope;
-                  picture-in-picture;
-                " allowfullscreen class="video-iframe"></iframe>
-            </div>
-          </div>
-        </section>
+        </article>
       </div>
     </Transition>
   </div>
@@ -178,99 +183,46 @@ watch(locale, async () => {
 
 <style scoped>
 .drill-view {
-  padding: 0.25rem 0 2rem 0;
+  padding: 2rem 0;
+  min-height: 80vh;
 }
 
 .container {
-  max-width: 900px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 0 1rem;
 }
 
-/* Loading State */
-.loading-state,
-.error-state {
-  text-align: center;
-  padding: 3rem 2rem;
-  color: var(--color-text);
-  font-style: italic;
-  background: var(--color-background-soft);
+/* Card Container */
+.drill-card {
+  background: var(--color-background);
   border-radius: 8px;
+  box-shadow: 0 4px 20px var(--color-shadow);
+  overflow: hidden;
   border: 1px solid var(--color-border);
-  margin: 2rem auto;
-  max-width: 900px;
 }
 
-.error-state {
-  color: var(--color-error);
-}
-
-.loading-spinner {
-  width: 120px;
-  height: 40px;
-  background-color: var(--color-background-soft);
-  position: relative;
-  border-radius: 50px;
-  box-shadow: inset 0 0 0 2px var(--color-border);
-  margin: 0 auto 1rem auto;
-}
-
-.loading-spinner:after {
-  border-radius: 50px;
-  content: '';
-  position: absolute;
-  background-color: var(--color-primary);
-  left: 2px;
-  top: 2px;
-  bottom: 2px;
-  right: 80px;
-  animation: slide 2s linear infinite;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-@keyframes slide {
-  0% {
-    right: 80px;
-    left: 2px;
-  }
-
-  5% {
-    left: 2px;
-  }
-
-  50% {
-    right: 2px;
-    left: 80px;
-  }
-
-  55% {
-    right: 2px;
-  }
-
-  100% {
-    right: 80px;
-    left: 2px;
-  }
-}
-
-/* Header Section */
+/* Header Styling */
 .drill-header {
-  display: flex;
-  gap: 2rem;
-  margin: 2rem 0;
   background: var(--color-background-soft);
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  padding: 1.5rem;
+  padding: 2.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header-content {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
 }
 
 .drill-image-container {
   flex-shrink: 0;
-  width: 280px;
-  height: 280px;
-  border-radius: 8px;
+  width: 320px;
+  aspect-ratio: 4/3;
+  border-radius: 12px;
   overflow: hidden;
   background: var(--color-background-mute);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -279,145 +231,188 @@ watch(locale, async () => {
 .drill-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.drill-title-section {
+.drill-image:hover {
+  transform: scale(1.02);
+}
+
+.drill-info {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding-top: 0.5rem;
+}
+
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .drill-title {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 2.25rem;
+  font-weight: 800;
   color: var(--color-heading);
-  margin: 0 0 0.75rem 0;
-  line-height: 1.2;
+  line-height: 1.1;
+  margin: 0;
+  letter-spacing: -0.5px;
 }
 
 .drill-short-description {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--color-text);
-  margin: 0 0 1rem 0;
-  line-height: 1.5;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  opacity: 0.9;
+  max-width: 65ch;
+}
+
+/* Badges & Tags */
+.difficulty-badge {
+  padding: 0.4rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: white;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.difficulty-badge.easy,
+.difficulty-badge.leicht {
+  background-color: var(--color-success);
+}
+
+.difficulty-badge.medium,
+.difficulty-badge.mittel {
+  background-color: var(--color-warning);
+}
+
+.difficulty-badge.hard,
+.difficulty-badge.schwer {
+  background-color: var(--color-error);
 }
 
 .drill-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
-.tag {
-  display: inline-block;
-  padding: 0.35rem 0.75rem;
-  border-radius: 20px;
+.meta-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
+  transition: all 0.2s;
 }
 
-.tag.difficulty {
-  color: white;
-}
-
-.tag.difficulty.easy {
-  background-color: var(--color-success, #22c55e);
-}
-
-.tag.difficulty.medium {
-  background-color: var(--color-warning, #f59e0b);
-}
-
-.tag.difficulty.hard {
-  background-color: var(--color-error, #ef4444);
-}
-
-/* German translations for difficulty */
-.tag.difficulty.leicht {
-  background-color: var(--color-success, #22c55e);
-}
-
-.tag.difficulty.mittel {
-  background-color: var(--color-warning, #f59e0b);
-}
-
-.tag.difficulty.schwer {
-  background-color: var(--color-error, #ef4444);
-}
-
-.tag.style {
+.meta-tag.style {
   background-color: var(--color-primary);
   color: white;
 }
 
-.tag.target {
-  background-color: var(--color-background-mute);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-}
-
-.tag.target-group {
+.meta-tag.group {
   background-color: var(--color-background);
-  color: var(--color-text);
-  border: 1px solid var(--color-primary);
-}
-
-/* Sections */
-section {
-  margin: 2rem 0;
-}
-
-section h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
   color: var(--color-heading);
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--color-border);
-}
-
-/* Description */
-.description-content {
-  background: var(--color-background-soft);
-  border-radius: 8px;
-  padding: 1.25rem;
   border: 1px solid var(--color-border);
 }
 
-.description-content p {
-  margin: 0 0 1rem 0;
-  line-height: 1.7;
-  color: var(--color-text);
+/* Body Content */
+.drill-body {
+  padding: 2.5rem;
 }
 
-.description-content p:last-child {
+.content-section {
+  margin-bottom: 3rem;
+}
+
+.content-section:last-child {
   margin-bottom: 0;
 }
 
-/* Targets & Target Groups */
-.target-list,
-.target-group-list {
+.content-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 1.5rem 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-/* Videos */
-.video-container {
+.content-section h2::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 24px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+.description-text p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  max-width: 75ch;
+}
+
+.description-text p:last-child {
+  margin-bottom: 0;
+}
+
+/* Targets List */
+.targets-list {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 1rem;
+}
+
+.target-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-background-soft);
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: var(--color-heading);
+  border: 1px solid var(--color-border);
+}
+
+.check-icon {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+/* Video Section */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
 }
 
 .video-wrapper {
   position: relative;
   padding-bottom: 56.25%;
+  /* 16:9 Aspect Ratio */
   height: 0;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--color-background-mute);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
 }
 
 .video-iframe {
@@ -426,39 +421,94 @@ section h2 {
   left: 0;
   width: 100%;
   height: 100%;
-  border-radius: 8px;
 }
 
-/* Responsive */
-@media (max-width: 740px) {
-  .drill-header {
+/* Loading & Error States */
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-text);
+  background: var(--color-background-soft);
+  border-radius: 12px;
+  border: 1px dashed var(--color-border);
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.error-state {
+  color: var(--color-error);
+  border-color: var(--color-error-soft);
+  background: rgba(231, 76, 60, 0.05);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  margin: 0 auto 1.5rem auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 850px) {
+  .header-content {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
 
   .drill-image-container {
-    width: 200px;
-    height: 200px;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .title-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .drill-title {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
 
   .drill-tags {
     justify-content: center;
+  }
+
+  .content-section h2::before {
+    display: none;
+  }
+
+  .content-section h2 {
+    justify-content: center;
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 0.5rem;
+  }
+
+  .video-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 /* Transitions */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+  transform: translateY(10px);
 }
 </style>
