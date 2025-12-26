@@ -519,6 +519,14 @@
     "loading": "Loading...",
     "optional": "optional"
   },
+  "drill": {
+    "loading": "Loading drill...",
+    "not_found": "Drill not found. Redirecting to home.",
+    "description": "Description",
+    "targets": "Training Targets",
+    "target_groups": "Target Groups",
+    "video": "Video Tutorial"
+  },
   "tutorial": {
     "next": "Next",
     "prev": "Previous",

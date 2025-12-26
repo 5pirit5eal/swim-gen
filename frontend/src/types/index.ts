@@ -68,3 +68,6 @@ export type {
   ShareUrlResponse,
   SharedPlanData,
 } from './shared'
+
+// Export drill-related types
+export type { Drill, DrillRequest, DrillPreview } from './drill'
