@@ -12,4 +12,5 @@ type Drill struct {
 	Styles           []string `json:"styles"`
 	Difficulty       string   `json:"difficulty"`
 	TargetGroups     []string `json:"target_groups"`
+	Language         string   `json:"language"`
 }

@@ -153,6 +153,43 @@ definitions:
       user_id:
         type: string
     type: object
+  models.Drill:
+    properties:
+      description:
+        items:
+          type: string
+        type: array
+      difficulty:
+        type: string
+      img_description:
+        type: string
+      img_name:
+        type: string
+      language:
+        type: string
+      short_description:
+        type: string
+      slug:
+        type: string
+      styles:
+        items:
+          type: string
+        type: array
+      target_groups:
+        items:
+          type: string
+        type: array
+      targets:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      video_url:
+        items:
+          type: string
+        type: array
+    type: object
   models.FeedbackRequest:
     description: Request payload for submitting feedback on a training plan
     properties:
@@ -246,6 +283,10 @@ definitions:
     properties:
       description:
         example: A comprehensive training plan for improving freestyle technique
+        type: string
+      frontend_base_url:
+        description: FrontendBaseURL is the base URL for drill links in the PDF
+        example: https://swim-gen.app
         type: string
       horizontal:
         description: Horizontal indicates if the PDF should be in landscape orientation
@@ -459,6 +500,19 @@ definitions:
         example: plan_123
         type: string
     type: object
+  rag.DrillSearchResult:
+    properties:
+      drills:
+        items:
+          $ref: '#/definitions/models.Drill'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -570,6 +624,100 @@ paths:
       summary: Chat with AI to create or refine training plans
       tags:
       - Chat
+  /drill:
+    get:
+      consumes:
+      - application/json
+      description: Get a drill exercise by its image name identifier and language
+      parameters:
+      - description: Drill image name (unique identifier)
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Language code (en, de)
+        in: query
+        name: lang
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Drill'
+        "400":
+          description: Bad request - missing parameters
+          schema:
+            type: string
+        "404":
+          description: Drill not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get a single drill
+      tags:
+      - Drills
+  /drills/search:
+    get:
+      consumes:
+      - application/json
+      description: Search drill exercises with optional filters for language, target
+        groups, styles, and difficulty
+      parameters:
+      - description: Language code (en, de)
+        in: query
+        name: lang
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: Target groups filter (e.g., Beginner, Competitive Swimmer)
+        in: query
+        items:
+          type: string
+        name: target_groups
+        type: array
+      - collectionFormat: csv
+        description: Styles filter (e.g., Freestyle, Backstroke)
+        in: query
+        items:
+          type: string
+        name: styles
+        type: array
+      - description: Difficulty filter (Easy, Medium, Hard)
+        in: query
+        name: difficulty
+        type: string
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Results per page (default: 20, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rag.DrillSearchResult'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Search drills
+      tags:
+      - Drills
   /export-pdf:
     post:
       consumes:

@@ -14,20 +14,33 @@ import (
 )
 
 // GeneratePlan generates a plan using the LLM based on the provided query and documents.
-func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProfile string, poolLength any, docs []schema.Document) (*models.GeneratedPlan, error) {
+func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProfile string, poolLength any, planDocs, drillDocs []schema.Document) (*models.GeneratedPlan, error) {
 	logger := httplog.LogEntry(ctx)
 	gps, err := models.GeneratedPlanSchema()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get GeneratedPlan schema: %w", err)
 	}
 
-	var dc []string
-	for _, doc := range docs {
-		dc = append(dc, doc.PageContent)
+	var pdc []string
+	for _, doc := range planDocs {
+		pdc = append(pdc, doc.PageContent)
+	}
+	var ddc []string
+	for _, doc := range drillDocs {
+		url := "/drill/" + doc.Metadata["img_name"].(string)
+		ddc = append(ddc, doc.PageContent+fmt.Sprintf("\n\nReferenz: [%s](%s)", doc.Metadata["slug"].(string), url))
 	}
 
 	// Create a RAG query for the LLM with the most relevant documents as context
-	query := fmt.Sprintf(ragTemplateStr, poolLength, lang, userProfile, q, strings.Join(dc, "\n \n"))
+	query := fmt.Sprintf(
+		ragTemplateStr,
+		poolLength,
+		lang,
+		userProfile,
+		q,
+		strings.Join(pdc, "\n \n"),
+		strings.Join(ddc, "\n \n"),
+	)
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = gps

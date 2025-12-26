@@ -27,13 +27,75 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/props"
 )
 
+// parseMarkdownLinks parses markdown links [text](url) and returns segments
+// baseURL is prepended to relative URLs (starting with /)
+func parseMarkdownLinks(content, baseURL string, p props.Text) []core.Component {
+
+	// Regex to match markdown links: [text](url)
+	linkRegex := regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`)
+
+	segments := []core.Component{}
+	lastEnd := 0
+
+	matches := linkRegex.FindAllStringSubmatchIndex(content, -1)
+	for _, match := range matches {
+		contentProps := props.Text{
+			Size: p.Size, Align: p.Align,
+			Top: p.Top + (float64(len(segments)) * (p.Size + p.Top + p.Bottom)), Bottom: p.Bottom, Left: 2, Right: 2,
+			BreakLineStrategy: breakline.EmptySpaceStrategy,
+		}
+		// Add text before this match
+		if match[0] > lastEnd {
+			segments = append(segments, text.New(content[lastEnd:match[0]], contentProps))
+		}
+
+		// Add the link
+		linkText := content[match[2]:match[3]]
+		linkURL := content[match[4]:match[5]]
+
+		// If URL is relative, prepend baseURL
+		if strings.HasPrefix(linkURL, "/") && baseURL != "" {
+			linkURL = strings.TrimSuffix(baseURL, "/") + linkURL
+		}
+
+		linkProps := props.Text{
+			Size: contentProps.Size, Align: contentProps.Align,
+			Top: p.Top + (float64(len(segments)) * (p.Size + p.Top + p.Bottom)), Bottom: contentProps.Bottom,
+			Left: contentProps.Left, Right: contentProps.Right,
+			BreakLineStrategy: contentProps.BreakLineStrategy,
+			Hyperlink:         &linkURL,
+		}
+
+		segments = append(segments, text.New(linkText, linkProps))
+
+		lastEnd = match[1]
+	}
+	contentProps := props.Text{
+		Size: p.Size, Align: p.Align,
+		Top: p.Top + (float64(len(segments)) * (p.Size + p.Top + p.Bottom)), Bottom: p.Bottom, Left: 2, Right: 2,
+		BreakLineStrategy: breakline.EmptySpaceStrategy,
+	}
+
+	// Add remaining text
+	if lastEnd < len(content) {
+		segments = append(segments, text.New(content[lastEnd:], contentProps))
+	}
+
+	// If no segments, return the original content
+	if len(segments) == 0 {
+		segments = append(segments, text.New(content, contentProps))
+	}
+
+	return segments
+}
+
 // Converts the given table to a PDF string representation.
 // Uses maroto to create a PDF document with the table data.
 // The PDF is returned as a string, which can be saved to a file or sent to cloud storage.
-func GenerateEasyReadablePDF(table *models.Table, ho bool, lang models.Language) ([]byte, error) {
+func GenerateEasyReadablePDF(table *models.Table, ho bool, lang models.Language, baseURL string) ([]byte, error) {
 	m := getMaroto(ho)
 
-	m.AddRows(getRows(*table, true, lang)...)
+	m.AddRows(getRows(*table, true, lang, baseURL)...)
 
 	document, err := m.Generate()
 	if err != nil {
@@ -43,11 +105,11 @@ func GenerateEasyReadablePDF(table *models.Table, ho bool, lang models.Language)
 	return document.GetBytes(), nil
 }
 
-func GenerateFullPDF(plan *models.Plan, ho bool, lang models.Language) ([]byte, error) {
+func GenerateFullPDF(plan *models.Plan, ho bool, lang models.Language, baseURL string) ([]byte, error) {
 	m := getMaroto(ho)
 	_ = m.RegisterHeader(text.NewAutoRow(plan.Title, props.Text{Size: 18, Style: fontstyle.Bold, Align: align.Center}))
 	m.AddAutoRow(col.New().Add(text.New(plan.Description, props.Text{Size: 10, Top: 10, Bottom: 10})))
-	m.AddRows(getRows((*plan).Table, false, lang)...)
+	m.AddRows(getRows((*plan).Table, false, lang, baseURL)...)
 
 	document, err := m.Generate()
 	if err != nil {
@@ -61,11 +123,11 @@ func GenerateFullPDF(plan *models.Plan, ho bool, lang models.Language) ([]byte, 
 //
 // Uses maroto to create a PDF document with the plan data.
 // The PDF is returned as a byte slice, which can be saved to a file or sent to cloud storage.
-func PlanToPDF(plan *models.Plan, ho, lf bool, lang models.Language) ([]byte, error) {
+func PlanToPDF(plan *models.Plan, ho, lf bool, lang models.Language, baseURL string) ([]byte, error) {
 	if !lf {
-		return GenerateFullPDF(plan, ho, lang)
+		return GenerateFullPDF(plan, ho, lang, baseURL)
 	}
-	return GenerateEasyReadablePDF(&plan.Table, ho, lang)
+	return GenerateEasyReadablePDF(&plan.Table, ho, lang, baseURL)
 
 }
 
@@ -187,7 +249,8 @@ func getMaroto(ho bool) core.Maroto {
 
 // Convert table rows to maroto rows
 // lf indicates if large font should be used
-func getRows(table models.Table, lf bool, lang models.Language) []core.Row {
+// baseURL is prepended to relative URLs in markdown links
+func getRows(table models.Table, lf bool, lang models.Language, baseURL string) []core.Row {
 	if len(table) < 2 {
 		return make([]core.Row, 0)
 	}
@@ -228,11 +291,13 @@ func getRows(table models.Table, lf bool, lang models.Language) []core.Row {
 			row.Add(col.New(1).Add(text.New(content.Multiplier, p)))
 			row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Distance), p)))
 			row.Add(col.New(3).Add(text.New(content.Break, p)))
-			row.Add(col.New(9).Add(text.New(content.Content, props.Text{
-				Size: p.Size, Align: p.Align,
-				Top: p.Top, Bottom: p.Bottom, Left: 2, Right: 2,
-				BreakLineStrategy: breakline.EmptySpaceStrategy,
-			})))
+
+			// Parse markdown links in content and render as text/link components
+			contentCol := col.New(9)
+			segments := parseMarkdownLinks(content.Content, baseURL, p)
+			contentCol.Add(segments...)
+			row.Add(contentCol)
+
 			row.Add(col.New(3).Add(text.New(content.Intensity, p)))
 			row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Sum), p)))
 

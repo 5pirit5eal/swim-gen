@@ -11,6 +11,9 @@ Ziehe dabei auch die konfigurierte Poollänge in Betracht: %s. Die Standard-Pool
 Achte darauf, dass die Gesamtdistanz des Trainingsplans möglichst genau zu der Anfrage des Schwimmers passt!
 Erhöhe die Anzahl oder die Distanz der einzelnen Wiederholungen,
 oder entferne oder füge weitere Übungen hinzu um die Gesamtdistanz anzupassen.
+Die technischen Übungen dürfen nur als Referenzen eingefügt werden. Das Format ist ein Markdown URL Link.
+Dafür wird der slug als Linktext verwendet und die URL als Linkziel. Exemplarisch: [slug](URL).
+Diese Übungungen sollen im Plan nicht näher beschrieben werden. Wichtig ist das die Intensität auf TÜ gesetzt wird.
 Der Titel des Trainingsplans sollte humorvoll, einprägsam und kurz sein. Wortspiele sind willkommen. Füge nicht die angefragte Gesamtlänge in den Titel ein.
 Bei der Erstellung der kurzen Beschreibung gehe nur auf die Eigenschaften des Trainingsplans ein.
 Nutze eine freundliche und motivierende Sprache. Grüße nicht den Schwimmer.
@@ -40,6 +43,9 @@ Legende:
 BZ = Belastungszone, GA = Grundlagenausdauer, HF = Herzfrequenz, LT = lactate threshold, LZA = Langzeitausdauer, Rekom = Regenerations- und Kompensationsbereich, SA = Schnelligkeitsausdauer, S = Schnelligkeit, WA = Wettkampfspezifische Ausdauer, WK = Wettkampf
 
 Pläne:
+%s
+
+Technische Übungen:
 %s
 `
 

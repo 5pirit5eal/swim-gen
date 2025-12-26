@@ -5,6 +5,7 @@ import IconEdit from '@/components/icons/IconEdit.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import BaseTableAction from '@/components/ui/BaseTableAction.vue'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
+import ContentWithDrillLinks from '@/components/training/ContentWithDrillLinks.vue'
 import type { Row, PlanStore } from '@/types'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -120,19 +121,10 @@ function autoResize(event: Event) {
       <!-- Header -->
       <header class="plan-header">
         <div v-if="isEditing" class="edit-header">
-          <input
-            v-model="store.currentPlan!.title"
-            class="edit-title"
-            v-auto-resize
-            :placeholder="t('display.plan_title')"
-          />
-          <textarea
-            v-model="store.currentPlan!.description"
-            v-auto-resize
-            class="edit-description"
-            :placeholder="t('display.plan_description')"
-            rows="3"
-          ></textarea>
+          <input v-model="store.currentPlan!.title" class="edit-title" v-auto-resize
+            :placeholder="t('display.plan_title')" />
+          <textarea v-model="store.currentPlan!.description" v-auto-resize class="edit-description"
+            :placeholder="t('display.plan_description')" rows="3"></textarea>
         </div>
         <div v-else>
           <h2 class="plan-title">{{ store.currentPlan?.title }}</h2>
@@ -258,77 +250,40 @@ function autoResize(event: Event) {
               <tr class="exercise-row">
                 <!-- Amount Cell -->
                 <td @click="startEditing(index, 'Amount')" class="anchor-cell">
-                  <BaseTableAction
-                    v-if="isEditing"
-                    :is-first="index === 0"
-                    :is-last="index === exerciseRows.length - 1"
-                    @add="handleAddRow(index)"
-                    @remove="handleRemoveRow(index)"
-                    @move-up="handleMoveRow(index, 'up')"
-                    @move-down="handleMoveRow(index, 'down')"
-                  />
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Amount"
-                    @blur="stopEditing($event, index, 'Amount')"
-                    @keyup.enter="stopEditing($event, index, 'Amount')"
-                    class="editable-small"
-                  />
+                  <BaseTableAction v-if="isEditing" :is-first="index === 0" :is-last="index === exerciseRows.length - 1"
+                    @add="handleAddRow(index)" @remove="handleRemoveRow(index)" @move-up="handleMoveRow(index, 'up')"
+                    @move-down="handleMoveRow(index, 'down')" />
+                  <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Amount"
+                    @blur="stopEditing($event, index, 'Amount')" @keyup.enter="stopEditing($event, index, 'Amount')"
+                    class="editable-small" />
                   <span v-else>{{ row.Amount }}</span>
                 </td>
                 <td>{{ row.Multiplier }}</td>
                 <!-- Distance Cell -->
                 <td @click="startEditing(index, 'Distance')">
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Distance"
-                    @blur="stopEditing($event, index, 'Distance')"
-                    @keyup.enter="stopEditing($event, index, 'Distance')"
-                    class="editable-small"
-                  />
+                  <input type="text" inputmode="numeric" pattern="[0-9]*" v-if="isEditing" :value="row.Distance"
+                    @blur="stopEditing($event, index, 'Distance')" @keyup.enter="stopEditing($event, index, 'Distance')"
+                    class="editable-small" />
                   <span v-else>{{ row.Distance }}</span>
                 </td>
                 <!-- Intensity Cell -->
                 <td @click="startEditing(index, 'Break')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Break"
-                    @blur="stopEditing($event, index, 'Break')"
-                    @keyup.enter="stopEditing($event, index, 'Break')"
-                    class="editable-small"
-                  />
+                  <input type="text" v-if="isEditing" :value="row.Break" @blur="stopEditing($event, index, 'Break')"
+                    @keyup.enter="stopEditing($event, index, 'Break')" class="editable-small" />
                   <span v-else>{{ row.Break }}</span>
                 </td>
                 <!-- Content Cell -->
                 <td class="content-cell" @click="startEditing(index, 'Content')">
-                  <textarea
-                    v-if="isEditing"
-                    :value="row.Content"
-                    @blur="stopEditing($event, index, 'Content')"
-                    @keyup.enter="stopEditing($event, index, 'Content')"
-                    @input="autoResize"
-                    v-auto-resize
-                    class="editable-area"
-                  ></textarea>
-                  <span v-else>{{ row.Content }}</span>
+                  <textarea v-if="isEditing" :value="row.Content" @blur="stopEditing($event, index, 'Content')"
+                    @keyup.enter="stopEditing($event, index, 'Content')" @input="autoResize" v-auto-resize
+                    class="editable-area"></textarea>
+                  <ContentWithDrillLinks v-else :content="row.Content" />
                 </td>
                 <!-- Intensity Cell -->
                 <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Intensity"
+                  <input type="text" v-if="isEditing" :value="row.Intensity"
                     @blur="stopEditing($event, index, 'Intensity')"
-                    @keyup.enter="stopEditing($event, index, 'Intensity')"
-                    class="editable-small"
-                  />
+                    @keyup.enter="stopEditing($event, index, 'Intensity')" class="editable-small" />
                   <span v-else>{{ row.Intensity }}</span>
                 </td>
                 <td class="total-cell">{{ row.Sum }}</td>
@@ -529,8 +484,8 @@ function autoResize(event: Event) {
   }
 }
 
-.exercise-table td > span,
-.exercise-table td > textarea {
+.exercise-table td>span,
+.exercise-table td>textarea {
   display: block;
 }
 

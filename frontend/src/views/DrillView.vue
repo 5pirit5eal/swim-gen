@@ -33,9 +33,15 @@ const hasVideos = computed(() => videoIds.value.length > 0)
 
 // Image URL - assumes images are served from a static path
 const imageUrl = computed(() => {
-  if (!currentDrill.value?.img_name) return ''
-  // Images are in data/images/ folder
-  return `/images/drills/${currentDrill.value.img_name}`
+  if (!currentDrill.value?.img_name) {
+    console.debug('No image name for current drill')
+    return ''
+  }
+  console.debug('Current drill image:',
+    `https://storage.googleapis.com/${import.meta.env.VITE_PUBLIC_BUCKET_NAME}/${currentDrill.value.img_name}`
+  )
+  return `https://storage.googleapis.com/${import.meta.env.VITE_PUBLIC_BUCKET_NAME}/${currentDrill.value.img_name}`
+
 })
 
 async function initializeView() {
@@ -100,12 +106,8 @@ watch(locale, async () => {
         <!-- Header Section -->
         <section class="drill-header">
           <div class="drill-image-container">
-            <img
-              :src="imageUrl"
-              :alt="currentDrill.img_description"
-              class="drill-image"
-              @error="($event.target as HTMLImageElement).style.display = 'none'"
-            />
+            <img :src="imageUrl" :alt="currentDrill.img_description" class="drill-image"
+              @error="($event.target as HTMLImageElement).style.display = 'none'" />
           </div>
           <div class="drill-title-section">
             <h1 class="drill-title">{{ currentDrill.title }}</h1>
@@ -158,19 +160,14 @@ watch(locale, async () => {
           <h2>{{ t('drill.video') }}</h2>
           <div class="video-container">
             <div v-for="videoId in videoIds" :key="videoId" class="video-wrapper">
-              <iframe
-                :src="`https://www.youtube.com/embed/${videoId}`"
-                allow="
+              <iframe :src="`https://www.youtube.com/embed/${videoId}`" allow="
                   accelerometer;
                   autoplay;
                   clipboard-write;
                   encrypted-media;
                   gyroscope;
                   picture-in-picture;
-                "
-                allowfullscreen
-                class="video-iframe"
-              ></iframe>
+                " allowfullscreen class="video-iframe"></iframe>
             </div>
           </div>
         </section>
