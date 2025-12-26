@@ -1,3 +1,14 @@
+## [2.27.0](https://github.com/5pirit5eal/swim-gen/compare/v2.26.0...v2.27.0) (2025-12-26)
+
+### Features
+
+* added drill store to backend ([0d4bb21](https://github.com/5pirit5eal/swim-gen/commit/0d4bb215db12f100b4e707f2cadc9fc19c8c1ca6))
+
+### Bug Fixes
+
+* added rls policies to new table ([b114919](https://github.com/5pirit5eal/swim-gen/commit/b11491944dc071ddc2f0eb8a90cd1fbc42270780))
+* fixed slag typo ([ffee78e](https://github.com/5pirit5eal/swim-gen/commit/ffee78ef7b455eed2a5d5400069e31fcef181dde))
+
 ## [2.26.0](https://github.com/5pirit5eal/swim-gen/compare/v2.25.0...v2.26.0) (2025-12-25)
 
 ### Features
