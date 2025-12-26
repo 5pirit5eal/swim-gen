@@ -1,3 +1,10 @@
+## [2.28.0](https://github.com/5pirit5eal/swim-gen/compare/v2.27.0...v2.28.0) (2025-12-26)
+
+### Features
+
+* added exercise drills ([d36f722](https://github.com/5pirit5eal/swim-gen/commit/d36f722cfff48bcc267081dc8f660fb94e1bbcaa))
+* added fix for race conditino ([72c228e](https://github.com/5pirit5eal/swim-gen/commit/72c228e619996c511fbde7601c92d6babc167d06))
+
 ## [2.27.0](https://github.com/5pirit5eal/swim-gen/compare/v2.26.0...v2.27.0) (2025-12-26)
 
 ### Features
