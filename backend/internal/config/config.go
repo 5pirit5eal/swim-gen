@@ -18,9 +18,10 @@ type Config struct {
 	Port       string `env:"PORT"`
 
 	Embedding struct {
-		Name  string `env:"EMBEDDING_NAME"`
-		Model string `env:"EMBEDDING_MODEL"`
-		Size  int    `env:"EMBEDDING_SIZE"`
+		Name      string `env:"EMBEDDING_NAME"`
+		DrillName string `env:"EMBEDDING_DRILL_NAME"`
+		Model     string `env:"EMBEDDING_MODEL"`
+		Size      int    `env:"EMBEDDING_SIZE"`
 	}
 
 	DB struct {

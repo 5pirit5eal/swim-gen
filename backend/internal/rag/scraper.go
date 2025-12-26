@@ -326,7 +326,7 @@ Forloop:
 		}
 
 		// Add the new document
-		_, err = db.Store.AddDocuments(ctx, []schema.Document{doc})
+		_, err = db.PlanStore.AddDocuments(ctx, []schema.Document{doc})
 		if err != nil {
 			logger.Error("Failed to add document to the database", httplog.ErrAttr(err))
 			return fmt.Errorf("Store.AddDocuments: %w", err)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -10,7 +11,9 @@ import (
 	"strings"
 
 	"github.com/5pirit5eal/swim-gen/internal/config"
+	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/5pirit5eal/swim-gen/internal/rag"
+	"github.com/tmc/langchaingo/schema"
 )
 
 type arrayFlags []string
@@ -58,7 +61,7 @@ func main() {
 	}
 
 	// Load configuration
-	projectRoot := filepath.Dir(*path)
+	projectRoot := filepath.Dir(filepath.Dir(*path))
 
 	// Expect the .env file to be in the backend directory
 	cfg, err := config.LoadConfig(filepath.Join(projectRoot, "backend", *envFile), true)
@@ -76,15 +79,77 @@ func main() {
 		log.Fatal("Error initializing RAG database:", err)
 	}
 	defer func() {
-		if err := db.Store.Close(); err != nil {
-			log.Printf("Error closing database connection: %v", err)
+		if err := db.PlanStore.Close(); err != nil {
+			log.Printf("Error closing plan store connection: %v", err)
+		}
+		if err := db.DrillStore.Close(); err != nil {
+			log.Printf("Error closing drill store connection: %v", err)
 		}
 	}()
 
 	// Upload training drills
-	// TODO: Implement language specific upload here
-	// TODO: Implement progress indication
-	// TODO: Implement image upload to GCS for static serving
+	for _, l := range lang {
+		fmt.Printf("Processing language: %s\n", l)
+
+		// Read the JSON file
+		filePath := filepath.Join(*path, l+".json")
+		content, err := os.ReadFile(filePath)
+		if err != nil {
+			log.Printf("Error reading file %s: %v", filePath, err)
+			continue
+		}
+
+		var drills []models.Drill
+		if err := json.Unmarshal(content, &drills); err != nil {
+			log.Printf("Error unmarshaling JSON from %s: %v", filePath, err)
+			continue
+		}
+
+		var documents []schema.Document
+		for _, drill := range drills {
+			// Skip empty drills
+			if drill.Title == "" {
+				continue
+			}
+
+			doc := schema.Document{
+				PageContent: fmt.Sprintf("Title: %s\nDescription: %s\nShort Description: %s\nTargets: %s\nStyles: %s\nDifficulty: %s",
+					drill.Title,
+					strings.Join(drill.Description, " "),
+					drill.ShortDescription,
+					strings.Join(drill.Targets, ", "),
+					strings.Join(drill.Styles, ", "),
+					drill.Difficulty,
+				),
+				Metadata: map[string]any{
+					"slag":              drill.Slag,
+					"targets":           drill.Targets,
+					"short_description": drill.ShortDescription,
+					"img_name":          drill.ImgName,
+					"img_description":   drill.ImgDescription,
+					"title":             drill.Title,
+					"description":       drill.Description,
+					"video_url":         drill.VideoURL,
+					"styles":            drill.Styles,
+					"difficulty":        drill.Difficulty,
+					"target_groups":     drill.TargetGroups,
+					"language":          l,
+				},
+			}
+			documents = append(documents, doc)
+		}
+
+		if len(documents) > 0 {
+			fmt.Printf("Uploading %d drills for language %s...\n", len(documents), l)
+			if _, err := db.DrillStore.AddDocuments(ctx, documents); err != nil {
+				log.Printf("Error uploading documents for language %s: %v", l, err)
+			} else {
+				fmt.Printf("Successfully uploaded %d drills for language %s\n", len(documents), l)
+			}
+		} else {
+			fmt.Printf("No valid drills found for language %s\n", l)
+		}
+	}
 
 	fmt.Println("Upload completed successfully")
 }

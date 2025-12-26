@@ -63,8 +63,11 @@ func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) 
 // to release resources and avoid memory leaks.
 func (rs *RAGService) Close() {
 	slog.Info("Closing RAG server...")
-	if err := rs.db.Store.Close(); err != nil {
+	if err := rs.db.PlanStore.Close(); err != nil {
 		slog.Error("Error closing database connection", "err", err.Error())
+	}
+	if err := rs.db.DrillStore.Close(); err != nil {
+		slog.Error("Error closing drill store connection", "err", err.Error())
 	}
 	slog.Info("RAG server closed successfully")
 }

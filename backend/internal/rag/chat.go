@@ -151,7 +151,7 @@ func (db *RAGDB) buildChatContext(ctx context.Context, userQuery string, current
 	// Retrieve context if no plan exists yet or if RAG context is enabled
 	if currentPlan == nil || db.cfg.Chat.UseRAGContext {
 		// Perform similarity search for relevant plans
-		docs, err := db.Store.SimilaritySearch(ctx, userQuery, 3)
+		docs, err := db.PlanStore.SimilaritySearch(ctx, userQuery, 3)
 		if err != nil {
 			logger.Warn("Similarity search failed", httplog.ErrAttr(err))
 			return []schema.Document{}, nil // Return empty, don't fail the whole request

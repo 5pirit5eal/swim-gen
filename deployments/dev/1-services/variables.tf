@@ -36,6 +36,10 @@ variable "embedding_name" {
   description = "The embedding name"
   type        = string
 }
+variable "embedding_drill_name" {
+  description = "The embedding drill name"
+  type        = string
+}
 variable "embedding_model" {
   description = "The embedding model"
   type        = string

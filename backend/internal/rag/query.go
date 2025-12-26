@@ -32,11 +32,11 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	case query == "" && filter == nil:
 		return nil, fmt.Errorf("either a query or a filter must be provided")
 	case query == "" && filter != nil:
-		docs, err = db.Store.Search(ctx, 5, vectorstores.WithFilters(filter))
+		docs, err = db.PlanStore.Search(ctx, 5, vectorstores.WithFilters(filter))
 	case query != "" && filter == nil:
-		docs, err = db.Store.SimilaritySearch(ctx, query, 5)
+		docs, err = db.PlanStore.SimilaritySearch(ctx, query, 5)
 	case query != "" && filter != nil:
-		docs, err = db.Store.SimilaritySearch(ctx, query, 5, vectorstores.WithFilters(filter))
+		docs, err = db.PlanStore.SimilaritySearch(ctx, query, 5, vectorstores.WithFilters(filter))
 	}
 	if err != nil {
 		logger.Error("Error searching for documents", httplog.ErrAttr(err))

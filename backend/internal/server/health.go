@@ -50,22 +50,40 @@ func (s *RAGService) HealthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check vector store readiness (collection exists)
-	if s.db.Store != nil {
+	if s.db.PlanStore != nil {
 		// Try a simple similarity search with empty query to verify store is accessible
 		ctx2, cancel2 := context.WithTimeout(ctx, 2*time.Second)
 		defer cancel2()
 
-		_, err := s.db.Store.SimilaritySearch(ctx2, "", 1)
+		_, err := s.db.PlanStore.SimilaritySearch(ctx2, "", 1)
 		if err != nil {
 			httplog.LogEntry(ctx).Warn("Vector store check failed", httplog.ErrAttr(err))
-			status.Components["vector_store"] = "degraded"
+			status.Components["plan_store"] = "degraded"
 			// Don't mark overall status as unhealthy - this is non-critical
 		} else {
-			status.Components["vector_store"] = "healthy"
+			status.Components["plan_store"] = "healthy"
 		}
 	} else {
-		status.Components["vector_store"] = "not_initialized"
+		status.Components["plan_store"] = "not_initialized"
 		httplog.LogEntry(ctx).Warn("Vector store is not initialized")
+	}
+
+	if s.db.DrillStore != nil {
+		// Try a simple similarity search with empty query to verify store is accessible
+		ctx2, cancel2 := context.WithTimeout(ctx, 2*time.Second)
+		defer cancel2()
+
+		_, err := s.db.DrillStore.SimilaritySearch(ctx2, "", 1)
+		if err != nil {
+			httplog.LogEntry(ctx).Warn("Drill store check failed", httplog.ErrAttr(err))
+			status.Components["drill_store"] = "degraded"
+			// Don't mark overall status as unhealthy - this is non-critical
+		} else {
+			status.Components["drill_store"] = "healthy"
+		}
+	} else {
+		status.Components["drill_store"] = "not_initialized"
+		httplog.LogEntry(ctx).Warn("Drill store is not initialized")
 	}
 
 	// Set HTTP status code
