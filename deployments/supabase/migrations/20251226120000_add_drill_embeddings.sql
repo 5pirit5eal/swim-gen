@@ -13,3 +13,6 @@ create table if not exists drill_embeddings (
 -- Index for drill embeddings collection lookup
 create index if not exists drill_embeddings_collection_id
   on drill_embeddings (collection_id);
+
+-- Enable RLS on drill_embeddings
+ALTER TABLE public.drill_embeddings ENABLE ROW LEVEL SECURITY;
