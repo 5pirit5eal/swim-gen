@@ -243,11 +243,12 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    background: var(--color-transparent);
+    backdrop-filter: blur(2px);
     padding: 4px 10px;
+    border: 1px solid var(--color-primary-hover);
     border-radius: 20px;
-    color: white;
+    color: var(--color-heading);
 }
 
 .difficulty-text {
@@ -264,7 +265,7 @@ onUnmounted(() => {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: var(--color-background);
 }
 
 .difficulty-dot.active {
