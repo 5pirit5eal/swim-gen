@@ -20,6 +20,7 @@ import {
   type FeedbackRequest,
   type DonatePlanRequest,
   type UploadedPlan,
+  type Drill,
   ApiEndpoints,
 } from '@/types'
 import i18n from '@/plugins/i18n'
@@ -397,6 +398,20 @@ class ApiClient {
       },
       this.DEFAULT_TIMEOUT_MS,
       true,
+    )
+  }
+
+  /**
+   * Get a drill exercise by ID and language
+   * Note: Backend endpoint not yet implemented
+   */
+  async getDrill(id: string, lang: string): Promise<ApiResult<Drill>> {
+    return this._fetch(
+      `${ApiEndpoints.DRILL}?id=${encodeURIComponent(id)}&lang=${encodeURIComponent(lang)}`,
+      {
+        method: 'GET',
+      },
+      this.DEFAULT_TIMEOUT_MS,
     )
   }
 }

@@ -42,6 +42,7 @@ export enum ApiEndpoints {
   FEEDBACK = 'feedback',
   GET_UPLOADS = 'uploads',
   FILE_TO_PLAN = 'file-to-plan',
+  DRILL = 'drill',
 }
 
 // Form validation types

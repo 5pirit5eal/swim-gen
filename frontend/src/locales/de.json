@@ -521,6 +521,14 @@
     "loading": "Lade...",
     "optional": "optional"
   },
+  "drill": {
+    "loading": "Übung wird geladen...",
+    "not_found": "Übung nicht gefunden. Weiterleitung zur Startseite.",
+    "description": "Beschreibung",
+    "targets": "Trainingsziele",
+    "target_groups": "Zielgruppen",
+    "video": "Video-Tutorial"
+  },
   "tutorial": {
     "next": "Weiter",
     "prev": "Zurück",
