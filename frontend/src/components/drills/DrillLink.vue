@@ -27,11 +27,13 @@ const imageUrl = computed(() => {
     return `https://storage.googleapis.com/${import.meta.env.VITE_PUBLIC_BUCKET_NAME}/${preview.value.img_name}`
 })
 
-// Difficulty class for styling
-const difficultyClass = computed(() => {
-    if (!preview.value?.difficulty) return ''
-    return preview.value.difficulty.toLowerCase()
-})
+function getDifficultyLevel(difficulty: string): number {
+    const d = difficulty.toLowerCase()
+    if (d === 'easy' || d === 'leicht') return 1
+    if (d === 'medium' || d === 'mittel') return 2
+    if (d === 'hard' || d === 'schwer') return 3
+    return 1
+}
 
 async function handleMouseEnter(event: MouseEvent) {
     // Delay before showing the card to avoid flickering
@@ -101,13 +103,31 @@ onUnmounted(() => {
                     <div class="card-image-container">
                         <img :src="imageUrl" :alt="preview.title" class="card-image"
                             @error="($event.target as HTMLImageElement).style.display = 'none'" />
-                        <span class="card-difficulty" :class="difficultyClass">
-                            {{ preview.difficulty }}
-                        </span>
+
+                        <!-- Top Left: Target -->
+                        <span v-if="preview.target" class="image-overlay-badge">{{ preview.target }}</span>
+
+                        <!-- Bottom Right: Difficulty -->
+                        <div class="image-overlay-difficulty">
+                            <span class="difficulty-text">{{ preview.difficulty }}</span>
+                            <div class="difficulty-dots">
+                                <span v-for="i in 3" :key="i" class="difficulty-dot"
+                                    :class="{ active: i <= getDifficultyLevel(preview.difficulty) }"></span>
+                            </div>
+                        </div>
                     </div>
+
                     <div class="card-content">
                         <h4 class="card-title">{{ preview.title }}</h4>
                         <p class="card-description">{{ preview.short_description }}</p>
+                    </div>
+
+                    <!-- Footer: Style -->
+                    <div v-if="preview.style" class="card-footer">
+                        <div class="footer-item style">
+                            <!-- Optional: Add icon here if desired -->
+                            {{ preview.style }}
+                        </div>
                     </div>
                 </template>
                 <div v-else class="card-error">
@@ -149,11 +169,8 @@ onUnmounted(() => {
     width: 320px;
     background: var(--color-background);
     border: 1px solid var(--color-border);
-    border-radius: 8px;
-    box-shadow:
-        0 4px 6px -1px rgba(0, 0, 0, 0.1),
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 0 0 1px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
     overflow: hidden;
     pointer-events: none;
 }
@@ -198,7 +215,6 @@ onUnmounted(() => {
     background: var(--color-background-mute);
     position: relative;
     overflow: hidden;
-    border-bottom: 1px solid var(--color-border);
 }
 
 .card-image {
@@ -212,21 +228,70 @@ onUnmounted(() => {
     transform: scale(1.05);
 }
 
+/* Image Overlays */
+.image-overlay-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background-color: var(--color-primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.image-overlay-difficulty {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: white;
+}
+
+.difficulty-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.difficulty-dots {
+    display: flex;
+    gap: 3px;
+}
+
+.difficulty-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.difficulty-dot.active {
+    background-color: var(--color-primary);
+    box-shadow: 0 0 4px var(--color-primary);
+}
+
+/* Card Content */
 .card-content {
     padding: 1rem 1.25rem;
     background: var(--color-background);
 }
 
 .card-title {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: var(--color-heading);
-    margin: 0;
+    margin: 0 0 0.5rem 0;
     line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
 }
 
 .card-description {
@@ -235,43 +300,35 @@ onUnmounted(() => {
     margin: 0;
     line-height: 1.5;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    opacity: 0.9;
+    opacity: 0.8;
 }
 
-.card-difficulty {
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: white;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(4px);
+/* Footer */
+.card-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-background-soft);
+    display: flex;
+    align-items: center;
 }
 
-.card-difficulty.easy,
-.card-difficulty.leicht {
-    background-color: var(--color-success);
+.footer-item {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.card-difficulty.medium,
-.card-difficulty.mittel {
-    background-color: var(--color-warning);
+.footer-item.style {
+    color: var(--color-primary);
 }
 
-.card-difficulty.hard,
-.card-difficulty.schwer {
-    background-color: var(--color-error);
-}
-
-/* Card transitions */
+/* Transitions */
 .card-enter-active {
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -280,11 +337,7 @@ onUnmounted(() => {
     transition: all 0.15s ease-in;
 }
 
-.card-enter-from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.96);
-}
-
+.card-enter-from,
 .card-leave-to {
     opacity: 0;
     transform: translateY(8px) scale(0.96);

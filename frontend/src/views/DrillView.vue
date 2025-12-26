@@ -13,36 +13,32 @@ const drillsStore = useDrillsStore()
 
 const { currentDrill, isLoading, error } = storeToRefs(drillsStore)
 
-// Extract YouTube video ID from URL
-function getYouTubeVideoId(url: string): string | null {
-  if (!url) return null
-  const match = url.match(
-    /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/,
-  )
-  return match?.[1] ?? null
+const imageUrl = computed(() => {
+  if (currentDrill.value?.img_name) {
+    const bucketName = import.meta.env.VITE_PUBLIC_BUCKET_NAME || 'swim-gen-public'
+    return `https://storage.googleapis.com/${bucketName}/${currentDrill.value.img_name}`
+  }
+  return '/img/placeholder.webp' // Default placeholder image
+})
+
+const hasValidVideo = computed(() => {
+  if (!currentDrill.value?.video_url) return false
+  return currentDrill.value.video_url.some((url) => url && url.trim().length > 0)
+})
+
+function getYouTubeId(url: string): string | null {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+  const match = url.match(regExp)
+  return match && match[2].length === 11 ? match[2] : null
 }
 
-const videoIds = computed(() => {
-  if (!currentDrill.value?.video_url) return []
-  return currentDrill.value.video_url
-    .map((url) => getYouTubeVideoId(url))
-    .filter((id): id is string => id !== null)
-})
-
-const hasVideos = computed(() => videoIds.value.length > 0)
-
-// Image URL - assumes images are served from a static path
-const imageUrl = computed(() => {
-  if (!currentDrill.value?.img_name) {
-    console.debug('No image name for current drill')
-    return ''
-  }
-  console.debug('Current drill image:',
-    `https://storage.googleapis.com/${import.meta.env.VITE_PUBLIC_BUCKET_NAME}/${currentDrill.value.img_name}`
-  )
-  return `https://storage.googleapis.com/${import.meta.env.VITE_PUBLIC_BUCKET_NAME}/${currentDrill.value.img_name}`
-
-})
+function getDifficultyLevel(difficulty: string): number {
+  const d = difficulty.toLowerCase()
+  if (d === 'easy' || d === 'leicht') return 1
+  if (d === 'medium' || d === 'mittel') return 2
+  if (d === 'hard' || d === 'schwer') return 3
+  return 1
+}
 
 async function initializeView() {
   const drillId = route.params.id
@@ -62,6 +58,7 @@ function noDrillFound() {
 }
 
 onMounted(async () => {
+  window.scrollTo(0, 0)
   await initializeView()
 })
 
@@ -85,61 +82,56 @@ watch(locale, async () => {
 
 <template>
   <div class="drill-view">
-    <!-- Loading State -->
     <Transition name="fade">
+      <!-- Loading State -->
       <div v-if="isLoading" class="loading-state">
         <div class="loading-spinner"></div>
-        <p>{{ t('drill.loading') }}</p>
       </div>
-    </Transition>
 
-    <!-- Error State -->
-    <Transition name="fade">
-      <div v-if="error && !isLoading" class="error-state">
+      <!-- Error State -->
+      <div v-else-if="error" class="error-state">
         <p>{{ error }}</p>
       </div>
-    </Transition>
 
-    <!-- Drill Content -->
-    <Transition name="fade">
-      <div v-if="currentDrill && !isLoading" class="container">
-        <!-- Main Card -->
+      <!-- Main Content -->
+      <div v-else-if="currentDrill" class="container">
         <article class="drill-card">
-          <!-- Header Section -->
           <header class="drill-header">
             <div class="header-content">
-              <div class="drill-image-container">
-                <img :src="imageUrl" :alt="currentDrill.img_description" class="drill-image"
-                  @error="($event.target as HTMLImageElement).style.display = 'none'" />
+              <div class="image-container">
+                <img :src="imageUrl" :alt="currentDrill.img_description" class="drill-image" />
               </div>
-              <div class="drill-info">
+              <div class="header-details">
                 <div class="title-row">
                   <h1 class="drill-title">{{ currentDrill.title }}</h1>
-                  <!-- Difficulty Badge -->
-                  <span class="difficulty-badge" :class="currentDrill.difficulty.toLowerCase()">
-                    {{ currentDrill.difficulty }}
-                  </span>
+                  <div class="difficulty-indicator">
+                    <span v-for="i in 3" :key="i" class="difficulty-dot"
+                      :class="{ active: i <= getDifficultyLevel(currentDrill.difficulty) }"></span>
+                  </div>
+                </div>
+
+                <div class="meta-row">
+                  <div class="meta-group">
+                    <span class="meta-label">{{ t('drill.styles') }}:</span>
+                    <span v-for="style in currentDrill.styles" :key="style" class="meta-value style">{{ style }}</span>
+                  </div>
+                  <div class="meta-group">
+                    <span class="meta-label">{{ t('drill.targets') }}:</span>
+                    <span v-for="target in currentDrill.targets" :key="target" class="meta-value target">{{ target
+                    }}</span>
+                  </div>
                 </div>
 
                 <p class="drill-short-description">{{ currentDrill.short_description }}</p>
-
-                <!-- Tags Row -->
-                <div class="drill-tags">
-                  <span v-for="style in currentDrill.styles" :key="style" class="meta-tag style">
-                    {{ style }}
-                  </span>
-                  <span v-for="group in currentDrill.target_groups" :key="group" class="meta-tag group">
-                    {{ group }}
-                  </span>
-                </div>
               </div>
             </div>
           </header>
 
           <div class="drill-body">
-            <!-- Description Section -->
-            <section class="content-section">
-              <h2>{{ t('drill.description') }}</h2>
+            <section class="description-section">
+              <div class="section-header">
+                <h3>{{ t('drill.description') }}</h3>
+              </div>
               <div class="description-text">
                 <p v-for="(paragraph, index) in currentDrill.description" :key="index">
                   {{ paragraph }}
@@ -147,30 +139,27 @@ watch(locale, async () => {
               </div>
             </section>
 
-            <!-- Targets Section -->
-            <section class="content-section">
-              <h2>{{ t('drill.targets') }}</h2>
-              <div class="targets-list">
-                <span v-for="target in currentDrill.targets" :key="target" class="target-chip">
-                  <span class="check-icon">✓</span>
-                  {{ target }}
-                </span>
+            <section v-if="currentDrill.video_url?.length && hasValidVideo" class="video-section">
+              <div class="section-header">
+                <h3>{{ t('drill.videos') }}</h3>
+              </div>
+              <div class="video-grid">
+                <div v-for="(url, index) in currentDrill.video_url" :key="index" class="video-wrapper">
+                  <iframe v-if="getYouTubeId(url)" :src="`https://www.youtube.com/embed/${getYouTubeId(url)}`"
+                    title="YouTube video player" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen class="video-iframe"></iframe>
+                </div>
               </div>
             </section>
 
-            <!-- Video Section -->
-            <section v-if="hasVideos" class="content-section video-section">
-              <h2>{{ t('drill.video') }}</h2>
-              <div class="video-grid">
-                <div v-for="videoId in videoIds" :key="videoId" class="video-wrapper">
-                  <iframe :src="`https://www.youtube.com/embed/${videoId}`" allow="
-                      accelerometer;
-                      autoplay;
-                      clipboard-write;
-                      encrypted-media;
-                      gyroscope;
-                      picture-in-picture;
-                    " allowfullscreen class="video-iframe"></iframe>
+            <section class="meta-footer">
+              <div class="meta-group">
+                <span class="meta-label">{{ t('drill.target_groups') }}:</span>
+                <div class="tags-container">
+                  <span v-for="group in currentDrill.target_groups" :key="group" class="meta-tag group">
+                    {{ group }}
+                  </span>
                 </div>
               </div>
             </section>
@@ -183,14 +172,37 @@ watch(locale, async () => {
 
 <style scoped>
 .drill-view {
+  min-height: 100vh;
   padding: 2rem 0;
-  min-height: 80vh;
 }
 
 .container {
   max-width: 1080px;
   margin: 0 auto;
   padding: 0 1rem;
+}
+
+/* Loading & Error States */
+.loading-state,
+.error-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.error-state {
+  color: var(--color-error);
+  font-size: 1.1rem;
 }
 
 /* Card Container */
@@ -202,7 +214,7 @@ watch(locale, async () => {
   border: 1px solid var(--color-border);
 }
 
-/* Header Styling */
+/* Header Section */
 .drill-header {
   background: var(--color-background-soft);
   padding: 2.5rem;
@@ -210,197 +222,166 @@ watch(locale, async () => {
 }
 
 .header-content {
-  display: flex;
+  display: grid;
+  grid-template-columns: 320px 1fr;
   gap: 2.5rem;
-  align-items: flex-start;
+  align-items: start;
 }
 
-.drill-image-container {
-  flex-shrink: 0;
-  width: 320px;
-  aspect-ratio: 4/3;
-  border-radius: 12px;
+.image-container {
+  aspect-ratio: 16/10;
+  border-radius: 8px;
   overflow: hidden;
-  background: var(--color-background-mute);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--color-background-mute);
 }
 
 .drill-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.5s ease;
 }
 
 .drill-image:hover {
   transform: scale(1.02);
 }
 
-.drill-info {
-  flex: 1;
+.header-details {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding-top: 0.5rem;
+  gap: 1.25rem;
 }
 
 .title-row {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 1rem;
 }
 
 .drill-title {
-  font-size: 2.25rem;
+  font-size: 2rem;
   font-weight: 800;
   color: var(--color-heading);
   line-height: 1.1;
   margin: 0;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.01em;
+}
+
+/* Difficulty Dots */
+.difficulty-indicator {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: var(--color-background-mute);
+  border-radius: 20px;
+}
+
+.difficulty-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-border);
+  transition: background-color 0.3s ease;
+}
+
+.difficulty-dot.active {
+  background-color: var(--color-primary);
+  box-shadow: 0 0 4px var(--color-primary-hover);
 }
 
 .drill-short-description {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
+  line-height: 1.5;
   color: var(--color-text);
-  line-height: 1.6;
-  margin: 0 0 1.5rem 0;
-  opacity: 0.9;
-  max-width: 65ch;
+  margin-top: 0.5rem;
+  max-width: 60ch;
 }
 
-/* Badges & Tags */
-.difficulty-badge {
-  padding: 0.4rem 1rem;
-  border-radius: 2rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: white;
-  white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.difficulty-badge.easy,
-.difficulty-badge.leicht {
-  background-color: var(--color-success);
-}
-
-.difficulty-badge.medium,
-.difficulty-badge.mittel {
-  background-color: var(--color-warning);
-}
-
-.difficulty-badge.hard,
-.difficulty-badge.schwer {
-  background-color: var(--color-error);
-}
-
-.drill-tags {
+/* Metadata Styling */
+.meta-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.75rem;
 }
 
-.meta-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.35rem 0.85rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
+.meta-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.meta-label {
+  font-size: 0.9rem;
   font-weight: 600;
-  transition: all 0.2s;
+  color: var(--color-text);
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 80px;
 }
 
-.meta-tag.style {
-  background-color: var(--color-primary);
-  color: white;
+.meta-value {
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
-.meta-tag.group {
-  background-color: var(--color-background);
+.meta-value.style {
+  color: var(--color-primary);
+}
+
+.meta-value.target {
   color: var(--color-heading);
-  border: 1px solid var(--color-border);
+  background: var(--color-background-mute);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
 }
 
 /* Body Content */
 .drill-body {
-  padding: 2.5rem;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
 }
 
-.content-section {
-  margin-bottom: 3rem;
+.section-header {
+  margin-bottom: 1.5rem;
+  border-left: 4px solid var(--color-primary);
+  padding-left: 1rem;
 }
 
-.content-section:last-child {
-  margin-bottom: 0;
-}
-
-.content-section h2 {
-  font-size: 1.5rem;
+.section-header h3 {
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--color-heading);
-  margin: 0 0 1.5rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  margin: 0;
 }
 
-.content-section h2::before {
-  content: '';
-  display: block;
-  width: 4px;
-  height: 24px;
-  background: var(--color-primary);
-  border-radius: 2px;
+.description-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  max-width: 75ch;
 }
 
 .description-text p {
-  font-size: 1.05rem;
-  line-height: 1.8;
-  color: var(--color-text);
-  margin-bottom: 1.5rem;
-  max-width: 75ch;
+  margin-bottom: 1rem;
 }
 
 .description-text p:last-child {
   margin-bottom: 0;
 }
 
-/* Targets List */
-.targets-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.target-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--color-background-soft);
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  color: var(--color-heading);
-  border: 1px solid var(--color-border);
-}
-
-.check-icon {
-  color: var(--color-primary);
-  font-weight: bold;
-}
-
 /* Video Section */
 .video-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 .video-wrapper {
@@ -409,10 +390,9 @@ watch(locale, async () => {
   /* 16:9 Aspect Ratio */
   height: 0;
   overflow: hidden;
-  border-radius: 12px;
-  background: var(--color-background-mute);
+  border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--color-border);
+  background: var(--color-background-soft);
 }
 
 .video-iframe {
@@ -423,76 +403,42 @@ watch(locale, async () => {
   height: 100%;
 }
 
-/* Loading & Error States */
-.loading-state,
-.error-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: var(--color-text);
+/* Meta Footer for Target Groups */
+.meta-footer {
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.meta-tag.group {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
   background: var(--color-background-soft);
-  border-radius: 12px;
-  border: 1px dashed var(--color-border);
-  margin: 2rem auto;
-  max-width: 600px;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  font-weight: 500;
 }
 
-.error-state {
-  color: var(--color-error);
-  border-color: var(--color-error-soft);
-  background: rgba(231, 76, 60, 0.05);
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  margin: 0 auto 1.5rem auto;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Responsive Adjustments */
-@media (max-width: 850px) {
+/* Responsive */
+@media (max-width: 900px) {
   .header-content {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
 
-  .drill-image-container {
+  .image-container {
     width: 100%;
-    max-width: 400px;
   }
 
-  .title-row {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .drill-title {
-    font-size: 1.75rem;
-  }
-
-  .drill-tags {
-    justify-content: center;
-  }
-
-  .content-section h2::before {
-    display: none;
-  }
-
-  .content-section h2 {
-    justify-content: center;
-    border-bottom: 2px solid var(--color-border);
-    padding-bottom: 0.5rem;
+  .drill-body {
+    padding: 2rem;
+    gap: 2.5rem;
   }
 
   .video-grid {
@@ -503,12 +449,11 @@ watch(locale, async () => {
 /* Transitions */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: translateY(10px);
 }
 </style>

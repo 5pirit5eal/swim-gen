@@ -33,4 +33,6 @@ export interface DrillPreview {
   title: string
   short_description: string
   difficulty: string
+  target?: string
+  style?: string
 }

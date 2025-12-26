@@ -67,6 +67,8 @@ export const useDrillsStore = defineStore('drills', () => {
       title: drill.slug,
       short_description: drill.short_description,
       difficulty: drill.difficulty,
+      target: drill.targets?.[0],
+      style: drill.styles?.[0],
     }
   }
 

@@ -151,7 +151,7 @@ describe('DrillView.vue', () => {
         expect(wrapper.find('.drill-short-description').text()).toBe(mockDrill.short_description)
     })
 
-    it('displays difficulty tag with correct class', async () => {
+    it('displays difficulty indicator with correct active dots', async () => {
         const wrapper = mount(DrillView, {
             global: {
                 plugins: [
@@ -170,34 +170,45 @@ describe('DrillView.vue', () => {
             },
         })
 
-        const difficultyTag = wrapper.find('.difficulty-badge')
-        expect(difficultyTag.exists()).toBe(true)
-        expect(difficultyTag.text()).toBe('Easy')
-        expect(difficultyTag.classes()).toContain('easy')
+        const dots = wrapper.findAll('.difficulty-dot')
+        expect(dots.length).toBe(3)
+        // Easy = 1 active dot
+        const activeDots = wrapper.findAll('.difficulty-dot.active')
+        expect(activeDots.length).toBe(1)
     })
 
-    it('displays all style tags', async () => {
-        const wrapper = mount(DrillView, {
-            global: {
-                plugins: [
-                    createTestingPinia({
-                        createSpy: vi.fn,
-                        initialState: {
-                            drills: {
-                                isLoading: false,
-                                currentDrill: mockDrill,
-                                error: null,
-                            },
-                        },
-                    }),
-                    i18n,
-                ],
-            },
-        })
+    describe('difficulty levels', () => {
+        it.each([
+            ['Easy', 1],
+            ['Medium', 2],
+            ['Hard', 3],
+        ])('displays %s difficulty with %i active dots', async (difficulty, expectedDots) => {
+            const drillWithDifficulty: Drill = {
+                ...mockDrill,
+                difficulty: difficulty as 'Easy' | 'Medium' | 'Hard',
+            }
 
-        const styleTags = wrapper.findAll('.meta-tag.style')
-        expect(styleTags.length).toBe(mockDrill.styles.length)
-        expect(styleTags[0]?.text()).toBe('General')
+            const wrapper = mount(DrillView, {
+                global: {
+                    plugins: [
+                        createTestingPinia({
+                            createSpy: vi.fn,
+                            initialState: {
+                                drills: {
+                                    isLoading: false,
+                                    currentDrill: drillWithDifficulty,
+                                    error: null,
+                                },
+                            },
+                        }),
+                        i18n,
+                    ],
+                },
+            })
+
+            const activeDots = wrapper.findAll('.difficulty-dot.active')
+            expect(activeDots.length).toBe(expectedDots)
+        })
     })
 
     it('displays description paragraphs', async () => {
@@ -243,7 +254,7 @@ describe('DrillView.vue', () => {
             },
         })
 
-        const targetTags = wrapper.findAll('.target-chip')
+        const targetTags = wrapper.findAll('.meta-value.target')
         expect(targetTags.length).toBe(mockDrill.targets.length)
         mockDrill.targets.forEach((target, index) => {
             expect(targetTags[index]?.text()).toContain(target)
@@ -378,7 +389,7 @@ describe('DrillView.vue', () => {
 
         const img = wrapper.find('.drill-image')
         expect(img.exists()).toBe(true)
-        expect(img.attributes('src')).toBe('https://storage.googleapis.com/undefined/seestern.png')
+        expect(img.attributes('src')).toBe('https://storage.googleapis.com/swim-gen-public/seestern.png')
         expect(img.attributes('alt')).toBe(mockDrill.img_description)
     })
 
@@ -507,38 +518,4 @@ describe('DrillView.vue', () => {
         })
     })
 
-    describe('difficulty levels', () => {
-        it.each([
-            ['Easy', 'easy'],
-            ['Medium', 'medium'],
-            ['Hard', 'hard'],
-        ])('displays %s difficulty with %s class', async (difficulty, expectedClass) => {
-            const drillWithDifficulty: Drill = {
-                ...mockDrill,
-                difficulty: difficulty as 'Easy' | 'Medium' | 'Hard',
-            }
-
-            const wrapper = mount(DrillView, {
-                global: {
-                    plugins: [
-                        createTestingPinia({
-                            createSpy: vi.fn,
-                            initialState: {
-                                drills: {
-                                    isLoading: false,
-                                    currentDrill: drillWithDifficulty,
-                                    error: null,
-                                },
-                            },
-                        }),
-                        i18n,
-                    ],
-                },
-            })
-
-            const difficultyTag = wrapper.find('.difficulty-badge')
-            expect(difficultyTag.text()).toBe(difficulty)
-            expect(difficultyTag.classes()).toContain(expectedClass)
-        })
-    })
 })

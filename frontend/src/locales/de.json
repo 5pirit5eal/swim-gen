@@ -526,6 +526,7 @@
     "not_found": "Übung nicht gefunden. Weiterleitung zur Startseite.",
     "description": "Beschreibung",
     "targets": "Trainingsziele",
+    "styles": "Trainingsstile",
     "target_groups": "Zielgruppen",
     "video": "Video-Tutorial"
   },
