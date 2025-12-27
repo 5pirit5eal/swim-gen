@@ -370,7 +370,8 @@ func TestGenerateStoragePath(t *testing.T) {
 }
 
 // TestHyperlinks creates PDFs with various hyperlink scenarios for visual inspection.
-// The PDFs are saved to the current directory and NOT cleaned up so they can be reviewed.
+// The PDFs are saved to the current directory and are cleaned up by default; they are only
+// retained for review when the GENERATE_PDF environment variable is set.
 func TestHyperlinks(t *testing.T) {
 	baseURL := "https://example.com"
 
