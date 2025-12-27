@@ -20,73 +20,25 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/components/text"
 	"github.com/johnfercher/maroto/v2/pkg/config"
 	"github.com/johnfercher/maroto/v2/pkg/consts/align"
-	"github.com/johnfercher/maroto/v2/pkg/consts/breakline"
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
 	"github.com/johnfercher/maroto/v2/pkg/consts/orientation"
 	"github.com/johnfercher/maroto/v2/pkg/core"
 	"github.com/johnfercher/maroto/v2/pkg/props"
 )
 
-// parseMarkdownLinks parses markdown links [text](url) and returns segments
-// baseURL is prepended to relative URLs (starting with /)
+// parseMarkdownLinks converts markdown links [text](url) to plain text.
+// Since maroto v2 doesn't support inline hyperlinks (each text component is
+// rendered as a separate block which causes overlaps and spacing issues),
+// we strip the markdown syntax and just display the link text inline.
+// This provides the best reading experience for both standard and easy-to-read PDFs.
 func parseMarkdownLinks(content, baseURL string, p props.Text) []core.Component {
-
 	// Regex to match markdown links: [text](url)
-	linkRegex := regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`)
+	linkRegex := regexp.MustCompile(`\[([^\]]+)\]\([^)]+\)`)
 
-	segments := []core.Component{}
-	lastEnd := 0
+	// Replace all markdown links with just the link text
+	plainContent := linkRegex.ReplaceAllString(content, "$1")
 
-	matches := linkRegex.FindAllStringSubmatchIndex(content, -1)
-	for _, match := range matches {
-		contentProps := props.Text{
-			Size: p.Size, Align: p.Align,
-			Top: p.Top + (float64(len(segments)) * (p.Size + p.Top + p.Bottom)), Bottom: p.Bottom, Left: 2, Right: 2,
-			BreakLineStrategy: breakline.EmptySpaceStrategy,
-		}
-		// Add text before this match
-		if match[0] > lastEnd {
-			segments = append(segments, text.New(content[lastEnd:match[0]], contentProps))
-		}
-
-		// Add the link
-		linkText := content[match[2]:match[3]]
-		linkURL := content[match[4]:match[5]]
-
-		// If URL is relative, prepend baseURL
-		if strings.HasPrefix(linkURL, "/") && baseURL != "" {
-			linkURL = strings.TrimSuffix(baseURL, "/") + linkURL
-		}
-
-		linkProps := props.Text{
-			Size: contentProps.Size, Align: contentProps.Align,
-			Top: p.Top + (float64(len(segments)) * (p.Size + p.Top + p.Bottom)), Bottom: contentProps.Bottom,
-			Left: contentProps.Left, Right: contentProps.Right,
-			BreakLineStrategy: contentProps.BreakLineStrategy,
-			Hyperlink:         &linkURL,
-		}
-
-		segments = append(segments, text.New(linkText, linkProps))
-
-		lastEnd = match[1]
-	}
-	contentProps := props.Text{
-		Size: p.Size, Align: p.Align,
-		Top: p.Top + (float64(len(segments)) * (p.Size + p.Top + p.Bottom)), Bottom: p.Bottom, Left: 2, Right: 2,
-		BreakLineStrategy: breakline.EmptySpaceStrategy,
-	}
-
-	// Add remaining text
-	if lastEnd < len(content) {
-		segments = append(segments, text.New(content[lastEnd:], contentProps))
-	}
-
-	// If no segments, return the original content
-	if len(segments) == 0 {
-		segments = append(segments, text.New(content, contentProps))
-	}
-
-	return segments
+	return []core.Component{text.New(plainContent, p)}
 }
 
 // Converts the given table to a PDF string representation.

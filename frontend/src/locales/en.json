@@ -523,6 +523,7 @@
     "loading": "Loading drill...",
     "not_found": "Drill not found. Redirecting to home.",
     "description": "Description",
+    "styles": "Styles",
     "targets": "Training Targets",
     "target_groups": "Target Groups",
     "video": "Video Tutorial"
