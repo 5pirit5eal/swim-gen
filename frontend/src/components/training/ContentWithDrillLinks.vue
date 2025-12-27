@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import DrillLink from '@/components/drills/DrillLink.vue'
 import { parseContentForDrillLinks, type ContentSegment } from '@/utils/markdownParser'
 
