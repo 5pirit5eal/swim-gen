@@ -82,6 +82,7 @@ jobs:
           repository: ${{ inputs.checkout_repo }}
           ref: ${{ inputs.checkout_ref }}
           fetch-depth: 0
+          lfs: true
 
       - name: 🔐 GCP Setup
         uses: ./.github/actions/setup
