@@ -1,8 +1,10 @@
 <script setup lang="ts">
+/// <reference types="youtube" />
 import { ref, onMounted, onUnmounted } from 'vue'
 
 declare global {
   interface Window {
+    YT: typeof YT
     onYouTubeIframeAPIReady?: () => void
   }
 }
