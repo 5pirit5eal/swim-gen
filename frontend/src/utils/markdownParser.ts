@@ -53,7 +53,6 @@ export function parseContentForDrillLinks(content: string): ContentSegment[] {
   // Reset regex state
   MARKDOWN_LINK_REGEX.lastIndex = 0
 
-  console.debug('[markdownParser] Testing regex pattern against content')
   let match: RegExpExecArray | null
   while ((match = MARKDOWN_LINK_REGEX.exec(content)) !== null) {
     console.debug('[markdownParser] Found match:', JSON.stringify(match))
