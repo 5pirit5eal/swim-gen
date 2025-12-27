@@ -81,7 +81,6 @@ export function parseContentForDrillLinks(content: string): ContentSegment[] {
     const drillId = extractDrillIdFromUrl(url)
     console.debug('[markdownParser] Extracted drillId:', drillId, 'from url:', url)
     if (drillId) {
-      console.debug('[markdownParser] Adding drill-link segment:', { drillId, text: linkText })
       segments.push({
         type: 'drill-link',
         drillId,
