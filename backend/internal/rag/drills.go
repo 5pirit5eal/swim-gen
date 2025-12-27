@@ -222,7 +222,7 @@ func docToDrill(doc schema.Document) *models.Drill {
 	}
 
 	drill := &models.Drill{
-		Slag:             getStringFromMetadata(metadata, "slug"),
+		Slug:             getStringFromMetadata(metadata, "slug"),
 		ShortDescription: getStringFromMetadata(metadata, "short_description"),
 		ImgName:          getStringFromMetadata(metadata, "img_name"),
 		ImgDescription:   getStringFromMetadata(metadata, "img_description"),
@@ -277,7 +277,7 @@ func FormatDrillsForPrompt(drills []models.Drill, baseURL string) string {
 	for _, drill := range drills {
 		// Format: [Drill Title](/drill/img_name)
 		url := fmt.Sprintf("%s/drill/%s", baseURL, drill.ImgName)
-		sb.WriteString(fmt.Sprintf("- [%s](%s) - %s\n", drill.Slag, url, drill.ShortDescription))
+		sb.WriteString(fmt.Sprintf("- [%s](%s) - %s\n", drill.Slug, url, drill.ShortDescription))
 	}
 	return sb.String()
 }
