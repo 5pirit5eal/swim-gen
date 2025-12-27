@@ -8,23 +8,9 @@ const props = defineProps<{
 }>()
 
 const segments = computed<ContentSegment[]>(() => {
-  console.debug(
-    '[ContentWithDrillLinks] Computing segments for content:',
-    JSON.stringify(props.content),
-  )
   const result = parseContentForDrillLinks(props.content)
-  console.debug('[ContentWithDrillLinks] Computed segments:', JSON.stringify(result))
   return result
 })
-
-// Debug watcher to see when content changes
-watch(
-  () => props.content,
-  (newContent) => {
-    console.debug('[ContentWithDrillLinks] Content prop changed to:', JSON.stringify(newContent))
-  },
-  { immediate: true },
-)
 </script>
 
 <template>
