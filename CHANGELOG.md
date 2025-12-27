@@ -1,3 +1,32 @@
+## [2.29.0](https://github.com/5pirit5eal/swim-gen/compare/v2.28.0...v2.29.0) (2025-12-27)
+
+### Features
+
+* added looping youtube player ([98840c3](https://github.com/5pirit5eal/swim-gen/commit/98840c33bc067e48a4b22dd09ef6ac2ae5a65d94))
+* added references for training plans in frontend and backend ([3db1801](https://github.com/5pirit5eal/swim-gen/commit/3db18010bce6527a706c7aede2f2fee4e571eca7))
+* added restructured drill view and link cards ([349e184](https://github.com/5pirit5eal/swim-gen/commit/349e1840889012f706c7d6ab4b53fd162707b827))
+* finalized drill view ([8300067](https://github.com/5pirit5eal/swim-gen/commit/83000678f183d9a557cf82e23ee5d221fa1ab998))
+* finished drill card ([2f06799](https://github.com/5pirit5eal/swim-gen/commit/2f06799ae5fd681b44d96c670412a6528203b509))
+* optimized drill link card ([efef115](https://github.com/5pirit5eal/swim-gen/commit/efef115e1503cc312689646c00cf85883a4bc733))
+
+### Bug Fixes
+
+* fixed build issues ([4ff361b](https://github.com/5pirit5eal/swim-gen/commit/4ff361baa1bb708b7fdeadf2a44790e91fe6174f))
+* fixed build pipeline ([c34985f](https://github.com/5pirit5eal/swim-gen/commit/c34985fbfa10ae06aa74df7d4919cd038dc84e7e))
+* fixed slag typo ([f4649cd](https://github.com/5pirit5eal/swim-gen/commit/f4649cd692c9a9fb5244d181a0c5b9b290d362d3))
+* fixed unused import ([774f65b](https://github.com/5pirit5eal/swim-gen/commit/774f65b1c208b1727869879b7613f9634ae7a04f))
+* Update data/drills/de.json ([a6c846a](https://github.com/5pirit5eal/swim-gen/commit/a6c846a0a4b4567c3dd35303c06615ca927efdbd))
+* Update frontend/src/utils/markdownParser.ts ([5274b0a](https://github.com/5pirit5eal/swim-gen/commit/5274b0a7e2bcb810e6fff0ae3c4d81a497d8e54c))
+* Update frontend/src/utils/markdownParser.ts ([7bb8126](https://github.com/5pirit5eal/swim-gen/commit/7bb81263c643320737f100e1e8349690dd3b29e3))
+* Update frontend/src/utils/markdownParser.ts ([09ce1fc](https://github.com/5pirit5eal/swim-gen/commit/09ce1fcb3b89162ebaf43af6d0319fdc73d425f2))
+* Update frontend/src/utils/markdownParser.ts ([6d06c15](https://github.com/5pirit5eal/swim-gen/commit/6d06c15c535ea023cc7f3aa04588d431ddf261f0))
+* Update frontend/src/utils/markdownParser.ts ([33e8d40](https://github.com/5pirit5eal/swim-gen/commit/33e8d40aab2edd9dd2dc8db0d58599f9c6f85e5a))
+* Update frontend/src/utils/markdownParser.ts ([3792764](https://github.com/5pirit5eal/swim-gen/commit/379276475afc6df4df366af9bda2d734b0dbf86d))
+* Update frontend/src/utils/markdownParser.ts ([aeda5bc](https://github.com/5pirit5eal/swim-gen/commit/aeda5bc9954a2e3b8dc5297c0c2fe9fab91f41a2))
+* Update frontend/src/utils/markdownParser.ts ([aa01fa6](https://github.com/5pirit5eal/swim-gen/commit/aa01fa6c79bd4e6ef327bf61309f07d163a416f4))
+* Update frontend/src/utils/markdownParser.ts ([ddff7c8](https://github.com/5pirit5eal/swim-gen/commit/ddff7c8fbdcbf366a3a230a37b63ca2ba60a6612))
+* Update frontend/src/utils/markdownParser.ts ([73a976d](https://github.com/5pirit5eal/swim-gen/commit/73a976d1658caf41fbf3f23139eb6e04e507085f))
+
 ## [2.28.0](https://github.com/5pirit5eal/swim-gen/compare/v2.27.0...v2.28.0) (2025-12-26)
 
 ### Features
