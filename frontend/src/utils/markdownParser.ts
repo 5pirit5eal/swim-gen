@@ -102,7 +102,6 @@ export function parseContentForDrillLinks(content: string): ContentSegment[] {
 
   // If no segments were created, return the original content as text
   if (segments.length === 0 && content) {
-    console.debug('[markdownParser] No segments created, returning original content as text')
     return [{ type: 'text', content }]
   }
 
