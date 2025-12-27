@@ -1,3 +1,11 @@
+## [2.29.1](https://github.com/5pirit5eal/swim-gen/compare/v2.29.0...v2.29.1) (2025-12-27)
+
+### Bug Fixes
+
+* 174 implement pdf export with grounded urls ([#195](https://github.com/5pirit5eal/swim-gen/issues/195)) ([bec7834](https://github.com/5pirit5eal/swim-gen/commit/bec783405bde3b7526e0efcd19af6e79046a782d))
+* fixed cicd lfs use ([ddfa54c](https://github.com/5pirit5eal/swim-gen/commit/ddfa54ce44a87ca5584e3391356396ea7a65c0e5))
+* removed hyperlinks from pdf ([ddb3c0b](https://github.com/5pirit5eal/swim-gen/commit/ddb3c0bfa2df87e744a61233bd7687ca3a264940))
+
 ## [2.29.0](https://github.com/5pirit5eal/swim-gen/compare/v2.28.0...v2.29.0) (2025-12-27)
 
 ### Features
