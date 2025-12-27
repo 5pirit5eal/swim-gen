@@ -368,3 +368,163 @@ func TestGenerateStoragePath(t *testing.T) {
 		assert.True(t, len(got) > len("anonymous/.pdf"))
 	})
 }
+
+// TestHyperlinks creates PDFs with various hyperlink scenarios for visual inspection.
+// The PDFs are saved to the current directory and NOT cleaned up so they can be reviewed.
+func TestHyperlinks(t *testing.T) {
+	baseURL := "https://example.com"
+
+	// Test table with various hyperlink scenarios
+	table := models.Table{
+		// Row 1: Single hyperlink
+		{
+			Amount:     1,
+			Multiplier: "x",
+			Distance:   100,
+			Break:      "",
+			Content:    "See [this drill](https://example.com/drill1) for technique",
+			Intensity:  "GA1",
+			Sum:        100,
+		},
+		// Row 2: Multiple hyperlinks in one cell
+		{
+			Amount:     2,
+			Multiplier: "x",
+			Distance:   50,
+			Break:      "30",
+			Content:    "Practice [drill A](/drills/a) and [drill B](/drills/b) alternating",
+			Intensity:  "TÜ",
+			Sum:        100,
+		},
+		// Row 3: Multi-line text BEFORE a hyperlink (tests overlap issue)
+		{
+			Amount:     4,
+			Multiplier: "x",
+			Distance:   75,
+			Break:      "20",
+			Content:    "This is a very long instruction that should wrap to multiple lines in the PDF and then includes a hyperlink at the end [click here](/info)",
+			Intensity:  "GA1",
+			Sum:        300,
+		},
+		// Row 4: Hyperlink in brackets (tests formatting issue)
+		{
+			Amount:     1,
+			Multiplier: "x",
+			Distance:   200,
+			Break:      "",
+			Content:    "Warm up slowly (see [video tutorial](/video) for guidance)",
+			Intensity:  "ReKom",
+			Sum:        200,
+		},
+		// Row 5: URL at end of content block (tests end-of-block bug)
+		{
+			Amount:     3,
+			Multiplier: "x",
+			Distance:   100,
+			Break:      "45",
+			Content:    "Sprint section [details](/sprint)",
+			Intensity:  "S",
+			Sum:        300,
+		},
+		// Row 6: Text after hyperlink (tests capturing text after last match)
+		{
+			Amount:     2,
+			Multiplier: "x",
+			Distance:   150,
+			Break:      "60",
+			Content:    "Check [form guide](/form) and maintain proper technique throughout",
+			Intensity:  "GA2",
+			Sum:        300,
+		},
+		// Row 7: No hyperlinks (baseline test)
+		{
+			Amount:     1,
+			Multiplier: "x",
+			Distance:   100,
+			Break:      "",
+			Content:    "Cool down with easy swimming",
+			Intensity:  "ReKom",
+			Sum:        100,
+		},
+		// Row 8: Multi-line with multiple hyperlinks (stress test)
+		{
+			Amount:     5,
+			Multiplier: "x",
+			Distance:   50,
+			Break:      "15",
+			Content:    "This exercise combines [technique A](/tech-a) with [technique B](/tech-b) for optimal results. Make sure to review both beforehand.",
+			Intensity:  "TÜ",
+			Sum:        250,
+		},
+	}
+	table.AddSum()
+	table.UpdateSum()
+
+	tests := []struct {
+		name       string
+		horizontal bool
+		largeFont  bool
+		filename   string
+	}{
+		{
+			name:       "Standard PDF",
+			horizontal: false,
+			largeFont:  false,
+			filename:   "test_hyperlinks_standard.pdf",
+		},
+		{
+			name:       "Large font (easy-to-read) PDF",
+			horizontal: false,
+			largeFont:  true,
+			filename:   "test_hyperlinks_largefont.pdf",
+		},
+		{
+			name:       "Horizontal PDF",
+			horizontal: true,
+			largeFont:  false,
+			filename:   "test_hyperlinks_horizontal.pdf",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var pdfBytes []byte
+			var err error
+
+			if tt.largeFont {
+				pdfBytes, err = pdf.GenerateEasyReadablePDF(&table, tt.horizontal, models.LanguageEN, baseURL)
+			} else {
+				plan := &models.Plan{
+					Title:       "Hyperlink Test Plan",
+					Description: "Testing various hyperlink scenarios in PDF generation",
+					Table:       table,
+				}
+				pdfBytes, err = pdf.PlanToPDF(plan, tt.horizontal, false, models.LanguageEN, baseURL)
+			}
+
+			if err != nil {
+				t.Fatalf("Failed to generate PDF: %v", err)
+			}
+
+			if len(pdfBytes) == 0 {
+				t.Fatal("Generated PDF is empty")
+			}
+
+			// Write PDF for visual inspection (not cleaned up)
+			err = writePDF(tt.filename, pdfBytes)
+			if err != nil {
+				t.Fatalf("Failed to write PDF: %v", err)
+			}
+
+			// Cleanup
+			if os.Getenv("GENERATE_PDF") == "" {
+				err = os.Remove(tt.filename)
+				if err != nil {
+					t.Fatalf("Failed to cleanup PDF: %v", err)
+				}
+			}
+
+			t.Logf("Generated %s - please inspect visually", tt.filename)
+		})
+	}
+}
