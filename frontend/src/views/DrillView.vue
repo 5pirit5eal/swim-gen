@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDrillsStore } from '@/stores/drills'
+import DrillVideo from '@/components/drills/DrillVideo.vue'
 import { storeToRefs } from 'pinia'
 import { onMounted, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -29,7 +30,41 @@ const hasValidVideo = computed(() => {
 function getYouTubeId(url: string): string | null {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
   const match = url.match(regExp)
-  return match && match[2].length === 11 ? match[2] : null
+  if (!match || match.length < 2) return null
+  return match[2]!.length === 11 ? match[2]! : null
+}
+
+function getVideoConfig(url: string) {
+  const videoId = getYouTubeId(url)
+  if (!videoId) return null
+
+  let start = 0
+  let end = 999
+
+  try {
+    const queryString = url.includes('?') ? url.split('?')[1] : ''
+    if (queryString) {
+      const params = new URLSearchParams(queryString)
+
+      if (params.has('start')) {
+        start = parseInt(params.get('start')!, 10)
+      } else if (params.has('t')) {
+        start = parseInt(params.get('t')!, 10)
+      }
+
+      if (params.has('end')) {
+        end = parseInt(params.get('end')!, 10)
+      }
+    }
+  } catch {
+    // ignore parsing errors
+  }
+
+  // Ensure valid numbers
+  if (isNaN(start)) start = 0
+  if (isNaN(end)) end = 999
+
+  return { videoId, start, end }
 }
 
 function getDifficultyLevel(difficulty: string): number {
@@ -104,21 +139,37 @@ watch(locale, async () => {
               <div class="header-details">
                 <div class="title-row">
                   <h1 class="drill-title">{{ currentDrill.title }}</h1>
-                  <div class="difficulty-indicator">
-                    <span v-for="i in 3" :key="i" class="difficulty-dot"
-                      :class="{ active: i <= getDifficultyLevel(currentDrill.difficulty) }"></span>
+                  <div class="header-difficulty">
+                    <span class="difficulty-text">{{ currentDrill.difficulty }}</span>
+                    <div class="difficulty-dots">
+                      <span
+                        v-for="i in 3"
+                        :key="i"
+                        class="difficulty-dot"
+                        :class="{ active: i <= getDifficultyLevel(currentDrill.difficulty) }"
+                      ></span>
+                    </div>
                   </div>
                 </div>
 
                 <div class="meta-row">
                   <div class="meta-group">
                     <span class="meta-label">{{ t('drill.styles') }}:</span>
-                    <span v-for="style in currentDrill.styles" :key="style" class="meta-value style">{{ style }}</span>
+                    <span
+                      v-for="style in currentDrill.styles"
+                      :key="style"
+                      class="meta-value style"
+                      >{{ style }}</span
+                    >
                   </div>
                   <div class="meta-group">
                     <span class="meta-label">{{ t('drill.targets') }}:</span>
-                    <span v-for="target in currentDrill.targets" :key="target" class="meta-value target">{{ target
-                    }}</span>
+                    <span
+                      v-for="target in currentDrill.targets"
+                      :key="target"
+                      class="meta-value target"
+                      >{{ target }}</span
+                    >
                   </div>
                 </div>
 
@@ -141,14 +192,11 @@ watch(locale, async () => {
 
             <section v-if="currentDrill.video_url?.length && hasValidVideo" class="video-section">
               <div class="section-header">
-                <h3>{{ t('drill.videos') }}</h3>
+                <h3>{{ t('drill.video') }}</h3>
               </div>
               <div class="video-grid">
-                <div v-for="(url, index) in currentDrill.video_url" :key="index" class="video-wrapper">
-                  <iframe v-if="getYouTubeId(url)" :src="`https://www.youtube.com/embed/${getYouTubeId(url)}`"
-                    title="YouTube video player" frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen class="video-iframe"></iframe>
+                <div v-for="(url, index) in currentDrill.video_url" :key="index">
+                  <DrillVideo v-if="getVideoConfig(url)" v-bind="getVideoConfig(url)!" />
                 </div>
               </div>
             </section>
@@ -157,7 +205,11 @@ watch(locale, async () => {
               <div class="meta-group">
                 <span class="meta-label">{{ t('drill.target_groups') }}:</span>
                 <div class="tags-container">
-                  <span v-for="group in currentDrill.target_groups" :key="group" class="meta-tag group">
+                  <span
+                    v-for="group in currentDrill.target_groups"
+                    :key="group"
+                    class="meta-tag group"
+                  >
                     {{ group }}
                   </span>
                 </div>
@@ -172,8 +224,11 @@ watch(locale, async () => {
 
 <style scoped>
 .drill-view {
-  min-height: 100vh;
-  padding: 2rem 0;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  padding: 2rem 1rem;
+  margin: 0 auto;
 }
 
 .container {
@@ -234,6 +289,8 @@ watch(locale, async () => {
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   background: var(--color-background-mute);
+  position: relative;
+  /* Needed for overlay positioning */
 }
 
 .drill-image {
@@ -256,7 +313,7 @@ watch(locale, async () => {
 .title-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
 }
 
@@ -266,17 +323,35 @@ watch(locale, async () => {
   color: var(--color-heading);
   line-height: 1.1;
   margin: 0;
-  letter-spacing: -0.01em;
 }
 
-/* Difficulty Dots */
-.difficulty-indicator {
+@media (max-width: 360px) {
+  .drill-title {
+    font-size: 1.25rem;
+    word-break: break-word;
+  }
+}
+
+/* Header Difficulty */
+.header-difficulty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-background-mute);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+}
+
+.difficulty-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.difficulty-dots {
   display: flex;
   gap: 4px;
-  margin-top: 8px;
-  padding: 6px 10px;
-  background: var(--color-background-mute);
-  border-radius: 20px;
 }
 
 .difficulty-dot {
@@ -284,7 +359,6 @@ watch(locale, async () => {
   height: 10px;
   border-radius: 50%;
   background-color: var(--color-border);
-  transition: background-color 0.3s ease;
 }
 
 .difficulty-dot.active {
@@ -366,7 +440,6 @@ watch(locale, async () => {
   font-size: 1rem;
   line-height: 1.6;
   color: var(--color-text);
-  max-width: 75ch;
 }
 
 .description-text p {
@@ -384,23 +457,10 @@ watch(locale, async () => {
   gap: 1.5rem;
 }
 
-.video-wrapper {
-  position: relative;
-  padding-bottom: 56.25%;
-  /* 16:9 Aspect Ratio */
-  height: 0;
-  overflow: hidden;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  background: var(--color-background-soft);
-}
-
-.video-iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+@media (max-width: 900px) {
+  .video-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Meta Footer for Target Groups */

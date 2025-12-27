@@ -307,9 +307,9 @@ describe('DrillView.vue', () => {
         const videoSection = wrapper.find('.video-section')
         expect(videoSection.exists()).toBe(true)
 
-        const iframe = wrapper.find('.video-iframe')
-        expect(iframe.exists()).toBe(true)
-        expect(iframe.attributes('src')).toContain('youtube.com/embed/xtuRdL8PTSA')
+        const videoComponent = wrapper.findComponent({ name: 'DrillVideo' })
+        expect(videoComponent.exists()).toBe(true)
+        expect(videoComponent.props('videoId')).toBe('xtuRdL8PTSA')
     })
 
     it('does not display video section when video_url is empty', async () => {
@@ -389,7 +389,9 @@ describe('DrillView.vue', () => {
 
         const img = wrapper.find('.drill-image')
         expect(img.exists()).toBe(true)
-        expect(img.attributes('src')).toBe('https://storage.googleapis.com/swim-gen-public/seestern.png')
+        expect(img.attributes('src')).toBe(
+            'https://storage.googleapis.com/swim-gen-public/seestern.png',
+        )
         expect(img.attributes('alt')).toBe(mockDrill.img_description)
     })
 
@@ -452,8 +454,9 @@ describe('DrillView.vue', () => {
                 },
             })
 
-            const iframe = wrapper.find('.video-iframe')
-            expect(iframe.attributes('src')).toContain('youtube.com/embed/abc123def45')
+            const videoComponent = wrapper.findComponent({ name: 'DrillVideo' })
+            expect(videoComponent.exists()).toBe(true)
+            expect(videoComponent.props('videoId')).toBe('abc123def45')
         })
 
         it('extracts video ID from youtu.be short URL', async () => {
@@ -480,8 +483,9 @@ describe('DrillView.vue', () => {
                 },
             })
 
-            const iframe = wrapper.find('.video-iframe')
-            expect(iframe.attributes('src')).toContain('youtube.com/embed/abc123def45')
+            const videoComponent = wrapper.findComponent({ name: 'DrillVideo' })
+            expect(videoComponent.exists()).toBe(true)
+            expect(videoComponent.props('videoId')).toBe('abc123def45')
         })
 
         it('handles multiple videos', async () => {
@@ -511,11 +515,10 @@ describe('DrillView.vue', () => {
                 },
             })
 
-            const iframes = wrapper.findAll('.video-iframe')
-            expect(iframes.length).toBe(2)
-            expect(iframes[0]?.attributes('src')).toContain('video111111')
-            expect(iframes[1]?.attributes('src')).toContain('video222222')
+            const videoComponents = wrapper.findAllComponents({ name: 'DrillVideo' })
+            expect(videoComponents.length).toBe(2)
+            expect(videoComponents[0]?.props('videoId')).toBe('video111111')
+            expect(videoComponents[1]?.props('videoId')).toBe('video222222')
         })
     })
-
 })
