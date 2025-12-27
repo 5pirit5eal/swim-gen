@@ -90,7 +90,6 @@ export function parseContentForDrillLinks(content: string): ContentSegment[] {
       })
     } else {
       // Not a drill link, keep as plain text with the original markdown
-      console.debug('[markdownParser] Not a drill link, adding as text:', fullMatch)
       segments.push({ type: 'text', content: fullMatch })
     }
 
