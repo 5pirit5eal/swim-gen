@@ -54,7 +54,6 @@ export function parseContentForDrillLinks(content: string): ContentSegment[] {
 
   let match: RegExpExecArray | null
   while ((match = MARKDOWN_LINK_REGEX.exec(content)) !== null) {
-    console.debug('[markdownParser] Found match:', JSON.stringify(match))
     const fullMatch = match[0]
     const linkText = match[1]
     const url = match[2]
