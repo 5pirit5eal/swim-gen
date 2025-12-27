@@ -61,16 +61,6 @@ export function parseContentForDrillLinks(content: string): ContentSegment[] {
     const url = match[2]
     const matchIndex = match.index
 
-    console.debug(
-      '[markdownParser] Parsed: fullMatch=',
-      fullMatch,
-      'linkText=',
-      linkText,
-      'url=',
-      url,
-      'index=',
-      matchIndex,
-    )
 
     // Skip if we don't have required parts
     if (!linkText || !url) {
