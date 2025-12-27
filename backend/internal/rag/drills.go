@@ -265,19 +265,3 @@ func getStringSliceFromMetadata(metadata map[string]any, key string) []string {
 	}
 	return nil
 }
-
-// FormatDrillsForPrompt formats drills as markdown references for LLM prompt
-func FormatDrillsForPrompt(drills []models.Drill, baseURL string) string {
-	if len(drills) == 0 {
-		return ""
-	}
-
-	var sb strings.Builder
-	sb.WriteString("\n\n**Recommended Exercise Drills:**\n")
-	for _, drill := range drills {
-		// Format: [Drill Title](/drill/img_name)
-		url := fmt.Sprintf("%s/drill/%s", baseURL, drill.ImgName)
-		sb.WriteString(fmt.Sprintf("- [%s](%s) - %s\n", drill.Slug, url, drill.ShortDescription))
-	}
-	return sb.String()
-}
