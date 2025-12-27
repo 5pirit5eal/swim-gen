@@ -41,7 +41,6 @@ export function extractDrillIdFromUrl(url: string): string | null {
  * @returns Array of ContentSegment objects representing text and drill links
  */
 export function parseContentForDrillLinks(content: string): ContentSegment[] {
-  console.debug('[markdownParser] parseContentForDrillLinks input:', JSON.stringify(content))
 
   if (!content) {
     console.debug('[markdownParser] Empty content, returning empty array')
