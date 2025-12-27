@@ -2,6 +2,7 @@
 import type { Row, RAGResponse } from '@/types'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import ContentWithDrillLinks from '@/components/training/ContentWithDrillLinks.vue'
 
 const props = defineProps<{
   title: string
@@ -66,7 +67,9 @@ function onSave() {
             <td>{{ row.Multiplier }}</td>
             <td>{{ row.Distance }}</td>
             <td>{{ row.Break }}</td>
-            <td class="content-cell">{{ row.Content }}</td>
+            <td class="content-cell">
+              <ContentWithDrillLinks :content="row.Content" />
+            </td>
             <td class="intensity-cell">{{ row.Intensity }}</td>
             <td class="total-cell">{{ row.Sum }}</td>
           </tr>

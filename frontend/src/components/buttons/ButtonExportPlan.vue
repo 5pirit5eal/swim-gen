@@ -82,6 +82,7 @@ async function handleExport() {
       horizontal: exportHorizontal.value,
       large_font: exportLargeFont.value,
       language: navigator.language.split('-')[0] || 'en',
+      frontend_base_url: window.location.origin,
     }
     pdfUrl.value = await exportStore.exportToPDF(payload)
     if (!pdfUrl.value) {

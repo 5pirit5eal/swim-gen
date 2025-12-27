@@ -1,7 +1,7 @@
 package models
 
 type Drill struct {
-	Slag             string   `json:"slug"`
+	Slug             string   `json:"slug"`
 	Targets          []string `json:"targets"`
 	ShortDescription string   `json:"short_description"`
 	ImgName          string   `json:"img_name"`
@@ -12,4 +12,5 @@ type Drill struct {
 	Styles           []string `json:"styles"`
 	Difficulty       string   `json:"difficulty"`
 	TargetGroups     []string `json:"target_groups"`
+	Language         string   `json:"language"`
 }

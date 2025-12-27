@@ -151,7 +151,7 @@ describe('DrillView.vue', () => {
     expect(wrapper.find('.drill-short-description').text()).toBe(mockDrill.short_description)
   })
 
-  it('displays difficulty tag with correct class', async () => {
+  it('displays difficulty indicator with correct active dots', async () => {
     const wrapper = mount(DrillView, {
       global: {
         plugins: [
@@ -170,34 +170,45 @@ describe('DrillView.vue', () => {
       },
     })
 
-    const difficultyTag = wrapper.find('.tag.difficulty')
-    expect(difficultyTag.exists()).toBe(true)
-    expect(difficultyTag.text()).toBe('Easy')
-    expect(difficultyTag.classes()).toContain('easy')
+    const dots = wrapper.findAll('.difficulty-dot')
+    expect(dots.length).toBe(3)
+    // Easy = 1 active dot
+    const activeDots = wrapper.findAll('.difficulty-dot.active')
+    expect(activeDots.length).toBe(1)
   })
 
-  it('displays all style tags', async () => {
-    const wrapper = mount(DrillView, {
-      global: {
-        plugins: [
-          createTestingPinia({
-            createSpy: vi.fn,
-            initialState: {
-              drills: {
-                isLoading: false,
-                currentDrill: mockDrill,
-                error: null,
-              },
-            },
-          }),
-          i18n,
-        ],
-      },
-    })
+  describe('difficulty levels', () => {
+    it.each([
+      ['Easy', 1],
+      ['Medium', 2],
+      ['Hard', 3],
+    ])('displays %s difficulty with %i active dots', async (difficulty, expectedDots) => {
+      const drillWithDifficulty: Drill = {
+        ...mockDrill,
+        difficulty: difficulty as 'Easy' | 'Medium' | 'Hard',
+      }
 
-    const styleTags = wrapper.findAll('.tag.style')
-    expect(styleTags.length).toBe(mockDrill.styles.length)
-    expect(styleTags[0]?.text()).toBe('General')
+      const wrapper = mount(DrillView, {
+        global: {
+          plugins: [
+            createTestingPinia({
+              createSpy: vi.fn,
+              initialState: {
+                drills: {
+                  isLoading: false,
+                  currentDrill: drillWithDifficulty,
+                  error: null,
+                },
+              },
+            }),
+            i18n,
+          ],
+        },
+      })
+
+      const activeDots = wrapper.findAll('.difficulty-dot.active')
+      expect(activeDots.length).toBe(expectedDots)
+    })
   })
 
   it('displays description paragraphs', async () => {
@@ -219,7 +230,7 @@ describe('DrillView.vue', () => {
       },
     })
 
-    const paragraphs = wrapper.findAll('.description-content p')
+    const paragraphs = wrapper.findAll('.description-text p')
     expect(paragraphs.length).toBe(mockDrill.description.length)
     expect(paragraphs[0]?.text()).toBe(mockDrill.description[0])
   })
@@ -243,10 +254,10 @@ describe('DrillView.vue', () => {
       },
     })
 
-    const targetTags = wrapper.findAll('.tag.target')
+    const targetTags = wrapper.findAll('.meta-value.target')
     expect(targetTags.length).toBe(mockDrill.targets.length)
     mockDrill.targets.forEach((target, index) => {
-      expect(targetTags[index]?.text()).toBe(target)
+      expect(targetTags[index]?.text()).toContain(target)
     })
   })
 
@@ -269,7 +280,7 @@ describe('DrillView.vue', () => {
       },
     })
 
-    const targetGroupTags = wrapper.findAll('.tag.target-group')
+    const targetGroupTags = wrapper.findAll('.meta-tag.group')
     expect(targetGroupTags.length).toBe(mockDrill.target_groups.length)
     expect(targetGroupTags[0]?.text()).toBe('Beginner')
   })
@@ -293,12 +304,12 @@ describe('DrillView.vue', () => {
       },
     })
 
-    const videoSection = wrapper.find('.drill-videos')
+    const videoSection = wrapper.find('.video-section')
     expect(videoSection.exists()).toBe(true)
 
-    const iframe = wrapper.find('.video-iframe')
-    expect(iframe.exists()).toBe(true)
-    expect(iframe.attributes('src')).toContain('youtube.com/embed/xtuRdL8PTSA')
+    const videoComponent = wrapper.findComponent({ name: 'DrillVideo' })
+    expect(videoComponent.exists()).toBe(true)
+    expect(videoComponent.props('videoId')).toBe('xtuRdL8PTSA')
   })
 
   it('does not display video section when video_url is empty', async () => {
@@ -325,7 +336,7 @@ describe('DrillView.vue', () => {
       },
     })
 
-    const videoSection = wrapper.find('.drill-videos')
+    const videoSection = wrapper.find('.video-section')
     expect(videoSection.exists()).toBe(false)
   })
 
@@ -353,7 +364,7 @@ describe('DrillView.vue', () => {
       },
     })
 
-    const videoSection = wrapper.find('.drill-videos')
+    const videoSection = wrapper.find('.video-section')
     expect(videoSection.exists()).toBe(false)
   })
 
@@ -378,7 +389,9 @@ describe('DrillView.vue', () => {
 
     const img = wrapper.find('.drill-image')
     expect(img.exists()).toBe(true)
-    expect(img.attributes('src')).toBe('/images/drills/seestern.png')
+    expect(img.attributes('src')).toBe(
+      'https://storage.googleapis.com/swim-gen-public/seestern.png',
+    )
     expect(img.attributes('alt')).toBe(mockDrill.img_description)
   })
 
@@ -441,8 +454,9 @@ describe('DrillView.vue', () => {
         },
       })
 
-      const iframe = wrapper.find('.video-iframe')
-      expect(iframe.attributes('src')).toContain('youtube.com/embed/abc123def45')
+      const videoComponent = wrapper.findComponent({ name: 'DrillVideo' })
+      expect(videoComponent.exists()).toBe(true)
+      expect(videoComponent.props('videoId')).toBe('abc123def45')
     })
 
     it('extracts video ID from youtu.be short URL', async () => {
@@ -469,8 +483,9 @@ describe('DrillView.vue', () => {
         },
       })
 
-      const iframe = wrapper.find('.video-iframe')
-      expect(iframe.attributes('src')).toContain('youtube.com/embed/abc123def45')
+      const videoComponent = wrapper.findComponent({ name: 'DrillVideo' })
+      expect(videoComponent.exists()).toBe(true)
+      expect(videoComponent.props('videoId')).toBe('abc123def45')
     })
 
     it('handles multiple videos', async () => {
@@ -500,45 +515,10 @@ describe('DrillView.vue', () => {
         },
       })
 
-      const iframes = wrapper.findAll('.video-iframe')
-      expect(iframes.length).toBe(2)
-      expect(iframes[0]?.attributes('src')).toContain('video111111')
-      expect(iframes[1]?.attributes('src')).toContain('video222222')
-    })
-  })
-
-  describe('difficulty levels', () => {
-    it.each([
-      ['Easy', 'easy'],
-      ['Medium', 'medium'],
-      ['Hard', 'hard'],
-    ])('displays %s difficulty with %s class', async (difficulty, expectedClass) => {
-      const drillWithDifficulty: Drill = {
-        ...mockDrill,
-        difficulty: difficulty as 'Easy' | 'Medium' | 'Hard',
-      }
-
-      const wrapper = mount(DrillView, {
-        global: {
-          plugins: [
-            createTestingPinia({
-              createSpy: vi.fn,
-              initialState: {
-                drills: {
-                  isLoading: false,
-                  currentDrill: drillWithDifficulty,
-                  error: null,
-                },
-              },
-            }),
-            i18n,
-          ],
-        },
-      })
-
-      const difficultyTag = wrapper.find('.tag.difficulty')
-      expect(difficultyTag.text()).toBe(difficulty)
-      expect(difficultyTag.classes()).toContain(expectedClass)
+      const videoComponents = wrapper.findAllComponents({ name: 'DrillVideo' })
+      expect(videoComponents.length).toBe(2)
+      expect(videoComponents[0]?.props('videoId')).toBe('video111111')
+      expect(videoComponents[1]?.props('videoId')).toBe('video222222')
     })
   })
 })

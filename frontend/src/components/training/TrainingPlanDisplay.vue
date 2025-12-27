@@ -5,6 +5,7 @@ import IconEdit from '@/components/icons/IconEdit.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import BaseTableAction from '@/components/ui/BaseTableAction.vue'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
+import ContentWithDrillLinks from '@/components/training/ContentWithDrillLinks.vue'
 import type { Row, PlanStore } from '@/types'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -317,7 +318,7 @@ function autoResize(event: Event) {
                     v-auto-resize
                     class="editable-area"
                   ></textarea>
-                  <span v-else>{{ row.Content }}</span>
+                  <ContentWithDrillLinks v-else :content="row.Content" />
                 </td>
                 <!-- Intensity Cell -->
                 <td class="intensity-cell" @click="startEditing(index, 'Intensity')">

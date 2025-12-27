@@ -55,13 +55,14 @@ func (r *RAGResponse) Map() map[string]any {
 // PlanToPDFRequest represents the request for PDF export
 // @Description Request payload for exporting a training plan to PDF format
 type PlanToPDFRequest struct {
-	PlanID      string   `json:"plan_id,omitempty" example:"plan_123"` // PlanID identifies the training plan to be exported
-	Title       string   `json:"title" example:"Advanced Freestyle Training" binding:"required"`
-	Description string   `json:"description" example:"A comprehensive training plan for improving freestyle technique" binding:"required"`
-	Table       Table    `json:"table" binding:"required"`
-	Horizontal  bool     `json:"horizontal" example:"false"`      // Horizontal indicates if the PDF should be in landscape orientation
-	LargeFont   bool     `json:"large_font" example:"true"`       // LargeFont indicates if the PDF should use a larger font size
-	Language    Language `json:"language,omitempty" example:"en"` // Language specifies the language for the PDF content
+	PlanID          string   `json:"plan_id,omitempty" example:"plan_123"` // PlanID identifies the training plan to be exported
+	Title           string   `json:"title" example:"Advanced Freestyle Training" binding:"required"`
+	Description     string   `json:"description" example:"A comprehensive training plan for improving freestyle technique" binding:"required"`
+	Table           Table    `json:"table" binding:"required"`
+	Horizontal      bool     `json:"horizontal" example:"false"`                                 // Horizontal indicates if the PDF should be in landscape orientation
+	LargeFont       bool     `json:"large_font" example:"true"`                                  // LargeFont indicates if the PDF should use a larger font size
+	Language        Language `json:"language,omitempty" example:"en"`                            // Language specifies the language for the PDF content
+	FrontendBaseURL string   `json:"frontend_base_url,omitempty" example:"https://swim-gen.app"` // FrontendBaseURL is the base URL for drill links in the PDF
 }
 
 // PlanToPDFResponse represents the response from PDF export

@@ -37,6 +37,7 @@ services:
       args:
         - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
         - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+        - VITE_PUBLIC_BUCKET_NAME=${VITE_PUBLIC_BUCKET_NAME}
     ports:
       - "5173:80"
     env_file:

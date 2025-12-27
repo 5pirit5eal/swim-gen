@@ -161,6 +161,9 @@ func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Confi
 		r.Delete("/memory/messages-after", ragServer.DeleteMessagesAfterHandler)
 		r.Delete("/memory/conversation", ragServer.DeleteConversationHandler)
 		r.Get("/memory/conversation", ragServer.GetConversationHandler)
+		// Drill endpoints
+		r.Get("/drill", ragServer.GetDrillHandler)
+		r.Get("/drills/search", ragServer.SearchDrillsHandler)
 		r.Get("/swagger/*", httpSwagger.Handler(
 			httpSwagger.URL("0.0.0.0:"+cmp.Or(cfg.Port, "8080")+basePath+"swagger/doc.json"),
 			httpSwagger.DeepLinking(true)),

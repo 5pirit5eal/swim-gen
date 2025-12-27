@@ -65,6 +65,7 @@ export interface PlanToPDFRequest {
   horizontal?: boolean
   large_font?: boolean
   language?: string
+  frontend_base_url?: string
 }
 
 // Backend API PlanToPDFResponse structure

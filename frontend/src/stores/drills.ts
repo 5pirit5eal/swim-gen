@@ -64,9 +64,11 @@ export const useDrillsStore = defineStore('drills', () => {
     if (!drill) return null
     return {
       img_name: drill.img_name,
-      title: drill.title,
+      title: drill.slug,
       short_description: drill.short_description,
       difficulty: drill.difficulty,
+      target: drill.targets?.[0],
+      style: drill.styles?.[0],
     }
   }
 
