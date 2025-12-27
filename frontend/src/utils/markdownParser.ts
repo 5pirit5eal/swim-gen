@@ -16,7 +16,6 @@ const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g
  * Expected URL format: /drills/{id} or full URL like https://example.com/drills/{id}
  */
 export function extractDrillIdFromUrl(url: string): string | null {
-  console.debug('[markdownParser] extractDrillIdFromUrl input:', url)
   // Try to match /drills/{id} or /drill/{id} pattern (both singular and plural)
   const drillPathMatch = url.match(/\/drills?\/([^/?#]+)/)
   console.debug('[markdownParser] drillPathMatch:', drillPathMatch)
