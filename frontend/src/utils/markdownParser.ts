@@ -98,7 +98,6 @@ export function parseContentForDrillLinks(content: string): ContentSegment[] {
   // Add remaining text after last match
   if (lastIndex < content.length) {
     const remaining = content.slice(lastIndex)
-    console.debug('[markdownParser] Adding remaining text:', JSON.stringify(remaining))
     segments.push({ type: 'text', content: remaining })
   }
 
