@@ -105,7 +105,6 @@ export function parseContentForDrillLinks(content: string): ContentSegment[] {
     return [{ type: 'text', content }]
   }
 
-  console.debug('[markdownParser] Final segments:', JSON.stringify(segments))
   return segments
 }
 
