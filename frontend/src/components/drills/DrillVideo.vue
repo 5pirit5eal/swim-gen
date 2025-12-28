@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /// <reference types="youtube" />
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 
 declare global {
   interface Window {
@@ -94,6 +94,27 @@ onUnmounted(() => {
   if (loopInterval) clearInterval(loopInterval)
   if (player) player.destroy()
 })
+
+// Watch for videoId changes and reload the video
+watch(
+  () => props.videoId,
+  (newVideoId, oldVideoId) => {
+    if (newVideoId !== oldVideoId && player) {
+      // Clear the loop interval first
+      if (loopInterval) {
+        clearInterval(loopInterval)
+        loopInterval = null
+      }
+      // Load the new video with the updated start/end times
+      player.loadVideoById({
+        videoId: newVideoId,
+        startSeconds: props.start,
+        endSeconds: props.end,
+      })
+      startLoopCheck()
+    }
+  },
+)
 </script>
 
 <template>

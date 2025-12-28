@@ -20,6 +20,7 @@ const preview = ref<DrillPreview | null>(null)
 const hoverTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 const cardPosition = ref<{ top: boolean; left: boolean }>({ top: false, left: false })
 const linkRef = ref<HTMLElement | null>(null)
+const observer = ref<IntersectionObserver | null>(null)
 
 // Image URL
 const imageUrl = computed(() => {
@@ -81,12 +82,12 @@ function navigateToDrill() {
 }
 
 onMounted(() => {
-  const observer = new IntersectionObserver(
+  observer.value = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           prefetchDrill()
-          observer.disconnect()
+          observer.value?.disconnect()
         }
       })
     },
@@ -94,7 +95,7 @@ onMounted(() => {
   )
 
   if (linkRef.value) {
-    observer.observe(linkRef.value)
+    observer.value.observe(linkRef.value)
   }
 })
 
@@ -115,6 +116,9 @@ async function prefetchDrill() {
 onUnmounted(() => {
   if (hoverTimeout.value) {
     clearTimeout(hoverTimeout.value)
+  }
+  if (observer.value) {
+    observer.value.disconnect()
   }
 })
 </script>
