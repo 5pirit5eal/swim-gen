@@ -363,6 +363,8 @@
     "generated_plans_tooltip": "Die Gesamtanzahl der Trainingspläne, die du in Swim Gen generiert hast.",
     "exported_plans": "Exportierte Pläne",
     "exported_plans_tooltip": "Die Gesamtanzahl der Trainingspläne, die du als PDF exportiert hast.",
+    "monthly_generated": "Diesen Monat",
+    "monthly_generated_tooltip": "Die Anzahl der generierten Trainingspläne in diesem Monat. Diese Zahl wird am Anfang des Monats auf 0 zurückgesetzt.",
     "monthly_quota": "Monatliches Kontingent",
     "monthly_quota_tooltip": "Die Anzahl der erweiterten Trainingsgenerierungen, die du diesen Monat durchgeführt hast. Erweitertes Generieren umfasst alle Trainingspläne, die im Chat Modus oder in Multi-Plan Anfragen generiert wurden. Das Kontigent wird am ersten Tag jedes Monats zurückgesetzt.",
     "delete_account": "Konto löschen",

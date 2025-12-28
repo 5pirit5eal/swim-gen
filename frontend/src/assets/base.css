@@ -9,8 +9,8 @@
 
   --vt-c-indigo: #2c3e50;
 
-  --vt-c-blue: #3b82f6;
-  --vt-c-blue-soft: #2563eb;
+  --vt-c-blue: #2488ba;
+  --vt-c-blue-soft: #1e78a5;
   --vt-c-blue-shadow: rgba(47, 124, 248, 0.1);
 
   /* Dark mode specific blues - harmonizes with water/teal background */
@@ -24,7 +24,7 @@
   --vt-c-divider-dark-2: rgba(61, 73, 87, 0.48);
 
   --vt-c-text-light-1: var(--vt-c-indigo);
-  --vt-c-text-light-2: rgba(47, 47, 47, 0.773);
+  --vt-c-text-light-2: rgba(37, 36, 36, 0.9);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 245, 250, 0.85);
 
