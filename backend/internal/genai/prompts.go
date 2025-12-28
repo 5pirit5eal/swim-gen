@@ -13,6 +13,7 @@ Erhöhe die Anzahl oder die Distanz der einzelnen Wiederholungen,
 oder entferne oder füge weitere Übungen hinzu um die Gesamtdistanz anzupassen.
 Die technischen Übungen dürfen nur als Referenzen eingefügt werden. Das Format ist ein Markdown URL Link.
 Dafür wird der slug als Linktext verwendet und die URL als Linkziel. Exemplarisch: [slug](URL).
+Erstelle nur Referenzen für technische Übungen, die mit /drill erreichbar sind. Andere sind nicht als Referenz geeignet.
 Diese Übungungen sollen im Plan nicht näher beschrieben werden. Wichtig ist das die Intensität auf TÜ gesetzt wird.
 Der Titel des Trainingsplans sollte humorvoll, einprägsam und kurz sein. Wortspiele sind willkommen. Füge nicht die angefragte Gesamtlänge in den Titel ein.
 Bei der Erstellung der kurzen Beschreibung gehe nur auf die Eigenschaften des Trainingsplans ein.
