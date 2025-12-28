@@ -1,3 +1,16 @@
+## [2.31.0](https://github.com/5pirit5eal/swim-gen/compare/v2.30.0...v2.31.0) (2025-12-28)
+
+### Features
+
+* 198 fix and enhance markdown link display ([#199](https://github.com/5pirit5eal/swim-gen/issues/199)) ([a34784d](https://github.com/5pirit5eal/swim-gen/commit/a34784da023ba9d5c5cb2ef382e930e4f39b4af5))
+* did some restyling of frontend ([84031fa](https://github.com/5pirit5eal/swim-gen/commit/84031faeef73e5ecb5e7f0fac91eda6372684939))
+* redesigned darkmode ([7d60e1e](https://github.com/5pirit5eal/swim-gen/commit/7d60e1e161a27620e66d2a2a8755734f11af4146))
+
+### Bug Fixes
+
+* fixed failing tests ([3922584](https://github.com/5pirit5eal/swim-gen/commit/3922584c35c8b9f2c43a8f80107047f3262f0774))
+* fixed url parsing ([bfbaa2d](https://github.com/5pirit5eal/swim-gen/commit/bfbaa2d679a05ff90f7ebc7bdba025fa9c1df6c7))
+
 ## [2.30.0](https://github.com/5pirit5eal/swim-gen/compare/v2.29.1...v2.30.0) (2025-12-28)
 
 ### Features
