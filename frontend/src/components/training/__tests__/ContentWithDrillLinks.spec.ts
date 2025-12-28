@@ -90,8 +90,9 @@ describe('ContentWithDrillLinks', () => {
     })
 
     expect(wrapper.findAll('.drill-link')).toHaveLength(0)
-    // Non-drill markdown links should be rendered as plain text
-    expect(wrapper.text()).toContain('[this link](https://example.com)')
+    // Non-drill markdown links should be rendered as plain text labels
+    expect(wrapper.text()).toContain('this link')
+    expect(wrapper.text()).not.toContain('https://example.com')
   })
 
   it('handles mixed drill and non-drill links', () => {
@@ -107,7 +108,8 @@ describe('ContentWithDrillLinks', () => {
     const firstLink = drillLinks[0]
     expect(firstLink).toBeDefined()
     expect(firstLink!.attributes('data-drill-id')).toBe('abc')
-    expect(wrapper.text()).toContain('[website](https://example.com)')
+    expect(wrapper.text()).toContain('website')
+    expect(wrapper.text()).not.toContain('https://example.com')
   })
 
   it('updates when content prop changes', async () => {
