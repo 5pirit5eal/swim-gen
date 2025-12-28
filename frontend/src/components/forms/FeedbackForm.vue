@@ -78,8 +78,15 @@ function resetForm() {
       <div class="form-group">
         <label>{{ t('feedback.rating_label') }} <span class="required">*</span></label>
         <div class="stars">
-          <span v-for="star in 5" :key="star" class="star" :class="{ active: star <= (hoveredStar || rating) }"
-            @click="setRating(star)" @mouseenter="setHover(star)" @mouseleave="clearHover">
+          <span
+            v-for="star in 5"
+            :key="star"
+            class="star"
+            :class="{ active: star <= (hoveredStar || rating) }"
+            @click="setRating(star)"
+            @mouseenter="setHover(star)"
+            @mouseleave="clearHover"
+          >
             ★
           </span>
         </div>
@@ -92,8 +99,10 @@ function resetForm() {
         </div>
 
         <div class="form-group difficulty-group">
-          <label>{{ t('feedback.difficulty_label') }}: {{ difficultyRating }}
-            <span class="required">*</span></label>
+          <label
+            >{{ t('feedback.difficulty_label') }}: {{ difficultyRating }}
+            <span class="required">*</span></label
+          >
           <div class="slider-container">
             <span class="slider-label">{{ t('feedback.easy') }}</span>
             <input type="range" min="1" max="10" v-model.number="difficultyRating" class="slider" />
@@ -104,7 +113,12 @@ function resetForm() {
 
       <div class="form-group">
         <label for="comment">{{ t('feedback.comment_label') }} ({{ t('common.optional') }})</label>
-        <textarea id="comment" v-model="comment" rows="3" :placeholder="t('feedback.comment_placeholder')"></textarea>
+        <textarea
+          id="comment"
+          v-model="comment"
+          rows="3"
+          :placeholder="t('feedback.comment_placeholder')"
+        ></textarea>
       </div>
 
       <p class="disclaimer">{{ t('feedback.disclaimer') }}</p>
