@@ -1,3 +1,12 @@
+## [2.30.0](https://github.com/5pirit5eal/swim-gen/compare/v2.29.1...v2.30.0) (2025-12-28)
+
+### Features
+
+* 193 add videos and longer texts to the exercises ([#196](https://github.com/5pirit5eal/swim-gen/issues/196)) ([df00693](https://github.com/5pirit5eal/swim-gen/commit/df006939719c2be7784d493ff3030ef449cfda9b))
+* added all videos for all drills where available ([6c242f9](https://github.com/5pirit5eal/swim-gen/commit/6c242f98f207a9a79c4f71b570b0bcc0cc68f6bb))
+* added cicd script for maintenance ([16ed6c2](https://github.com/5pirit5eal/swim-gen/commit/16ed6c298bb16579aa1cc65bd7c4388969011081))
+* added embedded videos for the first few exercises ([4c02202](https://github.com/5pirit5eal/swim-gen/commit/4c022022f99ccb17564541e6af7bd3a54dff3995))
+
 ## [2.29.1](https://github.com/5pirit5eal/swim-gen/compare/v2.29.0...v2.29.1) (2025-12-27)
 
 ### Bug Fixes
