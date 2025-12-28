@@ -1,3 +1,15 @@
+## [2.32.0](https://github.com/5pirit5eal/swim-gen/compare/v2.31.0...v2.32.0) (2025-12-28)
+
+### Features
+
+* added prefetching of drill links ([d1b205c](https://github.com/5pirit5eal/swim-gen/commit/d1b205cb5f0e4fce520576fcf053d467cf19586b))
+
+### Bug Fixes
+
+* 197 improve spacing of multi line content ([#200](https://github.com/5pirit5eal/swim-gen/issues/200)) ([ed0e03d](https://github.com/5pirit5eal/swim-gen/commit/ed0e03d70d0159bcb95f8e271d36d0e084dae000))
+* added fix for spacing issue ([90711cf](https://github.com/5pirit5eal/swim-gen/commit/90711cf6ce2f5bd29bf6db65f70f4d2d41c2b37e))
+* fix player inconsistency ([edd75f9](https://github.com/5pirit5eal/swim-gen/commit/edd75f9b707ec49937eabf62a446b07b66e0c623))
+
 ## [2.31.0](https://github.com/5pirit5eal/swim-gen/compare/v2.30.0...v2.31.0) (2025-12-28)
 
 ### Features
