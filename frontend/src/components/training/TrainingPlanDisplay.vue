@@ -382,6 +382,8 @@ function autoResize(event: Event) {
 .training-plan-display {
   background: var(--color-background-soft);
   border-radius: 8px;
+  border-top-right-radius: 11px;
+  border-top-left-radius: 11px;
   border: 1px solid var(--color-border);
 }
 

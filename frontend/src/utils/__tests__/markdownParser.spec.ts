@@ -15,6 +15,16 @@ describe('markdownParser', () => {
       expect(extractDrillIdFromUrl('/drill/drill_with_underscore')).toBe('drill_with_underscore')
     })
 
+    it('extracts drill ID from path without leading slash (drill/)', () => {
+      expect(extractDrillIdFromUrl('drill/123')).toBe('123')
+      expect(extractDrillIdFromUrl('drill/abc-def')).toBe('abc-def')
+    })
+
+    it('extracts drill ID from path without leading slash (drills/)', () => {
+      expect(extractDrillIdFromUrl('drills/123')).toBe('123')
+      expect(extractDrillIdFromUrl('drills/abc-def')).toBe('abc-def')
+    })
+
     it('extracts drill ID from full URL', () => {
       expect(extractDrillIdFromUrl('https://example.com/drills/123')).toBe('123')
       expect(extractDrillIdFromUrl('http://localhost:3000/drills/test-drill')).toBe('test-drill')
@@ -31,6 +41,11 @@ describe('markdownParser', () => {
     it('returns the URL as ID if no path separators present', () => {
       expect(extractDrillIdFromUrl('simple-id')).toBe('simple-id')
       expect(extractDrillIdFromUrl('123')).toBe('123')
+    })
+
+    it('returns .png filename as drill ID', () => {
+      expect(extractDrillIdFromUrl('some_drill.png')).toBe('some_drill.png')
+      expect(extractDrillIdFromUrl('drill-image.png')).toBe('drill-image.png')
     })
 
     it('returns null for non-drill URLs', () => {
@@ -80,12 +95,12 @@ describe('markdownParser', () => {
       ])
     })
 
-    it('handles non-drill links as plain text', () => {
+    it('handles non-drill links by returning just the link text', () => {
       const content = 'Check [this link](https://example.com) out'
       const result = parseContentForDrillLinks(content)
       expect(result).toEqual([
         { type: 'text', content: 'Check ' },
-        { type: 'text', content: '[this link](https://example.com)' },
+        { type: 'text', content: 'this link' },
         { type: 'text', content: ' out' },
       ])
     })
@@ -97,7 +112,21 @@ describe('markdownParser', () => {
         { type: 'text', content: 'Try ' },
         { type: 'drill-link', drillId: 'abc', text: 'Drill' },
         { type: 'text', content: ' or visit ' },
-        { type: 'text', content: '[website](https://example.com)' },
+        { type: 'text', content: 'website' },
+      ])
+    })
+
+    it('handles drill links without leading slash in URL', () => {
+      const content = '[Drill Name](drill/123)'
+      const result = parseContentForDrillLinks(content)
+      expect(result).toEqual([{ type: 'drill-link', drillId: '123', text: 'Drill Name' }])
+    })
+
+    it('handles drill links with .png file as ID', () => {
+      const content = '[Drill Image](some_drill.png)'
+      const result = parseContentForDrillLinks(content)
+      expect(result).toEqual([
+        { type: 'drill-link', drillId: 'some_drill.png', text: 'Drill Image' },
       ])
     })
 

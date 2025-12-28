@@ -361,6 +361,8 @@
     "generated_plans_tooltip": "Total number of training plans generated with your account.",
     "exported_plans": "Exported Plans",
     "exported_plans_tooltip": "Total number of training plans exported to PDF with your account.",
+    "monthly_generated": "This month",
+    "monthly_generated_tooltip": "Number of training plans generated with your account this month. This counter is reset on the first day of each month.",
     "monthly_quota": "Monthly Quota",
     "monthly_quota_tooltip": "Number of advanced training plans you can generate per month. Advanced plans are plans in chat-mode or multi-plan requests. The quota resets on the first day of each month.",
     "delete_account": "Delete Account",

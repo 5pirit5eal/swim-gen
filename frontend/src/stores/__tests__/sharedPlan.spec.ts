@@ -62,6 +62,7 @@ vi.mock('@/stores/trainingPlan', () => ({
     fetchHistory: vi.fn(),
     planHistory: [],
     loadPlanFromHistory: vi.fn(),
+    isFetchingHistory: false,
   })),
 }))
 
@@ -125,37 +126,36 @@ describe('sharedPlan Store', () => {
       }
       const mockProfileData = { username: 'Test User' }
 
+      const createMockChain = (data: unknown = null, error: unknown = null) => {
+        const chain: Record<string, Mock> = {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          in: vi.fn().mockReturnThis(),
+          order: vi.fn().mockReturnThis(),
+          range: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          update: vi.fn().mockReturnThis(),
+          insert: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data, error }),
+          maybeSingle: vi.fn().mockResolvedValue({ data, error }),
+        }
+        return chain
+      }
+
       mockedSupabase.from.mockImplementation((tableName: string) => {
         if (tableName === 'shared_plans') {
-          return {
-            select: vi.fn().mockReturnThis(),
-            eq: vi.fn().mockReturnThis(),
-            single: vi.fn().mockResolvedValue({ data: mockSharedPlanData, error: null }),
-          }
+          return createMockChain(mockSharedPlanData)
         }
         if (tableName === 'plans') {
-          return {
-            select: vi.fn().mockReturnThis(),
-            eq: vi.fn().mockReturnThis(),
-            single: vi.fn().mockResolvedValue({ data: mockPlanData, error: null }),
-          }
+          return createMockChain(mockPlanData)
         }
         if (tableName === 'profiles') {
-          return {
-            select: vi.fn().mockReturnThis(),
-            eq: vi.fn().mockReturnThis(),
-            single: vi.fn().mockResolvedValue({ data: mockProfileData, error: null }),
-          }
+          return createMockChain(mockProfileData)
         }
         if (tableName === 'shared_history') {
-          return {
-            select: vi.fn().mockReturnThis(),
-            eq: vi.fn().mockReturnThis(),
-            single: vi.fn().mockResolvedValue({ data: null, error: null }),
-            insert: vi.fn().mockReturnThis(),
-          }
+          return createMockChain(null)
         }
-        return {}
+        return createMockChain()
       })
 
       await store.fetchSharedPlanByHash('test-hash')
@@ -200,22 +200,33 @@ describe('sharedPlan Store', () => {
         { plan_id: 'plan-1', title: 'Plan 1', description: 'Desc 1', plan_table: [] },
       ]
 
+      const createMockChain = (data: unknown = null, error: unknown = null) => {
+        const chain: Record<string, Mock> = {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          in: vi.fn().mockReturnThis(),
+          order: vi.fn().mockReturnThis(),
+          range: vi.fn().mockResolvedValue({ data, error }),
+          limit: vi.fn().mockReturnThis(),
+          update: vi.fn().mockReturnThis(),
+          insert: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data, error }),
+          maybeSingle: vi.fn().mockResolvedValue({ data, error }),
+        }
+        return chain
+      }
+
       mockedSupabase.from.mockImplementation((tableName: string) => {
         if (tableName === 'shared_history') {
-          return {
-            select: vi.fn().mockReturnThis(),
-            eq: vi.fn().mockReturnThis(),
-            order: vi.fn().mockReturnThis(),
-            range: vi.fn().mockResolvedValue({ data: mockHistory, error: null }),
-          }
+          return createMockChain(mockHistory)
         }
         if (tableName === 'plans') {
-          return {
-            select: vi.fn().mockReturnThis(),
-            in: vi.fn().mockResolvedValue({ data: mockPlans, error: null }),
-          }
+          // Special case for .in() call
+          const chain = createMockChain(mockPlans)
+          chain.in = vi.fn().mockResolvedValue({ data: mockPlans, error: null })
+          return chain
         }
-        return {}
+        return createMockChain()
       })
 
       await store.fetchSharedHistory()

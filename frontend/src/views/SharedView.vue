@@ -306,6 +306,10 @@ async function handleStartConversation() {
   box-shadow: 0 0 0 2px var(--color-shadow);
 }
 
+.chat-input::placeholder {
+  color: color-mix(in srgb, var(--color-text), transparent 40%);
+}
+
 .send-button {
   display: flex;
   align-items: center;

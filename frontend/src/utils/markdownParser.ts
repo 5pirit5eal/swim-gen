@@ -13,11 +13,12 @@ const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g
 
 /**
  * Extracts the drill ID from a drill URL
- * Expected URL format: /drills/{id} or full URL like https://example.com/drills/{id}
+ * Expected URL format: /drill/{id}, /drills/{id}, drill/{id}, drills/{id}
+ * or full URL like https://example.com/drill/{id}
  */
 export function extractDrillIdFromUrl(url: string): string | null {
-  // Try to match /drills/{id} or /drill/{id} pattern (both singular and plural)
-  const drillPathMatch = url.match(/\/drills?\/([^/?#]+)/)
+  // Try to match drill/{id} or drills/{id} pattern (with or without leading slash)
+  const drillPathMatch = url.match(/\/?drills?\/([^/?#]+)/)
   if (drillPathMatch && drillPathMatch[1]) {
     console.debug('[markdownParser] Found drill ID in path:', drillPathMatch[1])
     return drillPathMatch[1]
@@ -35,7 +36,7 @@ export function extractDrillIdFromUrl(url: string): string | null {
 
 /**
  * Parses content string and extracts markdown links, converting them to typed segments.
- * Drill links are identified by URLs containing '/drills/' path.
+ * Drill links are identified by URLs containing '/drill/' path.
  *
  * @param content - The content string potentially containing markdown links
  * @returns Array of ContentSegment objects representing text and drill links
@@ -87,8 +88,8 @@ export function parseContentForDrillLinks(content: string): ContentSegment[] {
         text: linkText,
       })
     } else {
-      // Not a drill link, keep as plain text with the original markdown
-      segments.push({ type: 'text', content: fullMatch })
+      // Not a drill link, return just the link text (not raw markdown)
+      segments.push({ type: 'text', content: linkText })
     }
 
     lastIndex = matchIndex + fullMatch.length

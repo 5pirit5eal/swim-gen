@@ -459,6 +459,10 @@ async function handlePromptGeneration() {
   cursor: not-allowed;
 }
 
+.form-textarea::placeholder {
+  color: color-mix(in srgb, var(--color-text), transparent 40%);
+}
+
 .form-hint {
   margin-top: 0.5rem;
   font-size: 0.875rem;

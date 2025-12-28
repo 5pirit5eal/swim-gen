@@ -153,7 +153,7 @@ onUnmounted(() => {
 }
 
 .drill-link {
-  color: var(--color-primary);
+  color: color-mix(in srgb, var(--color-primary), var(--color-heading));
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 3px;
@@ -163,10 +163,10 @@ onUnmounted(() => {
 }
 
 .drill-link:hover {
-  color: var(--color-primary-hover);
+  color: color-mix(in srgb, var(--color-primary), var(--color-heading));
   text-decoration-style: solid;
-  background: rgba(59, 130, 246, 0.1);
-  border-radius: 4px;
+  background: var(--color-shadow);
+  border-radius: 8px;
 }
 
 .drill-preview-card {
@@ -287,8 +287,8 @@ onUnmounted(() => {
 }
 
 .difficulty-dot.active {
-  background-color: var(--color-primary);
-  box-shadow: 0 0 4px var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary), var(--color-heading));
+  box-shadow: 0 0 2px var(--color-primary);
 }
 
 /* Card Content */

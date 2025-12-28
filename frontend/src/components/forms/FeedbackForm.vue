@@ -165,6 +165,10 @@ h2 {
   margin-bottom: 1.5rem;
 }
 
+.form-group textarea::placeholder {
+  color: color-mix(in srgb, var(--color-text), transparent 40%);
+}
+
 .form-row {
   display: grid;
   grid-template-columns: auto 1fr;

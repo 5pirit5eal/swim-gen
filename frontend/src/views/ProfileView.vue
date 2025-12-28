@@ -19,6 +19,9 @@ const authStore = useAuthStore()
 const router = useRouter()
 const isEditMode = ref(false)
 
+// Feature flag
+const showMonthlyQuota = ref(false)
+
 // Delete account state
 const showDeleteModal = ref(false)
 const deleteConfirmationText = ref('')
@@ -368,7 +371,13 @@ async function handleResetPassword() {
                       <template #tooltip>{{ t('profile.exported_plans_tooltip') }}</template>
                     </BaseTooltip>
                   </th>
-                  <th>
+                  <th v-if="!showMonthlyQuota">
+                    {{ t('profile.monthly_generated') }}
+                    <BaseTooltip>
+                      <template #tooltip>{{ t('profile.monthly_generated_tooltip') }}</template>
+                    </BaseTooltip>
+                  </th>
+                  <th v-else>
                     {{ t('profile.monthly_quota') }}
                     <BaseTooltip>
                       <template #tooltip>{{ t('profile.monthly_quota_tooltip') }}</template>
@@ -380,7 +389,10 @@ async function handleResetPassword() {
                 <tr>
                   <td>{{ profileStore.profile?.overall_generations ?? 0 }}</td>
                   <td>{{ profileStore.profile?.exports ?? 0 }}</td>
-                  <td>
+                  <td v-if="!showMonthlyQuota">
+                    {{ profileStore.profile?.monthly_generations ?? 0 }}
+                  </td>
+                  <td v-else>
                     <p>{{ profileStore.profile?.monthly_generations ?? 0 }} / 100</p>
                     <div class="progress-bar">
                       <div

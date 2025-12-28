@@ -777,14 +777,15 @@ async function loadUploadedPlan(plan_id: string) {
 }
 
 .status-icon {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.65rem;
+  height: 1.65rem;
   padding: 0.11rem;
-  color: var(--color-primary);
+  color: color-mix(in srgb, var(--color-primary), var(--color-heading));
+  stroke-width: 2px;
 }
 
 .status-icon:hover {
-  stroke: var(--color-primary-hover);
+  stroke: color-mix(in srgb, var(--color-primary-hover), var(--color-heading));
   stroke-width: 3px;
 }
 

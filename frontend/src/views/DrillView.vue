@@ -362,8 +362,8 @@ watch(locale, async () => {
 }
 
 .difficulty-dot.active {
-  background-color: var(--color-primary);
-  box-shadow: 0 0 4px var(--color-primary-hover);
+  background-color: color-mix(in srgb, var(--color-primary), var(--color-heading));
+  box-shadow: 0 0 2px var(--color-primary);
 }
 
 .drill-short-description {
@@ -404,7 +404,8 @@ watch(locale, async () => {
 }
 
 .meta-value.style {
-  color: var(--color-primary);
+  color: color-mix(in srgb, var(--color-primary), var(--color-text));
+  font-weight: 600;
 }
 
 .meta-value.target {
