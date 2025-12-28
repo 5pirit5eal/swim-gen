@@ -1,3 +1,9 @@
+## [2.33.0](https://github.com/5pirit5eal/swim-gen/compare/v2.32.0...v2.33.0) (2025-12-28)
+
+### Features
+
+* upgraded the darkmode image ([#202](https://github.com/5pirit5eal/swim-gen/issues/202)) ([6981511](https://github.com/5pirit5eal/swim-gen/commit/6981511830edbff26908a5802f7db5316ace373e))
+
 ## [2.32.0](https://github.com/5pirit5eal/swim-gen/compare/v2.31.0...v2.32.0) (2025-12-28)
 
 ### Features
