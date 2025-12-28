@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDrillsStore } from '@/stores/drills'
@@ -20,6 +20,7 @@ const preview = ref<DrillPreview | null>(null)
 const hoverTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 const cardPosition = ref<{ top: boolean; left: boolean }>({ top: false, left: false })
 const linkRef = ref<HTMLElement | null>(null)
+const observer = ref<IntersectionObserver | null>(null)
 
 // Image URL
 const imageUrl = computed(() => {
@@ -80,9 +81,44 @@ function navigateToDrill() {
   router.push({ name: 'drill', params: { id: props.drillId } })
 }
 
+onMounted(() => {
+  observer.value = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          prefetchDrill()
+          observer.value?.disconnect()
+        }
+      })
+    },
+    { rootMargin: '50px' },
+  )
+
+  if (linkRef.value) {
+    observer.value.observe(linkRef.value)
+  }
+})
+
+async function prefetchDrill() {
+  if (preview.value) return
+
+  const result = await drillsStore.fetchDrillPreview(props.drillId, locale.value)
+  if (result) {
+    preview.value = result
+    // Prefetch image
+    if (result.img_name) {
+      const img = new Image()
+      img.src = `https://storage.googleapis.com/${import.meta.env.VITE_PUBLIC_BUCKET_NAME}/${result.img_name}`
+    }
+  }
+}
+
 onUnmounted(() => {
   if (hoverTimeout.value) {
     clearTimeout(hoverTimeout.value)
+  }
+  if (observer.value) {
+    observer.value.disconnect()
   }
 })
 </script>

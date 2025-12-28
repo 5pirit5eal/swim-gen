@@ -195,8 +195,8 @@ watch(locale, async () => {
                 <h3>{{ t('drill.video') }}</h3>
               </div>
               <div class="video-grid">
-                <div v-for="(url, index) in currentDrill.video_url" :key="index">
-                  <DrillVideo v-if="getVideoConfig(url)" v-bind="getVideoConfig(url)!" />
+                <div v-for="url in currentDrill.video_url" :key="url">
+                  <DrillVideo v-if="getVideoConfig(url)" :key="url" v-bind="getVideoConfig(url)!" />
                 </div>
               </div>
             </section>

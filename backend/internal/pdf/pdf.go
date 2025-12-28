@@ -59,8 +59,8 @@ func GenerateEasyReadablePDF(table *models.Table, ho bool, lang models.Language,
 
 func GenerateFullPDF(plan *models.Plan, ho bool, lang models.Language, baseURL string) ([]byte, error) {
 	m := getMaroto(ho)
-	_ = m.RegisterHeader(text.NewAutoRow(plan.Title, props.Text{Size: 18, Style: fontstyle.Bold, Align: align.Center}))
-	m.AddAutoRow(col.New().Add(text.New(plan.Description, props.Text{Size: 10, Top: 10, Bottom: 10})))
+	_ = m.RegisterHeader(text.NewAutoRow(plan.Title, props.Text{Size: 18, Style: fontstyle.Bold, Align: align.Center, VerticalPadding: 2}))
+	m.AddAutoRow(col.New().Add(text.New(plan.Description, props.Text{Size: 10, Top: 10, Bottom: 10, VerticalPadding: 2})))
 	m.AddRows(getRows((*plan).Table, false, lang, baseURL)...)
 
 	document, err := m.Generate()
@@ -208,11 +208,12 @@ func getRows(table models.Table, lf bool, lang models.Language, baseURL string) 
 	}
 	// A row consists of 7 columns based on models.Row
 	headerRow := row.New()
-	headerProps := props.Text{Style: fontstyle.Bold, Align: align.Center, Top: 2, Bottom: 2}
+	headerProps := props.Text{Style: fontstyle.Bold, Align: align.Center, Top: 2, Bottom: 2, VerticalPadding: 1}
 	if lf {
 		headerProps.Top = 3
 		headerProps.Bottom = 3
 		headerProps.Size = 12
+		headerProps.VerticalPadding = 1.5
 	}
 	darkGray := &props.Color{Red: 200, Green: 200, Blue: 200}
 	lightGray := &props.Color{Red: 240, Green: 240, Blue: 240}
@@ -230,11 +231,12 @@ func getRows(table models.Table, lf bool, lang models.Language, baseURL string) 
 	headerRow.WithStyle(&props.Cell{BackgroundColor: darkGray})
 
 	rows := []core.Row{headerRow}
-	p := props.Text{Align: align.Center, Top: 2, Bottom: 2}
+	p := props.Text{Align: align.Center, Top: 2, Bottom: 2, VerticalPadding: 1}
 	if lf {
 		p.Size = 16
 		p.Top = 3
 		p.Bottom = 3
+		p.VerticalPadding = 1.5
 	}
 	for i, content := range table {
 		row := row.New()
@@ -258,7 +260,7 @@ func getRows(table models.Table, lf bool, lang models.Language, baseURL string) 
 			}
 
 		} else {
-			sloganProps := props.Text{Size: headerProps.Size, Align: align.Left, Top: p.Top, Bottom: p.Bottom, Left: 2, Style: fontstyle.BoldItalic}
+			sloganProps := props.Text{Size: headerProps.Size, Align: align.Left, Top: p.Top, Bottom: p.Bottom, Left: 2, Style: fontstyle.BoldItalic, VerticalPadding: headerProps.VerticalPadding}
 			footer := table.Footer(lang)
 			row.Add(
 				text.NewCol(7, footer[0], sloganProps),
