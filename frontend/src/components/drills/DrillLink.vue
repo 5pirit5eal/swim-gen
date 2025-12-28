@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDrillsStore } from '@/stores/drills'
@@ -80,41 +80,62 @@ function navigateToDrill() {
   router.push({ name: 'drill', params: { id: props.drillId } })
 }
 
+onMounted(() => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          prefetchDrill()
+          observer.disconnect()
+        }
+      })
+    },
+    { rootMargin: '50px' },
+  )
+
+  if (linkRef.value) {
+    observer.observe(linkRef.value)
+  }
+})
+
+async function prefetchDrill() {
+  if (preview.value) return
+
+  const result = await drillsStore.fetchDrillPreview(props.drillId, locale.value)
+  if (result) {
+    preview.value = result
+    // Prefetch image
+    if (result.img_name) {
+      const img = new Image()
+      img.src = `https://storage.googleapis.com/${import.meta.env.VITE_PUBLIC_BUCKET_NAME}/${result.img_name}`
+    }
+  }
+}
+
 onUnmounted(() => {
   if (hoverTimeout.value) {
     clearTimeout(hoverTimeout.value)
   }
 })
+
 </script>
 
 <template>
-  <span
-    class="drill-link-wrapper"
-    ref="linkRef"
-    @mouseenter="handleMouseEnter"
-    @mouseleave="handleMouseLeave"
-  >
+  <span class="drill-link-wrapper" ref="linkRef" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
     <a class="drill-link" @click.prevent="navigateToDrill" href="#">
       {{ text }}
     </a>
 
     <Transition name="card">
-      <div
-        v-if="isHovering"
-        class="drill-preview-card"
-        :class="{ 'position-top': cardPosition.top, 'position-left': cardPosition.left }"
-      >
+      <div v-if="isHovering" class="drill-preview-card"
+        :class="{ 'position-top': cardPosition.top, 'position-left': cardPosition.left }">
         <div v-if="isLoading" class="card-loading">
           <div class="loading-spinner-small"></div>
         </div>
         <template v-else-if="preview">
           <div class="card-image-container">
-            <img
-              :src="imageUrl"
-              :alt="preview.title"
-              class="card-image"
-              @error="($event.target as HTMLImageElement).style.display = 'none'"
-            />
+            <img :src="imageUrl" :alt="preview.title" class="card-image"
+              @error="($event.target as HTMLImageElement).style.display = 'none'" />
 
             <!-- Top Left: Target -->
             <span v-if="preview.target" class="image-overlay-badge">{{ preview.target }}</span>
@@ -123,12 +144,8 @@ onUnmounted(() => {
             <div class="image-overlay-difficulty">
               <span class="difficulty-text">{{ preview.difficulty }}</span>
               <div class="difficulty-dots">
-                <span
-                  v-for="i in 3"
-                  :key="i"
-                  class="difficulty-dot"
-                  :class="{ active: i <= getDifficultyLevel(preview.difficulty) }"
-                ></span>
+                <span v-for="i in 3" :key="i" class="difficulty-dot"
+                  :class="{ active: i <= getDifficultyLevel(preview.difficulty) }"></span>
               </div>
             </div>
           </div>
