@@ -230,6 +230,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/drills/options": {
+            "get": {
+                "description": "Fetch unique values for drill filters (styles, target groups, etc.) based on language",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drills"
+                ],
+                "summary": "Get drill filter options",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Language code (en, de)",
+                        "name": "lang",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rag.DrillFilterOptions"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/drills/search": {
             "get": {
                 "description": "Search drill exercises with optional filters for language, target groups, styles, and difficulty",
@@ -1861,6 +1905,35 @@ const docTemplate = `{
                 "plan_id": {
                     "type": "string",
                     "example": "plan_123"
+                }
+            }
+        },
+        "rag.DrillFilterOptions": {
+            "type": "object",
+            "properties": {
+                "difficulties": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "styles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "target_groups": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "targets": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

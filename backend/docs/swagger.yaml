@@ -500,6 +500,25 @@ definitions:
         example: plan_123
         type: string
     type: object
+  rag.DrillFilterOptions:
+    properties:
+      difficulties:
+        items:
+          type: string
+        type: array
+      styles:
+        items:
+          type: string
+        type: array
+      target_groups:
+        items:
+          type: string
+        type: array
+      targets:
+        items:
+          type: string
+        type: array
+    type: object
   rag.DrillSearchResult:
     properties:
       drills:
@@ -660,6 +679,36 @@ paths:
           schema:
             type: string
       summary: Get a single drill
+      tags:
+      - Drills
+  /drills/options:
+    get:
+      consumes:
+      - application/json
+      description: Fetch unique values for drill filters (styles, target groups, etc.)
+        based on language
+      parameters:
+      - description: Language code (en, de)
+        in: query
+        name: lang
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rag.DrillFilterOptions'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get drill filter options
       tags:
       - Drills
   /drills/search:
