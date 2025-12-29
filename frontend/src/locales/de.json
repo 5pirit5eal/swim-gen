@@ -1,10 +1,10 @@
 {
   "app": {
     "name": "Swim Gen",
-    "slogan": "KI-gestützter Trainingsplangenerator für Schwimmer und Triathleten.",
+    "slogan": "Kostenloser, werbefreier und personalisierbarer KI-Trainingsplangenerator für Schwimmer, Trainer und Triathleten.",
     "note_meta": "HINWEIS: Der oben stehende 'name' und 'slogan' werden auch in index.html für OpenGraph/meta verwendet. Ändere diese Werte zusammen mit den Meta-Tags in index.html.",
     "hero_title": "KI-Generierte Schwimmpläne",
-    "hero_description": "Generiere personalisierte Trainingspläne für Schwimmer, Triathleten und Trainer. Beschreibe einfach, was du suchst, und unserer System erstellt ein individuelles Training für dich."
+    "hero_description": "Generiere personalisierte Trainingspläne für Schwimmer, Triathleten und Trainer. Beschreibe einfach, was du suchst, und unserer System erstellt ein Training für dich. Kostenlos, werbefrei und auf dich zugeschnitten."
   },
   "home": {
     "banner": {
@@ -251,6 +251,8 @@
     "ip_rights_title": "Rechte an geistigem Eigentum",
     "ip_rights": "Soweit in diesen Bedingungen nicht anders geregelt, sind sämtliche Rechte an geistigem Eigentum (z. B. Urheberrechte, Markenrechte, Patente, Designrechte) an dieser Anwendung ausschließliches Eigentum des Betreibers oder seiner Lizenzgeber und durch geltende Gesetze und internationale Abkommen geschützt.",
     "ip_rights_trademarks": "Alle Marken - ob bildlich oder wortlich - sowie sonstige Kennzeichen, Handelsnamen, Dienstleistungsmarken, Wortmarken, Illustrationen, Bilder oder Logos im Zusammenhang mit dieser Anwendung sind und bleiben ausschließliches Eigentum des Betreibers oder seiner Lizenzgeber und unterliegen dem Schutz durch geltende Gesetze und internationale Abkommen.",
+    "monetization_title": "Dienstkosten und Monetarisierung",
+    "monetization_text": "Die kostenlose oder werbefreie Nutzung ist nicht dauerhaft garantiert. Der Eigentümer behält sich das Recht vor, jederzeit Monetarisierungsmodelle (einschließlich, aber nicht beschränkt auf Abonnements, Einmalzahlungen oder Werbung) einzuführen. Solche Änderungen können dazu führen, dass der Zugang zu zuvor kostenlosen Diensten widerrufen wird, wenn keine Zahlung erfolgt.",
     "changes_title": "Änderungen dieser Bedingungen",
     "changes": "Der Betreiber behält sich das Recht vor, diese Bedingungen jederzeit zu ändern oder zu ergänzen. In solchen Fällen werden die Nutzer entsprechend informiert.",
     "changes_effect": "Solche Änderungen wirken sich nur auf das zukünftige Vertragsverhältnis mit dem Nutzer aus.",

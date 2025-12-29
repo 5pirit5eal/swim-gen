@@ -1,10 +1,10 @@
 {
   "app": {
     "name": "Swim Gen",
-    "slogan": "AI-powered training plan generator for swimmers and triathletes.",
+    "slogan": "Free, ad-free, and personalizable AI-powered training plan generator for swimmers, trainers and triathletes.",
     "note_meta": "NOTE: The above 'name' and 'slogan' are also used in index.html for OpenGraph/meta tags. Change them there too.",
     "hero_title": "AI-Powered Swimming Training Plans",
-    "hero_description": "Generate personalized training plans for swimmers, triathletes, and coaches. Just describe what you're looking for, and our system will create a custom training for you."
+    "hero_description": "Generate personalized training plans for swimmers, triathletes, and coaches. Just describe what you're looking for, and our system will create a custom training for you. Free, ad-free, and tailored to you."
   },
   "home": {
     "banner": {
@@ -249,6 +249,8 @@
     "ip_rights_title": "Intellectual property rights",
     "ip_rights": "Without prejudice to any more specific provision of these Terms, any intellectual property rights, such as copyrights, trademark rights, patent rights and design rights related to this Application are the exclusive property of the Owner or its licensors and are subject to the protection granted by applicable laws or international treaties relating to intellectual property.",
     "ip_rights_trademarks": "All trademarks — nominal or figurative — and all other marks, trade names, service marks, word marks, illustrations, images, or logos appearing in connection with this Application are, and remain, the exclusive property of the Owner or its licensors and are subject to the protection granted by applicable laws or international treaties related to intellectual property.",
+    "monetization_title": "Service Costs and Monetization",
+    "monetization_text": "The proposition of free-to-use or ad-free is not guaranteed forever. The Owner reserves the right to introduce monetization models (including but not limited to subscriptions, one-time payments, or advertising) at any time. Such changes may result in revocation of access to services that were previously free-to-use if payment is not made.",
     "changes_title": "Changes to these Terms",
     "changes": "The Owner reserves the right to amend or otherwise modify these Terms at any time. In such cases, the Owner will appropriately inform the User of these changes.",
     "changes_effect": "Such changes will only affect the relationship with the User for the future.",
