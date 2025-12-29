@@ -1,3 +1,9 @@
+## [2.35.0](https://github.com/5pirit5eal/swim-gen/compare/v2.34.0...v2.35.0) (2025-12-29)
+
+### Features
+
+* added more communication of value ([832b522](https://github.com/5pirit5eal/swim-gen/commit/832b52292c9637f9ea1d8ef5896ca115edb71004))
+
 ## [2.34.0](https://github.com/5pirit5eal/swim-gen/compare/v2.33.0...v2.34.0) (2025-12-29)
 
 ### Features
