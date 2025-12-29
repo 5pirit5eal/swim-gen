@@ -83,6 +83,11 @@ const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL
         </section>
 
         <section>
+          <h3>{{ $t('terms_of_service.monetization_title') }}</h3>
+          <p>{{ $t('terms_of_service.monetization_text') }}</p>
+        </section>
+
+        <section>
           <h3>{{ $t('terms_of_service.changes_title') }}</h3>
           <p>{{ $t('terms_of_service.changes') }}</p>
           <p>{{ $t('terms_of_service.changes_effect') }}</p>
@@ -170,7 +175,7 @@ const VITE_IMPRESSUM_EMAIL = import.meta.env.VITE_IMPRESSUM_EMAIL
   margin-bottom: 1.5rem;
 }
 
-.terms-of-service section + section {
+.terms-of-service section+section {
   margin-top: 1.5rem;
 }
 
