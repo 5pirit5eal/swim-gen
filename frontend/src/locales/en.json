@@ -519,7 +519,10 @@
   "common": {
     "submit": "Submit",
     "loading": "Loading...",
-    "optional": "optional"
+    "retry": "Retry",
+    "optional": "optional",
+    "previous": "Previous",
+    "next": "Next"
   },
   "drill": {
     "loading": "Loading drill...",
@@ -528,7 +531,17 @@
     "styles": "Styles",
     "targets": "Training Targets",
     "target_groups": "Target Groups",
-    "video": "Video Tutorial"
+    "video": "Video Tutorial",
+    "view_details": "View Details",
+    "search_placeholder": "Search drills...",
+    "all_difficulties": "All Difficulties",
+    "explore_drills": "Explore Drills",
+    "no_results": "No drills found matching your criteria.",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    }
   },
   "tutorial": {
     "next": "Next",

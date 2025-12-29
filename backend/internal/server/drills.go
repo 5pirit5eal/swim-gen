@@ -102,6 +102,7 @@ func (rs *RAGService) SearchDrillsHandler(w http.ResponseWriter, req *http.Reque
 	}
 
 	difficulty := req.URL.Query().Get("difficulty")
+	searchQuery := req.URL.Query().Get("q")
 
 	// Parse pagination
 	page := 1
@@ -123,6 +124,7 @@ func (rs *RAGService) SearchDrillsHandler(w http.ResponseWriter, req *http.Reque
 		TargetGroups: targetGroups,
 		Styles:       styles,
 		Difficulty:   difficulty,
+		SearchQuery:  searchQuery,
 		Page:         page,
 		Limit:        limit,
 	}
@@ -130,6 +132,9 @@ func (rs *RAGService) SearchDrillsHandler(w http.ResponseWriter, req *http.Reque
 	httplog.LogEntrySetField(req.Context(), "lang", slog.StringValue(lang))
 	httplog.LogEntrySetField(req.Context(), "page", slog.IntValue(page))
 	httplog.LogEntrySetField(req.Context(), "limit", slog.IntValue(limit))
+	if searchQuery != "" {
+		httplog.LogEntrySetField(req.Context(), "q", slog.StringValue(searchQuery))
+	}
 
 	result, err := rs.db.SearchDrills(req.Context(), params)
 	if err != nil {
@@ -140,6 +145,46 @@ func (rs *RAGService) SearchDrillsHandler(w http.ResponseWriter, req *http.Reque
 
 	logger.Info("Drills search completed", "total", result.Total)
 	if err := models.WriteResponseJSON(w, http.StatusOK, result); err != nil {
+		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+// GetDrillOptionsHandler handles the request to get available filter options.
+// @Summary Get drill filter options
+// @Description Fetch unique values for drill filters (styles, target groups, etc.) based on language
+// @Tags Drills
+// @Accept json
+// @Produce json
+// @Param lang query string true "Language code (en, de)"
+// @Success 200 {object} rag.DrillFilterOptions
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Router /drills/options [get]
+func (rs *RAGService) GetDrillOptionsHandler(w http.ResponseWriter, req *http.Request) {
+	logger := httplog.LogEntry(req.Context())
+	logger.Info("Getting drill filter options...")
+
+	lang := req.URL.Query().Get("lang")
+	if lang == "" {
+		http.Error(w, "lang parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	httplog.LogEntrySetField(req.Context(), "lang", slog.StringValue(lang))
+
+	options, err := rs.db.GetDrillOptions(req.Context(), lang)
+	if err != nil {
+		logger.Error("Failed to get drill options", httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Drill options retrieved successfully",
+		"styles_count", len(options.Styles),
+		"targets_count", len(options.Targets),
+	)
+
+	if err := models.WriteResponseJSON(w, http.StatusOK, options); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
 }

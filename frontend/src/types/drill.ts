@@ -36,3 +36,27 @@ export interface DrillPreview {
   target?: string
   style?: string
 }
+
+export interface DrillSearchParams {
+  lang: string
+  q?: string
+  difficulty?: string
+  target_groups?: string[]
+  styles?: string[]
+  page: number
+  limit: number
+}
+
+export interface DrillSearchResult {
+  drills: Drill[]
+  total: number
+  page: number
+  limit: number
+}
+
+export interface DrillFilterOptions {
+  styles: string[]
+  target_groups: string[]
+  targets: string[]
+  difficulties: string[]
+}
