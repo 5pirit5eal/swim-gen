@@ -2,6 +2,8 @@
 
 A web application for generating, recommeding and sharing training plans for swimmers, triathletes and trainers.
 
+**Checkout [Swim Gen](https://swim-gen.com).** to see how it looks and works.
+
 ## Tech Stack
 
 The web application is hosted in Google Cloud. The following components are involved:
