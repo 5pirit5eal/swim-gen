@@ -17,6 +17,7 @@ type DrillSearchParams struct {
 	TargetGroups []string `json:"target_groups,omitempty"`
 	Styles       []string `json:"styles,omitempty"`
 	Difficulty   string   `json:"difficulty,omitempty"`
+	SearchQuery  string   `json:"search_query,omitempty"`
 	Page         int      `json:"page"`
 	Limit        int      `json:"limit"`
 }
@@ -84,6 +85,17 @@ func (db *RAGDB) SearchDrills(ctx context.Context, params DrillSearchParams) (*D
 	if params.Difficulty != "" {
 		conditions = append(conditions, fmt.Sprintf("cmetadata->>'difficulty' = $%d", argIndex))
 		args = append(args, params.Difficulty)
+		argIndex++
+	}
+
+	// Text search filter (optional)
+	if params.SearchQuery != "" {
+		// Use simple ILIKE search on title or short_description
+		// Note: This is a basic implementation. For better search, specialized search indices or embeddings would be needed.
+		// Since we are querying JSONB, we need to extract the fields first.
+		conditions = append(conditions, fmt.Sprintf("(cmetadata->>'title' ILIKE $%d OR cmetadata->>'short_description' ILIKE $%d)", argIndex, argIndex))
+		searchPattern := "%" + params.SearchQuery + "%"
+		args = append(args, searchPattern)
 		argIndex++
 	}
 

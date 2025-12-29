@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import TrainingPlanForm from '@/components/forms/TrainingPlanForm.vue'
 import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
+import DrillList from '@/components/drills/DrillList.vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
@@ -144,6 +145,9 @@ watch(
             </div>
           </div>
         </div>
+
+        <!-- Drill List Section -->
+        <DrillList />
       </section>
     </div>
   </div>

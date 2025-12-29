@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { apiClient, formatError } from '@/api/client'
-import type { Drill, DrillPreview } from '@/types'
+import type { Drill, DrillPreview, DrillSearchParams } from '@/types'
 
 export const useDrillsStore = defineStore('drills', () => {
   // State
@@ -9,6 +9,15 @@ export const useDrillsStore = defineStore('drills', () => {
   const drillCache = ref<Map<string, Drill>>(new Map())
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+
+  // Search State
+  const searchResults = ref<Drill[]>([])
+  const searchTotal = ref(0)
+  const searchParams = ref<DrillSearchParams>({
+    lang: navigator.language.startsWith('de') ? 'de' : 'en',
+    page: 1,
+    limit: 12,
+  })
 
   // Getters
   const hasCurrentDrill = computed(() => currentDrill.value !== null)
@@ -72,6 +81,37 @@ export const useDrillsStore = defineStore('drills', () => {
     }
   }
 
+  async function searchDrills(params: Partial<DrillSearchParams>): Promise<void> {
+    isLoading.value = true
+    error.value = null
+
+    // Update params
+    searchParams.value = { ...searchParams.value, ...params }
+
+    try {
+      const result = await apiClient.searchDrills(searchParams.value)
+      if (result.success && result.data) {
+        searchResults.value = result.data.drills
+        searchTotal.value = result.data.total
+        // Cache loaded drills individually
+        result.data.drills.forEach((drill) => {
+          const key = getCacheKey(drill.img_name, searchParams.value.lang)
+          drillCache.value.set(key, drill)
+        })
+      } else {
+        error.value = result.error ? formatError(result.error) : 'Failed to search drills'
+        searchResults.value = []
+        searchTotal.value = 0
+      }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Unknown error'
+      searchResults.value = []
+      searchTotal.value = 0
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   function clearCurrentDrill(): void {
     currentDrill.value = null
     error.value = null
@@ -86,6 +126,8 @@ export const useDrillsStore = defineStore('drills', () => {
     drillCache.value.clear()
     isLoading.value = false
     error.value = null
+    searchResults.value = []
+    searchTotal.value = 0
   }
 
   return {
@@ -94,12 +136,16 @@ export const useDrillsStore = defineStore('drills', () => {
     drillCache,
     isLoading,
     error,
+    searchResults,
+    searchTotal,
+    searchParams,
     // Getters
     hasCurrentDrill,
     drillPreview,
     // Actions
     fetchDrill,
     fetchDrillPreview,
+    searchDrills,
     clearCurrentDrill,
     clearCache,
     $reset,

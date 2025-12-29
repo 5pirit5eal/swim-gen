@@ -21,6 +21,8 @@ import {
   type DonatePlanRequest,
   type UploadedPlan,
   type Drill,
+  type DrillSearchParams,
+  type DrillSearchResult,
   ApiEndpoints,
 } from '@/types'
 import i18n from '@/plugins/i18n'
@@ -408,6 +410,34 @@ class ApiClient {
   async getDrill(id: string, lang: string): Promise<ApiResult<Drill>> {
     return this._fetch(
       `${ApiEndpoints.DRILL}?id=${encodeURIComponent(id)}&lang=${encodeURIComponent(lang)}`,
+      {
+        method: 'GET',
+      },
+      this.DEFAULT_TIMEOUT_MS,
+    )
+  }
+  /**
+   * Search for drills using various filters
+   */
+  async searchDrills(params: DrillSearchParams): Promise<ApiResult<DrillSearchResult>> {
+    const query = new URLSearchParams()
+    query.append('lang', params.lang)
+    query.append('page', params.page.toString())
+    query.append('limit', params.limit.toString())
+
+    if (params.q) query.append('q', params.q)
+    if (params.difficulty) query.append('difficulty', params.difficulty)
+
+    if (params.target_groups) {
+      params.target_groups.forEach(g => query.append('target_groups', g))
+    }
+
+    if (params.styles) {
+      params.styles.forEach(s => query.append('styles', s))
+    }
+
+    return this._fetch(
+      `${ApiEndpoints.DRILL_SEARCH}?${query.toString()}`,
       {
         method: 'GET',
       },

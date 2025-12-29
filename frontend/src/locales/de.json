@@ -521,6 +521,7 @@
   "common": {
     "submit": "Absenden",
     "loading": "Lade...",
+    "retry": "Wiederholen",
     "optional": "optional"
   },
   "drill": {
@@ -530,7 +531,17 @@
     "targets": "Trainingsziele",
     "styles": "Trainingsstile",
     "target_groups": "Zielgruppen",
-    "video": "Video-Tutorial"
+    "video": "Video-Tutorial",
+    "view_details": "Details ansehen",
+    "search_placeholder": "Übungen suchen...",
+    "all_difficulties": "Alle Schwierigkeitsgrade",
+    "explore_drills": "Trainingsübungen entdecken",
+    "no_results": "Keine Übungen gefunden, die deinen Kriterien entsprechen.",
+    "difficulty": {
+      "easy": "Leicht",
+      "medium": "Mittel",
+      "hard": "Schwer"
+    }
   },
   "tutorial": {
     "next": "Weiter",

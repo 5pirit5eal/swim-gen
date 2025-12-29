@@ -102,6 +102,7 @@ func (rs *RAGService) SearchDrillsHandler(w http.ResponseWriter, req *http.Reque
 	}
 
 	difficulty := req.URL.Query().Get("difficulty")
+	searchQuery := req.URL.Query().Get("q")
 
 	// Parse pagination
 	page := 1
@@ -123,6 +124,7 @@ func (rs *RAGService) SearchDrillsHandler(w http.ResponseWriter, req *http.Reque
 		TargetGroups: targetGroups,
 		Styles:       styles,
 		Difficulty:   difficulty,
+		SearchQuery:  searchQuery,
 		Page:         page,
 		Limit:        limit,
 	}
@@ -130,6 +132,9 @@ func (rs *RAGService) SearchDrillsHandler(w http.ResponseWriter, req *http.Reque
 	httplog.LogEntrySetField(req.Context(), "lang", slog.StringValue(lang))
 	httplog.LogEntrySetField(req.Context(), "page", slog.IntValue(page))
 	httplog.LogEntrySetField(req.Context(), "limit", slog.IntValue(limit))
+	if searchQuery != "" {
+		httplog.LogEntrySetField(req.Context(), "q", slog.StringValue(searchQuery))
+	}
 
 	result, err := rs.db.SearchDrills(req.Context(), params)
 	if err != nil {
