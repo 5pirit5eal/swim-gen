@@ -63,7 +63,6 @@ The next version takes lessons learned in v1 into consideration and adds user au
   - Frontend extended with `Login` page and user info about benefits of logging in
   - Google Auth Platform for user authentication
   - User Email and Password as another option
-  - Users get up to 1000 interactions to avoid abuse
   - Whitelisted users with unlimited interactions
 - **TP History can be viewed**
   - TPs are saved associated with user
@@ -78,6 +77,10 @@ The next version takes lessons learned in v1 into consideration and adds user au
 - **Add anonymous/guest mode**
   - An anonymous mode is added which enables new users to use the application in the same way as v1.
 - **Upload TP based on multimodal user input (pdf, image of hand-written notes)**
+- **Add searchable training drills**
+  - Search training drills same as plans
+  - Integrate training drills into plans with references
+  - Show training drills in frontend
 
 ### V3: Community-Expansion and Monetization
 
