@@ -102,7 +102,7 @@ func (db *RAGDB) SearchDrills(ctx context.Context, params DrillSearchParams) (*D
 	// Target groups filter (array containment)
 	if len(params.TargetGroups) > 0 {
 		targetGroupsJSON, _ := json.Marshal(params.TargetGroups)
-		conditions = append(conditions, fmt.Sprintf("cmetadata->'target_groups' @> $%d::jsonb", argIndex))
+		conditions = append(conditions, fmt.Sprintf("(cmetadata->'target_groups')::jsonb @> $%d::jsonb", argIndex))
 		args = append(args, string(targetGroupsJSON))
 		argIndex++
 	}
@@ -110,7 +110,7 @@ func (db *RAGDB) SearchDrills(ctx context.Context, params DrillSearchParams) (*D
 	// Styles filter (array containment)
 	if len(params.Styles) > 0 {
 		stylesJSON, _ := json.Marshal(params.Styles)
-		conditions = append(conditions, fmt.Sprintf("cmetadata->'styles' @> $%d::jsonb", argIndex))
+		conditions = append(conditions, fmt.Sprintf("(cmetadata->'styles')::jsonb @> $%d::jsonb", argIndex))
 		args = append(args, string(stylesJSON))
 		argIndex++
 	}
@@ -169,6 +169,94 @@ func (db *RAGDB) SearchDrills(ctx context.Context, params DrillSearchParams) (*D
 		Page:   params.Page,
 		Limit:  params.Limit,
 	}, nil
+}
+
+// DrillFilterOptions contains unique values for filter dropdowns
+type DrillFilterOptions struct {
+	Styles       []string `json:"styles"`
+	TargetGroups []string `json:"target_groups"`
+	Targets      []string `json:"targets"`
+	Difficulties []string `json:"difficulties"`
+}
+
+// GetDrillOptions fetches unique values for filters based on language
+func (db *RAGDB) GetDrillOptions(ctx context.Context, lang string) (*DrillFilterOptions, error) {
+	logger := httplog.LogEntry(ctx)
+	logger.Debug("Fetching drill options", "lang", lang)
+
+	options := &DrillFilterOptions{
+		Styles:       []string{},
+		TargetGroups: []string{},
+		Targets:      []string{},
+		Difficulties: []string{},
+	}
+
+	// Helper to fetch unique array elements
+	fetchArrayValues := func(field string, destination *[]string) error {
+		// Use jsonb_array_elements_text to expand arrays, then DISTINCT
+		query := fmt.Sprintf(`
+			SELECT DISTINCT value
+			FROM drill_embeddings, json_array_elements_text(cmetadata->'%s') as value
+			WHERE cmetadata->>'language' = $1
+			ORDER BY value
+		`, field)
+
+		rows, err := db.Conn.Query(ctx, query, lang)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var val string
+			if err := rows.Scan(&val); err != nil {
+				return err
+			}
+			*destination = append(*destination, val)
+		}
+		return nil
+	}
+
+	// Helper to fetch unique string values
+	fetchStringValues := func(field string, destination *[]string) error {
+		query := fmt.Sprintf(`
+			SELECT DISTINCT cmetadata->>'%s' as value
+			FROM drill_embeddings
+			WHERE cmetadata->>'language' = $1 AND cmetadata->>'%s' IS NOT NULL
+			ORDER BY value
+		`, field, field)
+
+		rows, err := db.Conn.Query(ctx, query, lang)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var val string
+			if err := rows.Scan(&val); err != nil {
+				return err
+			}
+			*destination = append(*destination, val)
+		}
+		return nil
+	}
+
+	// Execute queries
+	if err := fetchArrayValues("styles", &options.Styles); err != nil {
+		return nil, fmt.Errorf("failed to fetch styles: %w", err)
+	}
+	if err := fetchArrayValues("target_groups", &options.TargetGroups); err != nil {
+		return nil, fmt.Errorf("failed to fetch target_groups: %w", err)
+	}
+	if err := fetchArrayValues("targets", &options.Targets); err != nil {
+		return nil, fmt.Errorf("failed to fetch targets: %w", err)
+	}
+	if err := fetchStringValues("difficulty", &options.Difficulties); err != nil {
+		return nil, fmt.Errorf("failed to fetch difficulties: %w", err)
+	}
+
+	return options, nil
 }
 
 // QueryDrillsForPlan searches for relevant drills based on user query for plan generation

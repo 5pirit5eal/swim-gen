@@ -53,3 +53,10 @@ export interface DrillSearchResult {
   page: number
   limit: number
 }
+
+export interface DrillFilterOptions {
+  styles: string[]
+  target_groups: string[]
+  targets: string[]
+  difficulties: string[]
+}

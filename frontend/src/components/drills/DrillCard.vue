@@ -32,14 +32,18 @@ function navigateToDrill() {
   // `GetDrillHandler` takes `id` which corresponds to `img_name` in DB.
   // So `img_name` is effectively the ID.
 }
-
 </script>
 
 <template>
   <article class="drill-card" @click="navigateToDrill">
     <div class="card-image-container">
-      <img :src="imageUrl" :alt="drill.title" class="card-image" loading="lazy"
-        @error="($event.target as HTMLImageElement).style.display = 'none'" />
+      <img
+        :src="imageUrl"
+        :alt="drill.title"
+        class="card-image"
+        loading="lazy"
+        @error="($event.target as HTMLImageElement).style.display = 'none'"
+      />
 
       <!-- Top Left: Target or Style Badge -->
       <span v-if="drill.targets && drill.targets.length > 0" class="image-overlay-badge target">
@@ -60,8 +64,12 @@ function navigateToDrill() {
           <!-- We don't have duration in data yet, skipping -->
           <span class="difficulty-text">{{ drill.difficulty }}</span>
           <div class="difficulty-dots">
-            <span v-for="i in 3" :key="i" class="difficulty-dot"
-              :class="{ active: i <= getDifficultyLevel(drill.difficulty) }"></span>
+            <span
+              v-for="i in 3"
+              :key="i"
+              class="difficulty-dot"
+              :class="{ active: i <= getDifficultyLevel(drill.difficulty) }"
+            ></span>
           </div>
         </div>
 
@@ -79,7 +87,10 @@ function navigateToDrill() {
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--color-border);
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s;
   cursor: pointer;
   display: flex;
   flex-direction: column;

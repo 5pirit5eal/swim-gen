@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { apiClient, formatError } from '@/api/client'
-import type { Drill, DrillPreview, DrillSearchParams } from '@/types'
+import type { Drill, DrillFilterOptions, DrillPreview, DrillSearchParams } from '@/types'
 
 export const useDrillsStore = defineStore('drills', () => {
   // State
@@ -18,6 +18,10 @@ export const useDrillsStore = defineStore('drills', () => {
     page: 1,
     limit: 12,
   })
+
+  // Filter Options State
+  const filterOptions = ref<DrillFilterOptions | null>(null)
+  const filterOptionsLang = ref<string>('')
 
   // Getters
   const hasCurrentDrill = computed(() => currentDrill.value !== null)
@@ -128,6 +132,30 @@ export const useDrillsStore = defineStore('drills', () => {
     error.value = null
     searchResults.value = []
     searchTotal.value = 0
+    searchParams.value = {
+      lang: navigator.language.startsWith('de') ? 'de' : 'en',
+      page: 1,
+      limit: 12,
+    }
+  }
+
+  async function fetchFilterOptions(lang: string) {
+    // Return cached if language hasn't changed
+    if (filterOptions.value && filterOptionsLang.value === lang) {
+      return
+    }
+
+    try {
+      const result = await apiClient.getDrillOptions(lang)
+      if (result.success && result.data) {
+        filterOptions.value = result.data
+        filterOptionsLang.value = lang
+      } else {
+        console.error('Failed to fetch drill options:', result.error)
+      }
+    } catch (e) {
+      console.error('Error fetching drill options:', e)
+    }
   }
 
   return {
@@ -139,13 +167,16 @@ export const useDrillsStore = defineStore('drills', () => {
     searchResults,
     searchTotal,
     searchParams,
+    filterOptions,
+    filterOptionsLang,
     // Getters
     hasCurrentDrill,
     drillPreview,
     // Actions
     fetchDrill,
-    fetchDrillPreview,
     searchDrills,
+    fetchDrillPreview,
+    fetchFilterOptions,
     clearCurrentDrill,
     clearCache,
     $reset,

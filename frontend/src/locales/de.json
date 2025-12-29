@@ -522,7 +522,9 @@
     "submit": "Absenden",
     "loading": "Lade...",
     "retry": "Wiederholen",
-    "optional": "optional"
+    "optional": "optional",
+    "previous": "Zurück",
+    "next": "Weiter"
   },
   "drill": {
     "loading": "Übung wird geladen...",

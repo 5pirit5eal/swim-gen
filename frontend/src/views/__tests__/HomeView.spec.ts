@@ -8,12 +8,17 @@ import { useTrainingPlanStore } from '@/stores/trainingPlan'
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }))
+// ...
 vi.mock('vue-i18n', () => ({
-  useI18n: () => ({ t: (key: string) => key }),
+  useI18n: () => ({
+    t: (key: string) => key,
+    locale: { value: 'en' }, // Mock ref-like object
+  }),
 }))
 vi.mock('@/tutorial/useTutorial', () => ({
   useTutorial: () => ({ startHomeTutorial: vi.fn() }),
 }))
+
 vi.mock('@/plugins/supabase', () => ({
   supabase: {
     auth: {
@@ -25,6 +30,8 @@ vi.mock('@/plugins/supabase', () => ({
     range: vi.fn().mockReturnThis(),
     in: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
+    single: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockReturnThis(),
   },
 }))
 

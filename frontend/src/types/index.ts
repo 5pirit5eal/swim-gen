@@ -70,4 +70,11 @@ export type {
 } from './shared'
 
 // Export drill-related types
-export type { Drill, DrillRequest, DrillPreview, DrillSearchParams, DrillSearchResult } from './drill'
+export type {
+  Drill,
+  DrillRequest,
+  DrillPreview,
+  DrillSearchParams,
+  DrillSearchResult,
+  DrillFilterOptions,
+} from './drill'

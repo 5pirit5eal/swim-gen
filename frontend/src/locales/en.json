@@ -520,7 +520,9 @@
     "submit": "Submit",
     "loading": "Loading...",
     "retry": "Retry",
-    "optional": "optional"
+    "optional": "optional",
+    "previous": "Previous",
+    "next": "Next"
   },
   "drill": {
     "loading": "Loading drill...",

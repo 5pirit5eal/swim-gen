@@ -21,6 +21,7 @@ import {
   type DonatePlanRequest,
   type UploadedPlan,
   type Drill,
+  type DrillFilterOptions,
   type DrillSearchParams,
   type DrillSearchResult,
   ApiEndpoints,
@@ -429,11 +430,11 @@ class ApiClient {
     if (params.difficulty) query.append('difficulty', params.difficulty)
 
     if (params.target_groups) {
-      params.target_groups.forEach(g => query.append('target_groups', g))
+      params.target_groups.forEach((g) => query.append('target_groups', g))
     }
 
     if (params.styles) {
-      params.styles.forEach(s => query.append('styles', s))
+      params.styles.forEach((s) => query.append('styles', s))
     }
 
     return this._fetch(
@@ -441,6 +442,17 @@ class ApiClient {
       {
         method: 'GET',
       },
+      this.DEFAULT_TIMEOUT_MS,
+    )
+  }
+
+  /**
+   * Fetch available drill filter options for a language
+   */
+  async getDrillOptions(lang: string): Promise<ApiResult<DrillFilterOptions>> {
+    return this._fetch(
+      `${ApiEndpoints.DRILL_OPTIONS}?lang=${encodeURIComponent(lang)}`,
+      { method: 'GET' },
       this.DEFAULT_TIMEOUT_MS,
     )
   }
