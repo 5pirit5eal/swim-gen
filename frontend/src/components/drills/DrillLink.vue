@@ -10,7 +10,7 @@ const props = defineProps<{
   text?: string
 }>()
 
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const router = useRouter()
 const drillsStore = useDrillsStore()
 
@@ -30,9 +30,9 @@ const imageUrl = computed(() => {
 
 function getDifficultyLevel(difficulty: string): number {
   const d = difficulty.toLowerCase()
-  if (d === 'easy' || d === 'leicht') return 1
-  if (d === 'medium' || d === 'mittel') return 2
-  if (d === 'hard' || d === 'schwer') return 3
+  if (d === t('drill.difficulty.easy').toLowerCase()) return 1
+  if (d === t('drill.difficulty.medium').toLowerCase()) return 2
+  if (d === t('drill.difficulty.hard').toLowerCase()) return 3
   return 1
 }
 
