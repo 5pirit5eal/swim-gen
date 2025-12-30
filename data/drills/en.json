@@ -119,13 +119,13 @@
     {
         "slug": "Freestyle No Breathing",
         "targets": [
-            "Overall Coordination",
+            "Coordination",
             "Sprint"
         ],
         "short_description": "Short distances freestyle swimming without breathing.",
         "img_name": "kraul_ohne_atmung.png",
         "img_description": "Swimmer in full freestyle motion, head remains underwater.",
-        "title": "Overall Coordination: Freestyle No Breathing",
+        "title": "Coordination: Freestyle No Breathing",
         "description": [
             "The freestyle movement is performed without swimming aids and without breathing across the width of the pool.",
             "Take a deep breath before leaving the wall. The propulsion comes only from arm and leg work. The head remains underwater to optimize body position. The focus is on clean technique and a high stroke rate.",
@@ -604,7 +604,7 @@
     {
         "slug": "Breaststroke Arms, Dolphin Kick",
         "targets": [
-            "Overall Coordination",
+            "Coordination",
             "Gliding",
             "Arm Stroke"
         ],
@@ -634,7 +634,7 @@
     {
         "slug": "Diagonal Breaststroke",
         "targets": [
-            "Overall Coordination",
+            "Coordination",
             "Body Tension"
         ],
         "short_description": "Alternating one-sided breaststroke swimming - diagonal arms to legs.",
@@ -1251,8 +1251,7 @@
         ],
         "difficulty": "Hard",
         "target_groups": [
-            "Competitive Swimmer",
-            "Water Polo Player"
+            "Competitive Swimmer"
         ]
     },
     {
@@ -1310,7 +1309,7 @@
             "Butterfly",
             "General"
         ],
-        "difficulty": "Hard",
+        "difficulty": "Medium",
         "target_groups": [
             "Competitive Swimmer",
             "Hobby Swimmer"

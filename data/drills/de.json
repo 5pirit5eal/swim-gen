@@ -119,7 +119,7 @@
     {
         "slug": "Kraul ohne Atmung",
         "targets": [
-            "Gesamtkoordination",
+            "Koordination",
             "Sprint"
         ],
         "short_description": "Kurze Strecke Kraul ohne zu atmen mit Fokus auf Gesamtkoordination.",
@@ -604,7 +604,7 @@
     {
         "slug": "Brustarme-Delfinbeine",
         "targets": [
-            "Gesamtkoordination",
+            "Koordination",
             "Gleiten",
             "Armzug"
         ],
@@ -634,7 +634,7 @@
     {
         "slug": "Diagonales Brust",
         "targets": [
-            "Gesamtkoordination",
+            "Koordination",
             "Körperspannung"
         ],
         "short_description": "Abwechselnd einseitiges Brustschwimmen - diagonal Arme zu Beine.",
@@ -1249,10 +1249,9 @@
         "styles": [
             "Delfin"
         ],
-        "difficulty": "Schwer",
+        "difficulty": "Mittel",
         "target_groups": [
-            "Leistungsschwimmer",
-            "Wasserballer"
+            "Leistungsschwimmer"
         ]
     },
     {
