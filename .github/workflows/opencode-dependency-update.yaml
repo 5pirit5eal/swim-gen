@@ -1,0 +1,176 @@
+name: OpenCode Dependency Updates
+
+on:
+  schedule:
+    - cron: "0 9 1 * *" # First day of every month at 9 AM UTC
+  workflow_dispatch: # Allow manual triggering
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+    environment: "dev"
+
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup Workflow
+        uses: ./.github/actions/setup
+        with:
+          WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+          WIF_SA: ${{ vars.WIF_SA }}
+
+      - name: 🐹 Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+
+      - name: Run OpenCode
+        uses: anomalyco/opencode/github@latest
+        env:
+          VERTEX_LOCATION: ${{ vars.GOOGLE_VERTEX_LOCATION || 'europe-west4' }}
+          GOOGLE_CLOUD_PROJECT: ${{ vars.GOOGLE_VERTEX_PROJECT_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENCODE_ENABLE_EXA: 1
+        with:
+          model: google-vertex-anthropic/claude-sonnet-4-5@20250929
+          use_github_token: true
+          prompt: |
+            You are an automated dependency update agent for a monorepo with three services:
+            - **backend/**: Go service (go.mod / go.sum)
+            - **bff/**: Node.js/TypeScript BFF (package.json / package-lock.json)
+            - **frontend/**: Vue.js/TypeScript SPA (package.json / package-lock.json)
+
+            ## Step 1: Check for Updates
+
+            ### Backend (Go)
+            1. Run `go get -u ./...` in the `backend/` directory to update all Go dependencies
+            2. Run `go mod tidy` in the `backend/` directory to clean up go.sum
+            3. Check `git diff backend/go.mod` — if no changes, note "No Go updates available"
+
+            ### BFF (Node.js)
+            1. Run `npm update --save` in the `bff/` directory to update all npm dependencies
+            2. Check `git diff bff/package-lock.json` — if no changes, note "No BFF updates available"
+
+            ### Frontend (Vue.js)
+            1. Run `npm update --save` in the `frontend/` directory to update all npm dependencies
+            2. Check `git diff frontend/package-lock.json` — if no changes, note "No Frontend updates available"
+
+            If ALL three services have no changes, report "No updates available" and exit WITHOUT creating a PR.
+
+            ## Step 2: Validate Updates
+
+            ### Backend validation
+            1. Run in `backend/`: `go vet ./...`
+            2. Run in `backend/`: `go test -v ./...`
+
+            ### BFF validation
+            1. Run in `bff/`: `npm install`
+            2. Run in `bff/`: `npm run type-check`
+            3. Run in `bff/`: `npm run lint`
+            4. Run in `bff/`: `npm run test`
+
+            ### Frontend validation
+            1. Run in `frontend/`: `npm install`
+            2. Run in `frontend/`: `npm run type-check`
+            3. Run in `frontend/`: `npm run lint`
+            4. Run in `frontend/`: `npm run test:unit`
+
+            If all validations pass for the services that had updates, proceed to Step 4.
+
+            ## Step 3: Handle Failures (if any validation failed)
+
+            For each failing service:
+            1. Identify which dependency update likely caused the failure from the diff
+            2. Search for release notes or changelogs for major version changes
+            3. For each suspected package:
+               - Check the package's GitHub releases page or npm/pkg.go.dev changelog
+               - Look for breaking changes documentation
+               - Use regular web search to find any known issues with the new version
+            4. Attempt to isolate: revert to original lockfile, upgrade packages one-by-one
+            5. If you can identify a fix that only involves package.json / go.mod / package-lock.json / go.sum
+               (version constraints), apply it
+            6. If the fix requires source code changes, modify the code as necessary until validation passes.
+               The PR description must document these changes:
+               - Document the breaking change
+               - Note which files needed changes
+               - Describe the fix in the PR description
+               - Make sure to come up with and apply *clean and proper* fixes (YOU MAY NOT ADD WORKAROUNDS)
+                 and migrate logic if necessary
+            7. If you see any new dependency warnings or deprecations, fix them as well
+            8. Run validation again after any adjustments
+
+            ## Step 4: Create or Update Pull Request
+
+            1. Configure git username and email for the commit: `opencode-bot <opencode-bot@github.com>`
+            2. Check if there is an existing open PR titled "chore(deps): update dependencies [automated]"
+               using `gh pr list --state open | cat`
+               - If yes, update that PR with the new changes via force push and update the PR description
+                 with the new validation status and any new findings
+               - If no, create a new PR with the following details:
+
+            - Title: "chore(deps): update dependencies [automated]"
+            - Body format:
+              ## Summary
+              Automated dependency update performed on [date].
+
+              ## Packages Updated
+              ### Backend (Go)
+              | Package | Previous | New |
+              |---------|----------|-----|
+              | [list changed modules from go.mod diff] |
+
+              ### BFF (Node.js)
+              | Package | Previous | New | Type |
+              |---------|----------|-----|------|
+              | [list changed packages from bff/package-lock.json diff] |
+
+              ### Frontend (Node.js)
+              | Package | Previous | New | Type |
+              |---------|----------|-----|------|
+              | [list changed packages from frontend/package-lock.json diff] |
+
+              ## Breaking Changes
+              [If any major version updates, document potential breaking changes]
+
+              ## Validation Status
+              - Backend (go vet + go test): [PASS/FAIL/SKIPPED - no changes]
+              - BFF (type-check + lint + test): [PASS/FAIL/SKIPPED - no changes]
+              - Frontend (type-check + lint + test): [PASS/FAIL/SKIPPED - no changes]
+
+              ## Notes
+              [Any issues encountered, manual steps needed, etc.]
+
+            3. Add reviewers based on who has committed to the repository recently.
+               Use `gh pr edit` to add reviewers.
+
+            ## CRITICAL BOUNDARIES (DO NOT VIOLATE)
+            - ONLY modify: backend/go.mod, backend/go.sum, bff/package.json, bff/package-lock.json,
+              frontend/package.json, frontend/package-lock.json, and source files if required to fix
+              breaking changes in backend/src, bff/src, or frontend/src
+            - DO NOT commit credential files (e.g. gha-creds-*.json)
+            - DO NOT modify Dockerfiles, CI workflows, or infrastructure code
+            - NEVER auto-merge the PR
+            - Create exactly ONE commit per service that had updates, or a single combined commit:
+              "chore(deps): update dependencies"
+            - If tests keep failing after repeated fixing was not successful, CREATE PR ANYWAY with
+              failure notes in the description
