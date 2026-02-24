@@ -33,6 +33,14 @@ jobs:
           WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
           WIF_SA: ${{ vars.WIF_SA }}
 
+      - name: 🔑 Create Application Default Credentials file
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.WIF_SA }}
+          create_credentials_file: true
+
       - name: 🐹 Setup Go
         uses: actions/setup-go@v6
         with:
@@ -48,8 +56,9 @@ jobs:
         uses: anomalyco/opencode/github@latest
         env:
           VERTEX_LOCATION: "europe-west1"
-          GOOGLE_CLOUD_PROJECT: ${{ vars.GOOGLE_VERTEX_PROJECT_ID }}
+          GOOGLE_CLOUD_PROJECT: ${{ vars.GOOGLE_VERTEX_PROJECT_ID || steps.auth.outputs.project_id }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
           OPENCODE_ENABLE_EXA: 1
         with:
           model: google-vertex-anthropic/claude-sonnet-4-6@default
