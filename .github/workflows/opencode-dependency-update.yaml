@@ -55,13 +55,13 @@ jobs:
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         env:
-          VERTEX_LOCATION: "europe-west1"
+          VERTEX_LOCATION: "global"
           GOOGLE_CLOUD_PROJECT: ${{ vars.GOOGLE_VERTEX_PROJECT_ID || steps.auth.outputs.project_id }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
           OPENCODE_ENABLE_EXA: 1
         with:
-          model: google-vertex-anthropic/claude-sonnet-4-6@default
+          model: google-vertex/gemini-3.1-pro-preview
           use_github_token: true
           prompt: |
             You are an automated dependency update agent for a monorepo with three services:
