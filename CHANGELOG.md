@@ -1,3 +1,22 @@
+## [2.36.0](https://github.com/5pirit5eal/swim-gen/compare/v2.35.0...v2.36.0) (2026-02-24)
+
+### Features
+
+* **workflow:** add auth step for Google Cloud credentials ([f0b4d95](https://github.com/5pirit5eal/swim-gen/commit/f0b4d953e23935d9537306c67fbed21b5ee0960f))
+* **workflow:** add auth step for Google Cloud credentials ([#216](https://github.com/5pirit5eal/swim-gen/issues/216)) ([ccbcded](https://github.com/5pirit5eal/swim-gen/commit/ccbcdedfc23f2bd5377e52e0c837e38adf3442e4))
+* **workflow:** add automated dependency update workflow ([a2a4fa0](https://github.com/5pirit5eal/swim-gen/commit/a2a4fa06286722743b1b4b05dd6df80cda9d0cad))
+* **workflow:** add automated dependency update workflow ([#213](https://github.com/5pirit5eal/swim-gen/issues/213)) ([2c800a4](https://github.com/5pirit5eal/swim-gen/commit/2c800a485a22b05fb8746dafccde0bdfc6e56722))
+* **workflow:** rename dependency update workflow file ([78c31b4](https://github.com/5pirit5eal/swim-gen/commit/78c31b437b8bbfaae95d2d720303b79c7f59e1a2))
+
+### Bug Fixes
+
+* **workflow:** update OpenCode model and region configuration ([e514acb](https://github.com/5pirit5eal/swim-gen/commit/e514acb803e583e299e3c2c9fa7a21045c057c8a))
+* **workflow:** update OpenCode model and region configuration ([#217](https://github.com/5pirit5eal/swim-gen/issues/217)) ([4d2224d](https://github.com/5pirit5eal/swim-gen/commit/4d2224d5cf4446338e1f2d51a7f5e63b162c72a0))
+
+### Performance Improvements
+
+* **backend:** optimize string building in chat history formatting ([aab283f](https://github.com/5pirit5eal/swim-gen/commit/aab283fc1e57de7e87190039abaadc1742758ea8))
+
 ## [2.35.0](https://github.com/5pirit5eal/swim-gen/compare/v2.34.0...v2.35.0) (2025-12-29)
 
 ### Features
