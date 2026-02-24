@@ -47,12 +47,12 @@ jobs:
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         env:
-          VERTEX_LOCATION: ${{ vars.GOOGLE_VERTEX_LOCATION || 'europe-west4' }}
+          VERTEX_LOCATION: "europe-west1"
           GOOGLE_CLOUD_PROJECT: ${{ vars.GOOGLE_VERTEX_PROJECT_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_ENABLE_EXA: 1
         with:
-          model: google-vertex-anthropic/claude-sonnet-4-5@20250929
+          model: google-vertex-anthropic/claude-sonnet-4-6@default
           use_github_token: true
           prompt: |
             You are an automated dependency update agent for a monorepo with three services:
