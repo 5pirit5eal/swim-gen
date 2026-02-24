@@ -174,15 +174,15 @@ func formatConversationHistory(messages []models.Message) string {
 	var builder strings.Builder
 	for _, msg := range messages {
 		if msg.Role == models.RoleUser {
-			builder.WriteString(fmt.Sprintf("Schwimmer: %s\\n", msg.Content))
+			fmt.Fprintf(&builder, "Schwimmer: %s\\n", msg.Content)
 		} else {
 			// AI trainer response
-			builder.WriteString(fmt.Sprintf("Trainer: %s\\n", msg.Content))
+			fmt.Fprintf(&builder, "Trainer: %s\\n", msg.Content)
 
 			// Include plan snapshot if the trainer created/modified a plan
 			if msg.PlanSnapshot != nil {
 				builder.WriteString("  [Plan erstellt/geändert]:\n")
-				builder.WriteString(fmt.Sprintf("  %s\n", msg.PlanSnapshot.String()))
+				fmt.Fprintf(&builder, "  %s\n", msg.PlanSnapshot.String())
 			}
 		}
 	}
