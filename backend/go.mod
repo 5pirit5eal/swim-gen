@@ -15,6 +15,7 @@ require (
 	github.com/invopop/jsonschema v0.13.0
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/johnfercher/maroto/v2 v2.3.3
+	github.com/muktihari/fit v0.27.2
 	github.com/stretchr/testify v1.11.1
 	github.com/supabase-community/gotrue-go v1.2.1
 	github.com/supabase-community/supabase-go v0.0.4
