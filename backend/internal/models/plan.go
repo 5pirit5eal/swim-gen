@@ -176,13 +176,32 @@ func (r Row) String() string {
 	return fmt.Sprintf("| %d | %s | %d | %s | %s | %s | %d |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Content, r.Intensity, r.Sum)
 }
 
-func (t *Table) String() string {
-	tstr := "| Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |\n"
-	tstr += "|---|---|---|---|---|---|---|\n"
-	for _, row := range *t {
-		tstr += row.String() + "\n"
+func (r Row) BreakInSeconds() int {
+	br := strings.TrimSpace(r.Break)
+	if br == "" {
+		return 0
 	}
-	return tstr
+	br = strings.TrimSuffix(br, "s")
+
+	parts := strings.Split(br, ":")
+	if len(parts) == 2 {
+		mins, _ := strconv.Atoi(parts[0])
+		secs, _ := strconv.Atoi(parts[1])
+		return mins*60 + secs
+	}
+
+	secs, _ := strconv.Atoi(br)
+	return secs
+}
+
+func (t *Table) String() string {
+	var tstr strings.Builder
+	tstr.WriteString("| Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |\n")
+	tstr.WriteString("|---|---|---|---|---|---|---|\n")
+	for _, row := range *t {
+		tstr.WriteString(row.String() + "\n")
+	}
+	return tstr.String()
 }
 
 // Adds a final row to the table with the total sum
