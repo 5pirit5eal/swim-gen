@@ -54,3 +54,53 @@ func TestGeneratedPlanSchema(t *testing.T) {
 	// check if the schema is valid json
 	assert.NotEmpty(t, schema, "Schema should not be empty")
 }
+
+func TestBreakInSeconds(t *testing.T) {
+	tests := []struct {
+		name     string
+		row      models.Row
+		expected int
+	}{
+		{
+			name: "Standard Integer",
+			row: models.Row{
+				Break: "30",
+			},
+			expected: 30,
+		},
+		{
+			name: "ISO format",
+			row: models.Row{
+				Break: "30s",
+			},
+			expected: 30,
+		},
+		{
+			name: "Minutes:Seconds",
+			row: models.Row{
+				Break: "1:30",
+			},
+			expected: 90,
+		},
+		{
+			name: "Minutes:Seconds with ISO format",
+			row: models.Row{
+				Break: "1:30s",
+			},
+			expected: 90,
+		},
+		{
+			name: "Empty",
+			row: models.Row{
+				Break: "",
+			},
+			expected: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, tt.row.BreakInSeconds(), "BreakInSeconds should return the correct value")
+		})
+	}
+}
