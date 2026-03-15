@@ -1,5 +1,11 @@
 package garmin
 
+import (
+	"strings"
+
+	"github.com/5pirit5eal/swim-gen/internal/models"
+)
+
 // Garmin Connect Workout structs ported from python-garminconnect:
 // https://github.com/cyberjunky/python-garminconnect/blob/master/garminconnect/workout.py
 
@@ -262,4 +268,128 @@ func CreateRepeatGroup(iterations int, workoutSteps []WorkoutStep, stepOrder int
 		},
 		EndConditionValue: &fv,
 	}
+}
+
+func ConvertTrainingPlanToSwimWorkout(p *models.Plan, poolLength int) *BaseWorkout {
+	var steps []WorkoutStep
+	stepOrder := 1
+	totalSecs := 0
+
+	for _, row := range p.Table {
+		if strings.Contains(row.Content, "Gesamt") || strings.Contains(row.Content, "Total") {
+			continue
+		}
+
+		stepTypeID := StepTypeInterval
+		stepTypeKey := "interval"
+		displayOrder := 3
+
+		contentLower := strings.ToLower(row.Content)
+		intensityLower := strings.ToLower(row.Intensity)
+
+		if strings.Contains(contentLower, "einschwimmen") || strings.Contains(intensityLower, "einschwimmen") || strings.Contains(intensityLower, "warmup") {
+			stepTypeID = StepTypeWarmup
+			stepTypeKey = "warmup"
+			displayOrder = 1
+		} else if strings.Contains(contentLower, "ausschwimmen") || strings.Contains(intensityLower, "ausschwimmen") || strings.Contains(intensityLower, "cooldown") {
+			stepTypeID = StepTypeCooldown
+			stepTypeKey = "cooldown"
+			displayOrder = 2
+		}
+
+		activeDist := float64(row.Distance)
+
+		activeStep := ExecutableStep{
+			Type:      "ExecutableStepDTO",
+			StepOrder: 0,
+			StepType: &StepTypeModel{
+				StepTypeID:   stepTypeID,
+				StepTypeKey:  stepTypeKey,
+				DisplayOrder: displayOrder,
+			},
+			EndCondition: &EndConditionModel{
+				ConditionTypeID:  ConditionTypeDistance,
+				ConditionTypeKey: "distance",
+				DisplayOrder:     3,
+				Displayable:      true,
+			},
+			EndConditionValue: &activeDist,
+			TargetType: &TargetTypeModel{
+				WorkoutTargetTypeID: TargetTypeNoTarget, WorkoutTargetTypeKey: "no.target", DisplayOrder: 1,
+			},
+		}
+
+		var restStep *ExecutableStep
+		breakSecs := row.BreakInSeconds()
+		if breakSecs > 0 {
+			bs := float64(breakSecs)
+			restStep = &ExecutableStep{
+				Type:      "ExecutableStepDTO",
+				StepOrder: 0,
+				StepType: &StepTypeModel{
+					StepTypeID:   StepTypeRest,
+					StepTypeKey:  "rest",
+					DisplayOrder: 5,
+				},
+				EndCondition: &EndConditionModel{
+					ConditionTypeID:  ConditionTypeTime,
+					ConditionTypeKey: "time",
+					DisplayOrder:     2,
+					Displayable:      true,
+				},
+				EndConditionValue: &bs,
+				TargetType: &TargetTypeModel{
+					WorkoutTargetTypeID: TargetTypeNoTarget, WorkoutTargetTypeKey: "no.target", DisplayOrder: 1,
+				},
+			}
+		}
+
+		if row.Amount > 1 {
+			var groupSteps []WorkoutStep
+			
+			activeStep.StepOrder = stepOrder + 1
+			groupSteps = append(groupSteps, activeStep)
+			if restStep != nil {
+				restStep.StepOrder = stepOrder + 2
+				groupSteps = append(groupSteps, *restStep)
+			}
+
+			group := RepeatGroup{
+				Type:      "RepeatGroupDTO",
+				StepOrder: stepOrder,
+				StepType: &StepTypeModel{
+					StepTypeID:   StepTypeRepeat,
+					StepTypeKey:  "repeat",
+					DisplayOrder: 6,
+				},
+				NumberOfIterations: row.Amount,
+				WorkoutSteps:       groupSteps,
+				SmartRepeat:        false,
+			}
+			steps = append(steps, group)
+			
+			stepOrder += len(groupSteps) + 1
+		} else {
+			activeStep.StepOrder = stepOrder
+			steps = append(steps, activeStep)
+			stepOrder++
+			if restStep != nil {
+				restStep.StepOrder = stepOrder
+				steps = append(steps, *restStep)
+				stepOrder++
+			}
+		}
+	}
+
+	segment := WorkoutSegment{
+		SegmentOrder: 1,
+		SportType: &SportTypeModel{
+			SportTypeID:  SportTypeSwimming,
+			SportTypeKey: "swimming",
+			DisplayOrder: 3,
+		},
+		WorkoutSteps: steps,
+	}
+
+	return NewSwimmingWorkout(p.Title, totalSecs, []WorkoutSegment{segment})
 }
