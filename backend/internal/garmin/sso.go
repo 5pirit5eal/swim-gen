@@ -43,15 +43,15 @@ type OAuth1Token struct {
 
 // OAuth2Token holds the OAuth 2.0 credentials exchanged from an OAuth1Token.
 type OAuth2Token struct {
-	Scope                  string `json:"scope"`
-	JTI                    string `json:"jti"`
-	TokenType              string `json:"token_type"`
-	AccessToken            string `json:"access_token"`
-	RefreshToken           string `json:"refresh_token"`
-	ExpiresIn              int64  `json:"expires_in"`
-	ExpiresAt              int64  `json:"expires_at"`
-	RefreshTokenExpiresIn  int64  `json:"refresh_token_expires_in"`
-	RefreshTokenExpiresAt  int64  `json:"refresh_token_expires_at"`
+	Scope                 string `json:"scope"`
+	JTI                   string `json:"jti"`
+	TokenType             string `json:"token_type"`
+	AccessToken           string `json:"access_token"`
+	RefreshToken          string `json:"refresh_token"`
+	ExpiresIn             int64  `json:"expires_in"`
+	ExpiresAt             int64  `json:"expires_at"`
+	RefreshTokenExpiresIn int64  `json:"refresh_token_expires_in"`
+	RefreshTokenExpiresAt int64  `json:"refresh_token_expires_at"`
 }
 
 // Expired reports whether the access token has expired.
@@ -127,7 +127,12 @@ func Login(email, password, domain string) (*OAuth1Token, *OAuth2Token, error) {
 
 	// Step 1: Set cookies
 	embedURL := fmt.Sprintf("%s/embed?%s", ssoBase, embedParams.Encode())
-	resp, err := httpClient.Get(embedURL)
+	req, err := http.NewRequest(http.MethodGet, embedURL, nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("creating embed request: %w", err)
+	}
+	req.Header.Set("User-Agent", userAgent)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, nil, fmt.Errorf("setting SSO cookies: %w", err)
 	}
@@ -135,11 +140,13 @@ func Login(email, password, domain string) (*OAuth1Token, *OAuth2Token, error) {
 
 	// Step 2: Get CSRF token
 	signinURL := fmt.Sprintf("%s/signin?%s", ssoBase, signinParams.Encode())
-	req, err := http.NewRequest(http.MethodGet, signinURL, nil)
+	req, err = http.NewRequest(http.MethodGet, signinURL, nil)
 	if err != nil {
 		return nil, nil, fmt.Errorf("creating signin request: %w", err)
 	}
 	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("origin", "https://sso."+domain)
+	req.Header.Set("referer", embedURL)
 	resp, err = httpClient.Do(req)
 	if err != nil {
 		return nil, nil, fmt.Errorf("fetching signin page: %w", err)
@@ -172,6 +179,8 @@ func Login(email, password, domain string) (*OAuth1Token, *OAuth2Token, error) {
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("origin", "https://sso."+domain)
+	req.Header.Set("referer", signinURL)
 
 	resp, err = httpClient.Do(req)
 	if err != nil {
@@ -316,15 +325,15 @@ func Exchange(oauth1 *OAuth1Token, domain string, transport http.RoundTripper) (
 	refreshExpiresIn := jsonInt64(tokenResp, "refresh_token_expires_in")
 
 	return &OAuth2Token{
-		Scope:                  jsonString(tokenResp, "scope"),
-		JTI:                    jsonString(tokenResp, "jti"),
-		TokenType:              jsonString(tokenResp, "token_type"),
-		AccessToken:            jsonString(tokenResp, "access_token"),
-		RefreshToken:           jsonString(tokenResp, "refresh_token"),
-		ExpiresIn:              expiresIn,
-		ExpiresAt:              now + expiresIn,
-		RefreshTokenExpiresIn:  refreshExpiresIn,
-		RefreshTokenExpiresAt:  now + refreshExpiresIn,
+		Scope:                 jsonString(tokenResp, "scope"),
+		JTI:                   jsonString(tokenResp, "jti"),
+		TokenType:             jsonString(tokenResp, "token_type"),
+		AccessToken:           jsonString(tokenResp, "access_token"),
+		RefreshToken:          jsonString(tokenResp, "refresh_token"),
+		ExpiresIn:             expiresIn,
+		ExpiresAt:             now + expiresIn,
+		RefreshTokenExpiresIn: refreshExpiresIn,
+		RefreshTokenExpiresAt: now + refreshExpiresIn,
 	}, nil
 }
 

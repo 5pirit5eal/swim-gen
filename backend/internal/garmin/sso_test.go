@@ -115,15 +115,15 @@ func TestSaveAndLoadTokens(t *testing.T) {
 		Domain:           "garmin.com",
 	}
 	oauth2 := &garmin.OAuth2Token{
-		Scope:                  "CONNECT_READ CONNECT_WRITE",
-		JTI:                    "test_jti",
-		TokenType:              "Bearer",
-		AccessToken:            "test_access",
-		RefreshToken:           "test_refresh",
-		ExpiresIn:              3600,
-		ExpiresAt:              time.Now().Unix() + 3600,
-		RefreshTokenExpiresIn:  7776000,
-		RefreshTokenExpiresAt:  time.Now().Unix() + 7776000,
+		Scope:                 "CONNECT_READ CONNECT_WRITE",
+		JTI:                   "test_jti",
+		TokenType:             "Bearer",
+		AccessToken:           "test_access",
+		RefreshToken:          "test_refresh",
+		ExpiresIn:             3600,
+		ExpiresAt:             time.Now().Unix() + 3600,
+		RefreshTokenExpiresIn: 7776000,
+		RefreshTokenExpiresAt: time.Now().Unix() + 7776000,
 	}
 
 	err := garmin.SaveTokens(dir, oauth1, oauth2)
