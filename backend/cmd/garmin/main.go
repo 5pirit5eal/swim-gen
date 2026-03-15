@@ -70,6 +70,12 @@ func main() {
 			fmt.Printf("Failed to fetch workout details: %v\n", err)
 		} else {
 			fmt.Printf("Fetched details for: %s\n", details["workoutName"])
+			out, err := json.MarshalIndent(details, "", "  ")
+			if err != nil {
+				fmt.Printf("Failed to marshal workout details: %v\n", err)
+			} else {
+				fmt.Printf("%s\n", string(out))
+			}
 		}
 	}
 
