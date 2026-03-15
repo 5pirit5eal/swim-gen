@@ -86,6 +86,61 @@ func TestUploadWorkout(t *testing.T) {
 	assert.Equal(t, "Test Swim Workout", result["workoutName"])
 }
 
+func TestGetWorkouts(t *testing.T) {
+	workoutsResponse := []map[string]any{
+		{"workoutId": float64(100), "workoutName": "Workout 1"},
+		{"workoutId": float64(101), "workoutName": "Workout 2"},
+	}
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Contains(t, r.Header.Get("Authorization"), "Bearer")
+		assert.Equal(t, http.MethodGet, r.Method)
+		assert.Equal(t, "/workout-service/workouts", r.URL.Path)
+		assert.Equal(t, "10", r.URL.Query().Get("start"))
+		assert.Equal(t, "50", r.URL.Query().Get("limit"))
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(workoutsResponse)
+	}))
+	defer server.Close()
+
+	client := garmin.NewClientFromTokens(&garmin.OAuth1Token{}, &garmin.OAuth2Token{AccessToken: "token", ExpiresAt: time.Now().Unix() + 3600})
+	client.SetHTTPClient(server.Client())
+	client.SetBaseURL(server.URL)
+
+	results, err := client.GetWorkouts(context.Background(), 10, 50)
+	require.NoError(t, err)
+	require.Len(t, results, 2)
+	assert.Equal(t, float64(100), results[0]["workoutId"])
+	assert.Equal(t, float64(101), results[1]["workoutId"])
+}
+
+func TestGetWorkoutByID(t *testing.T) {
+	workoutResponse := map[string]any{
+		"workoutId":   float64(42),
+		"workoutName": "Answer to Ultimate Question Workout",
+	}
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Contains(t, r.Header.Get("Authorization"), "Bearer")
+		assert.Equal(t, http.MethodGet, r.Method)
+		assert.Equal(t, "/workout-service/workout/42", r.URL.Path)
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(workoutResponse)
+	}))
+	defer server.Close()
+
+	client := garmin.NewClientFromTokens(&garmin.OAuth1Token{}, &garmin.OAuth2Token{AccessToken: "token", ExpiresAt: time.Now().Unix() + 3600})
+	client.SetHTTPClient(server.Client())
+	client.SetBaseURL(server.URL)
+
+	result, err := client.GetWorkoutByID(context.Background(), 42)
+	require.NoError(t, err)
+	assert.Equal(t, float64(42), result["workoutId"])
+	assert.Equal(t, "Answer to Ultimate Question Workout", result["workoutName"])
+}
+
 func TestClientSaveAndLoadTokens(t *testing.T) {
 	dir := t.TempDir()
 
@@ -167,4 +222,3 @@ type mockTransport struct {
 func (m *mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	return m.roundTripFunc(req)
 }
-

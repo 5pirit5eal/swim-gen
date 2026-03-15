@@ -161,6 +161,59 @@ func (c *Client) UploadWorkout(ctx context.Context, workoutJSON []byte) (map[str
 	return result, nil
 }
 
+// GetWorkouts returns workouts starting at offset start with at most limit results.
+func (c *Client) GetWorkouts(ctx context.Context, start, limit int) ([]map[string]any, error) {
+	if start < 0 {
+		return nil, fmt.Errorf("start must be non-negative")
+	}
+	if limit <= 0 {
+		return nil, fmt.Errorf("limit must be positive")
+	}
+
+	path := fmt.Sprintf("/workout-service/workouts?start=%d&limit=%d", start, limit)
+	resp, err := c.connectAPI(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, fmt.Errorf("getting workouts: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNoContent {
+		return nil, nil
+	}
+
+	var result []map[string]any
+	// Depending on Garmin's exact response structure, you might need to adjust this from []map[string]any to just map[string]any if they wrap the array.
+	// Commonly they return a direct JSON array for workouts.
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("decoding workouts response: %w", err)
+	}
+	return result, nil
+}
+
+// GetWorkoutByID returns a workout by its ID.
+func (c *Client) GetWorkoutByID(ctx context.Context, workoutID int64) (map[string]any, error) {
+	if workoutID <= 0 {
+		return nil, fmt.Errorf("workoutID must be positive")
+	}
+
+	path := fmt.Sprintf("/workout-service/workout/%d", workoutID)
+	resp, err := c.connectAPI(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, fmt.Errorf("getting workout %d: %w", workoutID, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNoContent {
+		return nil, nil
+	}
+
+	var result map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("decoding workout response: %w", err)
+	}
+	return result, nil
+}
+
 // SaveTokens persists the client's tokens to the given directory.
 // TODO: Implement database storage for tokens to support multi-instance deployments.
 // The database implementation should replace the file-based storage when ready.
