@@ -163,17 +163,23 @@ type Table []Row
 // Row represents a single exercise entry in a training plan
 // @Description A single exercise entry with amount, distance, breaks, content, intensity and total volume. Supports nested Children for compound sets like 8 x (800 + 200).
 type Row struct {
-	Amount     int    `json:"Amount" example:"4" jsonschema_description:"Amount of repetitions"`
-	Multiplier string `json:"Multiplier" example:"x" jsonschema_description:"Multiplier for the distance (e.g. 'x' or 'times')"`
-	Distance   int    `json:"Distance" example:"100" jsonschema_description:"Distance in meters. For parent rows with Children, this is auto-calculated as sum of children distances"`
-	Break      string `json:"Break" example:"20" jsonschema_description:"Break time typically in seconds. This needs to be a string, as other times are possible"`
-	Content    string `json:"Content" example:"Freestyle swim" jsonschema_description:"Content or description of the row"`
-	Intensity  string `json:"Intensity" example:"Easy" jsonschema_description:"Intensity level of the activity"`
-	Sum        int    `json:"Sum" example:"400" jsonschema_description:"Total volume or sum for the row"`
-	Children   []Row  `json:"Children,omitempty" jsonschema_description:"Nested exercise rows for compound sets (e.g., 8 x (800 + 200)). Parent Distance is auto-calculated from children"`
+	Amount     int      `json:"Amount" example:"4" jsonschema_description:"Amount of repetitions"`
+	Multiplier string   `json:"Multiplier" example:"x" jsonschema_description:"Multiplier for the distance (e.g. 'x' or 'times')"`
+	Distance   int      `json:"Distance" example:"100" jsonschema_description:"Distance in meters. For parent rows with Children, this is auto-calculated as sum of children distances"`
+	Break      string   `json:"Break" example:"20" jsonschema_description:"Break time typically in seconds. This needs to be a string, as other times are possible"`
+	Content    string   `json:"Content" example:"Freestyle swim" jsonschema_description:"Content or description of the row"`
+	Intensity  string   `json:"Intensity" example:"Easy" jsonschema_description:"Intensity level of the activity"`
+	Sum        int      `json:"Sum" example:"400" jsonschema_description:"Total volume or sum for the row"`
+	Children   []Row    `json:"Children,omitempty" jsonschema_description:"Nested exercise rows for compound sets (e.g., 8 x (800 + 200)). Parent Distance is auto-calculated from children"`
+	Equipment  []string `json:"Equipment,omitempty" jsonschema:"description=Equipment needed for this row,enum=Flossen,enum=Kickboard,enum=Handpaddles,enum=Pull buoy,enum=Schnorchel" jsonschema_description:"Equipment needed for this specific row" example:"[\"Flossen\"]"`
 }
 
 func (r Row) String() string {
+	equipmentStr := ""
+	if len(r.Equipment) > 0 {
+		equipmentStr = fmt.Sprintf(" (Ausrüstung: %s)", strings.Join(r.Equipment, ", "))
+	}
+
 	if len(r.Children) > 0 {
 		childrenStr := ""
 		for i, child := range r.Children {
@@ -182,9 +188,9 @@ func (r Row) String() string {
 			}
 			childrenStr += fmt.Sprintf("%dm", child.Distance)
 		}
-		return fmt.Sprintf("| %d | %s | %d | %s | %dx(%s) | %s | %d |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Amount, childrenStr, r.Intensity, r.Sum)
+		return fmt.Sprintf("| %d | %s | %d | %s | %dx(%s) | %s | %d|%s |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Amount, childrenStr, r.Intensity, r.Sum, equipmentStr)
 	}
-	return fmt.Sprintf("| %d | %s | %d | %s | %s | %s | %d |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Content, r.Intensity, r.Sum)
+	return fmt.Sprintf("| %d | %s | %d | %s | %s | %s | %d|%s |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Content, r.Intensity, r.Sum, equipmentStr)
 }
 
 func (t *Table) String() string {

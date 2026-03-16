@@ -293,3 +293,70 @@ func TestRowString_Nested(t *testing.T) {
 	assert.Contains(t, str, "8x", "Row string should contain '8x'")
 	assert.Contains(t, str, "800m + 200m", "Row string should contain children distances")
 }
+
+func TestRow_WithEquipment(t *testing.T) {
+	row := models.Row{
+		Amount:     4,
+		Multiplier: "x",
+		Distance:   100,
+		Break:      "20",
+		Content:    "Kraul-Beine",
+		Intensity:  "GA1",
+		Equipment:  []string{"Flossen"},
+	}
+
+	str := row.String()
+	assert.Contains(t, str, "Flossen", "Row string should contain equipment")
+	assert.Contains(t, str, "Ausrüstung", "Row string should contain 'Ausrüstung' label")
+}
+
+func TestRow_EquipmentEmpty(t *testing.T) {
+	row := models.Row{
+		Amount:     4,
+		Multiplier: "x",
+		Distance:   100,
+		Break:      "20",
+		Content:    "Kraul",
+		Intensity:  "GA1",
+	}
+
+	str := row.String()
+	assert.NotContains(t, str, "Ausrüstung", "Row string should not contain equipment label when empty")
+}
+
+func TestRow_EquipmentMultiple(t *testing.T) {
+	row := models.Row{
+		Amount:     4,
+		Multiplier: "x",
+		Distance:   100,
+		Break:      "20",
+		Content:    "Technikübung",
+		Intensity:  "TÜ",
+		Equipment:  []string{"Flossen", "Pull buoy"},
+	}
+
+	str := row.String()
+	assert.Contains(t, str, "Flossen")
+	assert.Contains(t, str, "Pull buoy")
+}
+
+func TestRow_EquipmentWithChildren(t *testing.T) {
+	row := models.Row{
+		Amount:     4,
+		Multiplier: "x",
+		Distance:   0,
+		Break:      "20",
+		Content:    "Main Set",
+		Intensity:  "GA1",
+		Sum:        400,
+		Equipment:  []string{"Flossen"},
+		Children: []models.Row{
+			{Amount: 1, Distance: 300, Content: "Kraul", Intensity: "GA1", Sum: 300},
+			{Amount: 1, Distance: 100, Content: "Kick", Intensity: "GA1", Sum: 100},
+		},
+	}
+
+	str := row.String()
+	assert.Contains(t, str, "4x(300m + 100m)")
+	assert.Contains(t, str, "Flossen")
+}
