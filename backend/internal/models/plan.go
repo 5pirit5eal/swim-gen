@@ -161,18 +161,29 @@ func (p *Plan) String() string {
 type Table []Row
 
 // Row represents a single exercise entry in a training plan
-// @Description A single exercise entry with amount, distance, breaks, content, intensity and total volume
+// @Description A single exercise entry with amount, distance, breaks, content, intensity and total volume. Supports nested Children for compound sets like 8 x (800 + 200).
 type Row struct {
 	Amount     int    `json:"Amount" example:"4" jsonschema_description:"Amount of repetitions"`
 	Multiplier string `json:"Multiplier" example:"x" jsonschema_description:"Multiplier for the distance (e.g. 'x' or 'times')"`
-	Distance   int    `json:"Distance" example:"100" jsonschema_description:"Distance in meters"`
+	Distance   int    `json:"Distance" example:"100" jsonschema_description:"Distance in meters. For parent rows with Children, this is auto-calculated as sum of children distances"`
 	Break      string `json:"Break" example:"20" jsonschema_description:"Break time typically in seconds. This needs to be a string, as other times are possible"`
 	Content    string `json:"Content" example:"Freestyle swim" jsonschema_description:"Content or description of the row"`
 	Intensity  string `json:"Intensity" example:"Easy" jsonschema_description:"Intensity level of the activity"`
 	Sum        int    `json:"Sum" example:"400" jsonschema_description:"Total volume or sum for the row"`
+	Children   []Row  `json:"Children,omitempty" jsonschema_description:"Nested exercise rows for compound sets (e.g., 8 x (800 + 200)). Parent Distance is auto-calculated from children"`
 }
 
 func (r Row) String() string {
+	if len(r.Children) > 0 {
+		childrenStr := ""
+		for i, child := range r.Children {
+			if i > 0 {
+				childrenStr += " + "
+			}
+			childrenStr += fmt.Sprintf("%dm", child.Distance)
+		}
+		return fmt.Sprintf("| %d | %s | %d | %s | %dx(%s) | %s | %d |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Amount, childrenStr, r.Intensity, r.Sum)
+	}
 	return fmt.Sprintf("| %d | %s | %d | %s | %s | %s | %d |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Content, r.Intensity, r.Sum)
 }
 
@@ -194,14 +205,28 @@ func (t *Table) AddSum() {
 	*t = append(*t, Row{Content: "Gesamt", Sum: sum})
 }
 
-// Recalculates the sum for each row
+// Recalculates the sum for each row and updates Distance for parent rows
 // This is useful if the table has been modified and we need to update the sums
 func (t *Table) UpdateSum() {
 	total := 0
 	for i, row := range *t {
 		if strings.Contains(row.Content, "Gesamt") || strings.Contains(row.Content, "Total") {
 			(*t)[i].Sum = total
+		} else if len(row.Children) > 0 {
+			// Nested row: calculate children sums first, then parent
+			childrenSum := 0
+			childrenDistance := 0
+			for _, child := range row.Children {
+				childrenSum += child.Sum
+				childrenDistance += child.Distance
+			}
+			// Update parent Distance to be sum of children distances
+			(*t)[i].Distance = childrenDistance
+			// Parent Sum = Amount × sum of children sums
+			(*t)[i].Sum = row.Amount * childrenSum
+			total += (*t)[i].Sum
 		} else {
+			// Flat row calculation (backward compatible)
 			(*t)[i].Sum = row.Amount * row.Distance
 			total += (*t)[i].Sum
 		}
@@ -236,6 +261,76 @@ func (t *Table) JSON() (string, error) {
 		return "", fmt.Errorf("failed to marshal table to JSON: %w", err)
 	}
 	return string(bytes), nil
+}
+
+// Validate recursively validates the table structure
+func (t *Table) Validate() error {
+	return t.validateRowDepth(0)
+}
+
+func (t *Table) validateRowDepth(depth int) error {
+	if depth > 5 {
+		return fmt.Errorf("maximum nesting depth (5) exceeded")
+	}
+
+	for i, row := range *t {
+		if row.Amount < 0 {
+			return fmt.Errorf("row %d has negative amount: %d", i, row.Amount)
+		}
+		if row.Distance < 0 {
+			return fmt.Errorf("row %d has negative distance: %d", i, row.Distance)
+		}
+
+		if len(row.Children) > 0 {
+			if row.Amount == 0 {
+				return fmt.Errorf("row %d has children but Amount = 0", i)
+			}
+			childrenTable := Table(row.Children)
+			if err := childrenTable.validateRowDepth(depth + 1); err != nil {
+				return fmt.Errorf("row %d children: %w", i, err)
+			}
+		}
+	}
+	return nil
+}
+
+// FlattenTable converts a nested table to a flat representation for display
+func (t *Table) FlattenTable(indent string) []string {
+	lines := []string{}
+	for _, row := range *t {
+		if len(row.Children) > 0 {
+			childrenStr := ""
+			for i, child := range row.Children {
+				if i > 0 {
+					childrenStr += " + "
+				}
+				childrenStr += fmt.Sprintf("%dm", child.Distance)
+			}
+			lines = append(lines, fmt.Sprintf("%s%d x (%s) - %s (Sum: %dm)", indent, row.Amount, childrenStr, row.Content, row.Sum))
+			childrenTable := Table(row.Children)
+			lines = append(lines, childrenTable.FlattenTable(indent+"  ")...)
+		} else {
+			lines = append(lines, fmt.Sprintf("%s%d x %dm - %s (Sum: %dm)", indent, row.Amount, row.Distance, row.Content, row.Sum))
+		}
+	}
+	return lines
+}
+
+// GetTotalVolume calculates total volume including nested rows
+func (t *Table) GetTotalVolume() int {
+	total := 0
+	for _, row := range *t {
+		if len(row.Children) > 0 {
+			childrenSum := 0
+			for _, child := range row.Children {
+				childrenSum += child.Sum
+			}
+			total += row.Amount * childrenSum
+		} else {
+			total += row.Sum
+		}
+	}
+	return total
 }
 
 type Document struct {
