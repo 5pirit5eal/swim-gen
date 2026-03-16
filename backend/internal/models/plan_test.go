@@ -66,8 +66,8 @@ func TestUpdateSum_NestedRows(t *testing.T) {
 			Intensity:  "GA1",
 			Sum:        0,
 			Children: []models.Row{
-				{Amount: 1, Distance: 800, Break: "10", Content: "Freestyle", Intensity: "GA1", Sum: 800},
-				{Amount: 1, Distance: 200, Break: "0", Content: "Kick", Intensity: "GA1", Sum: 200},
+				{Amount: 1, Distance: 800, Break: "10", Content: "Freestyle", Intensity: "GA1", Sum: 0},
+				{Amount: 1, Distance: 200, Break: "0", Content: "Kick", Intensity: "GA1", Sum: 0},
 			},
 		},
 	}
@@ -75,6 +75,32 @@ func TestUpdateSum_NestedRows(t *testing.T) {
 
 	assert.Equal(t, 1000, table[0].Distance, "Parent Distance should be 1000")
 	assert.Equal(t, 8000, table[0].Sum, "Parent Sum should be 8000")
+	assert.Equal(t, 800, table[0].Children[0].Sum, "Child 1 Sum should be recalculated to 800")
+	assert.Equal(t, 200, table[0].Children[1].Sum, "Child 2 Sum should be recalculated to 200")
+}
+
+func TestUpdateSum_NestedRowsWithIncorrectSums(t *testing.T) {
+	table := models.Table{
+		{
+			Amount:     6,
+			Multiplier: "x",
+			Distance:   0,
+			Break:      "15",
+			Content:    "Main Set",
+			Intensity:  "GA2",
+			Sum:        0,
+			Children: []models.Row{
+				{Amount: 1, Distance: 400, Break: "10", Content: "Kraul", Intensity: "GA2", Sum: 9999},
+				{Amount: 1, Distance: 100, Break: "5", Content: "Brust", Intensity: "GA2", Sum: 9999},
+			},
+		},
+	}
+	table.UpdateSum()
+
+	assert.Equal(t, 500, table[0].Distance, "Main Set Distance should be 500")
+	assert.Equal(t, 3000, table[0].Sum, "Main Set sum should be 3000 (recalculated from correct child sums)")
+	assert.Equal(t, 400, table[0].Children[0].Sum, "Child 1 Sum should be recalculated to 400")
+	assert.Equal(t, 100, table[0].Children[1].Sum, "Child 2 Sum should be recalculated to 100")
 }
 
 func TestUpdateSum_MixedRows(t *testing.T) {
@@ -89,8 +115,8 @@ func TestUpdateSum_MixedRows(t *testing.T) {
 			Intensity:  "GA2",
 			Sum:        0,
 			Children: []models.Row{
-				{Amount: 1, Distance: 400, Break: "10", Content: "Kraul", Intensity: "GA2", Sum: 400},
-				{Amount: 1, Distance: 100, Break: "5", Content: "Brust", Intensity: "GA2", Sum: 100},
+				{Amount: 1, Distance: 400, Break: "10", Content: "Kraul", Intensity: "GA2", Sum: 0},
+				{Amount: 1, Distance: 100, Break: "5", Content: "Brust", Intensity: "GA2", Sum: 0},
 			},
 		},
 		{Amount: 1, Distance: 200, Break: "0", Content: "Cooldown", Intensity: "Rekom", Sum: 200},
@@ -307,7 +333,6 @@ func TestRow_WithEquipment(t *testing.T) {
 
 	str := row.String()
 	assert.Contains(t, str, "Flossen", "Row string should contain equipment")
-	assert.Contains(t, str, "Ausrüstung", "Row string should contain 'Ausrüstung' label")
 }
 
 func TestRow_EquipmentEmpty(t *testing.T) {
@@ -321,7 +346,7 @@ func TestRow_EquipmentEmpty(t *testing.T) {
 	}
 
 	str := row.String()
-	assert.NotContains(t, str, "Ausrüstung", "Row string should not contain equipment label when empty")
+	assert.Equal(t, "| 4 | x | 100 | 20 | Kraul | GA1 | 0 |  |", str, "Row string should have empty equipment column")
 }
 
 func TestRow_EquipmentMultiple(t *testing.T) {

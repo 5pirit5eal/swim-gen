@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/invopop/jsonschema"
 )
@@ -36,7 +35,7 @@ const (
 )
 
 // EquipmentType represents the type of equipment used in swimming training
-// Constants use English names with German values as specified
+// Constants use English keys with German values as specified
 type EquipmentType string
 
 const (
@@ -46,27 +45,6 @@ const (
 	EquipmentBuoy      EquipmentType = "Pull buoy"
 	EquipmentSnorkel   EquipmentType = "Schnorchel"
 )
-
-// EquipmentTypes returns a slice of all valid equipment types
-func EquipmentTypes() []EquipmentType {
-	return []EquipmentType{
-		EquipmentFins,
-		EquipmentKickboard,
-		EquipmentPaddles,
-		EquipmentBuoy,
-		EquipmentSnorkel,
-	}
-}
-
-// EquipmentTypeString returns a comma-separated string of all equipment types
-func EquipmentTypeString() string {
-	types := EquipmentTypes()
-	result := make([]string, len(types))
-	for i, t := range types {
-		result[i] = string(t)
-	}
-	return strings.Join(result, ", ")
-}
 
 // Metadata represents the metadata associated with a training plan
 // @Description Detailed metadata and categorization for swimming training plans
