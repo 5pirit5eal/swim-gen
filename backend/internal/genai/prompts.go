@@ -255,6 +255,18 @@ WICHTIGSTE REGEL: Ändere NIEMALS den tatsächlichen Trainingsinhalt selbst!
 - Füge keine neuen Übungen hinzu oder entferne bestehende
 - Nur die STRUKTUR im Schema darf optimiert werden (flach → verschachtelt)
 
+EQUIPMENT ERKENNUNG:
+- Analysiere den Content und die Beschreibung auf Hinweise zu benötigter Ausrüstung
+- Verwende EXAKT diese Ausrüstungswerte (in Deutsch): Flossen, Kickboard, Handpaddles, Pull buoy, Schnorchel
+- Beispiele für Equipment-Erkennung:
+  * "Kraul-Beine" oder "Kick" → Flossen
+  * "Kickboard" oder "Beine mit Board" → Kickboard
+  * "Paddles" oder "Handpaddles" → Handpaddles
+  * "Pull buoy" oder "Buoy" → Pull buoy
+  * "Schnorchel" oder "Nasclip" → Schnorchel
+- Füge das Equipment nur in dem jeweiligen Row-Equipment-Feld hinzu
+- Parent rows (mit Children) sollten kein Equipment haben, es sei denn es gilt für alle Children
+
 Wenn keine Verschachtelung sinnvoll ist oder der Plan bereits optimal strukturiert ist, behalte die flache Struktur bei.
 
 Gib EXAKT das folgende Schema zurück:
