@@ -74,7 +74,7 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
     } else {
       // Revert to the original value if input is invalid
       const originalRow = props.store.currentPlan?.table[rowIndex]
-      const val = originalRow ? originalRow[field] : 0
+      const val = originalRow ? (originalRow[field] as string | number) : 0
       newValue = val !== undefined ? val : 0
     }
   }
