@@ -177,7 +177,7 @@ type Row struct {
 func (r Row) String() string {
 	equipmentStr := ""
 	if len(r.Equipment) > 0 {
-		equipmentStr = fmt.Sprintf(" (Ausrüstung: %s)", strings.Join(r.Equipment, ", "))
+		equipmentStr = strings.Join(r.Equipment, ", ")
 	}
 
 	if len(r.Children) > 0 {
@@ -188,14 +188,14 @@ func (r Row) String() string {
 			}
 			childrenStr += fmt.Sprintf("%dm", child.Distance)
 		}
-		return fmt.Sprintf("| %d | %s | %d | %s | %dx(%s) | %s | %d|%s |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Amount, childrenStr, r.Intensity, r.Sum, equipmentStr)
+		return fmt.Sprintf("| %d | %s | %d | %s | %dx(%s) | %s | %d | %s |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Amount, childrenStr, r.Intensity, r.Sum, equipmentStr)
 	}
-	return fmt.Sprintf("| %d | %s | %d | %s | %s | %s | %d|%s |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Content, r.Intensity, r.Sum, equipmentStr)
+	return fmt.Sprintf("| %d | %s | %d | %s | %s | %s | %d | %s |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Content, r.Intensity, r.Sum, equipmentStr)
 }
 
 func (t *Table) String() string {
-	tstr := "| Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |\n"
-	tstr += "|---|---|---|---|---|---|---|\n"
+	tstr := "| Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang | Ausrüstung |\n"
+	tstr += "|---|---|---|---|---|---|---|---|\n"
 	for _, row := range *t {
 		tstr += row.String() + "\n"
 	}
@@ -219,11 +219,12 @@ func (t *Table) UpdateSum() {
 		if strings.Contains(row.Content, "Gesamt") || strings.Contains(row.Content, "Total") {
 			(*t)[i].Sum = total
 		} else if len(row.Children) > 0 {
-			// Nested row: calculate children sums first, then parent
+			// Nested row: recalculate children sums, then parent
 			childrenSum := 0
 			childrenDistance := 0
-			for _, child := range row.Children {
-				childrenSum += child.Sum
+			for j, child := range row.Children {
+				(*t)[i].Children[j].Sum = child.Amount * child.Distance
+				childrenSum += (*t)[i].Children[j].Sum
 				childrenDistance += child.Distance
 			}
 			// Update parent Distance to be sum of children distances
@@ -322,17 +323,12 @@ func (t *Table) FlattenTable(indent string) []string {
 	return lines
 }
 
-// GetTotalVolume calculates total volume including nested rows
+// GetTotalVolume calculates total volume from row sums
+// Assumes UpdateSum() has been called to set correct Sum values
 func (t *Table) GetTotalVolume() int {
 	total := 0
 	for _, row := range *t {
-		if len(row.Children) > 0 {
-			childrenSum := 0
-			for _, child := range row.Children {
-				childrenSum += child.Sum
-			}
-			total += row.Amount * childrenSum
-		} else {
+		if !strings.Contains(row.Content, "Gesamt") && !strings.Contains(row.Content, "Total") {
 			total += row.Sum
 		}
 	}

@@ -23,6 +23,7 @@ export interface Row {
   Multiplier: string
   Sum: number
   Equipment?: string[] // Optional equipment for this row
+  Children?: Row[] // Optional nested rows for compound sets
   _id?: string // Frontend-only unique identifier for list transitions
 }
 
