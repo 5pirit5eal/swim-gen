@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/invopop/jsonschema"
 )
@@ -34,6 +35,39 @@ const (
 	Wettkampfvorbereitung Training = "Wettkampfvorbereitung" // @Description Competition preparation
 )
 
+// EquipmentType represents the type of equipment used in swimming training
+// Constants use English names with German values as specified
+type EquipmentType string
+
+const (
+	EquipmentFins      EquipmentType = "Flossen"
+	EquipmentKickboard EquipmentType = "Kickboard"
+	EquipmentPaddles   EquipmentType = "Handpaddles"
+	EquipmentBuoy      EquipmentType = "Pull buoy"
+	EquipmentSnorkel   EquipmentType = "Schnorchel"
+)
+
+// EquipmentTypes returns a slice of all valid equipment types
+func EquipmentTypes() []EquipmentType {
+	return []EquipmentType{
+		EquipmentFins,
+		EquipmentKickboard,
+		EquipmentPaddles,
+		EquipmentBuoy,
+		EquipmentSnorkel,
+	}
+}
+
+// EquipmentTypeString returns a comma-separated string of all equipment types
+func EquipmentTypeString() string {
+	types := EquipmentTypes()
+	result := make([]string, len(types))
+	for i, t := range types {
+		result[i] = string(t)
+	}
+	return strings.Join(result, ", ")
+}
+
 // Metadata represents the metadata associated with a training plan
 // @Description Detailed metadata and categorization for swimming training plans
 type Metadata struct {
@@ -45,7 +79,6 @@ type Metadata struct {
 	Difficulty      DifficultyLevel `json:"schwierigkeitsgrad" jsonschema:"description=The difficulty level of the training,enum=Nichtschwimmer,enum=Anfaenger,enum=Fortgeschritten,enum=Leistungsschwimmer,enum=Top-Athlet" example:"Fortgeschritten"`
 	TrainingType    Training        `json:"trainingstyp" jsonschema:"description=The type of training,enum=Techniktraining,enum=Leistungstest,enum=Grundlagen,enum=Recovery,enum=Kurzstrecken,enum=Langstrecken,enum=Atemmangel,enum=Wettkampfvorbereitung" example:"Techniktraining"`
 	Reasoning       string          `json:"Begründung" jsonschema_description:"Reasoning for why the attributes were chosen" example:"This plan focuses on freestyle technique improvement with moderate intensity"`
-	Equipment       []string        `json:"Ausrüstung" jsonschema_description:"Equipment needed for the training" example:"[\"Kickboard\", \"Pull buoy\"]"`
 }
 
 type Description struct {
