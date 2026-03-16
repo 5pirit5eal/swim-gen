@@ -112,15 +112,24 @@ func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Planab
 		defer syncGroup.Done()
 	}
 	logger := httplog.LogEntry(ctx)
-	meta, err := gc.GenerateMetadata(ctx, plan)
+
+	// Step 1: Restructure plan with nested loops support (happens only once during scraping)
+	restructuredPlan, err := gc.RestructurePlan(ctx, plan)
+	if err != nil {
+		logger.Warn("Failed to restructure plan, using original", httplog.ErrAttr(err))
+		restructuredPlan = plan.Plan()
+	}
+
+	// Step 2: Generate metadata
+	meta, err := gc.GenerateMetadata(ctx, restructuredPlan)
 	if err != nil {
 		logger.Error("Error when generating metadata with LLM", httplog.ErrAttr(err))
 		ec <- fmt.Errorf("error generating metadata: %w", err)
 		return
 	}
 
-	// Create request body by converting the plans into documents
-	c <- models.Document{Plan: plan, Meta: meta}
+	// Step 3: Create document with restructured plan
+	c <- models.Document{Plan: restructuredPlan, Meta: meta}
 }
 
 func (gc *GoogleGenAIClient) DescribeTable(ctx context.Context, table *models.Table) (*models.Description, error) {
@@ -264,4 +273,44 @@ func (gc *GoogleGenAIClient) FileToPlan(ctx context.Context, file []byte, filena
 	logger.Debug("Plan extracted from image successfully")
 	return &p, nil
 
+}
+
+// RestructurePlan analyzes a plan and optimizes its structure by identifying repeating patterns
+// and representing them using nested Children instead of flat rows. This happens only once during
+// the scraping/import process. The actual training content is NEVER modified - only the schema
+// representation is optimized for better structure.
+func (gc *GoogleGenAIClient) RestructurePlan(ctx context.Context, plan models.Planable) (*models.Plan, error) {
+	logger := httplog.LogEntry(ctx)
+	gps, err := models.GeneratedPlanSchema()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get GeneratedPlan schema: %w", err)
+	}
+
+	genericPlan := plan.Plan()
+	query := fmt.Sprintf(restructureTemplateStr, gps, genericPlan.Title, genericPlan.Description, genericPlan.Table.String())
+
+	genCfg := *gc.gcfg
+	genCfg.ResponseMIMEType = "application/json"
+	genCfg.ResponseJsonSchema = gps
+	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
+
+	if err != nil {
+		logger.Error("Error when restructuring plan", httplog.ErrAttr(err))
+		return nil, fmt.Errorf("error restructuring plan: %w", err)
+	}
+
+	var gp models.GeneratedPlan
+	err = json.Unmarshal([]byte(answer.Text()), &gp)
+	if err != nil {
+		logger.Error("Error parsing restructured plan", httplog.ErrAttr(err), "raw_response", answer.Text())
+		return nil, fmt.Errorf("error parsing restructured plan: %w", err)
+	}
+
+	gp.Table.UpdateSum()
+	return &models.Plan{
+		PlanID:      genericPlan.PlanID,
+		Title:       gp.Title,
+		Description: gp.Description,
+		Table:       gp.Table,
+	}, nil
 }
