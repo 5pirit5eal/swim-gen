@@ -11,6 +11,7 @@ Ziehe dabei auch die konfigurierte Poollänge in Betracht: %s. Die Standard-Pool
 Achte darauf, dass die Gesamtdistanz des Trainingsplans möglichst genau zu der Anfrage des Schwimmers passt!
 Erhöhe die Anzahl oder die Distanz der einzelnen Wiederholungen,
 oder entferne oder füge weitere Übungen hinzu um die Gesamtdistanz anzupassen.
+Verschachtelte Strukturen unterstützen (z.B. "8 x (800 + 200)"): Verwende das Children-Feld für Untereinheiten, Parent Distance wird automatisch berechnet.
 Die technischen Übungen dürfen nur als Referenzen eingefügt werden. Das Format ist ein Markdown URL Link.
 Dafür wird der slug als Linktext verwendet und die URL als Linkziel. Exemplarisch: [slug](URL).
 Erstelle nur Referenzen für technische Übungen, die mit /drill erreichbar sind. Andere sind nicht als Referenz geeignet.
@@ -224,12 +225,46 @@ const ocrTemplateStr string = `
 Analysiere diese Datei und extrahiere den darin enthaltenen Plan möglichst genau.
 Falls das Schema für den Trainingsplan nicht genau passt, modifiziere den Plan entsprechend
 und passe ihn an das Schema an. Gib das Ergebnis im JSON-Format zurück.
-Blöcke die sich wiederholen sollen über das Content-Feld abgebildet werden, sodass sowas wie
-2x(100m Kraul, 200m Brust, 100m Locker)
-zu
-2 x 400m "1. 100m Kraul, 2. 200m Brust, 3. 100m Locker"
-wird.
+
+Verschachtelte Strukturen unterstützen:
+- Wenn wiederholende Blöcke erkannt werden (z.B. "2x(100m Kraul, 200m Brust, 100m Locker)"), verwende das Children-Feld
+- Parent row: Amount=2, Distance=0 (wird automatisch berechnet), Children=[{Distance:100}, {Distance:200}, {Distance:100}]
+- Parent Sum = Amount x sum(Children.Sum)
+- WICHTIG: Ändere NIEMALS den Trainingsinhalt selbst - nur die Darstellung im Schema optimieren
+- Falls keine Verschachtelung sinnvoll ist, behalte die flache Struktur bei
+
 Antworte in der Sprache: %s.
+
+Antwort:
+`
+
+const restructureTemplateStr string = `
+Du bist ein Schwimmtrainer-Experte. Deine Aufgabe ist es, Trainingspläne in ein optimiertes Format zu überführen.
+
+Der folgende Plan wurde aus einer unstrukturierten Quelle extrahiert. Analysiere den Plan und strukturiere ihn neu,
+wenn wiederholende Blöcke erkannt werden, indem du das Children-Feld für verschachtelte Strukturen verwendest.
+
+Beispiel für Verschachtelung:
+- Wenn der Plan enthält: 8 x ( 1. 100m Kraul, 2. 200m Brust, 3. 100m Locker )
+- Dann umwandeln zu: Amount=8 mit Children=[{Distance:100, Content:"Kraul"}, {Distance:200, Content:"Brust"}, {Distance:100, Content:"Locker"}]
+
+WICHTIGSTE REGEL: Ändere NIEMALS den tatsächlichen Trainingsinhalt selbst!
+- Ändere nicht die Distanzen, Intensitäten oder Übungstypen
+- Ändere nicht die Gesamtdistanz des Plans
+- Ändere nicht die Anzahl der Wiederholungen
+- Füge keine neuen Übungen hinzu oder entferne bestehende
+- Nur die STRUKTUR im Schema darf optimiert werden (flach → verschachtelt)
+
+Wenn keine Verschachtelung sinnvoll ist oder der Plan bereits optimal strukturiert ist, behalte die flache Struktur bei.
+
+Gib EXAKT das folgende Schema zurück:
+%s
+
+Aktueller Plan:
+Titel: %s
+Beschreibung: %s
+Tabelle:
+%s
 
 Antwort:
 `
