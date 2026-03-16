@@ -307,6 +307,10 @@ func (gc *GoogleGenAIClient) RestructurePlan(ctx context.Context, plan models.Pl
 	}
 
 	gp.Table.UpdateSum()
+	if err := gp.Table.Validate(); err != nil {
+		logger.Error("Validation failed for restructured plan", httplog.ErrAttr(err))
+		return nil, fmt.Errorf("validation failed for restructured plan: %w", err)
+	}
 	return &models.Plan{
 		PlanID:      genericPlan.PlanID,
 		Title:       gp.Title,
