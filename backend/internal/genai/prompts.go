@@ -259,11 +259,14 @@ EQUIPMENT ERKENNUNG:
 - Analysiere den Content und die Beschreibung auf Hinweise zu benötigter Ausrüstung
 - Verwende EXAKT diese Ausrüstungswerte (in Deutsch): Flossen, Kickboard, Handpaddles, Pull buoy, Schnorchel
 - Beispiele für Equipment-Erkennung:
-  * "Kraul-Beine" oder "Kick" → Flossen
-  * "Kickboard" oder "Beine mit Board" → Kickboard
-  * "Paddles" oder "Handpaddles" → Handpaddles
-  * "Pull buoy" oder "Buoy" → Pull buoy
-  * "Schnorchel" oder "Nasclip" → Schnorchel
+  * "Kraul-Beine" oder "Kick" → Kickboard
+  * "Delfinbeine mit Flossen" oder "Kraul mit Flossen" → Flossen
+  * "Paddles", "Fingerpaddles" oder "Handpaddles" → Handpaddles
+  * "Pull buoy", "Arme mit Brett" oder "Kraularme" → Pull buoy
+  * "Schnorchel" → Schnorchel
+- Falls ein anderes Equipment notwendig ist, schreibe es in die Content Spalte
+- "Brett" in der Nutzung mit Beine ist ein "Kickboard"
+- "Brett" in der Nutzung mit Arme ist ein "Pull buoy"
 - Füge das Equipment nur in dem jeweiligen Row-Equipment-Feld hinzu
 - Parent rows (mit Children) sollten kein Equipment haben, es sei denn es gilt für alle Children
 
