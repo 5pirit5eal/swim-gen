@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -46,8 +47,16 @@ func main() {
 		log.Fatal("Error loading configuration:", err)
 	}
 
-	// Initialize context
-	ctx := context.Background()
+	logger, err := setupLogger(cfg)
+	if err != nil {
+		log.Fatal("Error setting up logger:", err)
+	}
+
+	// Set as default logger for all slog calls
+	slog.SetDefault(logger)
+
+	// Initialize context with logger
+	ctx := context.WithValue(context.Background(), rag.LoggerKey, logger)
 
 	// Initialize RAG database
 	db, err := rag.NewGoogleAIStore(ctx, cfg)
@@ -71,4 +80,24 @@ func main() {
 	}
 
 	fmt.Println("Scraping completed successfully")
+}
+
+func setupLogger(cfg config.Config) (*slog.Logger, error) {
+	levelMap := map[string]slog.Level{
+		"DEBUG": slog.LevelDebug,
+		"INFO":  slog.LevelInfo,
+		"WARN":  slog.LevelWarn,
+		"ERROR": slog.LevelError,
+	}
+
+	level, ok := levelMap[cfg.LogLevel]
+	if !ok {
+		level = slog.LevelInfo
+	}
+
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: level,
+	})
+
+	return slog.New(handler), nil
 }
