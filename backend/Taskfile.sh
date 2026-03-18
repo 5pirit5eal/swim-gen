@@ -56,20 +56,22 @@ setup-gcloud() {
 docker-run() {
   local container_id=$1
   local port=${2:-"8080"}
+  local env_file=${3:-".env"}
   # local background=${3:-"-d"}
   docker run \
     -v ~/.config/gcloud/application_default_credentials.json:/gcp/creds.json \
     -p $port:8080 -e PORT=8080 \
     -e GOOGLE_APPLICATION_CREDENTIALS=/gcp/creds.json \
     -e GOOGLE_CLOUD_PROJECT="$PROJECT_ID" \
-    --env-file .env \
+    --env-file $env_file \
     $background \
     -i $container_id
 }
 
 docker-build-and-run() {
+  local env_file=${1:-".env"}
   docker build .
-  docker-run $(docker images --format "{{.ID}}" | head -n 1)
+  docker-run $(docker images --format "{{.ID}}" | head -n 1) 8080 $env_file
 }
 
 scrape() {
