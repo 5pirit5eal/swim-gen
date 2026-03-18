@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
@@ -16,7 +18,7 @@ func TestUpdateSum(t *testing.T) {
 			Break:      "30",
 			Content:    "Kraul-Beine",
 			Intensity:  "GA1",
-			Sum:        0, // Initial sum is incorrect
+			Sum:        0,
 		},
 		{
 			Amount:     2,
@@ -25,7 +27,7 @@ func TestUpdateSum(t *testing.T) {
 			Break:      "20",
 			Content:    "Unterwasser-Sculling",
 			Intensity:  "TÜ",
-			Sum:        0, // Initial sum is incorrect
+			Sum:        0,
 		},
 		{
 			Amount:     0,
@@ -34,14 +36,13 @@ func TestUpdateSum(t *testing.T) {
 			Break:      "",
 			Content:    "Gesamt",
 			Intensity:  "",
-			Sum:        0, // Initial sum is incorrect
+			Sum:        0,
 		},
 	}
 
 	// Call UpdateSum to recalculate the sums
 	table.UpdateSum()
 
-	// Assertions
 	assert.Equal(t, 200, table[0].Sum, "Sum for the first row should be 200")
 	assert.Equal(t, 100, table[1].Sum, "Sum for the second row should be 100")
 	assert.Equal(t, 300, table[2].Sum, "Sum for the third row should be 300")
@@ -53,6 +54,13 @@ func TestGeneratedPlanSchema(t *testing.T) {
 
 	// check if the schema is valid json
 	assert.NotEmpty(t, schema, "Schema should not be empty")
+
+	// DEBUG write the file to ./schema.json
+	jsonSchema, err := json.MarshalIndent(schema, "", "  ")
+	if err != nil {
+		t.Fatalf("Failed to marshal JSON schema: %v", err)
+	}
+	fmt.Println(string(jsonSchema))
 }
 
 func TestUpdateSum_NestedRows(t *testing.T) {
@@ -65,7 +73,7 @@ func TestUpdateSum_NestedRows(t *testing.T) {
 			Content:    "Main Set",
 			Intensity:  "GA1",
 			Sum:        0,
-			Children: []models.Row{
+			SubRows: []models.Row{
 				{Amount: 1, Distance: 800, Break: "10", Content: "Freestyle", Intensity: "GA1", Sum: 0},
 				{Amount: 1, Distance: 200, Break: "0", Content: "Kick", Intensity: "GA1", Sum: 0},
 			},
@@ -75,8 +83,8 @@ func TestUpdateSum_NestedRows(t *testing.T) {
 
 	assert.Equal(t, 1000, table[0].Distance, "Parent Distance should be 1000")
 	assert.Equal(t, 8000, table[0].Sum, "Parent Sum should be 8000")
-	assert.Equal(t, 800, table[0].Children[0].Sum, "Child 1 Sum should be recalculated to 800")
-	assert.Equal(t, 200, table[0].Children[1].Sum, "Child 2 Sum should be recalculated to 200")
+	assert.Equal(t, 800, table[0].SubRows[0].Sum, "Child 1 Sum should be recalculated to 800")
+	assert.Equal(t, 200, table[0].SubRows[1].Sum, "Child 2 Sum should be recalculated to 200")
 }
 
 func TestUpdateSum_NestedRowsWithIncorrectSums(t *testing.T) {
@@ -89,7 +97,7 @@ func TestUpdateSum_NestedRowsWithIncorrectSums(t *testing.T) {
 			Content:    "Main Set",
 			Intensity:  "GA2",
 			Sum:        0,
-			Children: []models.Row{
+			SubRows: []models.Row{
 				{Amount: 1, Distance: 400, Break: "10", Content: "Kraul", Intensity: "GA2", Sum: 9999},
 				{Amount: 1, Distance: 100, Break: "5", Content: "Brust", Intensity: "GA2", Sum: 9999},
 			},
@@ -99,8 +107,8 @@ func TestUpdateSum_NestedRowsWithIncorrectSums(t *testing.T) {
 
 	assert.Equal(t, 500, table[0].Distance, "Main Set Distance should be 500")
 	assert.Equal(t, 3000, table[0].Sum, "Main Set sum should be 3000 (recalculated from correct child sums)")
-	assert.Equal(t, 400, table[0].Children[0].Sum, "Child 1 Sum should be recalculated to 400")
-	assert.Equal(t, 100, table[0].Children[1].Sum, "Child 2 Sum should be recalculated to 100")
+	assert.Equal(t, 400, table[0].SubRows[0].Sum, "Child 1 Sum should be recalculated to 400")
+	assert.Equal(t, 100, table[0].SubRows[1].Sum, "Child 2 Sum should be recalculated to 100")
 }
 
 func TestUpdateSum_MixedRows(t *testing.T) {
@@ -114,7 +122,7 @@ func TestUpdateSum_MixedRows(t *testing.T) {
 			Content:    "Main Set",
 			Intensity:  "GA2",
 			Sum:        0,
-			Children: []models.Row{
+			SubRows: []models.Row{
 				{Amount: 1, Distance: 400, Break: "10", Content: "Kraul", Intensity: "GA2", Sum: 0},
 				{Amount: 1, Distance: 100, Break: "5", Content: "Brust", Intensity: "GA2", Sum: 0},
 			},
@@ -136,7 +144,7 @@ func TestValidate_ValidTable(t *testing.T) {
 			Amount:     2,
 			Multiplier: "x",
 			Distance:   0,
-			Children: []models.Row{
+			SubRows: []models.Row{
 				{Amount: 1, Distance: 100, Content: "Test", Intensity: "GA1"},
 			},
 		},
@@ -161,18 +169,18 @@ func TestValidate_NegativeDistance(t *testing.T) {
 	assert.Error(t, err, "Table with negative distance should fail validation")
 }
 
-func TestValidate_ZeroAmountWithChildren(t *testing.T) {
+func TestValidate_ZeroAmountWithSubRows(t *testing.T) {
 	table := models.Table{
 		{
 			Amount:   0,
 			Distance: 0,
-			Children: []models.Row{
+			SubRows: []models.Row{
 				{Amount: 1, Distance: 100, Content: "Test", Intensity: "GA1"},
 			},
 		},
 	}
 	err := table.Validate()
-	assert.Error(t, err, "Table with zero amount and children should fail validation")
+	assert.Error(t, err, "Table with zero amount and subRows should fail validation")
 }
 
 func TestValidate_MaxDepth(t *testing.T) {
@@ -181,35 +189,28 @@ func TestValidate_MaxDepth(t *testing.T) {
 			Amount:     2,
 			Multiplier: "x",
 			Distance:   0,
-			Children: []models.Row{
+			SubRows: []models.Row{
 				{
 					Amount:     2,
 					Multiplier: "x",
 					Distance:   0,
-					Children: []models.Row{
+					SubRows: []models.Row{
 						{
 							Amount:     2,
 							Multiplier: "x",
 							Distance:   0,
-							Children: []models.Row{
+							SubRows: []models.Row{
 								{
 									Amount:     2,
 									Multiplier: "x",
 									Distance:   0,
-									Children: []models.Row{
+									SubRows: []models.Row{
 										{
 											Amount:     2,
 											Multiplier: "x",
 											Distance:   0,
-											Children: []models.Row{
-												{
-													Amount:     2,
-													Multiplier: "x",
-													Distance:   0,
-													Children: []models.Row{
-														{Amount: 1, Distance: 100, Content: "Test", Intensity: "GA1"},
-													},
-												},
+											SubRows: []models.Row{
+												{Amount: 1, Distance: 100, Content: "Test", Intensity: "GA1"},
 											},
 										},
 									},
@@ -231,22 +232,22 @@ func TestValidate_ValidMaxDepth(t *testing.T) {
 			Amount:     2,
 			Multiplier: "x",
 			Distance:   0,
-			Children: []models.Row{
+			SubRows: []models.Row{
 				{
 					Amount:     2,
 					Multiplier: "x",
 					Distance:   0,
-					Children: []models.Row{
+					SubRows: []models.Row{
 						{
 							Amount:     2,
 							Multiplier: "x",
 							Distance:   0,
-							Children: []models.Row{
+							SubRows: []models.Row{
 								{
 									Amount:     2,
 									Multiplier: "x",
 									Distance:   0,
-									Children: []models.Row{
+									SubRows: []models.Row{
 										{Amount: 1, Distance: 100, Content: "Test", Intensity: "GA1"},
 									},
 								},
@@ -269,7 +270,7 @@ func TestFlattenTable(t *testing.T) {
 			Distance:   0,
 			Content:    "Set",
 			Sum:        1200,
-			Children: []models.Row{
+			SubRows: []models.Row{
 				{Amount: 1, Distance: 400, Content: "Kraul", Sum: 400},
 				{Amount: 1, Distance: 200, Content: "Brust", Sum: 200},
 			},
@@ -288,7 +289,7 @@ func TestGetTotalVolume(t *testing.T) {
 			Distance:   0,
 			Content:    "Main Set",
 			Sum:        0,
-			Children: []models.Row{
+			SubRows: []models.Row{
 				{Amount: 1, Distance: 800, Content: "Freestyle", Sum: 800},
 				{Amount: 1, Distance: 200, Content: "Kick", Sum: 200},
 			},
@@ -310,14 +311,14 @@ func TestRowString_Nested(t *testing.T) {
 		Content:    "Main Set",
 		Intensity:  "GA1",
 		Sum:        8000,
-		Children: []models.Row{
+		SubRows: []models.Row{
 			{Amount: 1, Distance: 800, Content: "Freestyle", Sum: 800},
 			{Amount: 1, Distance: 200, Content: "Kick", Sum: 200},
 		},
 	}
 	str := row.String()
 	assert.Contains(t, str, "8x", "Row string should contain '8x'")
-	assert.Contains(t, str, "800m + 200m", "Row string should contain children distances")
+	assert.Contains(t, str, "800m + 200m", "Row string should contain subRows distances")
 }
 
 func TestRow_WithEquipment(t *testing.T) {
@@ -328,7 +329,7 @@ func TestRow_WithEquipment(t *testing.T) {
 		Break:      "20",
 		Content:    "Kraul-Beine",
 		Intensity:  "GA1",
-		Equipment:  []string{"Flossen"},
+		Equipment:  []models.EquipmentType{models.EquipmentFins},
 	}
 
 	str := row.String()
@@ -357,7 +358,7 @@ func TestRow_EquipmentMultiple(t *testing.T) {
 		Break:      "20",
 		Content:    "Technikübung",
 		Intensity:  "TÜ",
-		Equipment:  []string{"Flossen", "Pull buoy"},
+		Equipment:  []models.EquipmentType{models.EquipmentFins, models.EquipmentBuoy},
 	}
 
 	str := row.String()
@@ -365,7 +366,7 @@ func TestRow_EquipmentMultiple(t *testing.T) {
 	assert.Contains(t, str, "Pull buoy")
 }
 
-func TestRow_EquipmentWithChildren(t *testing.T) {
+func TestRow_EquipmentWithSubRows(t *testing.T) {
 	row := models.Row{
 		Amount:     4,
 		Multiplier: "x",
@@ -374,8 +375,8 @@ func TestRow_EquipmentWithChildren(t *testing.T) {
 		Content:    "Main Set",
 		Intensity:  "GA1",
 		Sum:        400,
-		Equipment:  []string{"Flossen"},
-		Children: []models.Row{
+		Equipment:  []models.EquipmentType{models.EquipmentFins},
+		SubRows: []models.Row{
 			{Amount: 1, Distance: 300, Content: "Kraul", Intensity: "GA1", Sum: 300},
 			{Amount: 1, Distance: 100, Content: "Kick", Intensity: "GA1", Sum: 100},
 		},
@@ -384,4 +385,22 @@ func TestRow_EquipmentWithChildren(t *testing.T) {
 	str := row.String()
 	assert.Contains(t, str, "4x(300m + 100m)")
 	assert.Contains(t, str, "Flossen")
+}
+
+func TestScrapedPlan_MapIncludesURL(t *testing.T) {
+	scrapedPlan := &models.ScrapedPlan{
+		PlanID:      "test-id",
+		URL:         "https://example.com/test",
+		Title:       "Test Title",
+		Description: "Test Description",
+		Table:       models.Table{},
+	}
+
+	planMap := scrapedPlan.Map()
+
+	assert.Contains(t, planMap, "url", "Map() should include URL")
+	assert.Equal(t, "https://example.com/test", planMap["url"], "URL value should match")
+	assert.Equal(t, "test-id", planMap["plan_id"], "plan_id should be present")
+	assert.Equal(t, "Test Title", planMap["title"], "title should be present")
+	assert.Equal(t, "Test Description", planMap["description"], "description should be present")
 }
