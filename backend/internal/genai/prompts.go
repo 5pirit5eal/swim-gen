@@ -11,7 +11,7 @@ Ziehe dabei auch die konfigurierte Poollänge in Betracht: %s. Die Standard-Pool
 Achte darauf, dass die Gesamtdistanz des Trainingsplans möglichst genau zu der Anfrage des Schwimmers passt!
 Erhöhe die Anzahl oder die Distanz der einzelnen Wiederholungen,
 oder entferne oder füge weitere Übungen hinzu um die Gesamtdistanz anzupassen.
-Verschachtelte Strukturen unterstützen (z.B. "8 x (800 + 200)"): Verwende das Children-Feld für Untereinheiten, Parent Distance wird automatisch berechnet.
+Verwende zwingend das SubRows-Feld für Untereinheiten, z.B. "8 x (800 + 200)"
 Die technischen Übungen dürfen nur als Referenzen eingefügt werden. Das Format ist ein Markdown URL Link.
 Dafür wird der slug als Linktext verwendet und die URL als Linkziel. Exemplarisch: [slug](URL).
 Erstelle nur Referenzen für technische Übungen, die mit /drill erreichbar sind. Andere sind nicht als Referenz geeignet.
@@ -226,12 +226,7 @@ Analysiere diese Datei und extrahiere den darin enthaltenen Plan möglichst gena
 Falls das Schema für den Trainingsplan nicht genau passt, modifiziere den Plan entsprechend
 und passe ihn an das Schema an. Gib das Ergebnis im JSON-Format zurück.
 
-Verschachtelte Strukturen unterstützen:
-- Wenn wiederholende Blöcke erkannt werden (z.B. "2x(100m Kraul, 200m Brust, 100m Locker)"), verwende das Children-Feld
-- Parent row: Amount=2, Distance=0 (wird automatisch berechnet), Children=[{Distance:100}, {Distance:200}, {Distance:100}]
-- Parent Sum = Amount x sum(Children.Sum)
-- WICHTIG: Ändere NIEMALS den Trainingsinhalt selbst - nur die Darstellung im Schema optimieren
-- Falls keine Verschachtelung sinnvoll ist, behalte die flache Struktur bei
+Wenn wiederholende Blöcke erkannt werden (z.B. "2 x (100m Kraul, 200m Brust, 100m Locker)"), verwende das SubRows-Feld
 
 Antworte in der Sprache: %s.
 
@@ -241,22 +236,32 @@ Antwort:
 const restructureTemplateStr string = `
 Du bist ein Schwimmtrainer-Experte. Deine Aufgabe ist es, Trainingspläne in ein optimiertes Format zu überführen.
 
-Der folgende Plan wurde aus einer unstrukturierten Quelle extrahiert. Analysiere den Plan und strukturiere ihn neu,
-wenn wiederholende Blöcke erkannt werden, indem du das Children-Feld für verschachtelte Strukturen verwendest.
+Der folgende Plan wurde aus einer flach strukturierten Quelle extrahiert. Analysiere den Plan und strukturiere ihn neu.
+Nutze dazu das JSON schema. WENN wiederholende Blöcke erkannt werden, verwende IMMER das SubRows-Feld für Untereinheiten.
 
-Beispiel für Verschachtelung:
+Beispiel für Untereinheiten:
 - Wenn der Plan enthält: 8 x ( 1. 100m Kraul, 2. 200m Brust, 3. 100m Locker )
-- Dann umwandeln zu: Amount=8 mit Children=[{Distance:100, Content:"Kraul"}, {Distance:200, Content:"Brust"}, {Distance:100, Content:"Locker"}]
+- Dann umwandeln zu: Amount=8 mit SubRows=[{Distance:100, Content:"Kraul", ...}, {Distance:200, Content:"Brust", ...}, {Distance:100, Content:"Locker", ...}]
+
+VORMARKIERTE SUBROW-KANDIDATEN:
+Manche Zeilen in der Tabelle sind mit dem Hinweis [→ SUBROW-KANDIDAT: '+' Zeichen gefunden] markiert.
+Diese Zeilen MÜSSEN zwingend in SubRows aufgeteilt werden, da sie ein '+'-Zeichen im Inhalt enthalten,
+das eine zusammengesetzte Übungseinheit signalisiert (z.B. "100m Kraul + 200m Brust" = zwei SubRows).
+Trenne diese Zeile anhand der '+'-Trennstellen in separate SubRows auf.
+
+ZUSÄTZLICHE SUBROWS:
+Die Vormarkierung ist nicht abschließend. Es können weitere Zeilen SubRows benötigen, auch wenn sie
+nicht markiert sind – zum Beispiel bei nummerierten Sequenzen, Klammern, oder anderen Mustern, die
+wiederholende Untereinheiten beschreiben. Prüfe den gesamten Plan auf solche Muster.
 
 WICHTIGSTE REGEL: Ändere NIEMALS den tatsächlichen Trainingsinhalt selbst!
 - Ändere nicht die Distanzen, Intensitäten oder Übungstypen
 - Ändere nicht die Gesamtdistanz des Plans
 - Ändere nicht die Anzahl der Wiederholungen
-- Füge keine neuen Übungen hinzu oder entferne bestehende
-- Nur die STRUKTUR im Schema darf optimiert werden (flach → verschachtelt)
+- Nur die STRUKTUR muss optimiert werden (flach → verschachtelt)
 
 EQUIPMENT ERKENNUNG:
-- Analysiere den Content und die Beschreibung auf Hinweise zu benötigter Ausrüstung
+- Analysiere den Content und die Beschreibung auf Hinweise zu benötigter Ausrüstung. Das im Input möglicherweise bestehende Equipmentfeld ist immer leer.
 - Verwende EXAKT diese Ausrüstungswerte (in Deutsch): Flossen, Kickboard, Handpaddles, Pull buoy, Schnorchel
 - Beispiele für Equipment-Erkennung:
   * "Kraul-Beine" oder "Kick" → Kickboard
@@ -267,19 +272,16 @@ EQUIPMENT ERKENNUNG:
 - Falls ein anderes Equipment notwendig ist, schreibe es in die Content Spalte
 - "Brett" in der Nutzung mit Beine ist ein "Kickboard"
 - "Brett" in der Nutzung mit Arme ist ein "Pull buoy"
-- Füge das Equipment nur in dem jeweiligen Row-Equipment-Feld hinzu
-- Parent rows (mit Children) sollten kein Equipment haben, es sei denn es gilt für alle Children
+- Parent rows (mit SubRows) sollten kein Equipment haben, es sei denn es gilt für alle Untereinheiten
 
-Wenn keine Verschachtelung sinnvoll ist oder der Plan bereits optimal strukturiert ist, behalte die flache Struktur bei.
-
-Gib EXAKT das folgende Schema zurück:
+**Antworte in folgendem Schema:**
 %s
 
-Aktueller Plan:
+**Aktueller Plan:**
 Titel: %s
 Beschreibung: %s
 Tabelle:
 %s
 
-Antwort:
+**Antwort:**
 `
