@@ -237,28 +237,42 @@ const restructureTemplateStr string = `
 Du bist ein Schwimmtrainer-Experte. Deine Aufgabe ist es, Trainingspläne in ein optimiertes Format zu überführen.
 
 Der folgende Plan wurde aus einer flach strukturierten Quelle extrahiert. Analysiere den Plan und strukturiere ihn neu.
-Nutze dazu das JSON schema. WENN wiederholende Blöcke erkannt werden, verwende IMMER das SubRows-Feld für Untereinheiten.
-
-Beispiel für Untereinheiten:
-- Wenn der Plan enthält: 8 x ( 1. 100m Kraul, 2. 200m Brust, 3. 100m Locker )
-- Dann umwandeln zu: Amount=8 mit SubRows=[{Distance:100, Content:"Kraul", ...}, {Distance:200, Content:"Brust", ...}, {Distance:100, Content:"Locker", ...}]
+Nutze dazu das JSON schema. WENN verkapselte Blöcke erkannt werden, verwende IMMER das SubRows-Feld für Untereinheiten.
+Passe die Content Spalte entsprechend an, um die Aufteilung in SubRows zu reflektieren. Behalte die ursprüngliche Bedeutung bei
+damit der Trainingsplan inhaltlich gleich bleibt, aber strukturell verbessert wird.
 
 VORMARKIERTE SUBROW-KANDIDATEN:
 Manche Zeilen in der Tabelle sind mit dem Hinweis [→ SUBROW-KANDIDAT: '+' Zeichen gefunden] markiert.
-Diese Zeilen MÜSSEN zwingend in SubRows aufgeteilt werden, da sie ein '+'-Zeichen im Inhalt enthalten,
-das eine zusammengesetzte Übungseinheit signalisiert (z.B. "100m Kraul + 200m Brust" = zwei SubRows).
-Trenne diese Zeile anhand der '+'-Trennstellen in separate SubRows auf.
+Diese Zeilen MÜSSEN zwingend in SubRows aufgeteilt werden (z.B. "100m Kraul + 200m Brust" = zwei SubRows).
+Trenne diese Zeile anhand der '+'-Trennstellen in separate SubRows.
+Manche Zeilen in der Tabelle sind mit dem Hinweis [→ SUBROW-KANDIDAT: ' x ' Zeichen gefunden] markiert.
+Prüfe kritisch, ob diese Zeilen in SubRows aufgeteilt werden müssen, oder das Aufspalten in mehrere Rows sinnvoller ist.
+das eine wiederholende Übungseinheit signalisiert (z.B. "2 x (100m Kraul, 200m Brust)" = zwei SubRows).
+Trenne diese Zeile anhand der ' x ' Trennstellen in separate SubRows auf.
 
-ZUSÄTZLICHE SUBROWS:
-Die Vormarkierung ist nicht abschließend. Es können weitere Zeilen SubRows benötigen, auch wenn sie
-nicht markiert sind – zum Beispiel bei nummerierten Sequenzen, Klammern, oder anderen Mustern, die
-wiederholende Untereinheiten beschreiben. Prüfe den gesamten Plan auf solche Muster.
+Die Vormarkierung ist nicht abschließend. Es können weitere Zeilen SubRows oder Aufspaltung benötigen, auch wenn sie
+nicht markiert sind - zum Beispiel bei nummerierten Sequenzen, Klammern, oder anderen Mustern, die
+wiederholende Untereinheiten beschreiben. Auch sind tiefere Ebenen möglich. Prüfe den gesamten Plan auf solche Muster.
 
-WICHTIGSTE REGEL: Ändere NIEMALS den tatsächlichen Trainingsinhalt selbst!
-- Ändere nicht die Distanzen, Intensitäten oder Übungstypen
-- Ändere nicht die Gesamtdistanz des Plans
-- Ändere nicht die Anzahl der Wiederholungen
-- Nur die STRUKTUR muss optimiert werden (flach → verschachtelt)
+Beispiele:
+- "Amount": 8, "Distance": 75, "Content": "1.-4. je pro 25m das Tempo erhöhen 5.-8. je 25m Spurt + 50m easy going", ...
+  sollte in 2 Rows mit jeweils "Amount:" 4, "Distance": 75, und 2 SubRows umgewandelt werden, da es sich um eine wiederholende Sequenz handelt.
+  Die zweite Row muss wiederum in 2 SubRows aufgeteilt werden, da sie zwei Untereinheiten enthält.
+  Die neuen Rows, welche die bisherige ersetzen, würden dann ungefähr so aussehen:
+  {"Amount": 4, "Distance": 75, "Content": "pro 25m das Tempo erhöhen", SubRows: [], ...},
+  {"Amount": 4, "Distance": 75, "Content": "25m Spurt", SubRows: [
+    {"Amount": 1, "Distance": 25, "Content": "Spurt", ...},
+    {"Amount": 1, "Distance": 50, "Content": "easy going", ...},
+  ], ...}
+
+- "Amount": 5 "Distance": , "Content": "1. 100m Kraul, 2. 200m Brust, 3. 100m Locker", ...
+  Dann umwandeln zu:
+  {"Amount": 5, "Distance": 0, "Content": "Gemischte Serie", SubRows: [
+    {"Amount": 1, "Distance": 100, "Content": "Kraul", ...},
+    {"Amount": 1, "Distance": 200, "Content": "Brust", ...},
+    {"Amount": 1, "Distance": 100, "Content": "Locker", ...},
+  ], ...}
+
 
 EQUIPMENT ERKENNUNG:
 - Analysiere den Content und die Beschreibung auf Hinweise zu benötigter Ausrüstung. Das im Input möglicherweise bestehende Equipmentfeld ist immer leer.
@@ -273,6 +287,7 @@ EQUIPMENT ERKENNUNG:
 - "Brett" in der Nutzung mit Beine ist ein "Kickboard"
 - "Brett" in der Nutzung mit Arme ist ein "Pull buoy"
 - Parent rows (mit SubRows) sollten kein Equipment haben, es sei denn es gilt für alle Untereinheiten
+- SubRows können auch mehrere Ausrüstungsgegenstände haben, wenn die z.B. Arme mit Paddles geschwommen wird --> "Equipment": "Pull buoy, Handpaddles"
 
 **Antworte in folgendem Schema:**
 %s
