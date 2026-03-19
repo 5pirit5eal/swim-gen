@@ -244,6 +244,19 @@ func (r Row) String() string {
 	return outputStr.String()
 }
 
+func (r *Row) UpdateSum() {
+	if len(r.SubRows) > 0 {
+		dis := 0
+		for i := range r.SubRows {
+			subRow := &r.SubRows[i]
+			subRow.UpdateSum() // Recursively update sums of subRows
+			dis += subRow.Sum
+		}
+		r.Distance = dis
+	}
+	r.Sum = r.Amount * r.Distance
+}
+
 func (t *Table) String() string {
 	tstr := "| Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang | Ausrüstung |\n"
 	tstr += "|---|---|---|---|---|---|---|---|\n"
@@ -266,27 +279,15 @@ func (t *Table) AddSum() {
 // This is useful if the table has been modified and we need to update the sums
 func (t *Table) UpdateSum() {
 	total := 0
-	for i, row := range *t {
+	for i := range *t {
+		row := &(*t)[i]
 		if strings.Contains(row.Content, "Gesamt") || strings.Contains(row.Content, "Total") {
-			(*t)[i].Sum = total
-		} else if len(row.SubRows) > 0 {
-			// Nested row: recalculate subRows sums, then parent
-			subRowsSum := 0
-			subRowsDistance := 0
-			for j, child := range row.SubRows {
-				(*t)[i].SubRows[j].Sum = child.Amount * child.Distance
-				subRowsSum += (*t)[i].SubRows[j].Sum
-				subRowsDistance += child.Distance
-			}
-			// Update parent Distance to be sum of subRows distances
-			(*t)[i].Distance = subRowsDistance
-			// Parent Sum = Amount × sum of subRows sums
-			(*t)[i].Sum = row.Amount * subRowsSum
-			total += (*t)[i].Sum
+			row.Sum = total
 		} else {
+			row.UpdateSum()
 			// Flat row calculation (backward compatible)
-			(*t)[i].Sum = row.Amount * row.Distance
-			total += (*t)[i].Sum
+			row.Sum = row.Amount * row.Distance
+			total += row.Sum
 		}
 	}
 }

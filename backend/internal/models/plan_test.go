@@ -48,6 +48,50 @@ func TestUpdateSum(t *testing.T) {
 	assert.Equal(t, 300, table[2].Sum, "Sum for the third row should be 300")
 }
 
+func TestUpdateSumWithSubRows(t *testing.T) {
+	table := models.Table{
+		{
+			Amount:     2,
+			Multiplier: "x",
+			Distance:   100000, // Wrong distance that should be recalculated based on subRows
+			Break:      "30",
+			Content:    "Kraul-Beine",
+			Intensity:  "GA1",
+			Sum:        0,
+			SubRows: []models.Row{
+				{Amount: 1, Distance: 50, Break: "15", Content: "Freestyle", Intensity: "GA1", Sum: 0},
+				{Amount: 1, Distance: 50, Break: "15", Content: "Rücken", Intensity: "GA1", Sum: 0},
+			},
+		},
+		{
+			Amount:     2,
+			Multiplier: "x",
+			Distance:   50,
+			Break:      "20",
+			Content:    "Unterwasser-Sculling",
+			Intensity:  "TÜ",
+			Sum:        0,
+		},
+		{
+			Amount:     0,
+			Multiplier: "",
+			Distance:   0,
+			Break:      "",
+			Content:    "Gesamt",
+			Intensity:  "",
+			Sum:        0,
+		},
+	}
+
+	// Call UpdateSum to recalculate the sums
+	table.UpdateSum()
+
+	assert.Equal(t, 100, table[0].Distance, "Distance for the first row should be 100")
+	assert.Equal(t, 200, table[0].Sum, "Sum for the first row should be 200")
+	assert.Equal(t, 100, table[1].Sum, "Sum for the second row should be 100")
+	assert.Equal(t, 300, table[2].Sum, "Sum for the third row should be 300")
+}
+
 func TestGeneratedPlanSchema(t *testing.T) {
 	schema, err := models.GeneratedPlanSchema()
 	assert.NoError(t, err, "Failed to retrieve schema")
