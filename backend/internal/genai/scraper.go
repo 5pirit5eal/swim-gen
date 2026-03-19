@@ -20,9 +20,9 @@ func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Scrape
 	logger := slog.Default()
 
 	// Step 0: Sanitize input to prevent encoding issues and data pollution
-	plan.Title = SanitizeString(plan.Title)
-	plan.Description = SanitizeString(plan.Description)
-	plan.Table = SanitizeRows(plan.Table)
+	plan.Title = models.SanitizeString(plan.Title)
+	plan.Description = models.SanitizeString(plan.Description)
+	models.SanitizeRows(&plan.Table)
 
 	// Step 1: Restructure plan with nested loops support (happens only once during scraping)
 	logger.Debug("Restructuring plan", "plan_title", plan.Plan().Title)
@@ -64,10 +64,6 @@ func (gc *GoogleGenAIClient) RestructurePlan(ctx context.Context, plan *models.P
 	// Convert table to json
 	genericPlan := plan.Plan()
 	genericPlan.Table = annotateTable(genericPlan.Table)
-	// tableJSON, err := json.Marshal(genericPlan.Table)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to marshal table to JSON: %w", err)
-	// }
 	query := fmt.Sprintf(restructureTemplateStr, gps, genericPlan.Title, genericPlan.Description, genericPlan.Table.String())
 
 	genCfg := *gc.gcfg
@@ -104,12 +100,17 @@ func (gc *GoogleGenAIClient) RestructurePlan(ctx context.Context, plan *models.P
 	return genericPlan, nil
 }
 
-// Annotates each row with a note if it contains a "+" character, which is a common indicator of a potential subrow in swim training plans.
+// annotateTable annotates each row with a note if it contains a "+" or " x " character,
+// which are common indicators of potential subrows in swim training plans.
 // This helps the LLM identify patterns that may indicate nested structures during restructuring.
 func annotateTable(table models.Table) models.Table {
-	for _, row := range table {
-		if strings.Contains(row.Content, "+") {
-			row.Content += " [→ SUBROW-KANDIDAT: '+' Zeichen gefunden]"
+	for i := range table {
+		if strings.Contains(table[i].Content, "+") {
+			table[i].Content += " [→ SUBROW-KANDIDAT: '+' Zeichen gefunden]"
+		}
+
+		if strings.Contains(table[i].Content, " x ") {
+			table[i].Content += " [→ SUBROW-KANDIDAT: ' x ' Zeichen gefunden]"
 		}
 	}
 	return table
@@ -149,29 +150,4 @@ func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan *models.
 	}
 
 	return &metadata, nil
-}
-
-// SanitizeString removes invalid UTF-8 sequences, null bytes, and known ad-injection
-// artifacts from a string to prevent PostgreSQL encoding errors and data pollution.
-func SanitizeString(s string) string {
-	// Drop invalid UTF-8 byte sequences (e.g. 0x80–0xFF garbage from scraped content)
-	s = strings.ToValidUTF8(s, "")
-	// Remove null bytes (valid UTF-8 but rejected by PostgreSQL text columns)
-	s = strings.ReplaceAll(s, "\\x00", "")
-	s = strings.ReplaceAll(s, "0x00", "")
-	// Remove Google AdSense push artifact injected by some scraped pages
-	s = strings.ReplaceAll(s, "(adsbygoogle = window.adsbygoogle || []).push({})", "")
-	return s
-}
-
-// SanatizeRows recursively sanitizes the content of each row in the table, including nested subrows,
-// to ensure all text is clean and free of invalid characters or ad artifacts.
-func SanitizeRows(rows []models.Row) []models.Row {
-	for i, row := range rows {
-		rows[i].Content = SanitizeString(row.Content)
-		if len(row.SubRows) > 0 {
-			rows[i].SubRows = SanitizeRows(row.SubRows)
-		}
-	}
-	return rows
 }
