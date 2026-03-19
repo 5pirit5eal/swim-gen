@@ -15,6 +15,8 @@ Verwende zwingend das SubRows-Feld für Untereinheiten, z.B. "8 x (800 + 200)"
 Die technischen Übungen dürfen nur als Referenzen eingefügt werden. Das Format ist ein Markdown URL Link.
 Dafür wird der slug als Linktext verwendet und die URL als Linkziel. Exemplarisch: [slug](URL).
 Erstelle nur Referenzen für technische Übungen, die mit /drill erreichbar sind. Andere sind nicht als Referenz geeignet.
+Die URL der technischen Übung muss zwingend der URL der Referenz in der Datenbank entsprechen, damit der Schwimmer die Übung später leicht finden kann.
+Falls keine passenden technischen Übungen gefunden werden, lasse diesen Teil einfach weg.
 Diese Übungungen sollen im Plan nicht näher beschrieben werden. Wichtig ist das die Intensität auf TÜ gesetzt wird.
 Der Titel des Trainingsplans sollte humorvoll, einprägsam und kurz sein. Wortspiele sind willkommen. Füge nicht die angefragte Gesamtlänge in den Titel ein.
 Bei der Erstellung der kurzen Beschreibung gehe nur auf die Eigenschaften des Trainingsplans ein.
@@ -228,6 +230,40 @@ und passe ihn an das Schema an. Gib das Ergebnis im JSON-Format zurück.
 
 Wenn wiederholende Blöcke erkannt werden (z.B. "2 x (100m Kraul, 200m Brust, 100m Locker)"), verwende das SubRows-Feld
 
+Beispiele:
+- "8 x 75 mit 1.-4. je pro 25m das Tempo erhöhen 5.-8. je 25m Spurt + 50m easy going"
+  sollte in 2 Rows mit jeweils "Amount:" 4, "Distance": 75, und 2 SubRows umgewandelt werden, da es sich um eine wiederholende Sequenz handelt.
+  Die zweite Row muss wiederum in 2 SubRows aufgeteilt werden, da sie zwei Untereinheiten enthält.
+  Die neuen Rows, welche die bisherige ersetzen, würden dann ungefähr so aussehen:
+  {"Amount": 4, "Distance": 75, "Content": "pro 25m das Tempo erhöhen", SubRows: [], ...},
+  {"Amount": 4, "Distance": 75, "Content": "25m Spurt", SubRows: [
+    {"Amount": 1, "Distance": 25, "Content": "Spurt", ...},
+    {"Amount": 1, "Distance": 50, "Content": "easy going", ...},
+  ], ...}
+
+- "5 mal 1. 100m Kraul, 2. 200m Brust, 3. 100m Locker"
+  Dann umwandeln zu:
+  {"Amount": 5, "Distance": 0, "Content": "Gemischte Serie", SubRows: [
+    {"Amount": 1, "Distance": 100, "Content": "Kraul", ...},
+    {"Amount": 1, "Distance": 200, "Content": "Brust", ...},
+    {"Amount": 1, "Distance": 100, "Content": "Locker", ...},
+  ], ...}
+
+EQUIPMENT ERKENNUNG:
+- Analysiere den Content und die Beschreibung auf Hinweise zu benötigter Ausrüstung.
+- Verwende EXAKT diese Ausrüstungswerte (in Deutsch): Flossen, Kickboard, Handpaddles, Pull buoy, Schnorchel
+- Beispiele für Equipment-Erkennung:
+  * "Kraul-Beine" oder "Kick" → Kickboard
+  * "Delfinbeine mit Flossen" oder "Kraul mit Flossen" → Flossen
+  * "Paddles", "Fingerpaddles" oder "Handpaddles" → Handpaddles
+  * "Pull buoy", "Arme mit Brett" oder "Kraularme" → Pull buoy
+  * "Schnorchel" → Schnorchel
+- Falls ein anderes Equipment notwendig ist, schreibe es in die Content Spalte
+- "Brett" in der Nutzung mit Beine ist ein "Kickboard"
+- "Brett" in der Nutzung mit Arme ist ein "Pull buoy"
+- Parent rows (mit SubRows) sollten kein Equipment haben, es sei denn es gilt für alle Untereinheiten
+- SubRows können auch mehrere Ausrüstungsgegenstände haben, wenn die z.B. Arme mit Paddles geschwommen wird --> "Equipment": "Pull buoy, Handpaddles"
+
 Antworte in der Sprache: %s.
 
 Antwort:
@@ -240,6 +276,8 @@ Der folgende Plan wurde aus einer flach strukturierten Quelle extrahiert. Analys
 Nutze dazu das JSON schema. WENN verkapselte Blöcke erkannt werden, verwende IMMER das SubRows-Feld für Untereinheiten.
 Passe die Content Spalte entsprechend an, um die Aufteilung in SubRows zu reflektieren. Behalte die ursprüngliche Bedeutung bei
 damit der Trainingsplan inhaltlich gleich bleibt, aber strukturell verbessert wird.
+Ergänze passende Intesitätsangaben bei Untereinheiten, wenn diese aus dem Kontext ableitbar sind (z.B. "Spurt" = "S", "easy going" = "Locker", etc.).
+
 
 VORMARKIERTE SUBROW-KANDIDATEN:
 Manche Zeilen in der Tabelle sind mit dem Hinweis [→ SUBROW-KANDIDAT: '+' Zeichen gefunden] markiert.

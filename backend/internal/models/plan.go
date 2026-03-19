@@ -209,39 +209,115 @@ type Row struct {
 }
 
 func (r Row) String() string {
-	equipmentStr := ""
-	if len(r.Equipment) > 0 {
-		names := make([]string, len(r.Equipment))
-		for i, e := range r.Equipment {
-			names[i] = string(e)
-		}
-		equipmentStr = strings.Join(names, ", ")
-	}
-
 	var outputStr strings.Builder
 
 	contentStr := r.Content
 	if len(r.SubRows) > 0 {
-		// Build compact set notation, e.g. "8x(800m + 200m)", and prepend it to the
-		// Content column so readers and LLM prompts can immediately identify compound sets.
-		subRowsStr := ""
-		for i, child := range r.SubRows {
-			if i > 0 {
-				subRowsStr += " + "
-			}
-			subRowsStr += fmt.Sprintf("%dm", child.Distance)
-		}
-		contentStr = fmt.Sprintf("%dx(%s) %s", r.Amount, subRowsStr, r.Content)
+		contentStr = fmt.Sprintf(
+			"Set: %d %s (%s) - %s",
+			r.Amount,
+			r.multiplierOrDefault(),
+			r.subRowsSummary(),
+			r.Content,
+		)
 	}
 
-	outputStr.WriteString(fmt.Sprintf("| %d | %s | %d | %s | %s | %s | %d | %s |", r.Amount, r.Multiplier, r.Distance, r.Break, contentStr, r.Intensity, r.Sum, equipmentStr))
+	fmt.Fprintf(
+		&outputStr,
+		"| %d | %s | %d | %s | %s | %s | %d | %s |",
+		r.Amount,
+		r.Multiplier,
+		r.Distance,
+		r.Break,
+		contentStr,
+		r.Intensity,
+		r.Sum,
+		r.equipmentString(),
+	)
 
 	if len(r.SubRows) > 0 {
-		for _, cr := range r.SubRows {
-			outputStr.WriteString("\n" + cr.String())
+		r.writeSubRows(&outputStr, 0)
+	}
+
+	return outputStr.String()
+}
+
+func (r Row) equipmentString() string {
+	if len(r.Equipment) == 0 {
+		return ""
+	}
+
+	names := make([]string, len(r.Equipment))
+	for i, e := range r.Equipment {
+		names[i] = string(e)
+	}
+
+	return strings.Join(names, ", ")
+}
+
+func (r Row) subRowsSummary() string {
+	parts := make([]string, len(r.SubRows))
+	for i, child := range r.SubRows {
+		parts[i] = child.conciseDescription()
+	}
+
+	return strings.Join(parts, " + ")
+}
+
+func (r Row) conciseDescription() string {
+	multiplier := r.multiplierOrDefault()
+
+	switch {
+	case r.Amount > 0 && r.Distance > 0 && r.Content != "":
+		return fmt.Sprintf("%d %s %dm %s", r.Amount, multiplier, r.Distance, r.Content)
+	case r.Amount > 0 && r.Distance > 0:
+		return fmt.Sprintf("%d %s %dm", r.Amount, multiplier, r.Distance)
+	case r.Distance > 0 && r.Content != "":
+		return fmt.Sprintf("%dm %s", r.Distance, r.Content)
+	case r.Distance > 0:
+		return fmt.Sprintf("%dm", r.Distance)
+	default:
+		return r.Content
+	}
+}
+
+func (r Row) writeSubRows(outputStr *strings.Builder, depth int) {
+	indent := strings.Repeat("  ", depth)
+	for i, child := range r.SubRows {
+		fmt.Fprintf(
+			outputStr,
+			"\n%s↳ subrow %d/%d of %q: %s | break: %s | intensity: %s | volume: %dm | equipment: %s",
+			indent,
+			i+1,
+			len(r.SubRows),
+			r.Content,
+			child.conciseDescription(),
+			displayOrDash(child.Break),
+			displayOrDash(child.Intensity),
+			child.Sum,
+			displayOrDash(child.equipmentString()),
+		)
+
+		if len(child.SubRows) > 0 {
+			child.writeSubRows(outputStr, depth+1)
 		}
 	}
-	return outputStr.String()
+}
+
+func (r Row) multiplierOrDefault() string {
+	if r.Multiplier != "" {
+		return r.Multiplier
+	}
+
+	return "x"
+}
+
+func displayOrDash(value string) string {
+	if value == "" {
+		return "-"
+	}
+
+	return value
 }
 
 func (r *Row) UpdateSum() {
@@ -271,6 +347,13 @@ func (t *Table) AddSum() {
 	sum := 0
 	for _, row := range *t {
 		sum += row.Sum
+	}
+	// Only add the total row if it doesn't already exist (e.g. from LLM restructuring)
+	if len(*t) > 0 {
+		lastRow := (*t)[len(*t)-1]
+		if strings.Contains(lastRow.Content, "Gesamt") || strings.Contains(lastRow.Content, "Total") {
+			return
+		}
 	}
 	*t = append(*t, Row{Content: "Gesamt", Sum: sum})
 }
