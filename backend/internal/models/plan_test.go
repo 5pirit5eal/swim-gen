@@ -361,8 +361,9 @@ func TestRowString_Nested(t *testing.T) {
 		},
 	}
 	str := row.String()
-	assert.Contains(t, str, "8x", "Row string should contain '8x'")
-	assert.Contains(t, str, "800m + 200m", "Row string should contain subRows distances")
+	assert.Contains(t, str, "Set: 8 x (1 x 800m Freestyle + 1 x 200m Kick) - Main Set", "Row string should contain explicit set summary")
+	assert.Contains(t, str, `↳ subrow 1/2 of "Main Set": 1 x 800m Freestyle`, "Row string should label first subrow")
+	assert.Contains(t, str, `↳ subrow 2/2 of "Main Set": 1 x 200m Kick`, "Row string should label second subrow")
 }
 
 func TestRow_WithEquipment(t *testing.T) {
@@ -427,7 +428,8 @@ func TestRow_EquipmentWithSubRows(t *testing.T) {
 	}
 
 	str := row.String()
-	assert.Contains(t, str, "4x(300m + 100m)")
+	assert.Contains(t, str, "Set: 4 x (1 x 300m Kraul + 1 x 100m Kick) - Main Set")
+	assert.Contains(t, str, `↳ subrow 1/2 of "Main Set": 1 x 300m Kraul | break: - | intensity: GA1 | volume: 300m | equipment: -`)
 	assert.Contains(t, str, "Flossen")
 }
 
