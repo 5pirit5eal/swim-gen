@@ -76,12 +76,12 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 		colly.AllowedDomains("docswim.de"),
 		colly.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"),
 		colly.MaxDepth(2),
-		colly.Async(false),
+		colly.Async(true),
 	)
 	_ = scraper.Limit(&colly.LimitRule{
 		DomainGlob:  "*docswim.de*",
-		Parallelism: 10,
-		// Delay:       2 * time.Second,
+		Parallelism: 5,
+		Delay:       2 * time.Second,
 	})
 	scraper.OnError(func(_ *colly.Response, err error) {
 		// Handle errors during scraping
@@ -161,9 +161,10 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 				r.ChildText("td:nth-child(7)") != "" {
 				return
 			}
-
-			if strings.Contains(r.ChildText("td:nth-child(5)"), "EIN TRAININGSPLAN VON DOC SWIM") ||
-				strings.Contains(r.ChildText("td:nth-child(5)"), "www.docswim.de") {
+			content := r.ChildText("td:nth-child(5)")
+			if strings.Contains(content, "EIN TRAININGSPLAN VON") ||
+				strings.Contains(content, "DOC SWIM") ||
+				strings.Contains(content, "www.docswim.de") {
 				return
 			}
 
