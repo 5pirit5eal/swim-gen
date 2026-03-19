@@ -2,6 +2,7 @@ package rag
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -337,6 +338,18 @@ Forloop:
 			}
 		}
 
+		// Sanitize the final document content before it reaches PostgreSQL.
+		// This is a last-mile defence: PageContent is a raw concatenated string built by
+		// ToLangChainDoc (via Plan.String + Table.String) and may contain invalid UTF-8
+		// bytes that slipped through earlier sanitization passes or were introduced by
+		// string formatting. Metadata string values are sanitized for the same reason.
+		doc.PageContent = models.SanitizeString(doc.PageContent)
+		for k, v := range doc.Metadata {
+			if s, ok := v.(string); ok {
+				doc.Metadata[k] = models.SanitizeString(s)
+			}
+		}
+
 		// Add the new document
 		_, err = db.PlanStore.AddDocuments(ctx, []schema.Document{doc})
 		if err != nil {
@@ -428,15 +441,27 @@ func (db *RAGDB) AddScrapedPlans(ctx context.Context, collectionUUID string, doc
 			return fmt.Errorf("failed to begin transaction: %w", err)
 		}
 		logger.Debug(fmt.Sprintf("Inserting URL %s into database", url), "url", url)
+		// Sanitize all string fields before inserting into PostgreSQL.
+		// plan.Table is explicitly marshaled to JSON via json.Marshal, which guarantees
+		// valid UTF-8 output (invalid bytes are replaced with U+FFFD). Passing the raw
+		// models.Table struct directly to pgx risks encoding-dependent behaviour under
+		// QueryExecModeCacheDescribe; a pre-encoded JSON string is always safe.
+		tableJSON, err := json.Marshal(plan.Table)
+		if err != nil {
+			return fmt.Errorf("failed to marshal plan table for plan %s: %w", plan.PlanID, err)
+		}
 		// Add the plan to the plan table
 		_, err = pseudoTx.Exec(ctx, fmt.Sprintf(`
-		INSERT INTO %s (plan_id, title, description, plan_table)
-		VALUES ($1, $2, $3, $4)
-		ON CONFLICT (plan_id) DO UPDATE SET
-			title = EXCLUDED.title,
-			description = EXCLUDED.description,
-			plan_table = EXCLUDED.plan_table`, PlanTableName),
-			plan.PlanID, plan.Title, plan.Description, plan.Table)
+INSERT INTO %s (plan_id, title, description, plan_table)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (plan_id) DO UPDATE SET
+title = EXCLUDED.title,
+description = EXCLUDED.description,
+plan_table = EXCLUDED.plan_table`, PlanTableName),
+			plan.PlanID,
+			models.SanitizeString(plan.Title),
+			models.SanitizeString(plan.Description),
+			models.SanitizeString(string(tableJSON)))
 		if err != nil {
 			logger.Error("Failed to insert plan into database", slog.Any("error", err))
 			return fmt.Errorf("failed to insert plan into database: %w", err)
