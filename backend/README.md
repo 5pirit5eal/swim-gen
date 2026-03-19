@@ -87,7 +87,7 @@ This project uses a `Taskfile.sh` script to manage common tasks.
     ./Taskfile.sh docker-build-and-run
     ```
 
-# API documentation
+## API documentation
 
 When starting the backend via docker, the API documentation can be found at `http://localhost:8080/swagger/index.html`. The search bar requires typing `0.0.0.0:8080/swagger/doc.json` in the URL field.
 
