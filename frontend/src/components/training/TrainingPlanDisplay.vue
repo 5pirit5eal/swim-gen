@@ -116,10 +116,6 @@ async function toggleEditing() {
       <!-- Summary Statistics -->
       <div class="summary-section" data-testid="plan-summary">
         <div class="summary-item">
-          <div class="summary-value">{{ totalRow?.Sum || 0 }}</div>
-          <div class="summary-label">{{ t('display.meters_total') }}</div>
-        </div>
-        <div class="summary-item">
           <div class="summary-value">{{ totalExercises }}</div>
           <div class="summary-label">{{ t('display.exercise_sets') }}</div>
         </div>

@@ -347,7 +347,7 @@ export default {
 
 .plan-row-card__metrics {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.75rem;
   flex-wrap: wrap;
   flex: 1;
