@@ -4,7 +4,7 @@ import SharePlanButton from '@/components/buttons/ButtonSharePlan.vue'
 import IconEdit from '@/components/icons/IconEdit.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import PlanRowCard from '@/components/training/PlanRowCard.vue'
-import type { PlanStore } from '@/types'
+import type { PlanStore, Row } from '@/types'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -41,6 +41,27 @@ const totalRow = computed(() => {
 // Total exercises count (excluding the total row)
 const totalExercises = computed(() => exerciseRows.value.length)
 
+// Distinct equipment from all rows and subrows
+const distinctEquipment = computed((): string[] => {
+  const plan = props.store.currentPlan
+  if (!plan?.table) return []
+  const equipSet = new Set<string>()
+
+  function collectEquipment(rows: Row[]) {
+    for (const row of rows) {
+      if (row.Equipment?.length) {
+        row.Equipment.forEach(eq => equipSet.add(eq))
+      }
+      if (row.SubRows?.length) {
+        collectEquipment(row.SubRows)
+      }
+    }
+  }
+
+  collectEquipment(plan.table)
+  return Array.from(equipSet)
+})
+
 // Toggle editing
 async function toggleEditing() {
   isEditing.value = !isEditing.value
@@ -60,26 +81,20 @@ async function toggleEditing() {
     <div v-else-if="store.hasPlan && store.currentPlan" class="plan-container">
       <!-- Header -->
       <header class="plan-header">
-        <div v-if="isEditing" class="edit-header">
+        <div class="plan-header-left">
           <input
+            v-if="isEditing"
             v-model="store.currentPlan!.title"
             class="edit-title"
             v-auto-resize
             :placeholder="t('display.plan_title')"
           />
-          <textarea
-            v-model="store.currentPlan!.description"
-            v-auto-resize
-            class="edit-description"
-            :placeholder="t('display.plan_description')"
-            rows="3"
-          ></textarea>
+          <h2 v-else class="plan-title">{{ store.currentPlan?.title }}</h2>
         </div>
-        <div v-else>
-          <h2 class="plan-title">{{ store.currentPlan?.title }}</h2>
-          <div class="plan-description">
-            {{ store.currentPlan?.description }}
-          </div>
+        <div class="plan-header-right">
+          <span data-testid="plan-header-total" class="plan-total-distance">
+            {{ totalRow?.Sum || 0 }} m
+          </span>
         </div>
       </header>
 
@@ -98,12 +113,6 @@ async function toggleEditing() {
         />
       </div>
 
-      <!-- Total row summary -->
-      <div v-if="totalRow" class="total-summary-row">
-        <span class="total-summary-label">{{ t('display.meters_total') }}</span>
-        <span class="total-summary-value">{{ totalRow.Sum }} m</span>
-      </div>
-
       <!-- Summary Statistics -->
       <div class="summary-section" data-testid="plan-summary">
         <div class="summary-item">
@@ -113,6 +122,28 @@ async function toggleEditing() {
         <div class="summary-item">
           <div class="summary-value">{{ totalExercises }}</div>
           <div class="summary-label">{{ t('display.exercise_sets') }}</div>
+        </div>
+      </div>
+
+      <!-- Footer / Meta region -->
+      <div data-testid="plan-footer-meta" class="plan-footer-meta">
+        <textarea
+          v-if="isEditing"
+          v-model="store.currentPlan!.description"
+          v-auto-resize
+          class="edit-description"
+          :placeholder="t('display.plan_description')"
+          rows="3"
+        ></textarea>
+        <div v-else-if="store.currentPlan?.description" class="plan-coach-notes">
+          {{ store.currentPlan.description }}
+        </div>
+        <div
+          v-if="distinctEquipment.length"
+          data-testid="plan-footer-equipment"
+          class="plan-equipment-summary"
+        >
+          <span v-for="eq in distinctEquipment" :key="eq" class="plan-equipment-badge">{{ eq }}</span>
         </div>
       </div>
     </div>
@@ -157,26 +188,21 @@ async function toggleEditing() {
   }
 
   .plan-header {
-    padding: 1.25rem 1rem;
+    padding: 1rem;
+    flex-wrap: wrap;
   }
 
   .plan-title {
     font-size: 1.15rem;
-    margin-bottom: 0.5rem;
   }
 
-  .plan-description {
-    font-size: 0.875rem;
+  .plan-total-distance {
+    font-size: 1rem;
   }
 
   .plan-cards-list {
     padding: 0.75rem;
     gap: 0.4rem;
-  }
-
-  .total-summary-row {
-    padding: 0.6rem 0.75rem;
-    font-size: 0.875rem;
   }
 
   .summary-section {
@@ -201,33 +227,74 @@ async function toggleEditing() {
 .plan-header {
   background: var(--color-primary);
   color: white;
-  padding: 2rem;
-  text-align: center;
+  padding: 1.25rem 2rem;
   border-top-right-radius: 8px;
   border-top-left-radius: 8px;
   outline: 1px solid var(--color-primary);
   border: 2px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.plan-header-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-header-right {
+  flex-shrink: 0;
 }
 
 .plan-title {
-  margin: 0 0 1rem 0;
+  margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
 }
 
-.plan-description {
-  font-size: 1rem;
-  line-height: 1.6;
+.plan-total-distance {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: white;
   opacity: 0.95;
+  white-space: nowrap;
 }
 
-.edit-header {
+.plan-footer-meta {
+  padding: 1rem 1.25rem;
+  background: var(--color-background-soft);
+  border-top: 1px solid var(--color-border);
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  gap: 0.75rem;
+}
+
+.plan-coach-notes {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.plan-equipment-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.plan-equipment-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--color-background-mute);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
 }
 
 .edit-title {
@@ -238,7 +305,6 @@ async function toggleEditing() {
   border-radius: 8px;
   background: var(--color-background-soft);
   color: var(--color-text);
-  text-align: center;
 }
 
 .edit-title::placeholder {
@@ -255,6 +321,7 @@ async function toggleEditing() {
   color: var(--color-text);
   font-family: inherit;
   resize: vertical;
+  width: 100%;
 }
 
 .edit-description::placeholder {
@@ -275,39 +342,12 @@ async function toggleEditing() {
   background: var(--color-background-soft);
 }
 
-.total-summary-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1.25rem;
-  background: var(--color-background-mute);
-  border-top: 2px solid var(--color-primary);
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--color-heading);
-}
-
-.total-summary-label {
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.85rem;
-  opacity: 0.75;
-}
-
-.total-summary-value {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--color-primary);
-}
-
 .summary-section {
   display: flex;
   justify-content: space-around;
   padding: 1rem;
   background: var(--color-background-soft);
   gap: 1rem;
-  border-bottom-right-radius: 8px;
-  border-bottom-left-radius: 8px;
   border-top: 1px solid var(--color-border);
 }
 

@@ -210,6 +210,15 @@ function subRowPath(subIndex: number): number[] {
           <span aria-hidden="true" class="plan-row-card__action-icon plan-row-card__action-icon--subrow"></span>
         </button>
       </div>
+
+      <!-- Equipment badges — inline with metrics on wide screens, wraps below on narrow -->
+      <span v-if="hasEquipment && !isEditing" class="plan-row-card__equipment-badges">
+        <span
+          v-for="eq in row.Equipment"
+          :key="eq"
+          class="plan-row-card__equipment-badge"
+        >{{ eq }}</span>
+      </span>
     </div>
 
     <!-- ── Content body ─────────────────────────────────────────────────── -->
@@ -225,13 +234,6 @@ function subRowPath(subIndex: number): number[] {
       ></textarea>
       <div v-else class="plan-row-card__content-view">
         <ContentWithDrillLinks :content="row.Content" />
-        <span v-if="hasEquipment" class="plan-row-card__equipment-badges">
-          <span
-            v-for="eq in row.Equipment"
-            :key="eq"
-            class="plan-row-card__equipment-badge"
-          >{{ eq }}</span>
-        </span>
       </div>
     </div>
 
@@ -354,7 +356,7 @@ export default {
 .plan-row-card__metric {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.15rem;
   min-width: 2.5rem;
 }
@@ -580,8 +582,8 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
-  margin-top: 0.4rem;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .plan-row-card__equipment-badges::before {
@@ -617,7 +619,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  border-left: 2px solid var(--color-primary);
   padding-left: 0.75rem;
   margin-top: 0.25rem;
 }
@@ -712,6 +713,13 @@ export default {
 
   .plan-row-card__equipment-badges::before {
     font-size: 0.55rem;
+  }
+
+  /* On narrow screens, push equipment badges to their own line below metrics/actions */
+  .plan-row-card__equipment-badges {
+    order: 99;
+    flex-basis: 100%;
+    margin-top: 0.2rem;
   }
 }
 </style>

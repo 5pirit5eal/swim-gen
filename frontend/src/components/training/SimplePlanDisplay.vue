@@ -60,7 +60,6 @@ function onSave() {
     <!-- Header -->
     <header class="plan-header">
       <h3 class="plan-title">{{ title }}</h3>
-      <div class="plan-description">{{ description }}</div>
     </header>
 
     <!-- Exercise Cards -->
@@ -76,12 +75,6 @@ function onSave() {
         :is-first="index === 0"
         :is-last="index === exerciseRows.length - 1"
       />
-    </div>
-
-    <!-- Total row summary -->
-    <div v-if="totalRow" class="total-summary-row">
-      <strong>{{ t('display.meters_total') }}</strong>
-      <strong>{{ totalRow.Sum }} m</strong>
     </div>
 
     <!-- Summary and Actions -->
@@ -113,16 +106,10 @@ function onSave() {
 }
 
 .plan-title {
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--color-heading);
-}
-
-.plan-description {
-  font-size: 0.9rem;
-  line-height: 1.4;
-  color: var(--color-text);
 }
 
 .plan-cards-list {
@@ -131,18 +118,6 @@ function onSave() {
   gap: 0.5rem;
   padding: 0.75rem;
   background: var(--color-background-soft);
-}
-
-.total-summary-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  background: var(--color-background-mute);
-  border-top: 2px solid var(--color-primary);
-  font-size: 0.875rem;
-  color: var(--color-heading);
-  font-weight: 700;
 }
 
 .footer-section {

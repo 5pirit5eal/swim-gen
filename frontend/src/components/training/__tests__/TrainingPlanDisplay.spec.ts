@@ -472,6 +472,145 @@ describe('TrainingPlanDisplay.vue', () => {
     })
   })
 
+  describe('Follow-up: Header/Footer/Equipment Hierarchy (TDD)', () => {
+    it('header displays total distance in [data-testid="plan-header-total"]', async () => {
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      store.currentPlan = createSimplePlan()
+      await wrapper.vm.$nextTick()
+
+      const headerTotal = wrapper.find('[data-testid="plan-header-total"]')
+      expect(headerTotal.exists()).toBe(true)
+      expect(headerTotal.text()).toContain('100')
+    })
+
+    it('header does NOT contain the plan description text', async () => {
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      const plan = createSimplePlan()
+      store.currentPlan = plan
+      await wrapper.vm.$nextTick()
+
+      const header = wrapper.find('.plan-header')
+      expect(header.exists()).toBe(true)
+      expect(header.text()).not.toContain(plan.description)
+    })
+
+    it('footer/meta region [data-testid="plan-footer-meta"] renders plan description', async () => {
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      const plan = createSimplePlan()
+      store.currentPlan = plan
+      await wrapper.vm.$nextTick()
+
+      const footer = wrapper.find('[data-testid="plan-footer-meta"]')
+      expect(footer.exists()).toBe(true)
+      expect(footer.text()).toContain(plan.description)
+    })
+
+    it('footer/meta region [data-testid="plan-footer-equipment"] shows distinct equipment', async () => {
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      store.currentPlan = createMixedEquipmentPlan()
+      await wrapper.vm.$nextTick()
+
+      const equipmentFooter = wrapper.find('[data-testid="plan-footer-equipment"]')
+      expect(equipmentFooter.exists()).toBe(true)
+      // Mixed plan has: Pull buoy, Kickboard, Flossen, Schnorchel
+      expect(equipmentFooter.text()).toContain('Pull buoy')
+      expect(equipmentFooter.text()).toContain('Flossen')
+      expect(equipmentFooter.text()).toContain('Schnorchel')
+    })
+
+    it('footer/meta equipment lists nested subrow equipment (recursive aggregation)', async () => {
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      store.currentPlan = createNestedDepth2Plan() // has Equipment: ['Flossen'] in child
+      await wrapper.vm.$nextTick()
+
+      const equipmentFooter = wrapper.find('[data-testid="plan-footer-equipment"]')
+      expect(equipmentFooter.exists()).toBe(true)
+      expect(equipmentFooter.text()).toContain('Flossen')
+    })
+
+    it('SimplePlanDisplay does NOT render description text in view mode', async () => {
+      const { default: SimplePlanDisplay } = await import('../SimplePlanDisplay.vue')
+      const simplePlan = createSimplePlan()
+      const wrapper = mount(SimplePlanDisplay, {
+        global: {
+          plugins: [i18n],
+        },
+        props: {
+          title: simplePlan.title,
+          description: simplePlan.description,
+          table: simplePlan.table,
+          planId: 'test-plan-id',
+        },
+      })
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.text()).not.toContain(simplePlan.description)
+    })
+
+    it('SimplePlanDisplay emits description in @save payload', async () => {
+      const { default: SimplePlanDisplay } = await import('../SimplePlanDisplay.vue')
+      const simplePlan = createSimplePlan()
+      const wrapper = mount(SimplePlanDisplay, {
+        global: {
+          plugins: [i18n],
+        },
+        props: {
+          title: simplePlan.title,
+          description: simplePlan.description,
+          table: simplePlan.table,
+          planId: 'test-plan-id',
+        },
+      })
+      await wrapper.vm.$nextTick()
+
+      await wrapper.find('button').trigger('click')
+
+      const saveEmit = wrapper.emitted('save')
+      expect(saveEmit).toBeTruthy()
+      expect(saveEmit![0]![0]).toMatchObject({ description: simplePlan.description })
+    })
+  })
+
   describe('Card-oriented display (TDD Wave 1)', () => {
     it('renders exercise rows as cards with [data-testid="plan-card"]', async () => {
       const wrapper = mount(TrainingPlanDisplay, {
@@ -666,6 +805,53 @@ describe('TrainingPlanDisplay.vue', () => {
       const card = planCards[0]!
       expect(card.classes('plan-row-card')).toBe(true)
       expect(card.find('.content-with-drill-links').exists()).toBe(true)
+    })
+  })
+
+  describe('Follow-up: Responsive Row Equipment', () => {
+    it('row equipment badges are rendered inside the card header on wide screens', async () => {
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      store.currentPlan = createMixedEquipmentPlan()
+      await wrapper.vm.$nextTick()
+
+      const planCards = wrapper.findAll('[data-testid="plan-card"]')
+      const cooldownCard = planCards.find((card) => card.text().includes('Cool-down'))
+      expect(cooldownCard?.exists()).toBe(true)
+
+      const header = cooldownCard!.find('.plan-row-card__header')
+      expect(header.exists()).toBe(true)
+      expect(header.find('.plan-row-card__equipment-badges').exists()).toBe(true)
+      expect(header.find('.plan-row-card__equipment-badges').text()).toContain('Schnorchel')
+    })
+
+    it('cards without equipment have no equipment-badges element', async () => {
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      store.currentPlan = createSimplePlan()
+      await wrapper.vm.$nextTick()
+
+      const planCards = wrapper.findAll('[data-testid="plan-card"]')
+      expect(planCards.length).toBeGreaterThan(0)
+
+      const anyBadge = planCards.some((card) =>
+        card.find('.plan-row-card__equipment-badges').exists(),
+      )
+      expect(anyBadge).toBe(false)
     })
   })
 })
