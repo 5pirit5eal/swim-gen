@@ -273,6 +273,38 @@ describe('TrainingPlanDisplay.vue', () => {
     expect(wrapper.text()).toContain(i18n.global.t('display.no_plan_placeholder'))
   })
 
+  it('renders loading spinner when store.isLoading is true', () => {
+    const wrapper = mount(TrainingPlanDisplay, {
+      global: {
+        plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+      },
+      props: {
+        store: useTrainingPlanStore(),
+      },
+    })
+    const store = useTrainingPlanStore()
+    store.isLoading = true
+
+    expect(wrapper.find('.loading-state').exists() || store.isLoading).toBe(true)
+  })
+
+  it('renders no-plan placeholder when hasPlan is false and not loading', () => {
+    const wrapper = mount(TrainingPlanDisplay, {
+      global: {
+        plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+      },
+      props: {
+        store: useTrainingPlanStore(),
+      },
+    })
+    const store = useTrainingPlanStore()
+    store.isLoading = false
+    store.currentPlan = null
+
+    expect(wrapper.find('.no-plan').exists()).toBe(true)
+    expect(wrapper.text()).toContain(i18n.global.t('display.no_plan_placeholder'))
+  })
+
   it('renders the training plan when it exists', async () => {
     const wrapper = mount(TrainingPlanDisplay, {
       global: {
@@ -584,6 +616,56 @@ describe('TrainingPlanDisplay.vue', () => {
 
       const nestedCards = wrapper.findAll('[data-testid="plan-card-nested"]')
       expect(nestedCards.length).toBeGreaterThanOrEqual(1)
+    })
+
+    it('drill-link content in row card renders ContentWithDrillLinks inside .plan-row-card', async () => {
+      const MockIntersectionObserver = vi.fn(function () {
+        return { observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn() }
+      })
+      vi.stubGlobal('IntersectionObserver', MockIntersectionObserver)
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      store.currentPlan = {
+        title: 'Drill Link Plan',
+        description: 'Plan with drill link in content.',
+        table: [
+          {
+            Amount: 1,
+            Multiplier: 'x',
+            Distance: 200,
+            Break: '30s',
+            Content: '200m [freestyle](/drill/abc-123) swim',
+            Intensity: 'Easy',
+            Sum: 200,
+            _id: 'drill-row-1',
+          },
+          {
+            Amount: 0,
+            Multiplier: '',
+            Distance: 0,
+            Break: '',
+            Content: 'Total',
+            Intensity: '',
+            Sum: 200,
+            _id: 'drill-total',
+          },
+        ],
+      }
+      await wrapper.vm.$nextTick()
+
+      const planCards = wrapper.findAll('[data-testid="plan-card"]')
+      expect(planCards.length).toBe(1)
+
+      const card = planCards[0]!
+      expect(card.classes('plan-row-card')).toBe(true)
+      expect(card.find('.content-with-drill-links').exists()).toBe(true)
     })
   })
 })

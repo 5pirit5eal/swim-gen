@@ -1,0 +1,39 @@
+Task 3 & 4: PlanRowCard.vue Component Created
+==============================================
+Date: 2026-03-21
+
+## Component Created
+- File: frontend/src/components/training/PlanRowCard.vue
+
+## Contract Implemented
+- Props: row: Row, path: number[], depth: number, isEditing: boolean, store: PlanStore, isFirst: boolean, isLast: boolean
+- Recursive via self-reference (export default { name: 'PlanRowCard' })
+- Depth 0-4 all render without any table/tr/td/th markup
+
+## Edit Mode Controls (Task 4)
+- Add row, remove row, move up, move down, add subrow
+- Controls rendered inline in card header — NOT hover-only
+- Visible on both desktop and mobile
+
+## Store Wiring Preserved
+- store.addRow(path)
+- store.removeRow(path)
+- store.moveRow(path, direction)
+- store.addSubRow(path, depth)
+- store.updatePlanRow(path, field, value) — via handleFieldBlur
+- store.updatePlanRowEquipment — passed through via store prop
+
+## View Mode
+- ContentWithDrillLinks used for Content field
+- Equipment rendered as .plan-row-card__equipment-badge chips
+
+## Numeric Normalization
+- Amount and Distance fields: parseInt, fallback to 0 on NaN
+
+## Verification
+- npm run type-check: PASSED (no errors)
+- npm run build: PASSED (241 modules, no errors)
+
+## BaseTableAction.vue
+- NOT deleted, NOT modified
+- New card actions are independent, no dependency on BaseTableAction positioning

@@ -1,0 +1,474 @@
+
+> frontend@1.0.0 test:unit
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv4.0.16 [39m[90m/Users/ruben.schulze/Projekte/Personal/swim-gen/frontend[39m
+
+[90mstdout[2m | src/views/__tests__/UploadedPlanView.spec.ts[2m > [22m[2mUploadedPlanView.vue[2m > [22m[2mredirects if no plan found
+[22m[39m[UploadStore] fetchUploadedPlan { planId: [32m'uploaded-123'[39m }
+
+[90mstdout[2m | src/views/__tests__/UploadedPlanView.spec.ts[2m > [22m[2mUploadedPlanView.vue[2m > [22m[2mredirects if no plan found
+[22m[39m[API] Request: GET uploads/uploaded-123 
+
+ [32m✓[39m src/components/buttons/__tests__/ButtonSharePlan.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 99[2mms[22m[39m
+ [32m✓[39m src/views/__tests__/UploadedPlanView.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m src/components/forms/__tests__/TrainingPlanForm.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m src/components/forms/__tests__/UploadForm.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+ [32m✓[39m src/views/__tests__/ProfileView.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m src/views/__tests__/LoginView.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 197[2mms[22m[39m
+[90mstdout[2m | src/views/__tests__/DrillView.spec.ts[2m > [22m[2mDrillView.vue[2m > [22m[2mredirects to home when drill is not found
+[22m[39m[API] Request: GET drill?id=seestern.png&lang=en 
+
+ [32m✓[39m src/views/__tests__/DrillView.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 89[2mms[22m[39m
+[90mstdout[2m | src/views/__tests__/InteractionView.spec.ts[2m > [22m[2mInteractionView.vue[2m > [22m[2msends a message
+[22m[39m[TrainingPlanStore] fetchHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+ [32m✓[39m src/views/__tests__/InteractionView.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 156[2mms[22m[39m
+ [32m✓[39m src/components/training/__tests__/TrainingPlanDisplay.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 127[2mms[22m[39m
+[90mstdout[2m | src/views/__tests__/SharedView.spec.ts[2m > [22m[2mSharedView.vue[2m > [22m[2mInteraction Area[2m > [22m[2mshows chat form when user is logged in
+[22m[39m[SharedPlanStore] fetchSharedHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+ [32m✓[39m src/views/__tests__/SharedView.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m src/layout/__tests__/AppSidebar.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 167[2mms[22m[39m
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mextractDrillIdFromUrl[2m > [22m[2mextracts drill ID from path-based URL with /drills/ (plural)
+[22m[39m[markdownParser] Found drill ID in path: 123
+[markdownParser] Found drill ID in path: abc-def
+[markdownParser] Found drill ID in path: drill_with_underscore
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mextractDrillIdFromUrl[2m > [22m[2mextracts drill ID from path-based URL with /drill/ (singular)
+[22m[39m[markdownParser] Found drill ID in path: 123
+[markdownParser] Found drill ID in path: abc-def
+[markdownParser] Found drill ID in path: drill_with_underscore
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mextractDrillIdFromUrl[2m > [22m[2mextracts drill ID from path without leading slash (drill/)
+[22m[39m[markdownParser] Found drill ID in path: 123
+[markdownParser] Found drill ID in path: abc-def
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mextractDrillIdFromUrl[2m > [22m[2mextracts drill ID from path without leading slash (drills/)
+[22m[39m[markdownParser] Found drill ID in path: 123
+[markdownParser] Found drill ID in path: abc-def
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mextractDrillIdFromUrl[2m > [22m[2mextracts drill ID from full URL
+[22m[39m[markdownParser] Found drill ID in path: 123
+[markdownParser] Found drill ID in path: test-drill
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mextractDrillIdFromUrl[2m > [22m[2mhandles URL with query parameters
+[22m[39m[markdownParser] Found drill ID in path: 123
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mextractDrillIdFromUrl[2m > [22m[2mhandles URL with hash fragment
+[22m[39m[markdownParser] Found drill ID in path: 123
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mextractDrillIdFromUrl[2m > [22m[2mreturns the URL as ID if no path separators present
+[22m[39m[markdownParser] URL is just an ID: simple-id
+[markdownParser] URL is just an ID: 123
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mextractDrillIdFromUrl[2m > [22m[2mreturns .png filename as drill ID
+[22m[39m[markdownParser] URL is just an ID: some_drill.png
+[markdownParser] URL is just an ID: drill-image.png
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mextractDrillIdFromUrl[2m > [22m[2mreturns null for non-drill URLs
+[22m[39m[markdownParser] No drill ID found
+[markdownParser] No drill ID found
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mextractDrillIdFromUrl[2m > [22m[2mreturns null for URLs with protocol but no drill path
+[22m[39m[markdownParser] No drill ID found
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mparseContentForDrillLinks[2m > [22m[2mreturns empty array for empty content
+[22m[39m[markdownParser] Empty content, returning empty array
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mparseContentForDrillLinks[2m > [22m[2mparses single drill link
+[22m[39m[markdownParser] Found drill ID in path: 123
+[markdownParser] Extracted drillId: 123 from url: /drills/123
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mparseContentForDrillLinks[2m > [22m[2mparses drill link with surrounding text
+[22m[39m[markdownParser] Adding text segment before match: "Start with "
+[markdownParser] Found drill ID in path: 123
+[markdownParser] Extracted drillId: 123 from url: /drills/123
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mparseContentForDrillLinks[2m > [22m[2mparses multiple drill links
+[22m[39m[markdownParser] Adding text segment before match: "Do "
+[markdownParser] Found drill ID in path: first
+[markdownParser] Extracted drillId: first from url: /drills/first
+[markdownParser] Adding text segment before match: " then "
+[markdownParser] Found drill ID in path: second
+[markdownParser] Extracted drillId: second from url: /drills/second
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mparseContentForDrillLinks[2m > [22m[2mhandles non-drill links by returning just the link text
+[22m[39m[markdownParser] Adding text segment before match: "Check "
+[markdownParser] No drill ID found
+[markdownParser] Extracted drillId: [1mnull[22m from url: https://example.com
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mparseContentForDrillLinks[2m > [22m[2mhandles mixed drill and non-drill links
+[22m[39m[markdownParser] Adding text segment before match: "Try "
+[markdownParser] Found drill ID in path: abc
+[markdownParser] Extracted drillId: abc from url: /drills/abc
+[markdownParser] Adding text segment before match: " or visit "
+[markdownParser] No drill ID found
+[markdownParser] Extracted drillId: [1mnull[22m from url: https://example.com
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mparseContentForDrillLinks[2m > [22m[2mhandles drill links without leading slash in URL
+[22m[39m[markdownParser] Found drill ID in path: 123
+[markdownParser] Extracted drillId: 123 from url: drill/123
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mparseContentForDrillLinks[2m > [22m[2mhandles drill links with .png file as ID
+[22m[39m[markdownParser] URL is just an ID: some_drill.png
+[markdownParser] Extracted drillId: some_drill.png from url: some_drill.png
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mparseContentForDrillLinks[2m > [22m[2mhandles consecutive drill links
+[22m[39m[markdownParser] Found drill ID in path: a
+[markdownParser] Extracted drillId: a from url: /drills/a
+[markdownParser] Found drill ID in path: b
+[markdownParser] Extracted drillId: b from url: /drills/b
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mparseContentForDrillLinks[2m > [22m[2mhandles drill link at start
+[22m[39m[markdownParser] Found drill ID in path: 123
+[markdownParser] Extracted drillId: 123 from url: /drills/123
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mparseContentForDrillLinks[2m > [22m[2mhandles drill link at end
+[22m[39m[markdownParser] Adding text segment before match: "Finish with "
+[markdownParser] Found drill ID in path: 123
+[markdownParser] Extracted drillId: 123 from url: /drills/123
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mhasDrillLinks[2m > [22m[2mreturns false for non-drill links
+[22m[39m[markdownParser] No drill ID found
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mhasDrillLinks[2m > [22m[2mreturns true for drill links
+[22m[39m[markdownParser] Found drill ID in path: 123
+
+[90mstdout[2m | src/utils/__tests__/markdownParser.spec.ts[2m > [22m[2mmarkdownParser[2m > [22m[2mhasDrillLinks[2m > [22m[2mreturns true for mixed content with drill links
+[22m[39m[markdownParser] Found drill ID in path: 123
+
+ [32m✓[39m src/utils/__tests__/markdownParser.spec.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+[90mstdout[2m | src/stores/__tests__/uploads.spec.ts[2m > [22m[2muploads Store[2m > [22m[2mfetches uploaded plans
+[22m[39m[UploadStore] fetchUploadedPlans { reset: [33mtrue[39m }
+[UploadStore] fetchUploadedPlans { reset: [33mtrue[39m }
+
+[90mstdout[2m | src/stores/__tests__/uploads.spec.ts[2m > [22m[2muploads Store[2m > [22m[2mfetches a single uploaded plan
+[22m[39m[UploadStore] fetchUploadedPlans { reset: [33mtrue[39m }
+[UploadStore] fetchUploadedPlan { planId: [32m'1'[39m }
+
+[90mstdout[2m | src/stores/__tests__/export.spec.ts[2m > [22m[2mexport Store[2m > [22m[2mexports PDF successfully and returns the URI
+[22m[39m[ExportStore] exportToPDF {
+  request: {
+    title: [32m'Test Plan'[39m,
+    description: [32m'A plan for export.'[39m,
+    table: [ [36m[Object][39m, [36m[Object][39m ]
+  }
+}
+
+[90mstdout[2m | src/stores/__tests__/export.spec.ts[2m > [22m[2mexport Store[2m > [22m[2mhandles PDF export failure and updates the store with an error
+[22m[39m[ExportStore] exportToPDF {
+  request: {
+    title: [32m'Test Plan'[39m,
+    description: [32m'A plan for export.'[39m,
+    table: [ [36m[Object][39m, [36m[Object][39m ]
+  }
+}
+
+[90mstdout[2m | src/stores/__tests__/export.spec.ts[2m > [22m[2mexport Store[2m > [22m[2mdoes not export if the plan table is empty or has only a total row
+[22m[39m[ExportStore] exportToPDF {
+  request: {
+    title: [32m'Empty Plan'[39m,
+    description: [32m'This plan has no exercises.'[39m,
+    table: [ [36m[Object][39m ]
+  }
+}
+
+[90mstdout[2m | src/stores/__tests__/export.spec.ts[2m > [22m[2mexport Store[2m > [22m[2msends custom export options when provided
+[22m[39m[ExportStore] exportToPDF {
+  request: {
+    title: [32m'Custom Export Plan'[39m,
+    description: [32m'A plan with custom export options.'[39m,
+    table: [ [36m[Object][39m, [36m[Object][39m ],
+    horizontal: [33mtrue[39m,
+    large_font: [33mtrue[39m,
+    language: [32m'de'[39m
+  }
+}
+
+[90mstdout[2m | src/stores/__tests__/uploads.spec.ts[2m > [22m[2muploads Store[2m > [22m[2mhandles fetch error
+[22m[39m[UploadStore] fetchUploadedPlans { reset: [33mtrue[39m }
+[UploadStore] fetchUploadedPlan { planId: [32m'1'[39m }
+
+ [32m✓[39m src/stores/__tests__/export.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/stores/__tests__/uploads.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+[90mstdout[2m | src/stores/__tests__/auth.spec.ts[2m > [22m[2mauth Store[2m > [22m[2msignInWithPassword successfully signs in a user
+[22m[39m[AuthStore] signInWithPassword { email: [32m'test@example.com'[39m }
+
+[90mstdout[2m | src/stores/__tests__/auth.spec.ts[2m > [22m[2mauth Store[2m > [22m[2msignInWithPassword throws an error on failure
+[22m[39m[AuthStore] signInWithPassword { email: [32m'test@example.com'[39m }
+
+[90mstdout[2m | src/stores/__tests__/auth.spec.ts[2m > [22m[2mauth Store[2m > [22m[2msignUp successfully signs up a user
+[22m[39m[AuthStore] signUp { email: [32m'new@example.com'[39m, username: [32m'newuser'[39m }
+
+[90mstdout[2m | src/stores/__tests__/auth.spec.ts[2m > [22m[2mauth Store[2m > [22m[2msignUp successfully signs up a user
+[22m[39m[AuthStore] signUp response {
+  data: { user: { id: [32m'456'[39m }, session: { access_token: [32m'def'[39m } },
+  error: [1mnull[22m
+}
+
+[90mstdout[2m | src/stores/__tests__/auth.spec.ts[2m > [22m[2mauth Store[2m > [22m[2msignUp throws an error on failure
+[22m[39m[AuthStore] signUp { email: [32m'new@example.com'[39m, username: [32m'newuser'[39m }
+
+[90mstdout[2m | src/stores/__tests__/auth.spec.ts[2m > [22m[2mauth Store[2m > [22m[2msignUp throws an error on failure
+[22m[39m[AuthStore] signUp response {
+  data: [1mnull[22m,
+  error: Error: Sign up failed
+      at [90m/Users/ruben.schulze/Projekte/Personal/swim-gen/frontend/[39msrc/stores/__tests__/auth.spec.ts:101:23
+      at [90mfile:///Users/ruben.schulze/Projekte/Personal/swim-gen/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+      at [90mfile:///Users/ruben.schulze/Projekte/Personal/swim-gen/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+      at [90mfile:///Users/ruben.schulze/Projekte/Personal/swim-gen/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1243:20
+      at new Promise (<anonymous>)
+      at runWithTimeout [90m(file:///Users/ruben.schulze/Projekte/Personal/swim-gen/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1209:10[90m)[39m
+      at [90mfile:///Users/ruben.schulze/Projekte/Personal/swim-gen/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1653:37
+      at Traces.$ [90m(file:///Users/ruben.schulze/Projekte/Personal/swim-gen/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+      at trace [90m(file:///Users/ruben.schulze/Projekte/Personal/swim-gen/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+      at runTest [90m(file:///Users/ruben.schulze/Projekte/Personal/swim-gen/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1653:12[90m)[39m
+}
+
+[90mstdout[2m | src/stores/__tests__/auth.spec.ts[2m > [22m[2mauth Store[2m > [22m[2msignOut successfully signs out a user
+[22m[39m[AuthStore] signOut
+
+[90mstdout[2m | src/stores/__tests__/auth.spec.ts[2m > [22m[2mauth Store[2m > [22m[2msignOut throws an error on failure
+[22m[39m[AuthStore] signOut
+
+[90mstdout[2m | src/stores/__tests__/auth.spec.ts[2m > [22m[2mauth Store[2m > [22m[2mupdates session and user on onAuthStateChange
+[22m[39mAuth state changed: SIGNED_IN { access_token: [32m'new-token'[39m, user: { id: [32m'user-id'[39m } }
+Auth state changed: SIGNED_OUT [1mnull[22m
+
+ [32m✓[39m src/stores/__tests__/auth.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mcheckHealth[2m > [22m[2mshould return success true and data on successful health check
+[22m[39m[API] Request: GET health 
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mcheckHealth[2m > [22m[2mshould return success true and data on successful health check
+[22m[39m[API] Response: health 200
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mcheckHealth[2m > [22m[2mshould return success false and error on non-ok response
+[22m[39m[API] Request: GET health 
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mcheckHealth[2m > [22m[2mshould return success false and error on non-ok response
+[22m[39m[API] Response: health 500
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mcheckHealth[2m > [22m[2mshould return success false and error on network failure
+[22m[39m[API] Request: GET health 
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mcheckHealth[2m > [22m[2mshould abort the request if it times out
+[22m[39m[API] Request: GET health 
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mgeneratePrompt[2m > [22m[2mshould return success true and data on successful prompt generation
+[22m[39m[API] Request: POST prompt { body: { language: [32m'en'[39m } }
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mgeneratePrompt[2m > [22m[2mshould return success true and data on successful prompt generation
+[22m[39m[API] Response: prompt 200
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mgeneratePrompt[2m > [22m[2mshould return success false and error on non-ok response
+[22m[39m[API] Request: POST prompt { body: { language: [32m'en'[39m } }
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mgeneratePrompt[2m > [22m[2mshould return success false and error on non-ok response
+[22m[39m[API] Response: prompt 400
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mgeneratePrompt[2m > [22m[2mshould return success false and error on network failure
+[22m[39m[API] Request: POST prompt { body: { language: [32m'en'[39m } }
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mgeneratePrompt[2m > [22m[2mshould return timeout error if request takes longer than 10 seconds
+[22m[39m[API] Request: POST prompt { body: { language: [32m'en'[39m } }
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mquery[2m > [22m[2mshould return success true and data on successful query
+[22m[39m[API] Request: POST query {
+  body: { content: [32m'Generate a 3-day beginner swim plan'[39m, language: [32m'en'[39m }
+}
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mquery[2m > [22m[2mshould return success true and data on successful query
+[22m[39m[API] Response: query 200
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mquery[2m > [22m[2mshould return success false and error on non-ok response
+[22m[39m[API] Request: POST query {
+  body: { content: [32m'Generate a 3-day beginner swim plan'[39m, language: [32m'en'[39m }
+}
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mquery[2m > [22m[2mshould return success false and error on non-ok response
+[22m[39m[API] Response: query 500
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mquery[2m > [22m[2mshould return success false and error on network failure
+[22m[39m[API] Request: POST query {
+  body: { content: [32m'Generate a 3-day beginner swim plan'[39m, language: [32m'en'[39m }
+}
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mquery[2m > [22m[2mshould return timeout error if request takes longer than 60 seconds
+[22m[39m[API] Request: POST query {
+  body: { content: [32m'Generate a 3-day beginner swim plan'[39m, language: [32m'en'[39m }
+}
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mexportPDF[2m > [22m[2mshould return success true and data on successful PDF export
+[22m[39m[API] Request: POST export-pdf { body: { title: [32m'My Plan'[39m, description: [32m'Description'[39m, table: [] } }
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mexportPDF[2m > [22m[2mshould return success true and data on successful PDF export
+[22m[39m[API] Response: export-pdf 200
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mgenerates a plan successfully and updates the store
+[22m[39m[TrainingPlanStore] generatePlan {
+  request: {
+    content: [32m'test query'[39m,
+    method: [32m'generate'[39m,
+    filter: {},
+    language: [32m'en'[39m
+  }
+}
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mgenerates a plan successfully and updates the store
+[22m[39m[TrainingPlanStore] fetchHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mgenerates a plan successfully and updates the store
+[22m[39m[TrainingPlanStore] fetchHistory success { count: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mhandles plan generation failure and updates the store with an error
+[22m[39m[TrainingPlanStore] generatePlan {
+  request: {
+    content: [32m'test query'[39m,
+    method: [32m'generate'[39m,
+    filter: {},
+    language: [32m'en'[39m
+  }
+}
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mexportPDF[2m > [22m[2mshould return success false and error on non-ok response
+[22m[39m[API] Request: POST export-pdf { body: { title: [32m'My Plan'[39m, description: [32m'Description'[39m, table: [] } }
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mexportPDF[2m > [22m[2mshould return success false and error on non-ok response
+[22m[39m[API] Response: export-pdf 400
+
+[90mstdout[2m | src/api/__tests__/client.spec.ts[2m > [22m[2mApiClient[2m > [22m[2mexportPDF[2m > [22m[2mshould return success false and error on network failure
+[22m[39m[API] Request: POST export-pdf { body: { title: [32m'My Plan'[39m, description: [32m'Description'[39m, table: [] } }
+
+ [32m✓[39m src/api/__tests__/client.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mfetches history successfully
+[22m[39m[TrainingPlanStore] fetchHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mfetches history successfully
+[22m[39m[TrainingPlanStore] fetchHistory success { count: [33m2[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mdoes not fetch history if user is not available
+[22m[39m[TrainingPlanStore] fetchHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mhandles error when fetching history plan IDs
+[22m[39m[TrainingPlanStore] fetchHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mhandles error when fetching plan details
+[22m[39m[TrainingPlanStore] fetchHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mhandles error when fetching plan details
+[22m[39m[TrainingPlanStore] fetchHistory success { count: [33m1[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mupserts a plan successfully
+[22m[39m[TrainingPlanStore] upsertCurrentPlan { planId: [90mundefined[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mupserts a plan successfully
+[22m[39m[TrainingPlanStore] fetchHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mupserts a plan successfully
+[22m[39m[TrainingPlanStore] fetchHistory success { count: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mdoes not upsert plan if user is not available
+[22m[39m[TrainingPlanStore] upsertCurrentPlan { planId: [90mundefined[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mhandles upsert plan failure
+[22m[39m[TrainingPlanStore] upsertCurrentPlan { planId: [90mundefined[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mlinks anonymous plan to user history
+[22m[39mLinking anonymous plan to user account
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mlinks anonymous plan to user history
+[22m[39m[TrainingPlanStore] fetchHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/trainingPlan.spec.ts[2m > [22m[2mtrainingPlan Store[2m > [22m[2mHistory Management[2m > [22m[2mlinks anonymous plan to user history
+[22m[39m[TrainingPlanStore] fetchHistory success { count: [33m0[39m }
+
+ [32m✓[39m src/stores/__tests__/trainingPlan.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+[90mstdout[2m | src/components/training/__tests__/ContentWithDrillLinks.spec.ts[2m > [22m[2mContentWithDrillLinks[2m > [22m[2mrenders empty content
+[22m[39m[markdownParser] Empty content, returning empty array
+
+[90mstdout[2m | src/components/training/__tests__/ContentWithDrillLinks.spec.ts[2m > [22m[2mContentWithDrillLinks[2m > [22m[2mrenders a single drill link
+[22m[39m[markdownParser] Found drill ID in path: kraul-drill-123
+[markdownParser] Extracted drillId: kraul-drill-123 from url: /drills/kraul-drill-123
+
+[90mstdout[2m | src/components/training/__tests__/ContentWithDrillLinks.spec.ts[2m > [22m[2mContentWithDrillLinks[2m > [22m[2mrenders drill link with surrounding text
+[22m[39m[markdownParser] Adding text segment before match: "Start with "
+[markdownParser] Found drill ID in path: abc
+[markdownParser] Extracted drillId: abc from url: /drills/abc
+
+[90mstdout[2m | src/components/training/__tests__/ContentWithDrillLinks.spec.ts[2m > [22m[2mContentWithDrillLinks[2m > [22m[2mrenders multiple drill links
+[22m[39m[markdownParser] Found drill ID in path: first
+[markdownParser] Extracted drillId: first from url: /drills/first
+[markdownParser] Adding text segment before match: " then "
+[markdownParser] Found drill ID in path: second
+[markdownParser] Extracted drillId: second from url: /drills/second
+
+[90mstdout[2m | src/components/training/__tests__/ContentWithDrillLinks.spec.ts[2m > [22m[2mContentWithDrillLinks[2m > [22m[2mdoes not render non-drill links as DrillLink components
+[22m[39m[markdownParser] Adding text segment before match: "Check "
+[markdownParser] No drill ID found
+[markdownParser] Extracted drillId: [1mnull[22m from url: https://example.com
+
+[90mstdout[2m | src/components/training/__tests__/ContentWithDrillLinks.spec.ts[2m > [22m[2mContentWithDrillLinks[2m > [22m[2mhandles mixed drill and non-drill links
+[22m[39m[markdownParser] Found drill ID in path: abc
+[markdownParser] Extracted drillId: abc from url: /drills/abc
+[markdownParser] Adding text segment before match: " and "
+[markdownParser] No drill ID found
+[markdownParser] Extracted drillId: [1mnull[22m from url: https://example.com
+
+[90mstdout[2m | src/components/training/__tests__/ContentWithDrillLinks.spec.ts[2m > [22m[2mContentWithDrillLinks[2m > [22m[2mupdates when content prop changes
+[22m[39m[markdownParser] Found drill ID in path: new-drill
+[markdownParser] Extracted drillId: new-drill from url: /drills/new-drill
+
+[90mstdout[2m | src/components/training/__tests__/ContentWithDrillLinks.spec.ts[2m > [22m[2mContentWithDrillLinks[2m > [22m[2mhandles content with special characters
+[22m[39m[markdownParser] Adding text segment before match: "4x100m "
+[markdownParser] Found drill ID in path: finger-thumb
+[markdownParser] Extracted drillId: finger-thumb from url: /drills/finger-thumb
+
+ [32m✓[39m src/components/training/__tests__/ContentWithDrillLinks.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+[90mstdout[2m | src/stores/__tests__/sharedPlan.spec.ts[2m > [22m[2msharedPlan Store[2m > [22m[2mverify initial state
+[22m[39m[SharedPlanStore] fetchSharedHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/sharedPlan.spec.ts[2m > [22m[2msharedPlan Store[2m > [22m[2mfetchSharedPlanByHash[2m > [22m[2mfetches a shared plan successfully
+[22m[39m[SharedPlanStore] fetchSharedHistory { reset: [33mtrue[39m, page: [33m0[39m }
+[SharedPlanStore] fetchSharedPlanByHash { hash: [32m'test-hash'[39m }
+
+[90mstdout[2m | src/stores/__tests__/sharedPlan.spec.ts[2m > [22m[2msharedPlan Store[2m > [22m[2mfetchSharedPlanByHash[2m > [22m[2mfetches a shared plan successfully
+[22m[39m[SharedPlanStore] fetchSharedHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/sharedPlan.spec.ts[2m > [22m[2msharedPlan Store[2m > [22m[2mfetchSharedPlanByHash[2m > [22m[2mhandles plan not found error
+[22m[39m[SharedPlanStore] fetchSharedHistory { reset: [33mtrue[39m, page: [33m0[39m }
+[SharedPlanStore] fetchSharedPlanByHash { hash: [32m'invalid-hash'[39m }
+
+[90mstdout[2m | src/stores/__tests__/sharedPlan.spec.ts[2m > [22m[2msharedPlan Store[2m > [22m[2mfetchSharedHistory[2m > [22m[2mfetches shared history successfully
+[22m[39m[SharedPlanStore] fetchSharedHistory { reset: [33mtrue[39m, page: [33m0[39m }
+[SharedPlanStore] fetchSharedHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+[90mstdout[2m | src/stores/__tests__/sharedPlan.spec.ts[2m > [22m[2msharedPlan Store[2m > [22m[2mupsertCurrentPlan[2m > [22m[2mupserts plan and returns new plan_id
+[22m[39m[SharedPlanStore] fetchSharedHistory { reset: [33mtrue[39m, page: [33m0[39m }
+
+ [32m✓[39m src/stores/__tests__/sharedPlan.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/components/forms/__tests__/FeedbackForm.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+[90mstdout[2m | src/views/__tests__/HomeView.spec.ts[2m > [22m[2mHomeView.vue[2m > [22m[2mrestores anonymous plan from localStorage on mount
+[22m[39mChecking for anonymous plan linking... [1mnull[22m 
+Checking for anonymous plan restoration...
+Checking for anonymous plan linking... [1mnull[22m restored query
+
+[90mstdout[2m | src/views/__tests__/HomeView.spec.ts[2m > [22m[2mHomeView.vue[2m > [22m[2mlinks anonymous plan when user is logged in
+[22m[39m[TrainingPlanStore] fetchHistory { reset: [33mtrue[39m, page: [33m0[39m }
+Checking for anonymous plan linking... { id: [32m'user-1'[39m } query
+Checking for anonymous plan restoration...
+Checking for anonymous plan linking... { id: [32m'user-1'[39m } query
+
+ [32m✓[39m src/views/__tests__/HomeView.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m src/stores/__tests__/uploadForm.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/stores/__tests__/sidebar.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/platform.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/stores/__tests__/settings.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/stores/__tests__/profile.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m26 passed[39m[22m[90m (26)[39m
+[2m      Tests [22m [1m[32m210 passed[39m[22m[90m (210)[39m
+[2m   Start at [22m 10:11:32
+[2m   Duration [22m 3.89s[2m (transform 4.81s, setup 6.32s, import 7.39s, tests 1.34s, environment 20.15s)[22m
+
