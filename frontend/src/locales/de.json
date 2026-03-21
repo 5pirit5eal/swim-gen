@@ -146,7 +146,9 @@
     "add_row": "Neue Zeile hinzufügen",
     "remove_row": "Diese Zeile entfernen",
     "move_row_up": "Zeile nach oben verschieben",
-    "move_row_down": "Zeile nach unten verschieben"
+    "move_row_down": "Zeile nach unten verschieben",
+    "add_subrow": "Teilübung hinzufügen",
+    "equipment": "Ausrüstung"
   },
   "impressum": {
     "title": "Impressum",

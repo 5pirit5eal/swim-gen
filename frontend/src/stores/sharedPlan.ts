@@ -1,6 +1,18 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
 import type { SharedPlanData, SharedHistoryItem, Row, RAGResponse } from '@/types'
+import {
+  ensureRowIds,
+  normalizeRows,
+  stripRowIds,
+  updateRowField,
+  addRowAtPath,
+  addSubRow as addSubRowHelper,
+  removeRowAtPath,
+  moveRowAtPath,
+  recalculateAllSums,
+  updateRowEquipment,
+} from '@/utils/rowHelpers'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import router from '@/router'
@@ -165,6 +177,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
       }
       if (sharedPlan.value?.plan) {
         ensureRowIds(sharedPlan.value.plan.table)
+        normalizeRows(sharedPlan.value.plan.table)
       }
 
       // Add to history if user is logged in and the plan is not their own
@@ -307,8 +320,9 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         sharer_id: item.user_id,
       }
       if (sharedPlan.value?.plan) {
-        recalculateTotalSum()
+        recalculateAllSums(sharedPlan.value.plan.table)
         ensureRowIds(sharedPlan.value.plan.table)
+        normalizeRows(sharedPlan.value.plan.table)
       }
     } catch (e) {
       console.error(e)
@@ -352,68 +366,34 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
 
   // --- Plan Table Manipulations (Local Only) ---
 
-  function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
-    if (currentPlan.value && currentPlan.value.table[rowIndex]) {
-      const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
-
-      if (field === 'Amount' || field === 'Distance') {
-        row.Sum = row.Amount * row.Distance
-        recalculateTotalSum()
-      }
-    }
-  }
-
-  function recalculateTotalSum() {
-    if (currentPlan.value && currentPlan.value.table.length > 0) {
-      const lastRowIndex = currentPlan.value.table.length - 1
-      const lastRow = currentPlan.value.table[lastRowIndex]!
-      lastRow.Sum = currentPlan.value.table.slice(0, -1).reduce((acc, r) => acc + (r.Sum || 0), 0)
-    }
-  }
-
-  function addRow(rowIndex: number) {
-    if (currentPlan.value && currentPlan.value.table.length < 26) {
-      const newRow: Row = {
-        Amount: 0,
-        Break: '',
-        Content: '',
-        Distance: 0,
-        Intensity: '',
-        Multiplier: 'x',
-        Sum: 0,
-        _id: crypto.randomUUID(),
-      }
-      currentPlan.value.table.splice(rowIndex, 0, newRow)
-      recalculateTotalSum()
-    }
-  }
-
-  function removeRow(rowIndex: number) {
-    if (
-      currentPlan.value &&
-      currentPlan.value.table.length > 2 &&
-      rowIndex < currentPlan.value.table.length - 1
-    ) {
-      currentPlan.value.table.splice(rowIndex, 1)
-      recalculateTotalSum()
-    }
-  }
-
-  function moveRow(rowIndex: number, direction: 'up' | 'down') {
+  function updatePlanRow(path: number[], field: keyof Row, value: string | number) {
     if (!currentPlan.value) return
+    updateRowField(currentPlan.value.table, path, field, value)
+  }
 
-    const table = currentPlan.value.table
-    const isMovingUp = direction === 'up'
-    const isMovingDown = direction === 'down'
+  function updatePlanRowEquipment(path: number[], equipment: string[]) {
+    if (!currentPlan.value) return
+    updateRowEquipment(currentPlan.value.table, path, equipment)
+  }
 
-    if ((isMovingUp && rowIndex === 0) || (isMovingDown && rowIndex === table.length - 2)) {
-      return
-    }
+  function addRow(path: number[]) {
+    if (!currentPlan.value) return
+    addRowAtPath(currentPlan.value.table, path)
+  }
 
-    const newIndex = isMovingUp ? rowIndex - 1 : rowIndex + 1
-    const [movedRow] = table.splice(rowIndex, 1)
-    table.splice(newIndex, 0, movedRow!)
+  function addSubRow(path: number[], depth: number) {
+    if (!currentPlan.value) return
+    addSubRowHelper(currentPlan.value.table, path, depth)
+  }
+
+  function removeRow(path: number[]) {
+    if (!currentPlan.value) return
+    removeRowAtPath(currentPlan.value.table, path)
+  }
+
+  function moveRow(path: number[], direction: 'up' | 'down') {
+    if (!currentPlan.value) return
+    moveRowAtPath(currentPlan.value.table, path, direction)
   }
 
   // Upserts the current plan. If it's the first edit (not forked yet),
@@ -428,8 +408,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     const planIdToUse = isForked.value ? currentPlan.value.plan_id : undefined
 
     // Strip _id from table rows before sending to backend
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const tableWithoutIds = currentPlan.value.table.map(({ _id, ...rest }) => rest)
+    const tableWithoutIds = stripRowIds(currentPlan.value.table)
 
     const result = await apiClient.upsertPlan({
       plan_id: planIdToUse,
@@ -451,13 +430,6 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     }
   }
 
-  function ensureRowIds(table: Row[]) {
-    table.forEach((row) => {
-      if (!row._id) {
-        row._id = crypto.randomUUID()
-      }
-    })
-  }
 
   return {
     // State
@@ -483,7 +455,9 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     clear,
     // Table Manipulation Actions
     updatePlanRow,
+    updatePlanRowEquipment,
     addRow,
+    addSubRow,
     removeRow,
     moveRow,
     upsertCurrentPlan,

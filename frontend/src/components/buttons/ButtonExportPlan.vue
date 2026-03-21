@@ -5,6 +5,7 @@ import IconDownload from '@/components/icons/IconDownload.vue'
 import type { PlanToPDFRequest, PlanStore } from '@/types'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue3-toastify'
+import { stripRowIds } from '@/utils/rowHelpers'
 
 const props = defineProps<{
   store: PlanStore
@@ -70,9 +71,8 @@ async function handleExport() {
   // Phase 1: user clicks "Export PDF"
   exportPhase.value = 'exporting'
   try {
-    // Strip _id from table rows before sending to backend
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const tableWithoutIds = props.store.currentPlan.table.map(({ _id, ...rest }) => rest)
+    // Strip _id from table rows (including nested SubRows) before sending to backend
+    const tableWithoutIds = stripRowIds(props.store.currentPlan.table)
 
     const payload: PlanToPDFRequest = {
       plan_id: props.store.currentPlan.plan_id,

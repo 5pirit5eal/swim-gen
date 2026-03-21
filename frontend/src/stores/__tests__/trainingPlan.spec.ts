@@ -239,7 +239,7 @@ describe('trainingPlan Store', () => {
     const initialSum = store.currentPlan!.table[initialRowCount - 1]!.Sum
 
     // Add a new row at index 1
-    store.addRow(1)
+    store.addRow([1])
 
     const newRowCount = store.currentPlan.table.length
     expect(newRowCount).toBe(initialRowCount + 1)
@@ -264,7 +264,7 @@ describe('trainingPlan Store', () => {
     const initialSum = store.currentPlan!.table[initialRowCount - 1]!.Sum // Sum is 500
 
     // Remove the row at index 1
-    store.removeRow(1)
+    store.removeRow([1])
 
     const newRowCount = store.currentPlan.table.length
     expect(newRowCount).toBe(initialRowCount - 1)
@@ -296,7 +296,7 @@ describe('trainingPlan Store', () => {
     }))
 
     const initialRowCount = store.currentPlan.table.length
-    store.addRow(1)
+    store.addRow([1])
     const newRowCount = store.currentPlan.table.length
     expect(newRowCount).toBe(initialRowCount)
   })
@@ -329,7 +329,7 @@ describe('trainingPlan Store', () => {
     }
 
     const initialRowCount = store.currentPlan.table.length
-    store.removeRow(0)
+    store.removeRow([0])
     const newRowCount = store.currentPlan.table.length
     expect(newRowCount).toBe(initialRowCount)
   })
@@ -339,7 +339,7 @@ describe('trainingPlan Store', () => {
     store.currentPlan = createMockPlan()
 
     const rowToMove = store.currentPlan.table[1]
-    store.moveRow(1, 'up')
+    store.moveRow([1], 'up')
 
     expect(store.currentPlan.table[0]).toBe(rowToMove)
   })
@@ -349,7 +349,7 @@ describe('trainingPlan Store', () => {
     store.currentPlan = createMockPlan()
 
     const rowToMove = store.currentPlan.table[0]
-    store.moveRow(0, 'down')
+    store.moveRow([0], 'down')
 
     expect(store.currentPlan.table[1]).toBe(rowToMove)
   })
@@ -359,7 +359,7 @@ describe('trainingPlan Store', () => {
     store.currentPlan = createMockPlan()
 
     const initialOrder = [...store.currentPlan.table]
-    store.moveRow(0, 'up')
+    store.moveRow([0], 'up')
 
     expect(store.currentPlan.table).toEqual(initialOrder)
   })
@@ -370,7 +370,7 @@ describe('trainingPlan Store', () => {
 
     const initialOrder = [...store.currentPlan.table]
     const lastExerciseRowIndex = store.currentPlan.table.length - 2
-    store.moveRow(lastExerciseRowIndex, 'down')
+    store.moveRow([lastExerciseRowIndex], 'down')
 
     expect(store.currentPlan.table).toEqual(initialOrder)
   })
@@ -599,7 +599,7 @@ describe('trainingPlan Store', () => {
       expect(store.currentPlan?.description).toBe(planFromHistory.description)
       expect(store.currentPlan?.table.length).toBe(planFromHistory.table.length)
       // Verify it's a deep copy by modifying the loaded plan
-      store.updatePlanRow(0, 'Amount', 99)
+      store.updatePlanRow([0], 'Amount', 99)
       expect(store.currentPlan?.table[0]!.Amount).toBe(99)
       expect(planFromHistory.table[0]!.Amount).toBe(1) // Original should be unchanged
     })

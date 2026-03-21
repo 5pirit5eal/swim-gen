@@ -3,9 +3,8 @@ import ExportPlanButton from '@/components/buttons/ButtonExportPlan.vue'
 import SharePlanButton from '@/components/buttons/ButtonSharePlan.vue'
 import IconEdit from '@/components/icons/IconEdit.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
-import BaseTableAction from '@/components/ui/BaseTableAction.vue'
+import TrainingPlanRow from '@/components/training/TrainingPlanRow.vue'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
-import ContentWithDrillLinks from '@/components/training/ContentWithDrillLinks.vue'
 import type { Row, PlanStore } from '@/types'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -24,7 +23,6 @@ const { t } = useI18n()
 
 // Ref to track editing state
 const isEditing = ref(false)
-const editingCell = ref<{ rowIndex: number; field: keyof Row } | null>(null)
 
 const exerciseRows = computed(() => {
   const plan = props.store.currentPlan
@@ -44,11 +42,10 @@ const totalRow = computed(() => {
 // Total exercises count (excluding the total row)
 const totalExercises = computed(() => exerciseRows.value.length)
 
-// Start editing a specific cell
-function startEditing(rowIndex: number, field: keyof Row) {
-  if (isEditing.value) {
-    editingCell.value = { rowIndex, field }
-  }
+// Start editing a specific cell (path-based)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function startEditing(_path: number[], _field: keyof Row) {
+  // Cell tracking could be extended here if needed
 }
 
 // Toggle editing
@@ -60,8 +57,8 @@ async function toggleEditing() {
   }
 }
 
-// Stop editing the current cell and save the changes
-function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
+// Stop editing the current cell and save the changes (path-based)
+function stopEditing(event: Event, path: number[], field: keyof Row) {
   const target = event.target as HTMLInputElement | HTMLTextAreaElement
   let newValue: string | number = target.value
 
@@ -72,38 +69,13 @@ function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
       newValue = Math.max(0, numValue)
       newValue = Math.round(newValue as number)
     } else {
-      // Revert to the original value if input is invalid
-      const originalRow = props.store.currentPlan?.table[rowIndex]
-      const val = originalRow ? (originalRow[field] as string | number) : 0
-      newValue = val !== undefined ? val : 0
+      newValue = 0
     }
   }
-  props.store.updatePlanRow(rowIndex, field, newValue)
-  editingCell.value = null
+  props.store.updatePlanRow(path, field, newValue)
 }
 
-// Add a new row after the specified index
-function handleAddRow(index: number) {
-  props.store.addRow(index)
-}
-
-function handleRemoveRow(index: number) {
-  props.store.removeRow(index)
-}
-
-function handleMoveRow(index: number, direction: 'up' | 'down') {
-  props.store.moveRow(index, direction)
-}
-
-// Auto-resize directive for textarea
-const vAutoResize = {
-  mounted: (el: HTMLTextAreaElement) => {
-    el.style.height = 'auto'
-    el.style.height = el.scrollHeight + 'px'
-    el.style.overflowY = 'hidden'
-  },
-}
-
+// Auto-resize for textarea
 function autoResize(event: Event) {
   const target = event.target as HTMLTextAreaElement
   target.style.height = 'auto'
@@ -254,86 +226,20 @@ function autoResize(event: Event) {
               </th>
             </tr>
           </thead>
-          <TransitionGroup tag="tbody" name="list">
+          <tbody>
             <template v-for="(row, index) in exerciseRows" :key="row._id || index">
-              <tr class="exercise-row">
-                <!-- Amount Cell -->
-                <td @click="startEditing(index, 'Amount')" class="anchor-cell">
-                  <BaseTableAction
-                    v-if="isEditing"
-                    :is-first="index === 0"
-                    :is-last="index === exerciseRows.length - 1"
-                    @add="handleAddRow(index)"
-                    @remove="handleRemoveRow(index)"
-                    @move-up="handleMoveRow(index, 'up')"
-                    @move-down="handleMoveRow(index, 'down')"
-                  />
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Amount"
-                    @blur="stopEditing($event, index, 'Amount')"
-                    @keyup.enter="stopEditing($event, index, 'Amount')"
-                    class="editable-small"
-                  />
-                  <span v-else>{{ row.Amount }}</span>
-                </td>
-                <td>{{ row.Multiplier }}</td>
-                <!-- Distance Cell -->
-                <td @click="startEditing(index, 'Distance')">
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Distance"
-                    @blur="stopEditing($event, index, 'Distance')"
-                    @keyup.enter="stopEditing($event, index, 'Distance')"
-                    class="editable-small"
-                  />
-                  <span v-else>{{ row.Distance }}</span>
-                </td>
-                <!-- Intensity Cell -->
-                <td @click="startEditing(index, 'Break')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Break"
-                    @blur="stopEditing($event, index, 'Break')"
-                    @keyup.enter="stopEditing($event, index, 'Break')"
-                    class="editable-small"
-                  />
-                  <span v-else>{{ row.Break }}</span>
-                </td>
-                <!-- Content Cell -->
-                <td class="content-cell" @click="startEditing(index, 'Content')">
-                  <textarea
-                    v-if="isEditing"
-                    :value="row.Content"
-                    @blur="stopEditing($event, index, 'Content')"
-                    @keyup.enter="stopEditing($event, index, 'Content')"
-                    @input="autoResize"
-                    v-auto-resize
-                    class="editable-area"
-                  ></textarea>
-                  <ContentWithDrillLinks v-else :content="row.Content" />
-                </td>
-                <!-- Intensity Cell -->
-                <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Intensity"
-                    @blur="stopEditing($event, index, 'Intensity')"
-                    @keyup.enter="stopEditing($event, index, 'Intensity')"
-                    class="editable-small"
-                  />
-                  <span v-else>{{ row.Intensity }}</span>
-                </td>
-                <td class="total-cell">{{ row.Sum }}</td>
-              </tr>
+              <TrainingPlanRow
+                :row="row"
+                :path="[index]"
+                :depth="0"
+                :is-editing="isEditing"
+                :store="store"
+                :is-first="index === 0"
+                :is-last="index === exerciseRows.length - 1"
+                @start-editing="startEditing"
+                @stop-editing="stopEditing"
+                @auto-resize="autoResize"
+              />
             </template>
             <!-- Total row -->
             <tr v-if="totalRow" class="total-row">
@@ -344,12 +250,12 @@ function autoResize(event: Event) {
                 <strong>{{ totalRow.Sum }} m</strong>
               </td>
             </tr>
-          </TransitionGroup>
+          </tbody>
         </table>
       </div>
 
       <!-- Summary Statistics -->
-      <div class="summary-section">
+      <div class="summary-section" data-testid="plan-summary">
         <div class="summary-item">
           <div class="summary-value">{{ totalRow?.Sum || 0 }}</div>
           <div class="summary-label">{{ t('display.meters_total') }}</div>
@@ -368,7 +274,7 @@ function autoResize(event: Event) {
 
   <div v-if="store.hasPlan && store.currentPlan && !store.isLoading" class="button-section">
     <!-- Edit Action -->
-    <button @click="toggleEditing" class="edit-btn">
+    <button @click="toggleEditing" class="edit-btn" data-testid="plan-edit-btn">
       <IconCheck v-if="isEditing" class="icon" />
       <IconEdit v-else class="icon" />
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
@@ -537,77 +443,27 @@ function autoResize(event: Event) {
   display: block;
 }
 
-/* Apply alternating backgrounds to data cells */
-.exercise-row:nth-child(even) {
+/* Apply alternating backgrounds to top-level exercise rows (via deep for child component) */
+.exercise-table :deep(.exercise-row:nth-child(even)) {
   background-color: var(--color-background);
 }
 
-.exercise-row:nth-child(odd) {
+.exercise-table :deep(.exercise-row:nth-child(odd)) {
   background-color: var(--color-background-soft);
 }
 
-/* Apply hover effect to data cells */
-.exercise-row:hover {
+/* Apply hover effect to exercise rows */
+.exercise-table :deep(.exercise-row:hover) {
   background-color: var(--color-background-mute);
 }
 
-.exercise-row:hover {
+.exercise-table :deep(.exercise-row:hover) {
   --action-bg-color: var(--color-background-mute);
 }
 
-.content-cell {
-  text-align: left;
-  font-weight: 500;
-  width: 300px;
-}
-
-.intensity-cell {
-  font-weight: 600;
-  color: var(--color-primary);
-}
-
-.editable-area {
-  width: 100%;
-  padding: 0.25rem;
-  border: 1px solid var(--color-shadow);
-  border-radius: 8px;
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: inherit;
-  box-sizing: border-box;
-  /* Include padding and border in the element's total width and height */
-}
-
-.editable-small {
-  width: 70%;
-  text-align: center;
-  border: 1px solid var(--color-shadow);
-  border-radius: 8px;
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: inherit;
-  box-sizing: border-box;
-}
-
-.editable-area:focus,
-.editable-small:focus {
-  outline: 2px solid var(--color-primary);
-}
-
-.anchor-cell {
-  position: relative;
-  border-left: none;
-}
-
-/* Show action container on row hover */
-.exercise-row:hover .anchor-cell :deep(.action-container) {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.total-cell {
+/* Parent rows get a slightly different look */
+.exercise-table :deep(.parent-row) {
+  background-color: var(--color-background-mute);
   font-weight: 600;
 }
 
@@ -756,18 +612,5 @@ function autoResize(event: Event) {
 .icon {
   width: 24px;
   height: 24px;
-}
-
-/* List Transitions */
-.list-move,
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.4s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
 }
 </style>

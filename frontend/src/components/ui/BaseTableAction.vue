@@ -6,6 +6,7 @@ const { t } = useI18n()
 defineProps<{
   isFirst: boolean
   isLast: boolean
+  canAddSubRow?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -13,12 +14,13 @@ const emit = defineEmits<{
   (e: 'remove'): void
   (e: 'move-up'): void
   (e: 'move-down'): void
+  (e: 'add-subrow'): void
 }>()
 </script>
 
 <template>
   <div class="action-container">
-    <div class="action-grid">
+    <div class="action-grid" :class="{ 'has-subrow': canAddSubRow }">
       <button
         class="action-btn move-up"
         :disabled="isFirst"
@@ -40,6 +42,12 @@ const emit = defineEmits<{
         class="action-btn remove"
         @click.stop="emit('remove')"
         :title="t('display.remove_row')"
+      ></button>
+      <button
+        v-if="canAddSubRow"
+        class="action-btn add-subrow"
+        @click.stop="emit('add-subrow')"
+        :title="t('display.add_subrow')"
       ></button>
     </div>
   </div>
@@ -71,6 +79,11 @@ const emit = defineEmits<{
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
   gap: 0.3rem;
+}
+
+.action-grid.has-subrow {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
 }
 
 .action-btn {
@@ -161,6 +174,30 @@ const emit = defineEmits<{
   border-top: 0.5rem solid white;
   transform: translate(-50%, -50%);
   transition: border-color 0.2s;
+}
+
+/* Add SubRow Icon (nested indent: L-shaped bracket) */
+.add-subrow::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 25%;
+  width: 0.125rem;
+  height: 50%;
+  background-color: white;
+  transition: background-color 0.2s;
+}
+
+.add-subrow::after {
+  content: '';
+  position: absolute;
+  top: 70%;
+  left: 25%;
+  width: 50%;
+  height: 0.125rem;
+  background-color: white;
+  transform: translateY(-50%);
+  transition: background-color 0.2s;
 }
 
 @media (max-width: 740px) {
