@@ -308,9 +308,7 @@ describe('TrainingPlanDisplay.vue', () => {
 
       // Enable editing
       await wrapper.find('button[data-testid="plan-edit-btn"]').trigger('click')
-      await wrapper.vm.$nextTick() // Wait for DOM update
-      // @ts-expect-error: isEditing is a script-setup ref, not typed on wrapper vm
-      expect(wrapper.vm.isEditing).toBe(true)
+      await wrapper.vm.$nextTick()
 
       // Find all inputs from plan-card elements and get the first one (Amount column)
       const planCards = wrapper.findAll('[data-testid="plan-card"]')
@@ -354,6 +352,92 @@ describe('TrainingPlanDisplay.vue', () => {
       // Check that updatePlanRow was called with 0 for invalid input
       expect(store.updatePlanRow).toHaveBeenCalledWith([0], 'Amount', 0)
     })
+
+    it('edit mode shows input elements for leaf rows (Amount, Distance, Break visible)', async () => {
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      store.currentPlan = JSON.parse(JSON.stringify(createSimplePlan()))
+      await wrapper.vm.$nextTick()
+
+      const planCardsBefore = wrapper.findAll('[data-testid="plan-card"]')
+      expect(planCardsBefore.length).toBeGreaterThan(0)
+      expect(planCardsBefore[0]!.findAll('input').length).toBe(0)
+
+      await wrapper.find('button[data-testid="plan-edit-btn"]').trigger('click')
+      await wrapper.vm.$nextTick()
+
+      const leafCard = wrapper.findAll('[data-testid="plan-card"]')[0]!
+      expect(leafCard.findAll('input').length).toBe(5)
+      expect(leafCard.find('textarea').exists()).toBe(true)
+    })
+
+    it('calls updatePlanRow([0], Amount, 5) when Amount blurs with value 5', async () => {
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      store.currentPlan = JSON.parse(JSON.stringify(createSimplePlan()))
+      await wrapper.vm.$nextTick()
+
+      await wrapper.find('button[data-testid="plan-edit-btn"]').trigger('click')
+      await wrapper.vm.$nextTick()
+
+      const amountInput = wrapper.findAll('[data-testid="plan-card"]')[0]!.findAll('input')[0]!
+      expect(amountInput.exists()).toBe(true)
+      await amountInput.setValue('5')
+      await amountInput.trigger('blur')
+
+      expect(store.updatePlanRow).toHaveBeenCalledWith([0], 'Amount', 5)
+    })
+
+    it('parent rows (with SubRows) do not show a Distance input in edit mode', async () => {
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      store.currentPlan = JSON.parse(JSON.stringify(createNestedDepth2Plan()))
+      await wrapper.vm.$nextTick()
+
+      await wrapper.find('button[data-testid="plan-edit-btn"]').trigger('click')
+      await wrapper.vm.$nextTick()
+
+      const planCards = wrapper.findAll('[data-testid="plan-card"]')
+      expect(planCards.length).toBeGreaterThanOrEqual(2)
+
+      const parentCard = planCards.find((card) => card.classes('plan-row-card--parent'))
+      expect(parentCard?.exists()).toBe(true)
+
+      const parentHeader = parentCard!.find('.plan-row-card__header')
+      const parentDistanceInputs = parentHeader
+        .findAll('input')
+        .filter((input) => input.attributes('aria-label') === 'Distance (m)')
+      expect(parentDistanceInputs.length).toBe(0)
+
+      const nestedCards = wrapper.findAll('[data-testid="plan-card-nested"]')
+      expect(nestedCards.length).toBeGreaterThan(0)
+      const nestedDistanceInputs = nestedCards[0]!
+        .find('.plan-row-card__header')
+        .findAll('input')
+        .filter((input) => input.attributes('aria-label') === 'Distance (m)')
+      expect(nestedDistanceInputs.length).toBe(1)
+    })
   })
 
   describe('Card-oriented display (TDD Wave 1)', () => {
@@ -389,7 +473,7 @@ describe('TrainingPlanDisplay.vue', () => {
       await wrapper.vm.$nextTick()
 
       const tables = wrapper.findAll('.exercise-table')
-      expect(tables.length).toBeGreaterThan(0)
+      expect(tables.length).toBe(0)
     })
 
     it('renders flat plan with one exercise card and excludes total row from cards', async () => {

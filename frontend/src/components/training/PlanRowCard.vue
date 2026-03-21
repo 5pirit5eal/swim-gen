@@ -71,6 +71,7 @@ function subRowPath(subIndex: number): number[] {
       `plan-row-card--depth-${depth}`,
       { 'plan-row-card--parent': hasSubRows },
     ]"
+    :data-testid="depth === 0 ? 'plan-card' : 'plan-card-nested'"
   >
     <!-- ── Card header: metrics + actions ──────────────────────────────── -->
     <div class="plan-row-card__header">
@@ -284,40 +285,51 @@ export default {
 /* Parent cards get a left accent */
 .plan-row-card--parent {
   background: var(--color-background-mute);
-  border-left: 3px solid var(--color-primary);
 }
 
-/* Depth-specific tinting/indentation */
+/* Depth-specific tinting/indentation — gradient of prominence depth 0→4 */
+
+/* Depth 0: top-level, most prominent — strong primary accent */
 .plan-row-card--depth-0 {
-  border-left-width: 3px;
+  border-left: 4px solid var(--color-primary);
+  background: var(--color-background);
+  box-shadow: 0 1px 6px var(--color-shadow);
 }
 
+/* Depth 1: first-level nesting — solid but lighter */
 .plan-row-card--depth-1 {
-  border-left: 2px solid var(--color-primary);
+  border-left: 3px solid var(--color-primary);
   margin-left: 0.75rem;
-  background: var(--color-background);
-  font-size: 0.9rem;
-}
-
-.plan-row-card--depth-2 {
-  border-left: 2px solid var(--color-primary);
-  margin-left: 0.5rem;
   background: var(--color-background-soft);
-  font-size: 0.85rem;
+  font-size: 0.93rem;
+  opacity: 0.97;
 }
 
+/* Depth 2: second-level nesting — muted border, more indent */
+.plan-row-card--depth-2 {
+  border-left: 2px solid var(--color-border-hover);
+  margin-left: 0.5rem;
+  background: var(--color-background-mute);
+  font-size: 0.875rem;
+  opacity: 0.95;
+}
+
+/* Depth 3: very nested — subtle border */
 .plan-row-card--depth-3 {
-  border-left: 2px solid var(--color-primary);
+  border-left: 2px solid var(--color-border);
   margin-left: 0.35rem;
-  background: var(--color-background);
-  font-size: 0.8rem;
+  background: var(--color-background-soft);
+  font-size: 0.82rem;
+  opacity: 0.92;
 }
 
+/* Depth 4: maximum depth — minimal, near-invisible border */
 .plan-row-card--depth-4 {
   border-left: 1px solid var(--color-border);
   margin-left: 0.25rem;
-  background: var(--color-background-soft);
-  font-size: 0.75rem;
+  background: var(--color-background-mute);
+  font-size: 0.78rem;
+  opacity: 0.88;
 }
 
 /* ── Header row ─────────────────────────────────────────────────────────────── */
@@ -539,6 +551,9 @@ export default {
   color: var(--color-heading);
   font-weight: 500;
   line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
 
 .plan-row-card__textarea {
@@ -562,24 +577,38 @@ export default {
 /* ── Equipment badges ───────────────────────────────────────────────────────── */
 
 .plan-row-card__equipment-badges {
-  display: inline-flex;
+  display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-left: 0.5rem;
-  vertical-align: middle;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  align-items: center;
+}
+
+.plan-row-card__equipment-badges::before {
+  content: 'Equipment:';
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-heading);
+  opacity: 0.55;
+  white-space: nowrap;
+  margin-right: 0.15rem;
 }
 
 .plan-row-card__equipment-badge {
-  display: inline-block;
-  font-size: 0.6rem;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
   text-transform: uppercase;
-  padding: 0.1rem 0.35rem;
+  padding: 0.15rem 0.45rem;
   border-radius: 4px;
   background: var(--color-primary);
   color: white;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   white-space: nowrap;
+  box-shadow: 0 1px 3px var(--color-shadow);
 }
 
 /* ── Nested SubRows container ───────────────────────────────────────────────── */
@@ -620,19 +649,39 @@ export default {
 @media (max-width: 740px) {
   .plan-row-card {
     padding: 0.5rem 0.6rem;
-    gap: 0.4rem;
+    gap: 0.35rem;
+  }
+
+  .plan-row-card--depth-1 {
+    margin-left: 0.5rem;
+  }
+
+  .plan-row-card--depth-2 {
+    margin-left: 0.35rem;
+  }
+
+  .plan-row-card--depth-3 {
+    margin-left: 0.25rem;
+  }
+
+  .plan-row-card--depth-4 {
+    margin-left: 0.15rem;
   }
 
   .plan-row-card__metrics {
-    gap: 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .plan-row-card__metric {
+    min-width: 2rem;
   }
 
   .plan-row-card__metric-label {
-    font-size: 0.55rem;
+    font-size: 0.5rem;
   }
 
   .plan-row-card__metric-value {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
   }
 
   .plan-row-card__input--small {
@@ -640,9 +689,16 @@ export default {
     font-size: 0.8rem;
   }
 
+  /* Ensure touch-friendly button targets (min 44px) */
   .plan-row-card__action-btn {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 2.2rem;
+    height: 2.2rem;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .plan-row-card__actions {
+    gap: 0.15rem;
   }
 
   .plan-row-card__subrows {
@@ -650,8 +706,12 @@ export default {
   }
 
   .plan-row-card__equipment-badge {
+    font-size: 0.58rem;
+    padding: 0.1rem 0.3rem;
+  }
+
+  .plan-row-card__equipment-badges::before {
     font-size: 0.55rem;
-    padding: 0.05rem 0.25rem;
   }
 }
 </style>

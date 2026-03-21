@@ -3,9 +3,8 @@ import ExportPlanButton from '@/components/buttons/ButtonExportPlan.vue'
 import SharePlanButton from '@/components/buttons/ButtonSharePlan.vue'
 import IconEdit from '@/components/icons/IconEdit.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
-import TrainingPlanRow from '@/components/training/TrainingPlanRow.vue'
-import BaseTooltip from '@/components/ui/BaseTooltip.vue'
-import type { Row, PlanStore } from '@/types'
+import PlanRowCard from '@/components/training/PlanRowCard.vue'
+import type { PlanStore } from '@/types'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -42,12 +41,6 @@ const totalRow = computed(() => {
 // Total exercises count (excluding the total row)
 const totalExercises = computed(() => exerciseRows.value.length)
 
-// Start editing a specific cell (path-based)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function startEditing(_path: number[], _field: keyof Row) {
-  // Cell tracking could be extended here if needed
-}
-
 // Toggle editing
 async function toggleEditing() {
   isEditing.value = !isEditing.value
@@ -55,31 +48,6 @@ async function toggleEditing() {
     // Upsert the current plan when done editing
     await props.store.upsertCurrentPlan()
   }
-}
-
-// Stop editing the current cell and save the changes (path-based)
-function stopEditing(event: Event, path: number[], field: keyof Row) {
-  const target = event.target as HTMLInputElement | HTMLTextAreaElement
-  let newValue: string | number = target.value
-
-  if (['Amount', 'Distance'].includes(field as string)) {
-    // Convert numeric fields to numbers, ensuring it's a valid number
-    const numValue = parseFloat(newValue as string)
-    if (!isNaN(numValue) && /^\d*\.?\d*$/.test(newValue as string)) {
-      newValue = Math.max(0, numValue)
-      newValue = Math.round(newValue as number)
-    } else {
-      newValue = 0
-    }
-  }
-  props.store.updatePlanRow(path, field, newValue)
-}
-
-// Auto-resize for textarea
-function autoResize(event: Event) {
-  const target = event.target as HTMLTextAreaElement
-  target.style.height = 'auto'
-  target.style.height = target.scrollHeight + 'px'
 }
 </script>
 
@@ -115,143 +83,25 @@ function autoResize(event: Event) {
         </div>
       </header>
 
-      <!-- Exercise Table -->
-      <div class="table-container">
-        <table class="exercise-table">
-          <thead>
-            <tr>
-              <th>
-                {{ t('display.amount') }}
-                <BaseTooltip>
-                  <template #tooltip>{{ t('display.amount_tooltip') }}</template>
-                </BaseTooltip>
-              </th>
-              <th class="multiplier"></th>
-              <th>
-                {{ t('display.distance') }}
-                <BaseTooltip>
-                  <template #tooltip>{{ t('display.distance_tooltip') }}</template>
-                </BaseTooltip>
-              </th>
-              <th>
-                {{ t('display.break') }}
-                <BaseTooltip>
-                  <template #tooltip>{{ t('display.break_tooltip') }}</template>
-                </BaseTooltip>
-              </th>
-              <th class="content-header">
-                {{ t('display.content') }}
-                <BaseTooltip>
-                  <template #tooltip>
-                    <p>{{ t('display.content_tooltip.title') }}</p>
-                    <ul>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.freestyle') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.backstroke') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.breaststroke') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.leg_work') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.butterfly') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.individual_medley') }}</strong>
-                      </li>
-                    </ul>
-                  </template>
-                </BaseTooltip>
-              </th>
-              <th>
-                {{ t('display.intensity') }}
-                <BaseTooltip>
-                  <template #tooltip>
-                    <p>{{ t('display.intensity_tooltip.title') }}</p>
-                    <ul>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.ga') }}</strong>
-                        <ul>
-                          <li>
-                            <strong>{{ t('display.intensity_tooltip.ga1') }}</strong>
-                          </li>
-                          <li>
-                            <strong>{{ t('display.intensity_tooltip.ga1_2') }}</strong>
-                          </li>
-                          <li>
-                            <strong>{{ t('display.intensity_tooltip.ga2') }}</strong>
-                          </li>
-                        </ul>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.lza') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.hf') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.lt') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.sa') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.ta') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.tue') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.ts') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.sprint') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.recovery') }}</strong>
-                      </li>
-                    </ul>
-                  </template>
-                </BaseTooltip>
-              </th>
-              <th>
-                {{ t('display.total') }}
-                <BaseTooltip>
-                  <template #tooltip>{{ t('display.total_tooltip') }}</template>
-                </BaseTooltip>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <template v-for="(row, index) in exerciseRows" :key="row._id || index">
-              <TrainingPlanRow
-                :row="row"
-                :path="[index]"
-                :depth="0"
-                :is-editing="isEditing"
-                :store="store"
-                :is-first="index === 0"
-                :is-last="index === exerciseRows.length - 1"
-                @start-editing="startEditing"
-                @stop-editing="stopEditing"
-                @auto-resize="autoResize"
-              />
-            </template>
-            <!-- Total row -->
-            <tr v-if="totalRow" class="total-row">
-              <td colspan="6">
-                <strong>{{ t('display.meters_total') }}</strong>
-              </td>
-              <td>
-                <strong>{{ totalRow.Sum }} m</strong>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Exercise Cards -->
+      <div class="plan-cards-list" data-testid="plan-cards-list">
+        <PlanRowCard
+          v-for="(row, index) in exerciseRows"
+          :key="row._id || index"
+          :row="row"
+          :path="[index]"
+          :depth="0"
+          :is-editing="isEditing"
+          :store="store"
+          :is-first="index === 0"
+          :is-last="index === exerciseRows.length - 1"
+        />
+      </div>
+
+      <!-- Total row summary -->
+      <div v-if="totalRow" class="total-summary-row">
+        <span class="total-summary-label">{{ t('display.meters_total') }}</span>
+        <span class="total-summary-value">{{ totalRow.Sum }} m</span>
       </div>
 
       <!-- Summary Statistics -->
@@ -301,7 +151,50 @@ function autoResize(event: Event) {
 
 @media (max-width: 740px) {
   .training-plan-display {
-    zoom: 0.75;
+    border-radius: 6px;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+  }
+
+  .plan-header {
+    padding: 1.25rem 1rem;
+  }
+
+  .plan-title {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .plan-description {
+    font-size: 0.875rem;
+  }
+
+  .plan-cards-list {
+    padding: 0.75rem;
+    gap: 0.4rem;
+  }
+
+  .total-summary-row {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .summary-section {
+    padding: 0 0.75rem 0.75rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .summary-item {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .summary-value {
+    font-size: 1.15rem;
+  }
+
+  .summary-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
   }
 }
 
@@ -374,118 +267,48 @@ function autoResize(event: Event) {
   border: 1px solid var(--color-primary);
 }
 
-.table-container {
+.plan-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   padding: 1.25rem;
   background: var(--color-background-soft);
-  width: inherit;
-  /* Set table to take full width of its container */
-  table-layout: fixed;
 }
 
-.exercise-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-  table-layout: fixed;
-}
-
-.exercise-table th,
-.exercise-table td {
-  border: 1px solid var(--color-border);
-  padding: 0.75rem 0.5rem;
-  text-align: center;
-  color: var(--color-heading);
-  width: auto;
-}
-
-.exercise-table th.multiplier,
-.exercise-table td.multiplier {
-  width: 5%;
-}
-
-.exercise-table th.content-header {
-  width: 30%;
-}
-
-.exercise-table th {
-  background: var(--color-border);
-  /* Use flexbox for alignment */
+.total-summary-row {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  /* Horizontally center items */
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.8rem;
-  /* white-space: nowrap; */
-  word-break: break-all;
-  /* Prevent text from wrapping */
-  padding: 0.5rem 0.25rem;
-}
-
-@media (max-width: 740px) {
-  .exercise-table th {
-    font-size: 0.5rem;
-    padding: 0.5rem 0.25rem;
-    white-space: normal;
-    word-break: break-all;
-  }
-
-  .exercise-table td {
-    padding: 0.5rem 0.25rem;
-    white-space: normal;
-    padding: 0.25rem 0.2rem;
-    font-size: 0.75rem;
-  }
-}
-
-.exercise-table td > span,
-.exercise-table td > textarea {
-  display: block;
-}
-
-/* Apply alternating backgrounds to top-level exercise rows (via deep for child component) */
-.exercise-table :deep(.exercise-row:nth-child(even)) {
-  background-color: var(--color-background);
-}
-
-.exercise-table :deep(.exercise-row:nth-child(odd)) {
-  background-color: var(--color-background-soft);
-}
-
-/* Apply hover effect to exercise rows */
-.exercise-table :deep(.exercise-row:hover) {
-  background-color: var(--color-background-mute);
-}
-
-.exercise-table :deep(.exercise-row:hover) {
-  --action-bg-color: var(--color-background-mute);
-}
-
-/* Parent rows get a slightly different look */
-.exercise-table :deep(.parent-row) {
-  background-color: var(--color-background-mute);
-  font-weight: 600;
-}
-
-.total-row {
-  background: var(--color-border);
+  padding: 0.75rem 1.25rem;
+  background: var(--color-background-mute);
+  border-top: 2px solid var(--color-primary);
   font-weight: 700;
   font-size: 1rem;
+  color: var(--color-heading);
 }
 
-.total-row td {
-  border-color: var(--color-border);
-  color: var(--color-heading);
+.total-summary-label {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.total-summary-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-primary);
 }
 
 .summary-section {
   display: flex;
   justify-content: space-around;
-  padding: 0 1rem 1rem 1rem;
+  padding: 1rem;
   background: var(--color-background-soft);
-  gap: 3rem;
+  gap: 1rem;
   border-bottom-right-radius: 8px;
   border-bottom-left-radius: 8px;
+  border-top: 1px solid var(--color-border);
 }
 
 .summary-item {
@@ -495,20 +318,23 @@ function autoResize(event: Event) {
   text-align: center;
   flex: 1;
   border: 1px solid var(--color-border);
+  box-shadow: 0 1px 4px var(--color-shadow);
 }
 
 .summary-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-heading);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--color-primary);
   margin-bottom: 0.25rem;
+  line-height: 1;
 }
 
 .summary-label {
   color: var(--color-heading);
   text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 1px;
+  font-size: 0.7rem;
+  letter-spacing: 1.5px;
+  opacity: 0.7;
 }
 
 .loading-state,

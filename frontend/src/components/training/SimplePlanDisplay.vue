@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import type { Row, RAGResponse } from '@/types'
+import type { Row, RAGResponse, PlanStore } from '@/types'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import ContentWithDrillLinks from '@/components/training/ContentWithDrillLinks.vue'
-import SimplePlanSubRows from '@/components/training/SimplePlanSubRows.vue'
+import PlanRowCard from '@/components/training/PlanRowCard.vue'
 
 const props = defineProps<{
   title: string
@@ -30,13 +29,21 @@ const totalRow = computed(() => {
 
 const totalExercises = computed(() => exerciseRows.value.length)
 
-function hasSubRows(row: Row): boolean {
-  return !!row.SubRows && row.SubRows.length > 0
-}
-
-function hasEquipment(row: Row): boolean {
-  return !!row.Equipment && row.Equipment.length > 0
-}
+// Minimal read-only store-compatible object — PlanRowCard requires a store prop,
+// but in read-only mode (isEditing=false) it never calls any mutating methods.
+const readonlyStore = {
+  currentPlan: null,
+  hasPlan: false,
+  isLoading: false,
+  keepForever: () => Promise.resolve(),
+  upsertCurrentPlan: () => Promise.resolve(''),
+  updatePlanRow: () => {},
+  updatePlanRowEquipment: () => {},
+  addRow: () => {},
+  addSubRow: () => {},
+  removeRow: () => {},
+  moveRow: () => {},
+} as unknown as PlanStore
 
 function onSave() {
   emit('save', {
@@ -56,62 +63,30 @@ function onSave() {
       <div class="plan-description">{{ description }}</div>
     </header>
 
-    <!-- Compact Exercise Table -->
-    <div class="table-container">
-      <table class="exercise-table">
-        <thead>
-          <tr>
-            <th>{{ t('display.amount') }}</th>
-            <th>x</th>
-            <th>{{ t('display.distance') }}</th>
-            <th>{{ t('display.break') }}</th>
-            <th class="content-header">{{ t('display.content') }}</th>
-            <th>{{ t('display.intensity') }}</th>
-            <th>{{ t('display.total') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template v-for="(row, index) in exerciseRows" :key="index">
-            <tr class="exercise-row" :class="{ 'parent-row': hasSubRows(row) }" data-testid="plan-card">
-              <td>{{ row.Amount }}</td>
-              <td>{{ row.Multiplier }}</td>
-              <td>{{ row.Distance }}</td>
-              <td>{{ row.Break }}</td>
-              <td class="content-cell">
-                <ContentWithDrillLinks :content="row.Content" />
-                <span v-if="hasEquipment(row)" class="equipment-badges" data-testid="plan-equipment">
-                  <span
-                    v-for="eq in row.Equipment"
-                    :key="eq"
-                    class="equipment-badge"
-                  >{{ eq }}</span>
-                </span>
-              </td>
-              <td class="intensity-cell">{{ row.Intensity }}</td>
-              <td class="total-cell">{{ row.Sum }}</td>
-            </tr>
-            <!-- Nested SubRows -->
-            <tr v-if="hasSubRows(row)" class="subrow-container-row" data-testid="plan-card-nested">
-              <td colspan="7" class="subrow-container-cell">
-                <SimplePlanSubRows :sub-rows="row.SubRows!" :depth="0" />
-              </td>
-            </tr>
-          </template>
-           <tr v-if="totalRow" class="total-row">
-             <td colspan="6">
-               <strong>{{ t('display.meters_total') }}</strong>
-             </td>
-             <td>
-               <strong>{{ totalRow.Sum }} m</strong>
-             </td>
-           </tr>
-         </tbody>
-       </table>
-     </div>
+    <!-- Exercise Cards -->
+    <div class="plan-cards-list">
+      <PlanRowCard
+        v-for="(row, index) in exerciseRows"
+        :key="row._id || index"
+        :row="row"
+        :path="[index]"
+        :depth="0"
+        :is-editing="false"
+        :store="readonlyStore"
+        :is-first="index === 0"
+        :is-last="index === exerciseRows.length - 1"
+      />
+    </div>
 
-     <!-- Summary and Actions -->
-     <div class="footer-section">
-       <div class="summary-compact" data-testid="plan-summary">
+    <!-- Total row summary -->
+    <div v-if="totalRow" class="total-summary-row">
+      <strong>{{ t('display.meters_total') }}</strong>
+      <strong>{{ totalRow.Sum }} m</strong>
+    </div>
+
+    <!-- Summary and Actions -->
+    <div class="footer-section">
+      <div class="summary-compact" data-testid="plan-summary">
         <span class="summary-item">{{ totalRow?.Sum || 0 }} m</span>
         <span class="separator">&bull;</span>
         <span class="summary-item">{{ totalExercises }} {{ t('display.exercise_sets') }}</span>
@@ -150,98 +125,24 @@ function onSave() {
   color: var(--color-text);
 }
 
-.table-container {
+.plan-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   padding: 0.75rem;
-  overflow-x: auto;
+  background: var(--color-background-soft);
 }
 
-.exercise-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-
-.exercise-table th,
-.exercise-table td {
-  border: 1px solid var(--color-border);
-  padding: 0.4rem 0.3rem;
-  text-align: center;
-  color: var(--color-text);
-}
-
-.exercise-table th {
-  background: var(--color-border);
+.total-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-background-mute);
+  border-top: 2px solid var(--color-primary);
+  font-size: 0.875rem;
   color: var(--color-heading);
-  font-weight: 600;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-}
-
-.content-header {
-  width: 30%;
-}
-
-.content-cell {
-  text-align: left;
-  font-size: 0.8rem;
-}
-
-.intensity-cell {
-  font-weight: 600;
-  color: var(--color-primary);
-}
-
-.total-cell {
-  font-weight: 600;
-}
-
-.exercise-row:nth-child(even) {
-  background-color: var(--color-background-soft);
-}
-
-.parent-row {
-  background-color: var(--color-background-mute);
-  font-weight: 600;
-}
-
-.subrow-container-row {
-  background: transparent;
-}
-
-.subrow-container-cell {
-  padding: 0 !important;
-  border: none !important;
-}
-
-/* Equipment badges */
-.equipment-badges {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 0.2rem;
-  margin-left: 0.4rem;
-}
-
-.equipment-badge {
-  display: inline-block;
-  font-size: 0.6rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0.05rem 0.3rem;
-  border-radius: 3px;
-  background: var(--color-primary);
-  color: white;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-.total-row {
-  background: var(--color-border);
   font-weight: 700;
-}
-
-.total-row td {
-  border-color: var(--color-border);
-  color: var(--color-heading);
 }
 
 .footer-section {
@@ -262,11 +163,13 @@ function onSave() {
 }
 
 .summary-item {
-  font-weight: 500;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
 .separator {
-  color: var(--color-border);
+  color: var(--color-border-hover);
+  font-size: 0.75rem;
 }
 
 .save-btn {
