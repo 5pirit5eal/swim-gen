@@ -406,7 +406,7 @@ describe('TrainingPlanDisplay.vue', () => {
       await wrapper.vm.$nextTick()
 
       const leafCard = wrapper.findAll('[data-testid="plan-card"]')[0]!
-      expect(leafCard.findAll('input').length).toBe(5)
+      expect(leafCard.findAll('input').length).toBe(4) // Amount, Distance, Break, Intensity
       expect(leafCard.find('textarea').exists()).toBe(true)
     })
 
@@ -456,7 +456,7 @@ describe('TrainingPlanDisplay.vue', () => {
       const parentCard = planCards.find((card) => card.classes('plan-row-card--parent'))
       expect(parentCard?.exists()).toBe(true)
 
-      const parentHeader = parentCard!.find('.plan-row-card__header')
+      const parentHeader = parentCard!.find('.plan-row-card__data')
       const parentDistanceInputs = parentHeader
         .findAll('input')
         .filter((input) => input.attributes('aria-label') === 'Distance (m)')
@@ -465,7 +465,7 @@ describe('TrainingPlanDisplay.vue', () => {
       const nestedCards = wrapper.findAll('[data-testid="plan-card-nested"]')
       expect(nestedCards.length).toBeGreaterThan(0)
       const nestedDistanceInputs = nestedCards[0]!
-        .find('.plan-row-card__header')
+        .find('.plan-row-card__data')
         .findAll('input')
         .filter((input) => input.attributes('aria-label') === 'Distance (m)')
       expect(nestedDistanceInputs.length).toBe(1)
@@ -826,10 +826,12 @@ describe('TrainingPlanDisplay.vue', () => {
       const cooldownCard = planCards.find((card) => card.text().includes('Cool-down'))
       expect(cooldownCard?.exists()).toBe(true)
 
-      const header = cooldownCard!.find('.plan-row-card__header')
-      expect(header.exists()).toBe(true)
-      expect(header.find('.plan-row-card__equipment-badges').exists()).toBe(true)
-      expect(header.find('.plan-row-card__equipment-badges').text()).toContain('Schnorchel')
+      const equipment_label = cooldownCard!.find('[data-testid="equipment-metric"]')
+      expect(equipment_label.exists()).toBe(true)
+      expect(equipment_label.find('.plan-row-card__equipment-badges').exists()).toBe(true)
+      expect(equipment_label.find('.plan-row-card__equipment-badges').text()).toContain(
+        'Schnorchel',
+      )
     })
 
     it('cards without equipment have no equipment-badges element', async () => {

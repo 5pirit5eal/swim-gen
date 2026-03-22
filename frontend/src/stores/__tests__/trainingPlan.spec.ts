@@ -245,7 +245,7 @@ describe('trainingPlan Store', () => {
     expect(newRowCount).toBe(initialRowCount + 1)
 
     // Check that the new row is at the correct position and has default values
-    const newRow = store.currentPlan!.table[1]!
+    const newRow = store.currentPlan!.table[2]!
     expect(newRow.Amount).toBe(0)
     expect(newRow.Content).toBe('')
     expect(newRow.Sum).toBe(0)
