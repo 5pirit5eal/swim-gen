@@ -38,9 +38,6 @@ const totalRow = computed(() => {
   return table.length > 0 ? table[table.length - 1] : null
 })
 
-// Total exercises count (excluding the total row)
-const totalExercises = computed(() => exerciseRows.value.length)
-
 // Distinct equipment from all rows and subrows
 const distinctEquipment = computed((): string[] => {
   const plan = props.store.currentPlan
@@ -50,7 +47,7 @@ const distinctEquipment = computed((): string[] => {
   function collectEquipment(rows: Row[]) {
     for (const row of rows) {
       if (row.Equipment?.length) {
-        row.Equipment.forEach(eq => equipSet.add(eq))
+        row.Equipment.forEach((eq) => equipSet.add(eq))
       }
       if (row.SubRows?.length) {
         collectEquipment(row.SubRows)
@@ -92,9 +89,9 @@ async function toggleEditing() {
           <h2 v-else class="plan-title">{{ store.currentPlan?.title }}</h2>
         </div>
         <div class="plan-header-right">
-          <span data-testid="plan-header-total" class="plan-total-distance">
-            {{ totalRow?.Sum || 0 }} m
-          </span>
+          <div data-testid="plan-header-total" class="summary-item">
+            <div class="summary-value">{{ totalRow?.Sum || 0 }} m</div>
+          </div>
         </div>
       </header>
 
@@ -113,33 +110,33 @@ async function toggleEditing() {
         />
       </div>
 
-      <!-- Summary Statistics -->
-      <div class="summary-section" data-testid="plan-summary">
-        <div class="summary-item">
-          <div class="summary-value">{{ totalExercises }}</div>
-          <div class="summary-label">{{ t('display.exercise_sets') }}</div>
-        </div>
-      </div>
-
       <!-- Footer / Meta region -->
       <div data-testid="plan-footer-meta" class="plan-footer-meta">
-        <textarea
-          v-if="isEditing"
-          v-model="store.currentPlan!.description"
-          v-auto-resize
-          class="edit-description"
-          :placeholder="t('display.plan_description')"
-          rows="3"
-        ></textarea>
-        <div v-else-if="store.currentPlan?.description" class="plan-coach-notes">
-          {{ store.currentPlan.description }}
-        </div>
         <div
           v-if="distinctEquipment.length"
           data-testid="plan-footer-equipment"
-          class="plan-equipment-summary"
+          class="plan-footer-meta-item plan-footer-equipment"
         >
-          <span v-for="eq in distinctEquipment" :key="eq" class="plan-equipment-badge">{{ eq }}</span>
+          <span class="plan-meta-label">{{ t('display.necessary_equipment') }}:</span>
+          <div class="plan-equipment-badges">
+            <span v-for="eq in distinctEquipment" :key="eq" class="plan-equipment-badge">{{
+              eq
+            }}</span>
+          </div>
+        </div>
+        <div class="plan-footer-meta-item plan-footer-notes">
+          <span class="plan-meta-label">{{ t('display.coach_notes') }}:</span>
+          <textarea
+            v-if="isEditing"
+            v-model="store.currentPlan!.description"
+            v-auto-resize
+            class="edit-description"
+            :placeholder="t('display.plan_description')"
+            rows="3"
+          ></textarea>
+          <div v-else-if="store.currentPlan?.description" class="plan-description">
+            "{{ store.currentPlan.description }}"
+          </div>
         </div>
       </div>
     </div>
@@ -192,18 +189,9 @@ async function toggleEditing() {
     font-size: 1.15rem;
   }
 
-  .plan-total-distance {
-    font-size: 1rem;
-  }
-
   .plan-cards-list {
     padding: 0.75rem;
     gap: 0.4rem;
-  }
-
-  .summary-section {
-    padding: 0 0.75rem 0.75rem 0.75rem;
-    gap: 0.5rem;
   }
 
   .summary-item {
@@ -212,11 +200,6 @@ async function toggleEditing() {
 
   .summary-value {
     font-size: 1.15rem;
-  }
-
-  .summary-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.5px;
   }
 }
 
@@ -249,14 +232,6 @@ async function toggleEditing() {
   font-weight: 700;
 }
 
-.plan-total-distance {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: white;
-  opacity: 0.95;
-  white-space: nowrap;
-}
-
 .plan-footer-meta {
   padding: 1rem 1.25rem;
   background: var(--color-background-soft);
@@ -264,11 +239,12 @@ async function toggleEditing() {
   border-bottom-right-radius: 8px;
   border-bottom-left-radius: 8px;
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem 1.5rem;
 }
 
-.plan-coach-notes {
+.plan-description {
   font-size: 0.875rem;
   line-height: 1.6;
   color: var(--color-text);
@@ -276,21 +252,62 @@ async function toggleEditing() {
   font-style: italic;
 }
 
-.plan-equipment-summary {
+.plan-footer-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.plan-footer-equipment {
+  flex: 1;
+}
+
+.plan-footer-notes {
+  flex: 2;
+}
+
+.plan-equipment-badges {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
 }
 
 .plan-equipment-badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: var(--color-background-mute);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: var(--color-primary);
+  color: white;
+  letter-spacing: 0.5px;
   white-space: nowrap;
+  box-shadow: 0 1px 3px var(--color-shadow);
+}
+
+.plan-meta-label {
+  color: var(--color-text);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  opacity: 0.7;
+}
+
+@media (max-width: 740px) {
+  .plan-footer-meta {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .plan-footer-equipment,
+  .plan-footer-notes,
+  .plan-equipment-badges {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .edit-title {
@@ -317,16 +334,19 @@ async function toggleEditing() {
   color: var(--color-text);
   font-family: inherit;
   resize: vertical;
-  width: 100%;
 }
 
 .edit-description::placeholder {
   color: var(--color-text);
 }
 
-.edit-title:focus,
+.edit-title:focus {
+  outline: 2px solid var(--color-primary-hover);
+  border: 1px solid var(--color-primary-hover);
+}
+
 .edit-description:focus {
-  outline: 2px solid var(--color-text);
+  outline: 1px solid var(--color-shadow);
   border: 1px solid var(--color-primary);
 }
 
@@ -338,39 +358,20 @@ async function toggleEditing() {
   background: var(--color-background-soft);
 }
 
-.summary-section {
-  display: flex;
-  justify-content: space-around;
-  padding: 1rem;
-  background: var(--color-background-soft);
-  gap: 1rem;
-  border-top: 1px solid var(--color-border);
-}
-
 .summary-item {
   background: var(--color-background);
-  padding: 1rem;
+  padding: 0.75rem;
   border-radius: 8px;
   text-align: center;
-  flex: 1;
-  border: 1px solid var(--color-border);
-  box-shadow: 0 1px 4px var(--color-shadow);
+  border: 1px solid var(--color-primary);
 }
 
 .summary-value {
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 800;
-  color: var(--color-primary);
+  color: var(--color-text);
   margin-bottom: 0.25rem;
   line-height: 1;
-}
-
-.summary-label {
-  color: var(--color-heading);
-  text-transform: uppercase;
-  font-size: 0.7rem;
-  letter-spacing: 1.5px;
-  opacity: 0.7;
 }
 
 .loading-state,

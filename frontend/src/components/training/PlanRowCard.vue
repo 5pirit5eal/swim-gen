@@ -67,14 +67,27 @@ function subRowPath(subIndex: number): number[] {
 <template>
   <div
     class="plan-row-card"
-    :class="[
-      `plan-row-card--depth-${depth}`,
-      { 'plan-row-card--parent': hasSubRows },
-    ]"
+    :class="[`plan-row-card--depth-${depth}`, { 'plan-row-card--parent': hasSubRows }]"
     :data-testid="depth === 0 ? 'plan-card' : 'plan-card-nested'"
   >
+    <!-- ── Content body ─────────────────────────────────────────────────── -->
+    <div>
+      <textarea
+        v-if="isEditing"
+        :value="row.Content"
+        @blur="handleFieldBlur($event, 'Content')"
+        @keyup.enter.prevent="handleFieldBlur($event, 'Content')"
+        class="plan-row-card__textarea"
+        rows="2"
+        :aria-label="t('display.content')"
+      ></textarea>
+      <div v-else class="plan-row-card__content-view">
+        <ContentWithDrillLinks :content="row.Content" />
+      </div>
+    </div>
+
     <!-- ── Card header: metrics + actions ──────────────────────────────── -->
-    <div class="plan-row-card__header">
+    <div class="plan-row-card__data">
       <!-- Metrics row -->
       <div class="plan-row-card__metrics">
         <!-- Amount -->
@@ -94,19 +107,14 @@ function subRowPath(subIndex: number): number[] {
           <span v-else class="plan-row-card__metric-value">{{ row.Amount }}</span>
         </div>
 
-        <!-- Multiplier -->
+        <!-- Multiplier placeholder to preserve flex layout without visual redundancy -->
         <div class="plan-row-card__metric">
-          <span class="plan-row-card__metric-label">{{ t('display.multiplier') }}</span>
-          <input
-            v-if="isEditing"
-            type="text"
-            :value="row.Multiplier"
-            @blur="handleFieldBlur($event, 'Multiplier')"
-            @keyup.enter="handleFieldBlur($event, 'Multiplier')"
-            class="plan-row-card__input plan-row-card__input--small"
-            :aria-label="t('display.multiplier')"
-          />
-          <span v-else class="plan-row-card__metric-value">{{ row.Multiplier }}</span>
+          <span
+            class="plan-row-card__metric-label plan-row-card__metric--placeholder"
+            aria-hidden="true"
+            >{{ t('display.multiplier') }}</span
+          >
+          <span class="plan-row-card__metric-value">{{ row.Multiplier }}</span>
         </div>
 
         <!-- Distance -->
@@ -153,18 +161,41 @@ function subRowPath(subIndex: number): number[] {
             class="plan-row-card__input plan-row-card__input--small"
             :aria-label="t('display.intensity')"
           />
-          <span v-else class="plan-row-card__metric-value plan-row-card__metric-value--intensity">{{ row.Intensity }}</span>
+          <span v-else class="plan-row-card__metric-value plan-row-card__metric-value--intensity">{{
+            row.Intensity
+          }}</span>
+        </div>
+        <!-- Equipment badges — inline with metrics on wide screens, wraps below on narrow -->
+        <div v-if="hasEquipment" data-testid="equipment-metric" class="plan-row-card__metric">
+          <span class="plan-row-card__metric-label">{{ t('display.equipment') }}</span>
+          <span v-if="hasEquipment && !isEditing" class="plan-row-card__equipment-badges">
+            <span v-for="eq in row.Equipment" :key="eq" class="plan-row-card__equipment-badge">{{
+              eq
+            }}</span>
+          </span>
+          <span v-if="hasEquipment && isEditing" class="plan-row-card__equipment-badges">
+            <span v-for="eq in row.Equipment" :key="eq" class="plan-row-card__equipment-badge">{{
+              eq
+            }}</span>
+          </span>
         </div>
 
         <!-- Sum (always read-only — computed by store) -->
         <div class="plan-row-card__metric plan-row-card__metric--sum">
           <span class="plan-row-card__metric-label">{{ t('display.sum') }}</span>
-          <span class="plan-row-card__metric-value plan-row-card__metric-value--sum">{{ row.Sum }}</span>
+          <span class="plan-row-card__metric-value plan-row-card__metric-value--sum">{{
+            row.Sum
+          }}</span>
         </div>
       </div>
 
       <!-- Edit-mode inline action controls (NOT hover-only) -->
-      <div v-if="isEditing" class="plan-row-card__actions" role="toolbar" :aria-label="t('display.row_actions')">
+      <div
+        v-if="isEditing"
+        class="plan-row-card__actions"
+        role="toolbar"
+        :aria-label="t('display.row_actions')"
+      >
         <button
           class="plan-row-card__action-btn plan-row-card__action-btn--move-up"
           :disabled="isFirst"
@@ -173,7 +204,10 @@ function subRowPath(subIndex: number): number[] {
           :aria-label="t('display.move_row_up')"
         >
           <!-- Up arrow pseudo-element via CSS; inner text for a11y -->
-          <span aria-hidden="true" class="plan-row-card__action-icon plan-row-card__action-icon--up"></span>
+          <span
+            aria-hidden="true"
+            class="plan-row-card__action-icon plan-row-card__action-icon--up"
+          ></span>
         </button>
         <button
           class="plan-row-card__action-btn plan-row-card__action-btn--move-down"
@@ -182,7 +216,10 @@ function subRowPath(subIndex: number): number[] {
           :title="t('display.move_row_down')"
           :aria-label="t('display.move_row_down')"
         >
-          <span aria-hidden="true" class="plan-row-card__action-icon plan-row-card__action-icon--down"></span>
+          <span
+            aria-hidden="true"
+            class="plan-row-card__action-icon plan-row-card__action-icon--down"
+          ></span>
         </button>
         <button
           class="plan-row-card__action-btn plan-row-card__action-btn--add"
@@ -190,7 +227,10 @@ function subRowPath(subIndex: number): number[] {
           :title="t('display.add_row')"
           :aria-label="t('display.add_row')"
         >
-          <span aria-hidden="true" class="plan-row-card__action-icon plan-row-card__action-icon--add"></span>
+          <span
+            aria-hidden="true"
+            class="plan-row-card__action-icon plan-row-card__action-icon--add"
+          ></span>
         </button>
         <button
           class="plan-row-card__action-btn plan-row-card__action-btn--remove"
@@ -198,7 +238,10 @@ function subRowPath(subIndex: number): number[] {
           :title="t('display.remove_row')"
           :aria-label="t('display.remove_row')"
         >
-          <span aria-hidden="true" class="plan-row-card__action-icon plan-row-card__action-icon--remove"></span>
+          <span
+            aria-hidden="true"
+            class="plan-row-card__action-icon plan-row-card__action-icon--remove"
+          ></span>
         </button>
         <button
           v-if="canAddSubRow"
@@ -207,33 +250,11 @@ function subRowPath(subIndex: number): number[] {
           :title="t('display.add_subrow')"
           :aria-label="t('display.add_subrow')"
         >
-          <span aria-hidden="true" class="plan-row-card__action-icon plan-row-card__action-icon--subrow"></span>
+          <span
+            aria-hidden="true"
+            class="plan-row-card__action-icon plan-row-card__action-icon--subrow"
+          ></span>
         </button>
-      </div>
-
-      <!-- Equipment badges — inline with metrics on wide screens, wraps below on narrow -->
-      <span v-if="hasEquipment && !isEditing" class="plan-row-card__equipment-badges">
-        <span
-          v-for="eq in row.Equipment"
-          :key="eq"
-          class="plan-row-card__equipment-badge"
-        >{{ eq }}</span>
-      </span>
-    </div>
-
-    <!-- ── Content body ─────────────────────────────────────────────────── -->
-    <div class="plan-row-card__content">
-      <textarea
-        v-if="isEditing"
-        :value="row.Content"
-        @blur="handleFieldBlur($event, 'Content')"
-        @keyup.enter.prevent="handleFieldBlur($event, 'Content')"
-        class="plan-row-card__textarea"
-        rows="2"
-        :aria-label="t('display.content')"
-      ></textarea>
-      <div v-else class="plan-row-card__content-view">
-        <ContentWithDrillLinks :content="row.Content" />
       </div>
     </div>
 
@@ -250,15 +271,6 @@ function subRowPath(subIndex: number): number[] {
         :is-first="subIndex === 0"
         :is-last="subIndex === (row.SubRows?.length ?? 1) - 1"
       />
-
-      <!-- Inline add-subrow button at bottom of children list (edit mode) -->
-      <button
-        v-if="isEditing && canAddSubRow"
-        class="plan-row-card__add-subrow-inline"
-        @click="handleAddSubRow"
-      >
-        + {{ t('display.add_subrow') }}
-      </button>
     </div>
   </div>
 </template>
@@ -304,7 +316,6 @@ export default {
   margin-left: 0.75rem;
   background: var(--color-background-soft);
   font-size: 0.93rem;
-  opacity: 0.97;
 }
 
 /* Depth 2: second-level nesting — muted border, more indent */
@@ -313,7 +324,6 @@ export default {
   margin-left: 0.5rem;
   background: var(--color-background-mute);
   font-size: 0.875rem;
-  opacity: 0.95;
 }
 
 /* Depth 3: very nested — subtle border */
@@ -322,7 +332,6 @@ export default {
   margin-left: 0.35rem;
   background: var(--color-background-soft);
   font-size: 0.82rem;
-  opacity: 0.92;
 }
 
 /* Depth 4: maximum depth — minimal, near-invisible border */
@@ -334,9 +343,9 @@ export default {
   opacity: 0.88;
 }
 
-/* ── Header row ─────────────────────────────────────────────────────────────── */
+/* ── Data row ─────────────────────────────────────────────────────────────── */
 
-.plan-row-card__header {
+.plan-row-card__data {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -363,6 +372,11 @@ export default {
 
 .plan-row-card__metric--sum {
   margin-left: auto;
+}
+
+.plan-row-card__metric--placeholder {
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .plan-row-card__metric-label {
@@ -407,7 +421,8 @@ export default {
 }
 
 .plan-row-card__input:focus {
-  outline: 2px solid var(--color-primary);
+  outline: 1px solid var(--color-shadow);
+  border: 1px solid var(--color-primary);
 }
 
 /* ── Action controls (always visible in edit mode — NOT hover-only) ──────────── */
@@ -545,14 +560,10 @@ export default {
 
 /* ── Content area ───────────────────────────────────────────────────────────── */
 
-.plan-row-card__content {
-  width: 100%;
-}
-
 .plan-row-card__content-view {
   color: var(--color-heading);
-  font-weight: 500;
-  line-height: 1.4;
+  font-size: 1rem;
+  line-height: 1.5;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -573,7 +584,8 @@ export default {
 }
 
 .plan-row-card__textarea:focus {
-  outline: 2px solid var(--color-primary);
+  outline: 1px solid var(--color-shadow);
+  border: 1px solid var(--color-primary);
 }
 
 /* ── Equipment badges ───────────────────────────────────────────────────────── */
@@ -584,18 +596,6 @@ export default {
   gap: 0.3rem;
   align-items: center;
   flex-shrink: 0;
-}
-
-.plan-row-card__equipment-badges::before {
-  content: 'Equipment:';
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--color-heading);
-  opacity: 0.55;
-  white-space: nowrap;
-  margin-right: 0.15rem;
 }
 
 .plan-row-card__equipment-badge {
@@ -720,6 +720,13 @@ export default {
     order: 99;
     flex-basis: 100%;
     margin-top: 0.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .plan-row-card__data {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 </style>
