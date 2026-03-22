@@ -149,7 +149,9 @@
     "move_row_up": "Move row up",
     "move_row_down": "Move row down",
     "add_subrow": "Add sub-exercise",
-    "equipment": "Equipment"
+    "equipment": "Equipment",
+    "coach_notes": "Coach Notes",
+    "necessary_equipment": "Used Equipment"
   },
   "impressum": {
     "title": "Impressum",

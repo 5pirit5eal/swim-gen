@@ -159,7 +159,7 @@ export function addRowAtPath(table: Row[], path: number[]): void {
   if (path.length === 0) return
 
   const parentPath = path.slice(0, -1)
-  const insertIndex = path[path.length - 1]!
+  const insertIndex = path[path.length - 1]! + 1
 
   let targetArray: Row[]
   if (parentPath.length === 0) {
@@ -226,11 +226,7 @@ export function removeRowAtPath(table: Row[], path: number[]): void {
 }
 
 /** Moves row at path up or down within its parent array. */
-export function moveRowAtPath(
-  table: Row[],
-  path: number[],
-  direction: 'up' | 'down',
-): void {
+export function moveRowAtPath(table: Row[], path: number[], direction: 'up' | 'down'): void {
   if (path.length === 0) return
 
   const parentPath = path.slice(0, -1)

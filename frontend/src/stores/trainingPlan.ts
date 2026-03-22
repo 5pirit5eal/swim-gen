@@ -571,7 +571,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     }
   }
 
-
   return {
     // State
     currentPlan,

@@ -151,7 +151,9 @@
     "move_row_up": "Zeile nach oben verschieben",
     "move_row_down": "Zeile nach unten verschieben",
     "add_subrow": "Teilübung hinzufügen",
-    "equipment": "Ausrüstung"
+    "equipment": "Ausrüstung",
+    "coach_notes": "Trainernotizen",
+    "necessary_equipment": "Benötigte Ausrüstung"
   },
   "impressum": {
     "title": "Impressum",

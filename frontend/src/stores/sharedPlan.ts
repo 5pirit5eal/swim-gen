@@ -430,7 +430,6 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     }
   }
 
-
   return {
     // State
     sharedPlan,
