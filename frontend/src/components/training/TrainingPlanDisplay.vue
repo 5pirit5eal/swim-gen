@@ -5,6 +5,7 @@ import IconEdit from '@/components/icons/IconEdit.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import PlanRowCard from '@/components/training/PlanRowCard.vue'
 import type { PlanStore, Row } from '@/types'
+import { EQUIPMENT_I18N_KEYS } from '@/utils/rowHelpers'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -19,6 +20,11 @@ const props = withDefaults(
 )
 
 const { t } = useI18n()
+
+function getEquipmentLabel(equipment: string): string {
+  const translationKey = EQUIPMENT_I18N_KEYS[equipment as keyof typeof EQUIPMENT_I18N_KEYS]
+  return translationKey ? t(`equipment.${translationKey}`) : equipment
+}
 
 // Ref to track editing state
 const isEditing = ref(false)
@@ -120,7 +126,7 @@ async function toggleEditing() {
           <span class="plan-meta-label">{{ t('display.necessary_equipment') }}:</span>
           <div class="plan-equipment-badges">
             <span v-for="eq in distinctEquipment" :key="eq" class="plan-equipment-badge">{{
-              eq
+              getEquipmentLabel(eq)
             }}</span>
           </div>
         </div>
