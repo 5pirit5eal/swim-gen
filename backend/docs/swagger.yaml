@@ -190,6 +190,20 @@ definitions:
           type: string
         type: array
     type: object
+  models.EquipmentType:
+    enum:
+    - Flossen
+    - Kickboard
+    - Handpaddles
+    - Pull buoy
+    - Schnorchel
+    type: string
+    x-enum-varnames:
+    - EquipmentFins
+    - EquipmentKickboard
+    - EquipmentPaddles
+    - EquipmentBuoy
+    - EquipmentSnorkel
   models.FeedbackRequest:
     description: Request payload for submitting feedback on a training plan
     properties:
@@ -389,7 +403,8 @@ definitions:
     - RoleAI
   models.Row:
     description: A single exercise entry with amount, distance, breaks, content, intensity
-      and total volume
+      and total volume. Supports nested SubRows for compound sets like 8 x (800 +
+      200).
     properties:
       Amount:
         example: 4
@@ -403,12 +418,22 @@ definitions:
       Distance:
         example: 100
         type: integer
+      Equipment:
+        example:
+        - '["Flossen"]'
+        items:
+          $ref: '#/definitions/models.EquipmentType'
+        type: array
       Intensity:
         example: Easy
         type: string
       Multiplier:
         example: x
         type: string
+      SubRows:
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
       Sum:
         example: 400
         type: integer
