@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import ContentWithDrillLinks from '@/components/training/ContentWithDrillLinks.vue'
 import type { Row, PlanStore } from '@/types'
-import { MAX_NESTING_DEPTH } from '@/utils/rowHelpers'
+import { EQUIPMENT_I18N_KEYS, EQUIPMENT_TYPES, MAX_NESTING_DEPTH } from '@/utils/rowHelpers'
 import { computed } from 'vue'
+import Multiselect from 'vue-multiselect'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
@@ -17,11 +18,24 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
+type EquipmentOption = {
+  value: string
+  label: string
+}
+
+const equipmentOptions = computed<EquipmentOption[]>(() =>
+  EQUIPMENT_TYPES.map((equipment) => ({
+    value: equipment,
+    label: getEquipmentLabel(equipment),
+  })),
+)
+
 // ── Computed helpers ──────────────────────────────────────────────────────────
 
 const hasSubRows = computed(() => props.row.SubRows && props.row.SubRows.length > 0)
 const canAddSubRow = computed(() => props.depth < MAX_NESTING_DEPTH)
 const hasEquipment = computed(() => props.row.Equipment && props.row.Equipment.length > 0)
+const shouldShowEquipmentMetric = computed(() => props.isEditing || hasEquipment.value)
 
 /** Parent rows (with SubRows) have a computed Distance — not directly editable */
 const isDistanceEditable = computed(() => !hasSubRows.value)
@@ -55,6 +69,24 @@ function handleFieldBlur(event: Event, field: keyof Row) {
   } else {
     props.store.updatePlanRow(props.path, field, rawValue)
   }
+}
+
+const selectedEquipmentOptions = computed<EquipmentOption[]>({
+  get() {
+    const selectedEquipment = props.row.Equipment ?? []
+    return equipmentOptions.value.filter((option) => selectedEquipment.includes(option.value))
+  },
+  set(selectedOptions) {
+    props.store.updatePlanRowEquipment(
+      props.path,
+      selectedOptions.map((option) => option.value),
+    )
+  },
+})
+
+function getEquipmentLabel(equipment: string): string {
+  const translationKey = EQUIPMENT_I18N_KEYS[equipment as keyof typeof EQUIPMENT_I18N_KEYS]
+  return translationKey ? t(`equipment.${translationKey}`) : equipment
 }
 
 // ── Sub-row path helper ───────────────────────────────────────────────────────
@@ -165,17 +197,33 @@ function subRowPath(subIndex: number): number[] {
             row.Intensity
           }}</span>
         </div>
+
         <!-- Equipment badges — inline with metrics on wide screens, wraps below on narrow -->
-        <div v-if="hasEquipment" data-testid="equipment-metric" class="plan-row-card__metric">
+        <div
+          v-if="shouldShowEquipmentMetric"
+          data-testid="equipment-metric"
+          class="plan-row-card__metric plan-row-card__metric--equipment"
+        >
           <span class="plan-row-card__metric-label">{{ t('display.equipment') }}</span>
-          <span v-if="hasEquipment && !isEditing" class="plan-row-card__equipment-badges">
+          <Multiselect
+            v-if="isEditing"
+            v-model="selectedEquipmentOptions"
+            :options="equipmentOptions"
+            :multiple="true"
+            :close-on-select="false"
+            :clear-on-select="false"
+            :preserve-search="true"
+            :show-labels="false"
+            :placeholder="t('display.equipment')"
+            label="label"
+            track-by="value"
+            class="plan-row-card__multiselect"
+            data-testid="equipment-multiselect"
+            :aria-label="t('display.equipment')"
+          />
+          <span v-else class="plan-row-card__equipment-badges">
             <span v-for="eq in row.Equipment" :key="eq" class="plan-row-card__equipment-badge">{{
-              eq
-            }}</span>
-          </span>
-          <span v-if="hasEquipment && isEditing" class="plan-row-card__equipment-badges">
-            <span v-for="eq in row.Equipment" :key="eq" class="plan-row-card__equipment-badge">{{
-              eq
+              getEquipmentLabel(eq)
             }}</span>
           </span>
         </div>
@@ -370,6 +418,10 @@ export default {
   min-width: 2.5rem;
 }
 
+.plan-row-card__metric--equipment {
+  min-width: 10rem;
+}
+
 .plan-row-card__metric--sum {
   margin-left: auto;
 }
@@ -385,7 +437,6 @@ export default {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text);
-  opacity: 0.5;
   white-space: nowrap;
 }
 
@@ -395,7 +446,7 @@ export default {
 }
 
 .plan-row-card__metric-value--intensity {
-  color: var(--color-primary);
+  color: color-mix(var(--color-primary) 50%, var(--color-text) 50%);
 }
 
 .plan-row-card__metric-value--sum {
@@ -420,9 +471,82 @@ export default {
   text-align: center;
 }
 
+.plan-row-card__multiselect {
+  min-width: 14rem;
+  width: 100%;
+  max-width: 18rem;
+  font-size: 0.9rem;
+}
+
 .plan-row-card__input:focus {
   outline: 1px solid var(--color-shadow);
   border: 1px solid var(--color-primary);
+}
+
+.plan-row-card__multiselect:deep(.multiselect__tags) {
+  border: 1px solid var(--color-shadow);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: inherit;
+  box-sizing: border-box;
+  min-height: 2.25rem;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__content-wrapper) {
+  border-color: var(--color-shadow);
+  background: var(--color-background);
+}
+
+.plan-row-card__multiselect:deep(.multiselect__input),
+.plan-row-card__multiselect:deep(.multiselect__single) {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__placeholder) {
+  color: var(--color-heading);
+  opacity: 0.6;
+  font-size: 0.75rem;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__tag) {
+  background: var(--color-primary);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  margin-bottom: 0.2rem;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__tag-icon::after) {
+  color: white;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__tag-icon:hover) {
+  background: var(--color-primary-hover, color-mix(in srgb, var(--color-primary) 80%, black));
+}
+
+.plan-row-card__multiselect:deep(.multiselect__option--highlight) {
+  background: var(--color-primary);
+  color: white;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__option--selected) {
+  background: var(--color-background-mute);
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__select::before) {
+  border-color: var(--color-text) transparent transparent;
+}
+
+.plan-row-card__multiselect:deep(.multiselect--active .multiselect__tags) {
+  outline: 1px solid var(--color-shadow);
+  border-color: var(--color-primary);
 }
 
 /* ── Action controls (always visible in edit mode — NOT hover-only) ──────────── */
@@ -688,6 +812,11 @@ export default {
   .plan-row-card__input--small {
     width: 2.75rem;
     font-size: 0.8rem;
+  }
+
+  .plan-row-card__multiselect {
+    min-width: 100%;
+    max-width: none;
   }
 
   /* Ensure touch-friendly button targets (min 44px) */
