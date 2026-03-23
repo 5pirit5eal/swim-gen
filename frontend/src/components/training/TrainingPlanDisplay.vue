@@ -85,12 +85,8 @@ async function toggleEditing() {
       <!-- Header -->
       <header class="plan-header">
         <div class="plan-header-left">
-          <input
-            v-if="isEditing"
-            v-model="store.currentPlan!.title"
-            class="edit-title"
-            :placeholder="t('display.plan_title')"
-          />
+          <input v-if="isEditing" v-model="store.currentPlan!.title" class="edit-title"
+            :placeholder="t('display.plan_title')" />
           <h2 v-else class="plan-title">{{ store.currentPlan?.title }}</h2>
         </div>
         <div class="plan-header-right">
@@ -102,26 +98,14 @@ async function toggleEditing() {
 
       <!-- Exercise Cards -->
       <TransitionGroup tag="div" name="list" class="plan-cards-list" data-testid="plan-cards-list">
-        <PlanRowCard
-          v-for="(row, index) in exerciseRows"
-          :key="row._id || index"
-          :row="row"
-          :path="[index]"
-          :depth="0"
-          :is-editing="isEditing"
-          :store="store"
-          :is-first="index === 0"
-          :is-last="index === exerciseRows.length - 1"
-        />
+        <PlanRowCard v-for="(row, index) in exerciseRows" :key="row._id || index" :row="row" :path="[index]" :depth="0"
+          :is-editing="isEditing" :store="store" :is-first="index === 0" :is-last="index === exerciseRows.length - 1" />
       </TransitionGroup>
 
       <!-- Footer / Meta region -->
       <div data-testid="plan-footer-meta" class="plan-footer-meta">
-        <div
-          v-if="distinctEquipment.length"
-          data-testid="plan-footer-equipment"
-          class="plan-footer-meta-item plan-footer-equipment"
-        >
+        <div v-if="distinctEquipment.length" data-testid="plan-footer-equipment"
+          class="plan-footer-meta-item plan-footer-equipment">
           <span class="plan-meta-label">{{ t('display.necessary_equipment') }}:</span>
           <div class="plan-equipment-badges">
             <span v-for="eq in distinctEquipment" :key="eq" class="plan-equipment-badge">{{
@@ -131,13 +115,8 @@ async function toggleEditing() {
         </div>
         <div class="plan-footer-meta-item plan-footer-notes">
           <span class="plan-meta-label">{{ t('display.coach_notes') }}:</span>
-          <textarea
-            v-if="isEditing"
-            v-model="store.currentPlan!.description"
-            class="edit-description"
-            :placeholder="t('display.plan_description')"
-            rows="3"
-          ></textarea>
+          <textarea v-if="isEditing" v-model="store.currentPlan!.description" class="edit-description"
+            :placeholder="t('display.plan_description')" rows="3"></textarea>
           <div v-else-if="store.currentPlan?.description" class="plan-description">
             "{{ store.currentPlan.description }}"
           </div>
@@ -482,6 +461,7 @@ async function toggleEditing() {
 }
 
 /* List Transitions */
+.list-move,
 .list-enter-active,
 .list-leave-active {
   transition: all 0.4s ease;
