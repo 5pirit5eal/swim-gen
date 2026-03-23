@@ -494,9 +494,4 @@ async function toggleEditing() {
   opacity: 0;
   transform: translateX(30px);
 }
-
-.list-leave-active {
-  position: absolute;
-  left: 0;
-}
 </style>
