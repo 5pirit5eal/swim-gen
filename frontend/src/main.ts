@@ -6,6 +6,7 @@ import router from '@/router'
 import i18n from '@/plugins/i18n'
 import toastify from '@/plugins/toastify'
 
+import 'vue-multiselect/dist/vue-multiselect.css'
 import './assets/main.css'
 
 const app = createApp(App)
