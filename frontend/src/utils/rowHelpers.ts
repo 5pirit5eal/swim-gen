@@ -14,6 +14,14 @@ export const EQUIPMENT_TYPES = [
 
 export type EquipmentType = (typeof EQUIPMENT_TYPES)[number]
 
+export const EQUIPMENT_I18N_KEYS: Record<EquipmentType, string> = {
+  Flossen: 'fins',
+  Kickboard: 'kickboard',
+  Handpaddles: 'hand_paddles',
+  'Pull buoy': 'pull_buoy',
+  Schnorchel: 'snorkel',
+}
+
 export function createEmptyRow(): Row {
   return {
     Amount: 0,

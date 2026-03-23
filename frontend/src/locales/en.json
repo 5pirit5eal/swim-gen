@@ -153,6 +153,13 @@
     "coach_notes": "Coach Notes",
     "necessary_equipment": "Used Equipment"
   },
+  "equipment": {
+    "fins": "Fins",
+    "kickboard": "Kickboard",
+    "hand_paddles": "Hand paddles",
+    "pull_buoy": "Pull buoy",
+    "snorkel": "Snorkel"
+  },
   "impressum": {
     "title": "Impressum",
     "contact_title": "Contact",

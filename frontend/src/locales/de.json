@@ -155,6 +155,13 @@
     "coach_notes": "Trainernotizen",
     "necessary_equipment": "Benötigte Ausrüstung"
   },
+  "equipment": {
+    "fins": "Flossen",
+    "kickboard": "Kickboard",
+    "hand_paddles": "Handpaddles",
+    "pull_buoy": "Pull buoy",
+    "snorkel": "Schnorchel"
+  },
   "impressum": {
     "title": "Impressum",
     "contact_title": "Kontakt",
