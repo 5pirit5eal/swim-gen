@@ -307,7 +307,7 @@ function subRowPath(subIndex: number): number[] {
     </div>
 
     <!-- ── Nested SubRows ───────────────────────────────────────────────── -->
-    <div v-if="hasSubRows" class="plan-row-card__subrows">
+    <TransitionGroup tag="div" name="list" v-if="hasSubRows" class="plan-row-card__subrows">
       <PlanRowCard
         v-for="(subRow, subIndex) in row.SubRows"
         :key="subRow._id || subIndex"
@@ -319,7 +319,7 @@ function subRowPath(subIndex: number): number[] {
         :is-first="subIndex === 0"
         :is-last="subIndex === (row.SubRows?.length ?? 1) - 1"
       />
-    </div>
+    </TransitionGroup>
   </div>
 </template>
 
@@ -745,6 +745,24 @@ export default {
   gap: 0.4rem;
   padding-left: 0.75rem;
   margin-top: 0.25rem;
+  position: relative;
+}
+
+/* List Transitions for nested cards */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.4s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.list-leave-active {
+  position: absolute;
+  left: 0;
 }
 
 /* ── Inline add-subrow button ───────────────────────────────────────────────── */

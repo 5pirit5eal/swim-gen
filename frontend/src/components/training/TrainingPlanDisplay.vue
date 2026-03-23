@@ -102,7 +102,7 @@ async function toggleEditing() {
       </header>
 
       <!-- Exercise Cards -->
-      <div class="plan-cards-list" data-testid="plan-cards-list">
+      <TransitionGroup tag="div" name="list" class="plan-cards-list" data-testid="plan-cards-list">
         <PlanRowCard
           v-for="(row, index) in exerciseRows"
           :key="row._id || index"
@@ -114,7 +114,7 @@ async function toggleEditing() {
           :is-first="index === 0"
           :is-last="index === exerciseRows.length - 1"
         />
-      </div>
+      </TransitionGroup>
 
       <!-- Footer / Meta region -->
       <div data-testid="plan-footer-meta" class="plan-footer-meta">
@@ -481,5 +481,22 @@ async function toggleEditing() {
 .icon {
   width: 24px;
   height: 24px;
+}
+
+/* List Transitions */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.4s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.list-leave-active {
+  position: absolute;
+  left: 0;
 }
 </style>
