@@ -63,8 +63,8 @@ function handleFieldBlur(event: Event, field: keyof Row) {
   const rawValue = target.value
 
   if (field === 'Amount' || field === 'Distance') {
-    const parsed = parseInt(rawValue, 10)
-    const value = isNaN(parsed) ? 0 : parsed
+    const parsed = parseFloat(rawValue)
+    const value = isNaN(parsed) ? 0 : Math.max(0, Math.round(parsed))
     props.store.updatePlanRow(props.path, field, value)
   } else {
     props.store.updatePlanRow(props.path, field, rawValue)
