@@ -5,6 +5,7 @@ import { createTestingPinia } from '@pinia/testing'
 import TrainingPlanDisplay from '../TrainingPlanDisplay.vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import i18n from '@/plugins/i18n' // Import the i18n instance
+import Multiselect from 'vue-multiselect'
 import type { RAGResponse } from '@/types'
 
 /**
@@ -406,7 +407,19 @@ describe('TrainingPlanDisplay.vue', () => {
       await wrapper.vm.$nextTick()
 
       const leafCard = wrapper.findAll('[data-testid="plan-card"]')[0]!
-      expect(leafCard.findAll('input').length).toBe(4) // Amount, Distance, Break, Intensity
+      const metricInputs = leafCard
+        .findAll('input')
+        .filter((input) =>
+          [
+            i18n.global.t('display.amount'),
+            i18n.global.t('display.distance'),
+            i18n.global.t('display.break'),
+            i18n.global.t('display.intensity'),
+          ].includes(input.attributes('aria-label') ?? ''),
+        )
+      expect(metricInputs.length).toBe(4) // Amount, Distance, Break, Intensity
+      expect(leafCard.find('[data-testid="equipment-multiselect"]').exists()).toBe(true)
+      expect(leafCard.findComponent(Multiselect).exists()).toBe(true)
       expect(leafCard.find('textarea').exists()).toBe(true)
     })
 
@@ -469,6 +482,36 @@ describe('TrainingPlanDisplay.vue', () => {
         .findAll('input')
         .filter((input) => input.attributes('aria-label') === 'Distance (m)')
       expect(nestedDistanceInputs.length).toBe(1)
+    })
+
+    it('calls updatePlanRowEquipment with selected values from the edit-mode multi-select', async () => {
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+        },
+        props: {
+          store: useTrainingPlanStore(),
+        },
+      })
+      const store = useTrainingPlanStore()
+      store.currentPlan = JSON.parse(JSON.stringify(createMixedEquipmentPlan()))
+      await wrapper.vm.$nextTick()
+
+      await wrapper.find('button[data-testid="plan-edit-btn"]').trigger('click')
+      await wrapper.vm.$nextTick()
+
+      const firstCard = wrapper.findAll('[data-testid="plan-card"]')[0]!
+      const equipmentSelect = firstCard.findComponent(Multiselect)
+      expect(equipmentSelect.exists()).toBe(true)
+
+      await equipmentSelect.vm.$emit('update:modelValue', [
+        {
+          value: 'Schnorchel',
+          label: i18n.global.t('equipment.snorkel'),
+        },
+      ])
+
+      expect(store.updatePlanRowEquipment).toHaveBeenCalledWith([0], ['Schnorchel'])
     })
   })
 
@@ -544,10 +587,9 @@ describe('TrainingPlanDisplay.vue', () => {
 
       const equipmentFooter = wrapper.find('[data-testid="plan-footer-equipment"]')
       expect(equipmentFooter.exists()).toBe(true)
-      // Mixed plan has: Pull buoy, Kickboard, Flossen, Schnorchel
-      expect(equipmentFooter.text()).toContain('Pull buoy')
-      expect(equipmentFooter.text()).toContain('Flossen')
-      expect(equipmentFooter.text()).toContain('Schnorchel')
+      expect(equipmentFooter.text()).toContain(i18n.global.t('equipment.pull_buoy'))
+      expect(equipmentFooter.text()).toContain(i18n.global.t('equipment.fins'))
+      expect(equipmentFooter.text()).toContain(i18n.global.t('equipment.snorkel'))
     })
 
     it('footer/meta equipment lists nested subrow equipment (recursive aggregation)', async () => {
@@ -565,7 +607,7 @@ describe('TrainingPlanDisplay.vue', () => {
 
       const equipmentFooter = wrapper.find('[data-testid="plan-footer-equipment"]')
       expect(equipmentFooter.exists()).toBe(true)
-      expect(equipmentFooter.text()).toContain('Flossen')
+      expect(equipmentFooter.text()).toContain(i18n.global.t('equipment.fins'))
     })
 
     it('SimplePlanDisplay does NOT render description text in view mode', async () => {
@@ -830,7 +872,7 @@ describe('TrainingPlanDisplay.vue', () => {
       expect(equipment_label.exists()).toBe(true)
       expect(equipment_label.find('.plan-row-card__equipment-badges').exists()).toBe(true)
       expect(equipment_label.find('.plan-row-card__equipment-badges').text()).toContain(
-        'Schnorchel',
+        i18n.global.t('equipment.snorkel'),
       )
     })
 
