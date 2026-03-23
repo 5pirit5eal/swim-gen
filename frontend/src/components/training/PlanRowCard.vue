@@ -307,19 +307,23 @@ function subRowPath(subIndex: number): number[] {
     </div>
 
     <!-- ── Nested SubRows ───────────────────────────────────────────────── -->
-    <TransitionGroup tag="div" name="list" v-if="hasSubRows" class="plan-row-card__subrows">
-      <PlanRowCard
-        v-for="(subRow, subIndex) in row.SubRows"
-        :key="subRow._id || subIndex"
-        :row="subRow"
-        :path="subRowPath(subIndex)"
-        :depth="depth + 1"
-        :is-editing="isEditing"
-        :store="store"
-        :is-first="subIndex === 0"
-        :is-last="subIndex === (row.SubRows?.length ?? 1) - 1"
-      />
-    </TransitionGroup>
+    <Transition name="subrows-expand">
+      <div v-show="hasSubRows" class="plan-row-card__subrows">
+        <TransitionGroup name="list">
+          <PlanRowCard
+            v-for="(subRow, subIndex) in row.SubRows"
+            :key="subRow._id || subIndex"
+            :row="subRow"
+            :path="subRowPath(subIndex)"
+            :depth="depth + 1"
+            :is-editing="isEditing"
+            :store="store"
+            :is-first="subIndex === 0"
+            :is-last="subIndex === (row.SubRows?.length ?? 1) - 1"
+          />
+        </TransitionGroup>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -746,6 +750,28 @@ export default {
   padding-left: 0.75rem;
   margin-top: 0.25rem;
   position: relative;
+  overflow: hidden;
+}
+
+/* Subrows expand/collapse animation */
+.subrows-expand-enter-active,
+.subrows-expand-leave-active {
+  transition: all 0.4s ease;
+}
+
+.subrows-expand-enter-from,
+.subrows-expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.subrows-expand-enter-to,
+.subrows-expand-leave-from {
+  opacity: 1;
+  max-height: 500px;
 }
 
 /* List Transitions for nested cards */
@@ -758,11 +784,6 @@ export default {
 .list-leave-to {
   opacity: 0;
   transform: translateX(20px);
-}
-
-.list-leave-active {
-  position: absolute;
-  left: 0;
 }
 
 /* ── Inline add-subrow button ───────────────────────────────────────────────── */
