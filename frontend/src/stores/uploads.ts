@@ -1,5 +1,17 @@
 import { apiClient, formatError } from '@/api/client'
 import type { UploadedPlan, RAGResponse, Row } from '@/types'
+import {
+  ensureRowIds,
+  normalizeRows,
+  stripRowIds,
+  updateRowField,
+  addRowAtPath,
+  addSubRow as addSubRowHelper,
+  removeRowAtPath,
+  moveRowAtPath,
+  recalculateAllSums,
+  updateRowEquipment,
+} from '@/utils/rowHelpers'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
@@ -81,8 +93,9 @@ export const useUploadStore = defineStore('upload', () => {
         description: result.data.description,
         table: result.data.table,
       }
-      recalculateTotalSum()
+      recalculateAllSums(currentPlan.value.table)
       ensureRowIds(currentPlan.value.table)
+      normalizeRows(currentPlan.value.table)
       isLoading.value = false
       return true
     } else {
@@ -99,6 +112,7 @@ export const useUploadStore = defineStore('upload', () => {
     await fetchUploadedPlan(plan_id)
     if (currentPlan.value) {
       ensureRowIds(currentPlan.value.table)
+      normalizeRows(currentPlan.value.table)
     }
   }
 
@@ -115,8 +129,7 @@ export const useUploadStore = defineStore('upload', () => {
     if (!currentPlan.value) throw new Error('No current plan to upsert')
 
     // Strip _id from table rows before sending to backend
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const tableWithoutIds = currentPlan.value.table.map(({ _id, ...rest }) => rest)
+    const tableWithoutIds = stripRowIds(currentPlan.value.table)
 
     const result = await apiClient.upsertPlan({
       plan_id: currentPlan.value.plan_id,
@@ -133,76 +146,34 @@ export const useUploadStore = defineStore('upload', () => {
     }
   }
 
-  function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
-    if (currentPlan.value && currentPlan.value.table[rowIndex]) {
-      const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
-
-      if (field === 'Amount' || field === 'Distance') {
-        row.Sum = row.Amount * row.Distance
-        recalculateTotalSum()
-      }
-    }
-  }
-
-  function addRow(rowIndex: number) {
-    if (currentPlan.value && currentPlan.value.table.length < 26) {
-      const newRow: Row = {
-        Amount: 0,
-        Break: '',
-        Content: '',
-        Distance: 0,
-        Intensity: '',
-        Multiplier: 'x',
-        Sum: 0,
-        _id: crypto.randomUUID(),
-      }
-      currentPlan.value.table.splice(rowIndex, 0, newRow)
-      recalculateTotalSum()
-    }
-  }
-
-  function removeRow(rowIndex: number) {
-    if (
-      currentPlan.value &&
-      currentPlan.value.table.length > 2 &&
-      rowIndex < currentPlan.value.table.length - 1
-    ) {
-      currentPlan.value.table.splice(rowIndex, 1)
-      recalculateTotalSum()
-    }
-  }
-
-  function moveRow(rowIndex: number, direction: 'up' | 'down') {
+  function updatePlanRow(path: number[], field: keyof Row, value: string | number) {
     if (!currentPlan.value) return
-
-    const table = currentPlan.value.table
-    const isMovingUp = direction === 'up'
-    const isMovingDown = direction === 'down'
-
-    if ((isMovingUp && rowIndex === 0) || (isMovingDown && rowIndex === table.length - 2)) {
-      return
-    }
-
-    const newIndex = isMovingUp ? rowIndex - 1 : rowIndex + 1
-    const [movedRow] = table.splice(rowIndex, 1)
-    table.splice(newIndex, 0, movedRow!)
+    updateRowField(currentPlan.value.table, path, field, value)
   }
 
-  function recalculateTotalSum() {
-    if (currentPlan.value && currentPlan.value.table.length > 0) {
-      const lastRowIndex = currentPlan.value.table.length - 1
-      const lastRow = currentPlan.value.table[lastRowIndex]!
-      lastRow.Sum = currentPlan.value.table.slice(0, -1).reduce((acc, r) => acc + (r.Sum || 0), 0)
-    }
+  function updatePlanRowEquipment(path: number[], equipment: string[]) {
+    if (!currentPlan.value) return
+    updateRowEquipment(currentPlan.value.table, path, equipment)
   }
 
-  function ensureRowIds(table: Row[]) {
-    table.forEach((row) => {
-      if (!row._id) {
-        row._id = crypto.randomUUID()
-      }
-    })
+  function addRow(path: number[]) {
+    if (!currentPlan.value) return
+    addRowAtPath(currentPlan.value.table, path)
+  }
+
+  function addSubRow(path: number[], depth: number) {
+    if (!currentPlan.value) return
+    addSubRowHelper(currentPlan.value.table, path, depth)
+  }
+
+  function removeRow(path: number[]) {
+    if (!currentPlan.value) return
+    removeRowAtPath(currentPlan.value.table, path)
+  }
+
+  function moveRow(path: number[], direction: 'up' | 'down') {
+    if (!currentPlan.value) return
+    moveRowAtPath(currentPlan.value.table, path, direction)
   }
 
   function clear() {
@@ -232,7 +203,9 @@ export const useUploadStore = defineStore('upload', () => {
     keepForever,
     upsertCurrentPlan,
     updatePlanRow,
+    updatePlanRowEquipment,
     addRow,
+    addSubRow,
     removeRow,
     moveRow,
     clear,

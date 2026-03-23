@@ -30,4 +30,10 @@ const segments = computed<ContentSegment[]>(() => {
 .content-with-drill-links {
   display: inline;
 }
+
+.content-with-drill-links span {
+  display: inline;
+  font-size: 1rem;
+  font-weight: 600;
+}
 </style>

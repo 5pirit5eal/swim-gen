@@ -22,6 +22,8 @@ export interface Row {
   Intensity: string
   Multiplier: string
   Sum: number
+  Equipment?: string[] // Optional equipment for this row
+  SubRows?: Row[] // Optional nested rows for compound sets
   _id?: string // Frontend-only unique identifier for list transitions
 }
 
@@ -43,17 +45,18 @@ export interface RAGResponse {
   table: Row[]
 }
 
-// Generic PlanStore interface for TrainingPlanDisplay component
 export interface PlanStore {
   currentPlan: RAGResponse | null
   hasPlan: boolean
   isLoading: boolean
   keepForever: (plan_id: string) => Promise<void>
   upsertCurrentPlan: () => Promise<string>
-  updatePlanRow: (rowIndex: number, field: keyof Row, value: string | number) => void
-  addRow: (rowIndex: number) => void
-  removeRow: (rowIndex: number) => void
-  moveRow: (rowIndex: number, direction: 'up' | 'down') => void
+  updatePlanRow: (path: number[], field: keyof Row, value: string | number) => void
+  updatePlanRowEquipment: (path: number[], equipment: string[]) => void
+  addRow: (path: number[]) => void
+  addSubRow: (path: number[], depth: number) => void
+  removeRow: (path: number[]) => void
+  moveRow: (path: number[], direction: 'up' | 'down') => void
 }
 
 // Backend API PlanToPDFRequest structure

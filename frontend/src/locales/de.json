@@ -133,6 +133,9 @@
     },
     "total": "Gesamt (m)",
     "total_tooltip": "Gesamtdistanz in Metern für den Übungssatz.",
+    "multiplier": "×",
+    "sum": "Summe (m)",
+    "row_actions": "Zeilenaktionen",
     "meters_total": "Gesamtdistanz",
     "exercise_sets": "Übungssätze",
     "no_plan_placeholder": "Noch kein Trainingsplan generiert. Verwende das obige Formular, um einen zu erstellen!",
@@ -146,7 +149,18 @@
     "add_row": "Neue Zeile hinzufügen",
     "remove_row": "Diese Zeile entfernen",
     "move_row_up": "Zeile nach oben verschieben",
-    "move_row_down": "Zeile nach unten verschieben"
+    "move_row_down": "Zeile nach unten verschieben",
+    "add_subrow": "Teilübung hinzufügen",
+    "equipment": "Ausrüstung",
+    "coach_notes": "Trainernotizen",
+    "necessary_equipment": "Benötigte Ausrüstung"
+  },
+  "equipment": {
+    "fins": "Flossen",
+    "kickboard": "Kickboard",
+    "hand_paddles": "Handpaddles",
+    "pull_buoy": "Pull buoy",
+    "snorkel": "Schnorchel"
   },
   "impressum": {
     "title": "Impressum",

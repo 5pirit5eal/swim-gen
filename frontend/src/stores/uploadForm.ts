@@ -1,6 +1,16 @@
 import { apiClient, formatError } from '@/api/client'
 import i18n from '@/plugins/i18n'
 import type { DonatePlanRequest, RAGResponse, Row } from '@/types'
+import {
+  stripRowIds,
+  updateRowField,
+  addRowAtPath,
+  addSubRow as addSubRowHelper,
+  removeRowAtPath,
+  moveRowAtPath,
+  recalculateAllSums,
+  updateRowEquipment,
+} from '@/utils/rowHelpers'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useUploadStore } from '@/stores/uploads'
@@ -54,8 +64,7 @@ export const useUploadFormStore = defineStore('uploadForm', () => {
     error.value = null
 
     // Strip _id from table rows before sending
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const tableWithoutIds = currentPlan.value.table.slice(0, -1).map(({ _id, ...rest }) => rest)
+    const tableWithoutIds = stripRowIds(currentPlan.value.table.slice(0, -1))
 
     const request: DonatePlanRequest = {
       title: currentPlan.value.title,
@@ -89,72 +98,40 @@ export const useUploadFormStore = defineStore('uploadForm', () => {
     // Not applicable for upload form in the same way,
     // we don't auto-save to backend on every edit, only on explicit upload
     // But we can use this to trigger local validation or updates if needed
-    recalculateTotalSum()
+    if (currentPlan.value) {
+      recalculateAllSums(currentPlan.value.table)
+    }
     return '' // Upload form doesn't create plans in history
   }
 
-  function updatePlanRow(rowIndex: number, field: keyof Row, value: string | number) {
-    if (currentPlan.value && currentPlan.value.table[rowIndex]) {
-      const row = currentPlan.value.table[rowIndex]
-      ;(row[field] as string | number) = value
-
-      if (field === 'Amount' || field === 'Distance') {
-        row.Sum = row.Amount * row.Distance
-        recalculateTotalSum()
-      }
-    }
-  }
-
-  function addRow(rowIndex: number) {
-    if (currentPlan.value && currentPlan.value.table.length < 26) {
-      const newRow: Row = {
-        Amount: 0,
-        Break: '',
-        Content: '',
-        Distance: 0,
-        Intensity: '',
-        Multiplier: 'x',
-        Sum: 0,
-        _id: crypto.randomUUID(),
-      }
-      currentPlan.value.table.splice(rowIndex, 0, newRow)
-      recalculateTotalSum()
-    }
-  }
-
-  function removeRow(rowIndex: number) {
-    if (
-      currentPlan.value &&
-      currentPlan.value.table.length > 2 &&
-      rowIndex < currentPlan.value.table.length - 1
-    ) {
-      currentPlan.value.table.splice(rowIndex, 1)
-      recalculateTotalSum()
-    }
-  }
-
-  function moveRow(rowIndex: number, direction: 'up' | 'down') {
+  function updatePlanRow(path: number[], field: keyof Row, value: string | number) {
     if (!currentPlan.value) return
-
-    const table = currentPlan.value.table
-    const isMovingUp = direction === 'up'
-    const isMovingDown = direction === 'down'
-
-    if ((isMovingUp && rowIndex === 0) || (isMovingDown && rowIndex === table.length - 2)) {
-      return
-    }
-
-    const newIndex = isMovingUp ? rowIndex - 1 : rowIndex + 1
-    const [movedRow] = table.splice(rowIndex, 1)
-    table.splice(newIndex, 0, movedRow!)
+    updateRowField(currentPlan.value.table, path, field, value)
   }
 
-  function recalculateTotalSum() {
-    if (currentPlan.value && currentPlan.value.table.length > 0) {
-      const lastRowIndex = currentPlan.value.table.length - 1
-      const lastRow = currentPlan.value.table[lastRowIndex]!
-      lastRow.Sum = currentPlan.value.table.slice(0, -1).reduce((acc, r) => acc + (r.Sum || 0), 0)
-    }
+  function updatePlanRowEquipment(path: number[], equipment: string[]) {
+    if (!currentPlan.value) return
+    updateRowEquipment(currentPlan.value.table, path, equipment)
+  }
+
+  function addRow(path: number[]) {
+    if (!currentPlan.value) return
+    addRowAtPath(currentPlan.value.table, path)
+  }
+
+  function addSubRow(path: number[], depth: number) {
+    if (!currentPlan.value) return
+    addSubRowHelper(currentPlan.value.table, path, depth)
+  }
+
+  function removeRow(path: number[]) {
+    if (!currentPlan.value) return
+    removeRowAtPath(currentPlan.value.table, path)
+  }
+
+  function moveRow(path: number[], direction: 'up' | 'down') {
+    if (!currentPlan.value) return
+    moveRowAtPath(currentPlan.value.table, path, direction)
   }
 
   function clear() {
@@ -177,7 +154,9 @@ export const useUploadFormStore = defineStore('uploadForm', () => {
     keepForever,
     upsertCurrentPlan,
     updatePlanRow,
+    updatePlanRowEquipment,
     addRow,
+    addSubRow,
     removeRow,
     moveRow,
     clear,

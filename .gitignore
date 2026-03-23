@@ -39,6 +39,7 @@ third-party/*
 
 # misc
 .DS_Store
+.sisyphus
 
 # credentials
 gha-creds-*.json

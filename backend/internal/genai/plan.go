@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/go-chi/httplog/v2"
@@ -107,22 +106,6 @@ func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q, lang string, poo
 	return planIDStr, nil
 }
 
-func (gc *GoogleGenAIClient) ImprovePlan(ctx context.Context, plan models.Planable, syncGroup *sync.WaitGroup, c chan<- models.Document, ec chan<- error) {
-	if syncGroup != nil {
-		defer syncGroup.Done()
-	}
-	logger := httplog.LogEntry(ctx)
-	meta, err := gc.GenerateMetadata(ctx, plan)
-	if err != nil {
-		logger.Error("Error when generating metadata with LLM", httplog.ErrAttr(err))
-		ec <- fmt.Errorf("error generating metadata: %w", err)
-		return
-	}
-
-	// Create request body by converting the plans into documents
-	c <- models.Document{Plan: plan, Meta: meta}
-}
-
 func (gc *GoogleGenAIClient) DescribeTable(ctx context.Context, table *models.Table) (*models.Description, error) {
 	logger := httplog.LogEntry(ctx)
 	ds, err := models.DescriptionSchema()
@@ -147,36 +130,6 @@ func (gc *GoogleGenAIClient) DescribeTable(ctx context.Context, table *models.Ta
 	return &desc, nil
 }
 
-func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan models.Planable) (*models.Metadata, error) {
-	logger := httplog.LogEntry(ctx)
-	ms, err := models.MetadataSchema()
-	if err != nil {
-		logger.Error("Failed in retrieving Schema", httplog.ErrAttr(err))
-		return nil, fmt.Errorf("models.MetadataSchema: %w", err)
-	}
-	// Enhance scraped documents with gemini and create meaningful metadata
-	genericPlan := plan.Plan()
-	query := fmt.Sprintf(metadataTemplateStr, models.Abbreviations, genericPlan.Title, genericPlan.Description, genericPlan.Table.String(), ms)
-	genCfg := *gc.gcfg
-	genCfg.ResponseMIMEType = "application/json"
-	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
-	if err != nil {
-		logger.Error("Error when generating answer with LLM", httplog.ErrAttr(err))
-		return nil, fmt.Errorf("Models.GenerateContent: %w", err)
-	}
-	logger.Debug("Successful answer from LLM", "answer", answer.Text())
-
-	// Parse the answer as JSON
-	var metadata models.Metadata
-	err = json.Unmarshal([]byte(answer.Text()), &metadata)
-	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer.Text())
-		return nil, fmt.Errorf("JSON unmarshal error: %w with raw response %s", err, answer.Text())
-	}
-
-	return &metadata, nil
-}
-
 // TranslatePlan translates the given plan into the specified language.
 //
 // Returns a copy of the plan translated to the target language.
@@ -187,9 +140,15 @@ func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.Pla
 		return nil, fmt.Errorf("failed to get GeneratedPlan schema: %w", err)
 	}
 
+	// Convert table to json
+	tableJSON, err := json.Marshal(plan.Table)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal table to JSON: %w", err)
+	}
+
 	// Translate the plan to the requested language
 	// Create a RAG query for the LLM with the most relevant documents as context
-	query := fmt.Sprintf(translateTemplateStr, lang, models.Abbreviations, plan.Title, plan.Description, plan.Table.String())
+	query := fmt.Sprintf(translateTemplateStr, lang, models.Abbreviations, plan.Title, plan.Description, string(tableJSON))
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = gps
@@ -263,5 +222,4 @@ func (gc *GoogleGenAIClient) FileToPlan(ctx context.Context, file []byte, filena
 	// Add the plan to the response
 	logger.Debug("Plan extracted from image successfully")
 	return &p, nil
-
 }

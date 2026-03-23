@@ -87,6 +87,12 @@ This project uses a `Taskfile.sh` script to manage common tasks.
     ./Taskfile.sh docker-build-and-run
     ```
 
+## API documentation
+
+When starting the backend via docker, the API documentation can be found at `http://localhost:8080/swagger/index.html`. The search bar requires typing `0.0.0.0:8080/swagger/doc.json` in the URL field.
+
+To test the endpoints via swagger you require the use of a JWT token. This can be obtained by logging in via the frontend and copying the token from the browser's local storage.
+
 ## Database
 
 The database is built using supabase. The `supabase` dir contains the necessary files for the supabase cli and the database migration sql files.
