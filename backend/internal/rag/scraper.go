@@ -454,7 +454,7 @@ func (db *RAGDB) AddScrapedPlans(ctx context.Context, collectionUUID string, doc
 		// Add the plan to the plan table
 		_, err = pseudoTx.Exec(ctx, fmt.Sprintf(`
 INSERT INTO %s (plan_id, title, description, plan_table)
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4::jsonb)
 ON CONFLICT (plan_id) DO UPDATE SET
 title = EXCLUDED.title,
 description = EXCLUDED.description,
