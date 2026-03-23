@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"encoding/json"
-	"fmt"
 	"testing"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
@@ -98,13 +96,6 @@ func TestGeneratedPlanSchema(t *testing.T) {
 
 	// check if the schema is valid json
 	assert.NotEmpty(t, schema, "Schema should not be empty")
-
-	// DEBUG write the file to ./schema.json
-	jsonSchema, err := json.MarshalIndent(schema, "", "  ")
-	if err != nil {
-		t.Fatalf("Failed to marshal JSON schema: %v", err)
-	}
-	fmt.Println(string(jsonSchema))
 }
 
 func TestUpdateSum_NestedRows(t *testing.T) {
