@@ -89,7 +89,6 @@ async function toggleEditing() {
             v-if="isEditing"
             v-model="store.currentPlan!.title"
             class="edit-title"
-            v-auto-resize
             :placeholder="t('display.plan_title')"
           />
           <h2 v-else class="plan-title">{{ store.currentPlan?.title }}</h2>
@@ -135,7 +134,6 @@ async function toggleEditing() {
           <textarea
             v-if="isEditing"
             v-model="store.currentPlan!.description"
-            v-auto-resize
             class="edit-description"
             :placeholder="t('display.plan_description')"
             rows="3"
@@ -324,6 +322,7 @@ async function toggleEditing() {
   border-radius: 8px;
   background: var(--color-background-soft);
   color: var(--color-text);
+  width: 100%;
 }
 
 .edit-title::placeholder {
@@ -376,7 +375,6 @@ async function toggleEditing() {
   font-size: 1.25rem;
   font-weight: 800;
   color: var(--color-text);
-  margin-bottom: 0.25rem;
   line-height: 1;
 }
 
