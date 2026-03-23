@@ -126,9 +126,10 @@ async function handlePromptGeneration() {
       </div>
 
       <!-- Advanced settings panel -->
-      <div v-if="showAdvancedSettings" class="advanced-settings">
-        <div class="settings-grid">
-          <!-- NOTE: this is for v2 Generation Method
+      <Transition name="settings-expand">
+        <div v-show="showAdvancedSettings" class="advanced-settings">
+          <div class="settings-grid">
+            <!-- NOTE: this is for v2 Generation Method
           <div class="setting-group">
             <label class="setting-label">Generation Method</label>
             <div class="radio-group">
@@ -156,202 +157,202 @@ async function handlePromptGeneration() {
             </p>
           </div> -->
 
-          <!-- Pool Length -->
-          <div class="setting-group">
-            <label class="setting-label">
-              {{ t('form.pool_length') }}
-              <BaseTooltip>
-                <template #tooltip>
-                  {{ t('form.pool_length_tooltip') }}
-                </template>
-              </BaseTooltip>
-            </label>
-            <div class="radio-group">
-              <label class="radio-option">
-                <input
-                  type="radio"
-                  :value="25"
-                  v-model="settingsStore.poolLength"
-                  :disabled="trainingStore.isLoading"
-                />
-                {{ t('form.pool_length_twenty_five_meters') }}
+            <!-- Pool Length -->
+            <div class="setting-group">
+              <label class="setting-label">
+                {{ t('form.pool_length') }}
+                <BaseTooltip>
+                  <template #tooltip>
+                    {{ t('form.pool_length_tooltip') }}
+                  </template>
+                </BaseTooltip>
               </label>
-              <label class="radio-option">
-                <input
-                  type="radio"
-                  :value="50"
-                  v-model="settingsStore.poolLength"
-                  :disabled="trainingStore.isLoading"
-                />
-                {{ t('form.pool_length_fifty_meters') }}
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input
+                    type="radio"
+                    :value="25"
+                    v-model="settingsStore.poolLength"
+                    :disabled="trainingStore.isLoading"
+                  />
+                  {{ t('form.pool_length_twenty_five_meters') }}
+                </label>
+                <label class="radio-option">
+                  <input
+                    type="radio"
+                    :value="50"
+                    v-model="settingsStore.poolLength"
+                    :disabled="trainingStore.isLoading"
+                  />
+                  {{ t('form.pool_length_fifty_meters') }}
+                </label>
+                <label class="radio-option">
+                  <input
+                    type="radio"
+                    :value="'Freiwasser'"
+                    v-model="settingsStore.poolLength"
+                    :disabled="trainingStore.isLoading"
+                  />
+                  {{ t('form.pool_length_open_water') }}
+                </label>
+              </div>
+            </div>
+
+            <!-- Swimming Strokes Filter -->
+            <div class="setting-group">
+              <label class="setting-label">
+                {{ t('form.swimming_strokes') }}
+                <BaseTooltip>
+                  <template #tooltip>
+                    {{ t('form.swimming_strokes_tooltip') }}
+                  </template>
+                </BaseTooltip>
               </label>
-              <label class="radio-option">
+              <div class="checkbox-group">
+                <label class="checkbox-option">
+                  <input
+                    type="checkbox"
+                    :checked="settingsStore.filters.freistil === true"
+                    @change="
+                      settingsStore.updateStrokeFilter(
+                        'freistil',
+                        ($event.target as HTMLInputElement).checked ? true : undefined,
+                      )
+                    "
+                    :disabled="trainingStore.isLoading"
+                  />
+                  {{ t('form.freestyle') }}
+                </label>
+                <label class="checkbox-option">
+                  <input
+                    type="checkbox"
+                    :checked="settingsStore.filters.brust === true"
+                    @change="
+                      settingsStore.updateStrokeFilter(
+                        'brust',
+                        ($event.target as HTMLInputElement).checked ? true : undefined,
+                      )
+                    "
+                    :disabled="trainingStore.isLoading"
+                  />
+                  {{ t('form.breaststroke') }}
+                </label>
+                <label class="checkbox-option">
+                  <input
+                    type="checkbox"
+                    :checked="settingsStore.filters.ruecken === true"
+                    @change="
+                      settingsStore.updateStrokeFilter(
+                        'ruecken',
+                        ($event.target as HTMLInputElement).checked ? true : undefined,
+                      )
+                    "
+                    :disabled="trainingStore.isLoading"
+                  />
+                  {{ t('form.backstroke') }}
+                </label>
+                <label class="checkbox-option">
+                  <input
+                    type="checkbox"
+                    :checked="settingsStore.filters.delfin === true"
+                    @change="
+                      settingsStore.updateStrokeFilter(
+                        'delfin',
+                        ($event.target as HTMLInputElement).checked ? true : undefined,
+                      )
+                    "
+                    :disabled="trainingStore.isLoading"
+                  />
+                  {{ t('form.butterfly') }}
+                </label>
+                <label class="checkbox-option">
+                  <input
+                    type="checkbox"
+                    :checked="settingsStore.filters.lagen === true"
+                    @change="
+                      settingsStore.updateStrokeFilter(
+                        'lagen',
+                        ($event.target as HTMLInputElement).checked ? true : undefined,
+                      )
+                    "
+                    :disabled="trainingStore.isLoading"
+                  />
+                  {{ t('form.individual_medley') }}
+                </label>
+              </div>
+            </div>
+
+            <!-- Difficulty Level -->
+            <div class="setting-group">
+              <label class="setting-label">
+                {{ t('form.difficulty_level') }}
+                <BaseTooltip>
+                  <template #tooltip>
+                    {{ t('form.difficulty_level_tooltip') }}
+                  </template>
+                </BaseTooltip>
+              </label>
+              <select
+                v-model="settingsStore.filters.schwierigkeitsgrad"
+                :disabled="trainingStore.isLoading"
+                class="select-input"
+              >
+                <option :value="undefined">{{ t('form.any_difficulty') }}</option>
+                <option
+                  v-for="option in DIFFICULTY_OPTIONS"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ t(option.label) }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Training Type -->
+            <div class="setting-group">
+              <label class="setting-label">
+                {{ t('form.training_type') }}
+                <BaseTooltip>
+                  <template #tooltip>
+                    {{ t('form.training_type_tooltip') }}
+                  </template>
+                </BaseTooltip>
+              </label>
+              <select
+                v-model="settingsStore.filters.trainingstyp"
+                :disabled="trainingStore.isLoading"
+                class="select-input"
+              >
+                <option :value="undefined">{{ t('form.any_training_type') }}</option>
+                <option
+                  v-for="option in TRAINING_TYPE_OPTIONS"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ t(option.label) }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Profile Preferences -->
+            <div class="setting-group">
+              <label class="setting-label">
                 <input
-                  type="radio"
-                  :value="'Freiwasser'"
-                  v-model="settingsStore.poolLength"
-                  :disabled="trainingStore.isLoading"
+                  type="checkbox"
+                  v-model="settingsStore.useProfilePreferences"
+                  :disabled="trainingStore.isLoading || !authStore.user"
                 />
-                {{ t('form.pool_length_open_water') }}
+                {{ t('form.use_profile_preferences') }}
+                <BaseTooltip>
+                  <template #tooltip>
+                    {{ t('form.use_profile_preferences_tooltip') }}
+                  </template>
+                </BaseTooltip>
               </label>
             </div>
-          </div>
 
-          <!-- Swimming Strokes Filter -->
-          <div class="setting-group">
-            <label class="setting-label">
-              {{ t('form.swimming_strokes') }}
-              <BaseTooltip>
-                <template #tooltip>
-                  {{ t('form.swimming_strokes_tooltip') }}
-                </template>
-              </BaseTooltip>
-            </label>
-            <div class="checkbox-group">
-              <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.freistil === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'freistil',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
-                {{ t('form.freestyle') }}
-              </label>
-              <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.brust === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'brust',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
-                {{ t('form.breaststroke') }}
-              </label>
-              <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.ruecken === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'ruecken',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
-                {{ t('form.backstroke') }}
-              </label>
-              <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.delfin === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'delfin',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
-                {{ t('form.butterfly') }}
-              </label>
-              <label class="checkbox-option">
-                <input
-                  type="checkbox"
-                  :checked="settingsStore.filters.lagen === true"
-                  @change="
-                    settingsStore.updateStrokeFilter(
-                      'lagen',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                  "
-                  :disabled="trainingStore.isLoading"
-                />
-                {{ t('form.individual_medley') }}
-              </label>
-            </div>
-          </div>
-
-          <!-- Difficulty Level -->
-          <div class="setting-group">
-            <label class="setting-label">
-              {{ t('form.difficulty_level') }}
-              <BaseTooltip>
-                <template #tooltip>
-                  {{ t('form.difficulty_level_tooltip') }}
-                </template>
-              </BaseTooltip>
-            </label>
-            <select
-              v-model="settingsStore.filters.schwierigkeitsgrad"
-              :disabled="trainingStore.isLoading"
-              class="select-input"
-            >
-              <option :value="undefined">{{ t('form.any_difficulty') }}</option>
-              <option
-                v-for="option in DIFFICULTY_OPTIONS"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ t(option.label) }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Training Type -->
-          <div class="setting-group">
-            <label class="setting-label">
-              {{ t('form.training_type') }}
-              <BaseTooltip>
-                <template #tooltip>
-                  {{ t('form.training_type_tooltip') }}
-                </template>
-              </BaseTooltip>
-            </label>
-            <select
-              v-model="settingsStore.filters.trainingstyp"
-              :disabled="trainingStore.isLoading"
-              class="select-input"
-            >
-              <option :value="undefined">{{ t('form.any_training_type') }}</option>
-              <option
-                v-for="option in TRAINING_TYPE_OPTIONS"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ t(option.label) }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Profile Preferences -->
-          <div class="setting-group">
-            <label class="setting-label">
-              <input
-                type="checkbox"
-                v-model="settingsStore.useProfilePreferences"
-                :disabled="trainingStore.isLoading || !authStore.user"
-              />
-              {{ t('form.use_profile_preferences') }}
-              <BaseTooltip>
-                <template #tooltip>
-                  {{ t('form.use_profile_preferences_tooltip') }}
-                </template>
-              </BaseTooltip>
-            </label>
-          </div>
-
-          <!-- Data Donation -->
-          <!-- <div class="setting-group">
+            <!-- Data Donation -->
+            <!-- <div class="setting-group">
             <label class="setting-label">Privacy Settings</label>
             <label class="checkbox-option">
               <input
@@ -366,19 +367,20 @@ async function handlePromptGeneration() {
             </p>
           </div> -->
 
-          <!-- Clear Filters -->
+            <!-- Clear Filters -->
+          </div>
+          <div class="setting-group">
+            <button
+              type="button"
+              @click="settingsStore.clearFilters"
+              :disabled="trainingStore.isLoading"
+              class="clear-filters-btn"
+            >
+              {{ t('form.clear_all_filters') }}
+            </button>
+          </div>
         </div>
-        <div class="setting-group">
-          <button
-            type="button"
-            @click="settingsStore.clearFilters"
-            :disabled="trainingStore.isLoading"
-            class="clear-filters-btn"
-          >
-            {{ t('form.clear_all_filters') }}
-          </button>
-        </div>
-      </div>
+      </Transition>
 
       <!-- Submit button and status -->
       <div class="form-actions">
@@ -656,5 +658,23 @@ async function handlePromptGeneration() {
 .clear-filters-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Settings expand transition */
+.settings-expand-enter-active,
+.settings-expand-leave-active {
+  transition: all 0.3s ease;
+  max-height: 500px;
+  overflow: hidden;
+}
+
+.settings-expand-enter-from,
+.settings-expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 </style>
