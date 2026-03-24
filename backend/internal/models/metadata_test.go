@@ -18,3 +18,12 @@ func TestMetadataSchema(t *testing.T) {
 	assert.NoError(t, err, "Failed to unmarshal schema")
 	assert.NotEmpty(t, result, "Schema should not be empty")
 }
+
+func TestEquipmentConstants(t *testing.T) {
+	// Test that all constants are properly defined with German values
+	assert.Equal(t, "Flossen", string(models.EquipmentFins))
+	assert.Equal(t, "Kickboard", string(models.EquipmentKickboard))
+	assert.Equal(t, "Handpaddles", string(models.EquipmentPaddles))
+	assert.Equal(t, "Pull buoy", string(models.EquipmentBuoy))
+	assert.Equal(t, "Schnorchel", string(models.EquipmentSnorkel))
+}

@@ -3,10 +3,9 @@ import ExportPlanButton from '@/components/buttons/ButtonExportPlan.vue'
 import SharePlanButton from '@/components/buttons/ButtonSharePlan.vue'
 import IconEdit from '@/components/icons/IconEdit.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
-import BaseTableAction from '@/components/ui/BaseTableAction.vue'
-import BaseTooltip from '@/components/ui/BaseTooltip.vue'
-import ContentWithDrillLinks from '@/components/training/ContentWithDrillLinks.vue'
-import type { Row, PlanStore } from '@/types'
+import PlanRowCard from '@/components/training/PlanRowCard.vue'
+import type { PlanStore, Row } from '@/types'
+import { EQUIPMENT_I18N_KEYS } from '@/utils/rowHelpers'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -22,9 +21,13 @@ const props = withDefaults(
 
 const { t } = useI18n()
 
+function getEquipmentLabel(equipment: string): string {
+  const translationKey = EQUIPMENT_I18N_KEYS[equipment as keyof typeof EQUIPMENT_I18N_KEYS]
+  return translationKey ? t(`equipment.${translationKey}`) : equipment
+}
+
 // Ref to track editing state
 const isEditing = ref(false)
-const editingCell = ref<{ rowIndex: number; field: keyof Row } | null>(null)
 
 const exerciseRows = computed(() => {
   const plan = props.store.currentPlan
@@ -41,15 +44,26 @@ const totalRow = computed(() => {
   return table.length > 0 ? table[table.length - 1] : null
 })
 
-// Total exercises count (excluding the total row)
-const totalExercises = computed(() => exerciseRows.value.length)
+// Distinct equipment from all rows and subrows
+const distinctEquipment = computed((): string[] => {
+  const plan = props.store.currentPlan
+  if (!plan?.table) return []
+  const equipSet = new Set<string>()
 
-// Start editing a specific cell
-function startEditing(rowIndex: number, field: keyof Row) {
-  if (isEditing.value) {
-    editingCell.value = { rowIndex, field }
+  function collectEquipment(rows: Row[]) {
+    for (const row of rows) {
+      if (row.Equipment?.length) {
+        row.Equipment.forEach((eq) => equipSet.add(eq))
+      }
+      if (row.SubRows?.length) {
+        collectEquipment(row.SubRows)
+      }
+    }
   }
-}
+
+  collectEquipment(plan.table)
+  return Array.from(equipSet)
+})
 
 // Toggle editing
 async function toggleEditing() {
@@ -58,56 +72,6 @@ async function toggleEditing() {
     // Upsert the current plan when done editing
     await props.store.upsertCurrentPlan()
   }
-}
-
-// Stop editing the current cell and save the changes
-function stopEditing(event: Event, rowIndex: number, field: keyof Row) {
-  const target = event.target as HTMLInputElement | HTMLTextAreaElement
-  let newValue: string | number = target.value
-
-  if (['Amount', 'Distance'].includes(field as string)) {
-    // Convert numeric fields to numbers, ensuring it's a valid number
-    const numValue = parseFloat(newValue as string)
-    if (!isNaN(numValue) && /^\d*\.?\d*$/.test(newValue as string)) {
-      newValue = Math.max(0, numValue)
-      newValue = Math.round(newValue as number)
-    } else {
-      // Revert to the original value if input is invalid
-      const originalRow = props.store.currentPlan?.table[rowIndex]
-      const val = originalRow ? originalRow[field] : 0
-      newValue = val !== undefined ? val : 0
-    }
-  }
-  props.store.updatePlanRow(rowIndex, field, newValue)
-  editingCell.value = null
-}
-
-// Add a new row after the specified index
-function handleAddRow(index: number) {
-  props.store.addRow(index)
-}
-
-function handleRemoveRow(index: number) {
-  props.store.removeRow(index)
-}
-
-function handleMoveRow(index: number, direction: 'up' | 'down') {
-  props.store.moveRow(index, direction)
-}
-
-// Auto-resize directive for textarea
-const vAutoResize = {
-  mounted: (el: HTMLTextAreaElement) => {
-    el.style.height = 'auto'
-    el.style.height = el.scrollHeight + 'px'
-    el.style.overflowY = 'hidden'
-  },
-}
-
-function autoResize(event: Event) {
-  const target = event.target as HTMLTextAreaElement
-  target.style.height = 'auto'
-  target.style.height = target.scrollHeight + 'px'
 }
 </script>
 
@@ -120,243 +84,63 @@ function autoResize(event: Event) {
     <div v-else-if="store.hasPlan && store.currentPlan" class="plan-container">
       <!-- Header -->
       <header class="plan-header">
-        <div v-if="isEditing" class="edit-header">
+        <div class="plan-header-left">
           <input
+            v-if="isEditing"
             v-model="store.currentPlan!.title"
             class="edit-title"
-            v-auto-resize
             :placeholder="t('display.plan_title')"
           />
-          <textarea
-            v-model="store.currentPlan!.description"
-            v-auto-resize
-            class="edit-description"
-            :placeholder="t('display.plan_description')"
-            rows="3"
-          ></textarea>
+          <h2 v-else class="plan-title">{{ store.currentPlan?.title }}</h2>
         </div>
-        <div v-else>
-          <h2 class="plan-title">{{ store.currentPlan?.title }}</h2>
-          <div class="plan-description">
-            {{ store.currentPlan?.description }}
+        <div class="plan-header-right">
+          <div data-testid="plan-header-total" class="summary-item">
+            <div class="summary-value">{{ totalRow?.Sum || 0 }} m</div>
           </div>
         </div>
       </header>
 
-      <!-- Exercise Table -->
-      <div class="table-container">
-        <table class="exercise-table">
-          <thead>
-            <tr>
-              <th>
-                {{ t('display.amount') }}
-                <BaseTooltip>
-                  <template #tooltip>{{ t('display.amount_tooltip') }}</template>
-                </BaseTooltip>
-              </th>
-              <th class="multiplier"></th>
-              <th>
-                {{ t('display.distance') }}
-                <BaseTooltip>
-                  <template #tooltip>{{ t('display.distance_tooltip') }}</template>
-                </BaseTooltip>
-              </th>
-              <th>
-                {{ t('display.break') }}
-                <BaseTooltip>
-                  <template #tooltip>{{ t('display.break_tooltip') }}</template>
-                </BaseTooltip>
-              </th>
-              <th class="content-header">
-                {{ t('display.content') }}
-                <BaseTooltip>
-                  <template #tooltip>
-                    <p>{{ t('display.content_tooltip.title') }}</p>
-                    <ul>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.freestyle') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.backstroke') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.breaststroke') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.leg_work') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.butterfly') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.content_tooltip.individual_medley') }}</strong>
-                      </li>
-                    </ul>
-                  </template>
-                </BaseTooltip>
-              </th>
-              <th>
-                {{ t('display.intensity') }}
-                <BaseTooltip>
-                  <template #tooltip>
-                    <p>{{ t('display.intensity_tooltip.title') }}</p>
-                    <ul>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.ga') }}</strong>
-                        <ul>
-                          <li>
-                            <strong>{{ t('display.intensity_tooltip.ga1') }}</strong>
-                          </li>
-                          <li>
-                            <strong>{{ t('display.intensity_tooltip.ga1_2') }}</strong>
-                          </li>
-                          <li>
-                            <strong>{{ t('display.intensity_tooltip.ga2') }}</strong>
-                          </li>
-                        </ul>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.lza') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.hf') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.lt') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.sa') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.ta') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.tue') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.ts') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.sprint') }}</strong>
-                      </li>
-                      <li>
-                        <strong>{{ t('display.intensity_tooltip.recovery') }}</strong>
-                      </li>
-                    </ul>
-                  </template>
-                </BaseTooltip>
-              </th>
-              <th>
-                {{ t('display.total') }}
-                <BaseTooltip>
-                  <template #tooltip>{{ t('display.total_tooltip') }}</template>
-                </BaseTooltip>
-              </th>
-            </tr>
-          </thead>
-          <TransitionGroup tag="tbody" name="list">
-            <template v-for="(row, index) in exerciseRows" :key="row._id || index">
-              <tr class="exercise-row">
-                <!-- Amount Cell -->
-                <td @click="startEditing(index, 'Amount')" class="anchor-cell">
-                  <BaseTableAction
-                    v-if="isEditing"
-                    :is-first="index === 0"
-                    :is-last="index === exerciseRows.length - 1"
-                    @add="handleAddRow(index)"
-                    @remove="handleRemoveRow(index)"
-                    @move-up="handleMoveRow(index, 'up')"
-                    @move-down="handleMoveRow(index, 'down')"
-                  />
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Amount"
-                    @blur="stopEditing($event, index, 'Amount')"
-                    @keyup.enter="stopEditing($event, index, 'Amount')"
-                    class="editable-small"
-                  />
-                  <span v-else>{{ row.Amount }}</span>
-                </td>
-                <td>{{ row.Multiplier }}</td>
-                <!-- Distance Cell -->
-                <td @click="startEditing(index, 'Distance')">
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    v-if="isEditing"
-                    :value="row.Distance"
-                    @blur="stopEditing($event, index, 'Distance')"
-                    @keyup.enter="stopEditing($event, index, 'Distance')"
-                    class="editable-small"
-                  />
-                  <span v-else>{{ row.Distance }}</span>
-                </td>
-                <!-- Intensity Cell -->
-                <td @click="startEditing(index, 'Break')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Break"
-                    @blur="stopEditing($event, index, 'Break')"
-                    @keyup.enter="stopEditing($event, index, 'Break')"
-                    class="editable-small"
-                  />
-                  <span v-else>{{ row.Break }}</span>
-                </td>
-                <!-- Content Cell -->
-                <td class="content-cell" @click="startEditing(index, 'Content')">
-                  <textarea
-                    v-if="isEditing"
-                    :value="row.Content"
-                    @blur="stopEditing($event, index, 'Content')"
-                    @keyup.enter="stopEditing($event, index, 'Content')"
-                    @input="autoResize"
-                    v-auto-resize
-                    class="editable-area"
-                  ></textarea>
-                  <ContentWithDrillLinks v-else :content="row.Content" />
-                </td>
-                <!-- Intensity Cell -->
-                <td class="intensity-cell" @click="startEditing(index, 'Intensity')">
-                  <input
-                    type="text"
-                    v-if="isEditing"
-                    :value="row.Intensity"
-                    @blur="stopEditing($event, index, 'Intensity')"
-                    @keyup.enter="stopEditing($event, index, 'Intensity')"
-                    class="editable-small"
-                  />
-                  <span v-else>{{ row.Intensity }}</span>
-                </td>
-                <td class="total-cell">{{ row.Sum }}</td>
-              </tr>
-            </template>
-            <!-- Total row -->
-            <tr v-if="totalRow" class="total-row">
-              <td colspan="6">
-                <strong>{{ t('display.meters_total') }}</strong>
-              </td>
-              <td>
-                <strong>{{ totalRow.Sum }} m</strong>
-              </td>
-            </tr>
-          </TransitionGroup>
-        </table>
-      </div>
+      <!-- Exercise Cards -->
+      <TransitionGroup tag="div" name="list" class="plan-cards-list" data-testid="plan-cards-list">
+        <PlanRowCard
+          v-for="(row, index) in exerciseRows"
+          :key="row._id || index"
+          :row="row"
+          :path="[index]"
+          :depth="0"
+          :is-editing="isEditing"
+          :store="store"
+          :is-first="index === 0"
+          :is-last="index === exerciseRows.length - 1"
+        />
+      </TransitionGroup>
 
-      <!-- Summary Statistics -->
-      <div class="summary-section">
-        <div class="summary-item">
-          <div class="summary-value">{{ totalRow?.Sum || 0 }}</div>
-          <div class="summary-label">{{ t('display.meters_total') }}</div>
+      <!-- Footer / Meta region -->
+      <div data-testid="plan-footer-meta" class="plan-footer-meta">
+        <div
+          v-if="distinctEquipment.length"
+          data-testid="plan-footer-equipment"
+          class="plan-footer-meta-item plan-footer-equipment"
+        >
+          <span class="plan-meta-label">{{ t('display.necessary_equipment') }}:</span>
+          <div class="plan-equipment-badges">
+            <span v-for="eq in distinctEquipment" :key="eq" class="plan-equipment-badge">{{
+              getEquipmentLabel(eq)
+            }}</span>
+          </div>
         </div>
-        <div class="summary-item">
-          <div class="summary-value">{{ totalExercises }}</div>
-          <div class="summary-label">{{ t('display.exercise_sets') }}</div>
+        <div class="plan-footer-meta-item plan-footer-notes">
+          <span class="plan-meta-label">{{ t('display.coach_notes') }}:</span>
+          <textarea
+            v-if="isEditing"
+            v-model="store.currentPlan!.description"
+            class="edit-description"
+            :placeholder="t('display.plan_description')"
+            rows="3"
+          ></textarea>
+          <div v-else-if="store.currentPlan?.description" class="plan-description">
+            "{{ store.currentPlan.description }}"
+          </div>
         </div>
       </div>
     </div>
@@ -368,7 +152,7 @@ function autoResize(event: Event) {
 
   <div v-if="store.hasPlan && store.currentPlan && !store.isLoading" class="button-section">
     <!-- Edit Action -->
-    <button @click="toggleEditing" class="edit-btn">
+    <button @click="toggleEditing" class="edit-btn" data-testid="plan-edit-btn">
       <IconCheck v-if="isEditing" class="icon" />
       <IconEdit v-else class="icon" />
       {{ isEditing ? t('display.done_editing') : t('display.refine_plan') }}
@@ -395,40 +179,139 @@ function autoResize(event: Event) {
 
 @media (max-width: 740px) {
   .training-plan-display {
-    zoom: 0.75;
+    border-radius: 6px;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+  }
+
+  .plan-header {
+    padding: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .plan-title {
+    font-size: 1.15rem;
+  }
+
+  .plan-cards-list {
+    padding: 0.75rem;
+    gap: 0.4rem;
+  }
+
+  .summary-item {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .summary-value {
+    font-size: 1.15rem;
   }
 }
 
 .plan-header {
   background: var(--color-primary);
   color: white;
-  padding: 2rem;
-  text-align: center;
+  padding: 1.25rem 2rem;
   border-top-right-radius: 8px;
   border-top-left-radius: 8px;
   outline: 1px solid var(--color-primary);
   border: 2px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.plan-header-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-header-right {
+  flex-shrink: 0;
 }
 
 .plan-title {
-  margin: 0 0 1rem 0;
+  margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
 }
 
-.plan-description {
-  font-size: 1rem;
-  line-height: 1.6;
-  opacity: 0.95;
+.plan-footer-meta {
+  padding: 1rem 1.25rem;
+  background: var(--color-background-soft);
+  border-top: 1px solid var(--color-border);
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem 1.5rem;
 }
 
-.edit-header {
+.plan-description {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.plan-footer-meta-item {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  gap: 0.4rem;
+}
+
+.plan-footer-equipment {
+  flex: 1;
+}
+
+.plan-footer-notes {
+  flex: 2;
+}
+
+.plan-equipment-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.plan-equipment-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: var(--color-primary);
+  color: white;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px var(--color-shadow);
+}
+
+.plan-meta-label {
+  color: var(--color-text);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  opacity: 0.7;
+}
+
+@media (max-width: 740px) {
+  .plan-footer-meta {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .plan-footer-equipment,
+  .plan-footer-notes,
+  .plan-equipment-badges {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .edit-title {
@@ -439,7 +322,7 @@ function autoResize(event: Event) {
   border-radius: 8px;
   background: var(--color-background-soft);
   color: var(--color-text);
-  text-align: center;
+  width: 100%;
 }
 
 .edit-title::placeholder {
@@ -462,197 +345,37 @@ function autoResize(event: Event) {
   color: var(--color-text);
 }
 
-.edit-title:focus,
+.edit-title:focus {
+  outline: 2px solid var(--color-primary-hover);
+  border: 1px solid var(--color-primary-hover);
+}
+
 .edit-description:focus {
-  outline: 2px solid var(--color-text);
+  outline: 1px solid var(--color-shadow);
   border: 1px solid var(--color-primary);
 }
 
-.table-container {
+.plan-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   padding: 1.25rem;
   background: var(--color-background-soft);
-  width: inherit;
-  /* Set table to take full width of its container */
-  table-layout: fixed;
-}
-
-.exercise-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-  table-layout: fixed;
-}
-
-.exercise-table th,
-.exercise-table td {
-  border: 1px solid var(--color-border);
-  padding: 0.75rem 0.5rem;
-  text-align: center;
-  color: var(--color-heading);
-  width: auto;
-}
-
-.exercise-table th.multiplier,
-.exercise-table td.multiplier {
-  width: 5%;
-}
-
-.exercise-table th.content-header {
-  width: 30%;
-}
-
-.exercise-table th {
-  background: var(--color-border);
-  /* Use flexbox for alignment */
-  align-items: center;
-  /* Horizontally center items */
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.8rem;
-  /* white-space: nowrap; */
-  word-break: break-all;
-  /* Prevent text from wrapping */
-  padding: 0.5rem 0.25rem;
-}
-
-@media (max-width: 740px) {
-  .exercise-table th {
-    font-size: 0.5rem;
-    padding: 0.5rem 0.25rem;
-    white-space: normal;
-    word-break: break-all;
-  }
-
-  .exercise-table td {
-    padding: 0.5rem 0.25rem;
-    white-space: normal;
-    padding: 0.25rem 0.2rem;
-    font-size: 0.75rem;
-  }
-}
-
-.exercise-table td > span,
-.exercise-table td > textarea {
-  display: block;
-}
-
-/* Apply alternating backgrounds to data cells */
-.exercise-row:nth-child(even) {
-  background-color: var(--color-background);
-}
-
-.exercise-row:nth-child(odd) {
-  background-color: var(--color-background-soft);
-}
-
-/* Apply hover effect to data cells */
-.exercise-row:hover {
-  background-color: var(--color-background-mute);
-}
-
-.exercise-row:hover {
-  --action-bg-color: var(--color-background-mute);
-}
-
-.content-cell {
-  text-align: left;
-  font-weight: 500;
-  width: 300px;
-}
-
-.intensity-cell {
-  font-weight: 600;
-  color: var(--color-primary);
-}
-
-.editable-area {
-  width: 100%;
-  padding: 0.25rem;
-  border: 1px solid var(--color-shadow);
-  border-radius: 8px;
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: inherit;
-  box-sizing: border-box;
-  /* Include padding and border in the element's total width and height */
-}
-
-.editable-small {
-  width: 70%;
-  text-align: center;
-  border: 1px solid var(--color-shadow);
-  border-radius: 8px;
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: inherit;
-  box-sizing: border-box;
-}
-
-.editable-area:focus,
-.editable-small:focus {
-  outline: 2px solid var(--color-primary);
-}
-
-.anchor-cell {
-  position: relative;
-  border-left: none;
-}
-
-/* Show action container on row hover */
-.exercise-row:hover .anchor-cell :deep(.action-container) {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.total-cell {
-  font-weight: 600;
-}
-
-.total-row {
-  background: var(--color-border);
-  font-weight: 700;
-  font-size: 1rem;
-}
-
-.total-row td {
-  border-color: var(--color-border);
-  color: var(--color-heading);
-}
-
-.summary-section {
-  display: flex;
-  justify-content: space-around;
-  padding: 0 1rem 1rem 1rem;
-  background: var(--color-background-soft);
-  gap: 3rem;
-  border-bottom-right-radius: 8px;
-  border-bottom-left-radius: 8px;
 }
 
 .summary-item {
   background: var(--color-background);
-  padding: 1rem;
+  padding: 0.75rem;
   border-radius: 8px;
   text-align: center;
-  flex: 1;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-primary);
 }
 
 .summary-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-heading);
-  margin-bottom: 0.25rem;
-}
-
-.summary-label {
-  color: var(--color-heading);
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 1px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1;
 }
 
 .loading-state,

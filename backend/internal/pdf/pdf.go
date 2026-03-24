@@ -59,7 +59,7 @@ func GenerateEasyReadablePDF(table *models.Table, ho bool, lang models.Language,
 
 func GenerateFullPDF(plan *models.Plan, ho bool, lang models.Language, baseURL string) ([]byte, error) {
 	m := getMaroto(ho)
-	_ = m.RegisterHeader(text.NewAutoRow(plan.Title, props.Text{Size: 18, Style: fontstyle.Bold, Align: align.Center, VerticalPadding: 2}))
+	m.AddAutoRow(col.New().Add(text.New(plan.Title, props.Text{Size: 18, Style: fontstyle.Bold, Align: align.Center, VerticalPadding: 2})))
 	m.AddAutoRow(col.New().Add(text.New(plan.Description, props.Text{Size: 10, Top: 10, Bottom: 10, VerticalPadding: 2})))
 	m.AddRows(getRows((*plan).Table, false, lang, baseURL)...)
 
@@ -216,7 +216,6 @@ func getRows(table models.Table, lf bool, lang models.Language, baseURL string) 
 		headerProps.VerticalPadding = 1.5
 	}
 	darkGray := &props.Color{Red: 200, Green: 200, Blue: 200}
-	lightGray := &props.Color{Red: 240, Green: 240, Blue: 240}
 
 	for i, title := range table.Header(lang) {
 		switch i {
@@ -238,38 +237,137 @@ func getRows(table models.Table, lf bool, lang models.Language, baseURL string) 
 		p.Bottom = 3
 		p.VerticalPadding = 1.5
 	}
+	rowIndex := 0
 	for i, content := range table {
-		row := row.New()
-		if i < len(table)-1 {
-			row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Amount), p)))
-			row.Add(col.New(1).Add(text.New(content.Multiplier, p)))
-			row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Distance), p)))
-			row.Add(col.New(3).Add(text.New(content.Break, p)))
-
-			// Parse markdown links in content and render as text/link components
-			contentCol := col.New(9)
-			segments := parseMarkdownLinks(content.Content, baseURL, p)
-			contentCol.Add(segments...)
-			row.Add(contentCol)
-
-			row.Add(col.New(3).Add(text.New(content.Intensity, p)))
-			row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Sum), p)))
-
-			if (i+1)%2 == 0 {
-				row.WithStyle(&props.Cell{BackgroundColor: lightGray})
-			}
-
-		} else {
+		// Skip the last row if it's a footer/total row
+		if i == len(table)-1 {
 			sloganProps := props.Text{Size: headerProps.Size, Align: align.Left, Top: p.Top, Bottom: p.Bottom, Left: 2, Style: fontstyle.BoldItalic, VerticalPadding: headerProps.VerticalPadding}
 			footer := table.Footer(lang)
-			row.Add(
+			footerRow := row.New()
+			footerRow.Add(
 				text.NewCol(7, footer[0], sloganProps),
 				col.New(12),
 				text.NewCol(3, footer[4], headerProps),
 				text.NewCol(3, footer[6], headerProps),
 			).WithStyle(&props.Cell{BackgroundColor: darkGray})
+			rows = append(rows, footerRow)
+			break
 		}
+
+		// Add main row
+		mainRow := createRow(content, p, rowIndex%2 == 1)
+		rows = append(rows, mainRow)
+		rowIndex++
+
+		// Add subrows recursively
+		if len(content.SubRows) > 0 {
+			subRows := createSubRows(content.SubRows, p, lang, baseURL, rowIndex)
+			rows = append(rows, subRows...)
+			// Update rowIndex based on number of subrows added
+			rowIndex += len(subRows)
+		}
+	}
+	return rows
+}
+
+// createRow creates a standard row for the PDF
+func createRow(content models.Row, p props.Text, alternateStyle bool) core.Row {
+	lightGray := &props.Color{Red: 240, Green: 240, Blue: 240}
+	row := row.New()
+	row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Amount), p)))
+	row.Add(col.New(1).Add(text.New(content.Multiplier, p)))
+	row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Distance), p)))
+	row.Add(col.New(3).Add(text.New(content.Break, p)))
+
+	// Parse markdown links in content and render as text/link components
+	contentCol := col.New(9)
+	segments := parseMarkdownLinks(content.Content, "", p)
+	contentCol.Add(segments...)
+	row.Add(contentCol)
+
+	row.Add(col.New(3).Add(text.New(content.Intensity, p)))
+	row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Sum), p)))
+
+	if alternateStyle {
+		row.WithStyle(&props.Cell{BackgroundColor: lightGray})
+	}
+
+	return row
+}
+
+// aggregateSubRowContent recursively aggregates nested subrow content into a string
+// Format: "content (distance1 Child1 + distance2 Child2)" or "(distance1 Child1 + distance2 Child2)" if no content
+// Omits break times and intensities for aggregated subrows
+func aggregateSubRowContent(subRows []models.Row, baseURL string, p props.Text) string {
+	if len(subRows) == 0 {
+		return ""
+	}
+
+	parts := make([]string, len(subRows))
+	for i, subRow := range subRows {
+		// Build content for this subrow
+		content := subRow.Content
+		if len(subRow.SubRows) > 0 {
+			// Recursively aggregate nested subrows
+			nestedContent := aggregateSubRowContent(subRow.SubRows, baseURL, p)
+			if nestedContent != "" {
+				content = fmt.Sprintf("%s (%s)", content, nestedContent)
+			}
+		}
+
+		// Format: distance + content (if content exists)
+		if content != "" {
+			parts[i] = fmt.Sprintf("%dm %s", subRow.Distance, content)
+		} else {
+			parts[i] = fmt.Sprintf("%dm", subRow.Distance)
+		}
+	}
+
+	return strings.Join(parts, " + ")
+}
+
+// createSubRows creates visual rows for subrows with indentation
+// Nested subrows are aggregated into the parent subrow's content instead of creating new rows
+func createSubRows(subRows []models.Row, p props.Text, lang models.Language, baseURL string, startRowIndex int) []core.Row {
+	rows := make([]core.Row, 0)
+	veryLightGray := &props.Color{Red: 248, Green: 248, Blue: 248}
+
+	for i, subRow := range subRows {
+		row := row.New()
+		// Empty amount field for subrows
+		row.Add(col.New(3).Add(text.New("", p)))
+		// Empty multiplier field for subrows
+		row.Add(col.New(1).Add(text.New("", p)))
+		// Distance value in distance column
+		row.Add(col.New(3).Add(text.New(strconv.Itoa(subRow.Distance), p)))
+		// Empty break field for aggregated subrows
+		row.Add(col.New(3).Add(text.New("", p)))
+
+		// Content with indent indicator and aggregated nested subrow content
+		contentCol := col.New(9)
+		indentText := subRow.Content
+		if len(subRow.SubRows) > 0 {
+			aggregated := aggregateSubRowContent(subRow.SubRows, baseURL, p)
+			if aggregated != "" {
+				indentText = fmt.Sprintf("%s (%s)", indentText, aggregated)
+			}
+		}
+		segments := parseMarkdownLinks(indentText, baseURL, p)
+		contentCol.Add(segments...)
+		row.Add(contentCol)
+
+		// Empty intensity field for aggregated subrows
+		row.Add(col.New(3).Add(text.New("", p)))
+		// Empty sum field for subrows
+		row.Add(col.New(3).Add(text.New("", p)))
+
+		// Alternate background colors for subrows
+		if (startRowIndex+i)%2 == 1 {
+			row.WithStyle(&props.Cell{BackgroundColor: veryLightGray})
+		}
+
 		rows = append(rows, row)
 	}
+
 	return rows
 }

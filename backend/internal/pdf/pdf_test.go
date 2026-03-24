@@ -529,3 +529,372 @@ func TestHyperlinks(t *testing.T) {
 		})
 	}
 }
+
+// TestSubRows creates PDFs with subrows (compound sets) for visual inspection.
+// Subrows should have:
+// - Empty amount field
+// - Distance value shown in distance column
+// - Empty sum field
+// - Visual indent with "↳" prefix
+// - Alternating background colors
+func TestSubRows(t *testing.T) {
+	baseURL := "https://example.com"
+
+	// Test table with subrows (compound sets like 8 x (800 + 200))
+	table := models.Table{
+		// Row with subrows - main set
+		{
+			Amount:     8,
+			Multiplier: "x",
+			Distance:   1000, // Will be calculated from subrows
+			Break:      "60",
+			Content:    "Hauptset - Ausdauer",
+			Intensity:  "GA2",
+			Sum:        8000,
+			SubRows: []models.Row{
+				{
+					Amount:     1,
+					Multiplier: "x",
+					Distance:   800,
+					Break:      "30",
+					Content:    "Kraul locker",
+					Intensity:  "GA1",
+					Sum:        800,
+				},
+				{
+					Amount:     1,
+					Multiplier: "x",
+					Distance:   200,
+					Break:      "",
+					Content:    "Rücken Technik",
+					Intensity:  "TÜ",
+					Sum:        200,
+				},
+			},
+		},
+		// Another row with subrows
+		{
+			Amount:     4,
+			Multiplier: "x",
+			Distance:   400,
+			Break:      "45",
+			Content:    "Sprint-Vorbereitung",
+			Intensity:  "GA2",
+			Sum:        1600,
+			SubRows: []models.Row{
+				{
+					Amount:     2,
+					Multiplier: "x",
+					Distance:   150,
+					Break:      "20",
+					Content:    "Kraul mit Flossen",
+					Intensity:  "GA2",
+					Sum:        300,
+				},
+				{
+					Amount:     2,
+					Multiplier: "x",
+					Distance:   50,
+					Break:      "",
+					Content:    "Sprint Kraul",
+					Intensity:  "S",
+					Sum:        100,
+				},
+			},
+		},
+		// Regular row without subrows
+		{
+			Amount:     1,
+			Multiplier: "x",
+			Distance:   400,
+			Break:      "",
+			Content:    "Locker ausschwimmen",
+			Intensity:  "ReKom",
+			Sum:        400,
+		},
+		// Row with nested subrows (depth 2)
+		{
+			Amount:     3,
+			Multiplier: "x",
+			Distance:   600,
+			Break:      "90",
+			Content:    "Technik-Block",
+			Intensity:  "TÜ",
+			Sum:        1800,
+			SubRows: []models.Row{
+				{
+					Amount:     1,
+					Multiplier: "x",
+					Distance:   200,
+					Break:      "30",
+					Content:    "Sculling",
+					Intensity:  "TÜ",
+					Sum:        200,
+					SubRows: []models.Row{
+						{
+							Amount:   1,
+							Distance: 100,
+							Content:  "Einarmig",
+							Sum:      100,
+						},
+						{
+							Amount:   1,
+							Distance: 100,
+							Content:  "Zweifarmer",
+							Sum:      100,
+						},
+					},
+				},
+				{
+					Amount:     1,
+					Multiplier: "x",
+					Distance:   200,
+					Break:      "30",
+					Content:    "Seitlage",
+					Intensity:  "TÜ",
+					Sum:        200,
+				},
+				{
+					Amount:     1,
+					Multiplier: "x",
+					Distance:   200,
+					Break:      "",
+					Content:    "Atemtechnik",
+					Intensity:  "TÜ",
+					Sum:        200,
+				},
+			},
+		},
+	}
+	table.AddSum()
+	table.UpdateSum()
+
+	tests := []struct {
+		name       string
+		horizontal bool
+		largeFont  bool
+		filename   string
+	}{
+		{
+			name:       "SubRows Standard PDF",
+			horizontal: false,
+			largeFont:  false,
+			filename:   "test_subrows_standard.pdf",
+		},
+		{
+			name:       "SubRows Large Font PDF",
+			horizontal: false,
+			largeFont:  true,
+			filename:   "test_subrows_largefont.pdf",
+		},
+		{
+			name:       "SubRows Horizontal PDF",
+			horizontal: true,
+			largeFont:  false,
+			filename:   "test_subrows_horizontal.pdf",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var pdfBytes []byte
+			var err error
+
+			if tt.largeFont {
+				pdfBytes, err = pdf.GenerateEasyReadablePDF(&table, tt.horizontal, models.LanguageDE, baseURL)
+			} else {
+				plan := &models.Plan{
+					Title:       "SubRows Test Plan",
+					Description: "Testing subrow rendering in PDF generation",
+					Table:       table,
+				}
+				pdfBytes, err = pdf.PlanToPDF(plan, tt.horizontal, false, models.LanguageDE, baseURL)
+			}
+
+			if err != nil {
+				t.Fatalf("Failed to generate PDF: %v", err)
+			}
+
+			if len(pdfBytes) == 0 {
+				t.Fatal("Generated PDF is empty")
+			}
+
+			// Write PDF for visual inspection
+			err = writePDF(tt.filename, pdfBytes)
+			if err != nil {
+				t.Fatalf("Failed to write PDF: %v", err)
+			}
+
+			// Cleanup unless GENERATE_PDF is set
+			if os.Getenv("GENERATE_PDF") == "" {
+				err = os.Remove(tt.filename)
+				if err != nil {
+					t.Fatalf("Failed to cleanup PDF: %v", err)
+				}
+			}
+
+			t.Logf("Generated %s - please inspect visually for proper subrow indentation", tt.filename)
+		})
+	}
+}
+
+// TestSubRowsWithHyperlinks tests subrows that contain markdown links
+func TestSubRowsWithHyperlinks(t *testing.T) {
+	baseURL := "https://example.com"
+
+	table := models.Table{
+		{
+			Amount:     4,
+			Multiplier: "x",
+			Distance:   300,
+			Break:      "45",
+			Content:    "Technik-Set mit Links [Anleitung](/technik)",
+			Intensity:  "TÜ",
+			Sum:        1200,
+			SubRows: []models.Row{
+				{
+					Amount:     1,
+					Multiplier: "x",
+					Distance:   100,
+					Break:      "20",
+					Content:    "Kraul [Video](/video1)",
+					Intensity:  "GA1",
+					Sum:        100,
+				},
+				{
+					Amount:     1,
+					Multiplier: "x",
+					Distance:   100,
+					Break:      "20",
+					Content:    "Rücken [Tutorial](/tutorial)",
+					Intensity:  "GA1",
+					Sum:        100,
+				},
+				{
+					Amount:     1,
+					Multiplier: "x",
+					Distance:   100,
+					Break:      "",
+					Content:    "Brust [Guide](/guide)",
+					Intensity:  "GA1",
+					Sum:        100,
+				},
+			},
+		},
+		{
+			Amount:     1,
+			Multiplier: "x",
+			Distance:   200,
+			Break:      "",
+			Content:    "Ausschwimmen",
+			Intensity:  "ReKom",
+			Sum:        200,
+		},
+	}
+	table.AddSum()
+	table.UpdateSum()
+
+	pdfBytes, err := pdf.GenerateEasyReadablePDF(&table, true, models.LanguageDE, baseURL)
+	assert.NoError(t, err, "PDF generation with subrows and hyperlinks should not fail")
+	assert.NotEmpty(t, pdfBytes, "Generated PDF should not be empty")
+
+	err = writePDF("test_subrows_hyperlinks.pdf", pdfBytes)
+	assert.NoError(t, err, "Writing PDF should not fail")
+
+	if os.Getenv("GENERATE_PDF") == "" {
+		err = os.Remove("test_subrows_hyperlinks.pdf")
+		assert.NoError(t, err, "Cleanup should succeed")
+	}
+}
+
+// TestDeeplyNestedSubRows tests 3+ levels of nested subrows with content aggregation
+func TestDeeplyNestedSubRows(t *testing.T) {
+	baseURL := "https://example.com"
+
+	table := models.Table{
+		{
+			Amount:     2,
+			Multiplier: "x",
+			Distance:   800,
+			Break:      "60",
+			Content:    "Hauptset",
+			Intensity:  "GA2",
+			Sum:        1600,
+			SubRows: []models.Row{
+				{
+					Amount:     1,
+					Multiplier: "x",
+					Distance:   400,
+					Break:      "30",
+					Content:    "Ausdauer",
+					Intensity:  "GA1",
+					Sum:        400,
+					SubRows: []models.Row{
+						{
+							Amount:   1,
+							Distance: 200,
+							Content:  "Kraul",
+							Sum:      200,
+							SubRows: []models.Row{
+								{
+									Amount:   1,
+									Distance: 100,
+									Content:  "locker",
+									Sum:      100,
+								},
+								{
+									Amount:   1,
+									Distance: 100,
+									Content:  "technisch",
+									Sum:      100,
+								},
+							},
+						},
+						{
+							Amount:   1,
+							Distance: 200,
+							Content:  "Rücken",
+							Sum:      200,
+						},
+					},
+				},
+				{
+					Amount:     1,
+					Multiplier: "x",
+					Distance:   400,
+					Break:      "",
+					Content:    "Sprint",
+					Intensity:  "S",
+					Sum:        400,
+				},
+			},
+		},
+		{
+			Amount:     1,
+			Multiplier: "x",
+			Distance:   200,
+			Break:      "",
+			Content:    "Ausschwimmen",
+			Intensity:  "ReKom",
+			Sum:        200,
+		},
+	}
+	table.AddSum()
+	table.UpdateSum()
+
+	// Test with large font (easy-to-read)
+	pdfBytes, err := pdf.GenerateEasyReadablePDF(&table, true, models.LanguageDE, baseURL)
+	assert.NoError(t, err, "PDF generation with deeply nested subrows should not fail")
+	assert.NotEmpty(t, pdfBytes, "Generated PDF should not be empty")
+
+	err = writePDF("test_deeply_nested.pdf", pdfBytes)
+	assert.NoError(t, err, "Writing PDF should not fail")
+
+	if os.Getenv("GENERATE_PDF") == "" {
+		err = os.Remove("test_deeply_nested.pdf")
+		assert.NoError(t, err, "Cleanup should succeed")
+	}
+
+	t.Log("Generated test_deeply_nested.pdf - please verify aggregated content format:")
+	t.Log("Expected: ↳ Ausdauer (200m Kraul (100m locker + 100m technisch) + 200m Rücken)")
+}

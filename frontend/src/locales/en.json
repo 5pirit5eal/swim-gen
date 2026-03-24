@@ -131,6 +131,9 @@
     },
     "total": "Total (m)",
     "total_tooltip": "Total distance in meters for the exercise set.",
+    "multiplier": "×",
+    "sum": "Sum (m)",
+    "row_actions": "Row actions",
     "meters_total": "Meters Total",
     "exercise_sets": "Exercise Sets",
     "no_plan_placeholder": "No training plan generated yet. Use the form above to create one!",
@@ -144,7 +147,18 @@
     "add_row": "Add new row",
     "remove_row": "Remove this row",
     "move_row_up": "Move row up",
-    "move_row_down": "Move row down"
+    "move_row_down": "Move row down",
+    "add_subrow": "Add sub-exercise",
+    "equipment": "Equipment",
+    "coach_notes": "Coach Notes",
+    "necessary_equipment": "Used Equipment"
+  },
+  "equipment": {
+    "fins": "Fins",
+    "kickboard": "Kickboard",
+    "hand_paddles": "Hand paddles",
+    "pull_buoy": "Pull buoy",
+    "snorkel": "Snorkel"
   },
   "impressum": {
     "title": "Impressum",

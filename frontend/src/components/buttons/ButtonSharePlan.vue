@@ -134,6 +134,10 @@ async function handleShare() {
   gap: 0.5rem;
 }
 
+.share-btn span {
+  font-weight: 600;
+}
+
 .share-btn:hover {
   background-color: var(--color-primary-hover);
 }
@@ -159,6 +163,9 @@ async function handleShare() {
   .share-btn {
     padding: 0.75rem 0.5rem;
     overflow-wrap: break-word;
+  }
+
+  .share-btn span {
     font-size: 0.8rem;
   }
 }

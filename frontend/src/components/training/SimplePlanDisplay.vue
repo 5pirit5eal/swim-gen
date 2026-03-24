@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Row, RAGResponse } from '@/types'
+import type { Row, RAGResponse, PlanStore } from '@/types'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import ContentWithDrillLinks from '@/components/training/ContentWithDrillLinks.vue'
+import PlanRowCard from '@/components/training/PlanRowCard.vue'
 
 const props = defineProps<{
   title: string
@@ -29,6 +29,22 @@ const totalRow = computed(() => {
 
 const totalExercises = computed(() => exerciseRows.value.length)
 
+// Minimal read-only store-compatible object — PlanRowCard requires a store prop,
+// but in read-only mode (isEditing=false) it never calls any mutating methods.
+const readonlyStore = {
+  currentPlan: null,
+  hasPlan: false,
+  isLoading: false,
+  keepForever: () => Promise.resolve(),
+  upsertCurrentPlan: () => Promise.resolve(''),
+  updatePlanRow: () => {},
+  updatePlanRowEquipment: () => {},
+  addRow: () => {},
+  addSubRow: () => {},
+  removeRow: () => {},
+  moveRow: () => {},
+} as unknown as PlanStore
+
 function onSave() {
   emit('save', {
     plan_id: props.planId,
@@ -44,52 +60,28 @@ function onSave() {
     <!-- Header -->
     <header class="plan-header">
       <h3 class="plan-title">{{ title }}</h3>
-      <div class="plan-description">{{ description }}</div>
     </header>
 
-    <!-- Compact Exercise Table -->
-    <div class="table-container">
-      <table class="exercise-table">
-        <thead>
-          <tr>
-            <th>{{ t('display.amount') }}</th>
-            <th>x</th>
-            <th>{{ t('display.distance') }}</th>
-            <th>{{ t('display.break') }}</th>
-            <th class="content-header">{{ t('display.content') }}</th>
-            <th>{{ t('display.intensity') }}</th>
-            <th>{{ t('display.total') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(row, index) in exerciseRows" :key="index" class="exercise-row">
-            <td>{{ row.Amount }}</td>
-            <td>{{ row.Multiplier }}</td>
-            <td>{{ row.Distance }}</td>
-            <td>{{ row.Break }}</td>
-            <td class="content-cell">
-              <ContentWithDrillLinks :content="row.Content" />
-            </td>
-            <td class="intensity-cell">{{ row.Intensity }}</td>
-            <td class="total-cell">{{ row.Sum }}</td>
-          </tr>
-          <tr v-if="totalRow" class="total-row">
-            <td colspan="6">
-              <strong>{{ t('display.meters_total') }}</strong>
-            </td>
-            <td>
-              <strong>{{ totalRow.Sum }} m</strong>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Exercise Cards -->
+    <div class="plan-cards-list">
+      <PlanRowCard
+        v-for="(row, index) in exerciseRows"
+        :key="row._id || index"
+        :row="row"
+        :path="[index]"
+        :depth="0"
+        :is-editing="false"
+        :store="readonlyStore"
+        :is-first="index === 0"
+        :is-last="index === exerciseRows.length - 1"
+      />
     </div>
 
     <!-- Summary and Actions -->
     <div class="footer-section">
-      <div class="summary-compact">
+      <div class="summary-compact" data-testid="plan-summary">
         <span class="summary-item">{{ totalRow?.Sum || 0 }} m</span>
-        <span class="separator">•</span>
+        <span class="separator">&bull;</span>
         <span class="summary-item">{{ totalExercises }} {{ t('display.exercise_sets') }}</span>
       </div>
       <button @click="onSave" class="save-btn">
@@ -114,75 +106,18 @@ function onSave() {
 }
 
 .plan-title {
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--color-heading);
 }
 
-.plan-description {
-  font-size: 0.9rem;
-  line-height: 1.4;
-  color: var(--color-text);
-}
-
-.table-container {
+.plan-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   padding: 0.75rem;
-  overflow-x: auto;
-}
-
-.exercise-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-
-.exercise-table th,
-.exercise-table td {
-  border: 1px solid var(--color-border);
-  padding: 0.4rem 0.3rem;
-  text-align: center;
-  color: var(--color-text);
-}
-
-.exercise-table th {
-  background: var(--color-border);
-  color: var(--color-heading);
-  font-weight: 600;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-}
-
-.content-header {
-  width: 30%;
-}
-
-.content-cell {
-  text-align: left;
-  font-size: 0.8rem;
-}
-
-.intensity-cell {
-  font-weight: 600;
-  color: var(--color-primary);
-}
-
-.total-cell {
-  font-weight: 600;
-}
-
-.exercise-row:nth-child(even) {
-  background-color: var(--color-background-soft);
-}
-
-.total-row {
-  background: var(--color-border);
-  font-weight: 700;
-}
-
-.total-row td {
-  border-color: var(--color-border);
-  color: var(--color-heading);
+  background: var(--color-background-soft);
 }
 
 .footer-section {
@@ -203,11 +138,13 @@ function onSave() {
 }
 
 .summary-item {
-  font-weight: 500;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
 .separator {
-  color: var(--color-border);
+  color: var(--color-border-hover);
+  font-size: 0.75rem;
 }
 
 .save-btn {

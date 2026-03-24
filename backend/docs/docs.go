@@ -1476,6 +1476,23 @@ const docTemplate = `{
                 }
             }
         },
+        "models.EquipmentType": {
+            "type": "string",
+            "enum": [
+                "Flossen",
+                "Kickboard",
+                "Handpaddles",
+                "Pull buoy",
+                "Schnorchel"
+            ],
+            "x-enum-varnames": [
+                "EquipmentFins",
+                "EquipmentKickboard",
+                "EquipmentPaddles",
+                "EquipmentBuoy",
+                "EquipmentSnorkel"
+            ]
+        },
         "models.FeedbackRequest": {
             "description": "Request payload for submitting feedback on a training plan",
             "type": "object",
@@ -1751,7 +1768,7 @@ const docTemplate = `{
             ]
         },
         "models.Row": {
-            "description": "A single exercise entry with amount, distance, breaks, content, intensity and total volume",
+            "description": "A single exercise entry with amount, distance, breaks, content, intensity and total volume. Supports nested SubRows for compound sets like 8 x (800 + 200).",
             "type": "object",
             "properties": {
                 "Amount": {
@@ -1770,6 +1787,15 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 100
                 },
+                "Equipment": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.EquipmentType"
+                    },
+                    "example": [
+                        "[\"Flossen\"]"
+                    ]
+                },
                 "Intensity": {
                     "type": "string",
                     "example": "Easy"
@@ -1777,6 +1803,12 @@ const docTemplate = `{
                 "Multiplier": {
                     "type": "string",
                     "example": "x"
+                },
+                "SubRows": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
                 },
                 "Sum": {
                     "type": "integer",

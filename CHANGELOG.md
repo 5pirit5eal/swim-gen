@@ -1,3 +1,38 @@
+## [2.37.0](https://github.com/5pirit5eal/swim-gen/compare/v2.36.0...v2.37.0) (2026-03-23)
+
+### Features
+
+* add ' x ' pattern detection for subrow candidates ([e27574d](https://github.com/5pirit5eal/swim-gen/commit/e27574d82c028560750d9907a8412d2e7f4229c9))
+* add equipment column to table display and fix formatting ([c5032f3](https://github.com/5pirit5eal/swim-gen/commit/c5032f353c1f4e6dd1b3764f598061a052faf6ba))
+* add equipment i18n constants and translation strings ([227fddc](https://github.com/5pirit5eal/swim-gen/commit/227fddcaab08a910502c7ed7520013f6e679e921))
+* add new scraper implementation for genai ([dce0daa](https://github.com/5pirit5eal/swim-gen/commit/dce0daa75c84f97dbccd37c1e7bc1ca8f6cc722d))
+* add sanitization in RAG scraper for PostgreSQL safety ([b64bed6](https://github.com/5pirit5eal/swim-gen/commit/b64bed6d9a89a505f0edbf8a5ff24ffcace9952d))
+* add structured logging with slog ([bc4b3ec](https://github.com/5pirit5eal/swim-gen/commit/bc4b3ec63648b5a5466c8ccdf362b6db8947222a))
+* enable Supabase connection pooler and add query snippets ([bf0fba6](https://github.com/5pirit5eal/swim-gen/commit/bf0fba64b81fc5fa654babf528e6abe7ca63d1ce))
+* enhance prompt templates with equipment detection and subrow examples ([775d770](https://github.com/5pirit5eal/swim-gen/commit/775d770a47f353957106707008042b278b799c88))
+* **form:** add smooth transition animation to advanced settings panel ([11373c7](https://github.com/5pirit5eal/swim-gen/commit/11373c77c32769f63e3311d733c1f6feac7e503f))
+* **frontend:** add Equipment field to Row type ([4769e1e](https://github.com/5pirit5eal/swim-gen/commit/4769e1e880eafb94bfd796cc7fa8f3d9b73b0259))
+* **genai:** add equipment detection instructions to prompt ([9175f2c](https://github.com/5pirit5eal/swim-gen/commit/9175f2c3642af30453a64e1a7048e115c777489c))
+* **genai:** add validation after plan restructure ([ae9a654](https://github.com/5pirit5eal/swim-gen/commit/ae9a65403e87cfaa0a7f632bb4aa0004754bae4e))
+* **genai:** enhance prompts for subrow handling and terminology ([1d3e4b8](https://github.com/5pirit5eal/swim-gen/commit/1d3e4b8af6d7c619761821a9b1dcf91fd13539d5))
+* **genai:** implement RestructurePlan for nested structure optimization ([0a7c2d6](https://github.com/5pirit5eal/swim-gen/commit/0a7c2d6829bb54dae7643379977bf94be50b2ca3))
+* **genai:** update prompts for nested structure support ([ba381ca](https://github.com/5pirit5eal/swim-gen/commit/ba381caa3ab63334396fb66665c7656a8fdb8b24))
+* **models:** add Equipment field to Row struct ([ce0c54e](https://github.com/5pirit5eal/swim-gen/commit/ce0c54ec5eb447c6e4dec90f14586b4d66b1d6e7))
+* **models:** add EquipmentType system with German values ([4c983c3](https://github.com/5pirit5eal/swim-gen/commit/4c983c3dcd2046770442d015fca1638ed8a6ff11))
+* **models:** add nested children support for compound exercise sets ([c016926](https://github.com/5pirit5eal/swim-gen/commit/c01692643770d77b587b56ac4631c3ab94c13651))
+* **pdf:** implement subrow rendering with content aggregation ([29072b7](https://github.com/5pirit5eal/swim-gen/commit/29072b73dc516a9eafd2b2cca53857c854bbefdf))
+* rename Children to SubRows for nested table structures ([d529848](https://github.com/5pirit5eal/swim-gen/commit/d529848cd06d2c02947bedbf862be47be3b440f8))
+* **training:** add equipment multiselect in PlanRowCard ([d6f5ce3](https://github.com/5pirit5eal/swim-gen/commit/d6f5ce36806027c1e23fe1cd0dd590f93fec0868))
+* **training:** add expand/collapse animation for subrows ([415101c](https://github.com/5pirit5eal/swim-gen/commit/415101c75a651bf10daf6932538b7375fa714b67))
+
+### Bug Fixes
+
+* deleted sisyphus files and added the dir to gitignore ([f3809e8](https://github.com/5pirit5eal/swim-gen/commit/f3809e830c5a47c25addfcdf7e0a3ecdc3ceb924))
+* **planrow:** use parseFloat for Amount and Distance fields ([242ee93](https://github.com/5pirit5eal/swim-gen/commit/242ee93c227550d588bea06cf3c1a45a7ab22a1b))
+* **scraper:** add explicit jsonb cast for plan_table insert ([74862a6](https://github.com/5pirit5eal/swim-gen/commit/74862a68f565b7008ccd40b624b197ef9b7cffc5))
+* **typescript:** correct type annotation in TrainingPlanDisplay ([839df9e](https://github.com/5pirit5eal/swim-gen/commit/839df9e7b952797d4aef29f98751584eacdb5b11))
+* Update deployments/supabase/config.toml ([1cc3934](https://github.com/5pirit5eal/swim-gen/commit/1cc393409c91fb9febbc1b2b414881cc42f4f0eb))
+
 ## [2.36.0](https://github.com/5pirit5eal/swim-gen/compare/v2.35.0...v2.36.0) (2026-02-24)
 
 ### Features

@@ -125,7 +125,41 @@ func GeneratedPlanSchema() (map[string]any, error) {
 		return nil, fmt.Errorf("failed to marshal JSON schema: %w", err)
 	}
 	var result map[string]any
-	return result, json.Unmarshal(jsonSchema, &result)
+	if err := json.Unmarshal(jsonSchema, &result); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal JSON schema: %w", err)
+	}
+
+	// Post-process: make SubRows and Equipment required in the Row definition.
+	// The struct uses `omitempty` on these fields for regular JSON marshaling, which causes
+	// invopop/jsonschema to treat them as optional. We override that here so the LLM always
+	// returns them (as empty arrays when unused), enabling strict schema validation.
+	if defs, ok := result["$defs"].(map[string]any); ok {
+		if rowDef, ok := defs["Row"].(map[string]any); ok {
+			required := []string{}
+			if existing, ok := rowDef["required"].([]any); ok {
+				for _, r := range existing {
+					if s, ok := r.(string); ok {
+						required = append(required, s)
+					}
+				}
+			}
+			for _, field := range []string{"SubRows", "Equipment"} {
+				found := false
+				for _, r := range required {
+					if r == field {
+						found = true
+						break
+					}
+				}
+				if !found {
+					required = append(required, field)
+				}
+			}
+			rowDef["required"] = required
+		}
+	}
+
+	return result, nil
 }
 
 // BASIC PLAN STRUCTURES
@@ -161,19 +195,142 @@ func (p *Plan) String() string {
 type Table []Row
 
 // Row represents a single exercise entry in a training plan
-// @Description A single exercise entry with amount, distance, breaks, content, intensity and total volume
+// @Description A single exercise entry with amount, distance, breaks, content, intensity and total volume. Supports nested SubRows for compound sets like 8 x (800 + 200).
 type Row struct {
-	Amount     int    `json:"Amount" example:"4" jsonschema_description:"Amount of repetitions"`
-	Multiplier string `json:"Multiplier" example:"x" jsonschema_description:"Multiplier for the distance (e.g. 'x' or 'times')"`
-	Distance   int    `json:"Distance" example:"100" jsonschema_description:"Distance in meters"`
-	Break      string `json:"Break" example:"20" jsonschema_description:"Break time typically in seconds. This needs to be a string, as other times are possible"`
-	Content    string `json:"Content" example:"Freestyle swim" jsonschema_description:"Content or description of the row"`
-	Intensity  string `json:"Intensity" example:"Easy" jsonschema_description:"Intensity level of the activity"`
-	Sum        int    `json:"Sum" example:"400" jsonschema_description:"Total volume or sum for the row"`
+	Amount     int             `json:"Amount" example:"4" jsonschema_description:"Amount of repetitions"`
+	Multiplier string          `json:"Multiplier" example:"x" jsonschema_description:"Multiplier for the distance (e.g. 'x' or 'times')"`
+	Distance   int             `json:"Distance" example:"100" jsonschema_description:"Distance in meters. For parent rows with SubRows, this is auto-calculated as sum of subRows distances"`
+	Break      string          `json:"Break" example:"20" jsonschema_description:"Break time typically in seconds. This needs to be a string, as other times are possible"`
+	Content    string          `json:"Content" example:"Freestyle swim" jsonschema_description:"Content or description of the row"`
+	Intensity  string          `json:"Intensity" example:"Easy" jsonschema_description:"Intensity level of the activity"`
+	Sum        int             `json:"Sum" example:"400" jsonschema_description:"Total volume or sum for the row"`
+	SubRows    []Row           `json:"SubRows,omitempty" jsonschema_description:"Nested exercise rows for compound sets (parent x (child1 + child2), e.g. 8 x (800 Free + 200 IM)). Parent Distance is auto-calculated from subRows"`
+	Equipment  []EquipmentType `json:"Equipment,omitempty" jsonschema:"description=Equipment needed for this row,enum=Flossen,enum=Kickboard,enum=Handpaddles,enum=Pull buoy,enum=Schnorchel" jsonschema_description:"Equipment needed for this specific row" example:"[\"Flossen\"]"`
 }
 
 func (r Row) String() string {
-	return fmt.Sprintf("| %d | %s | %d | %s | %s | %s | %d |", r.Amount, r.Multiplier, r.Distance, r.Break, r.Content, r.Intensity, r.Sum)
+	var outputStr strings.Builder
+
+	contentStr := r.Content
+	if len(r.SubRows) > 0 {
+		contentStr = fmt.Sprintf(
+			"Set: %d %s (%s) - %s",
+			r.Amount,
+			r.multiplierOrDefault(),
+			r.subRowsSummary(),
+			r.Content,
+		)
+	}
+
+	fmt.Fprintf(
+		&outputStr,
+		"| %d | %s | %d | %s | %s | %s | %d | %s |",
+		r.Amount,
+		r.Multiplier,
+		r.Distance,
+		r.Break,
+		contentStr,
+		r.Intensity,
+		r.Sum,
+		r.equipmentString(),
+	)
+
+	if len(r.SubRows) > 0 {
+		r.writeSubRows(&outputStr, 0)
+	}
+
+	return outputStr.String()
+}
+
+func (r Row) equipmentString() string {
+	if len(r.Equipment) == 0 {
+		return ""
+	}
+
+	names := make([]string, len(r.Equipment))
+	for i, e := range r.Equipment {
+		names[i] = string(e)
+	}
+
+	return strings.Join(names, ", ")
+}
+
+func (r Row) subRowsSummary() string {
+	parts := make([]string, len(r.SubRows))
+	for i, child := range r.SubRows {
+		parts[i] = child.conciseDescription()
+	}
+
+	return strings.Join(parts, " + ")
+}
+
+func (r Row) conciseDescription() string {
+	multiplier := r.multiplierOrDefault()
+
+	switch {
+	case r.Amount > 0 && r.Distance > 0 && r.Content != "":
+		return fmt.Sprintf("%d %s %dm %s", r.Amount, multiplier, r.Distance, r.Content)
+	case r.Amount > 0 && r.Distance > 0:
+		return fmt.Sprintf("%d %s %dm", r.Amount, multiplier, r.Distance)
+	case r.Distance > 0 && r.Content != "":
+		return fmt.Sprintf("%dm %s", r.Distance, r.Content)
+	case r.Distance > 0:
+		return fmt.Sprintf("%dm", r.Distance)
+	default:
+		return r.Content
+	}
+}
+
+func (r Row) writeSubRows(outputStr *strings.Builder, depth int) {
+	indent := strings.Repeat("  ", depth)
+	for i, child := range r.SubRows {
+		fmt.Fprintf(
+			outputStr,
+			"\n%s↳ subrow %d/%d of %q: %s | break: %s | intensity: %s | volume: %dm | equipment: %s",
+			indent,
+			i+1,
+			len(r.SubRows),
+			r.Content,
+			child.conciseDescription(),
+			displayOrDash(child.Break),
+			displayOrDash(child.Intensity),
+			child.Sum,
+			displayOrDash(child.equipmentString()),
+		)
+
+		if len(child.SubRows) > 0 {
+			child.writeSubRows(outputStr, depth+1)
+		}
+	}
+}
+
+func (r Row) multiplierOrDefault() string {
+	if r.Multiplier != "" {
+		return r.Multiplier
+	}
+
+	return "x"
+}
+
+func displayOrDash(value string) string {
+	if value == "" {
+		return "-"
+	}
+
+	return value
+}
+
+func (r *Row) UpdateSum() {
+	if len(r.SubRows) > 0 {
+		dis := 0
+		for i := range r.SubRows {
+			subRow := &r.SubRows[i]
+			subRow.UpdateSum() // Recursively update sums of subRows
+			dis += subRow.Sum
+		}
+		r.Distance = dis
+	}
+	r.Sum = r.Amount * r.Distance
 }
 
 func (r Row) BreakInSeconds() int {
@@ -195,13 +352,12 @@ func (r Row) BreakInSeconds() int {
 }
 
 func (t *Table) String() string {
-	var tstr strings.Builder
-	tstr.WriteString("| Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang |\n")
-	tstr.WriteString("|---|---|---|---|---|---|---|\n")
+	tstr := "| Anzahl |  | Strecke(m) | Pause(s) | Inhalt | Intensität | Umfang | Ausrüstung |\n"
+	tstr += "|---|---|---|---|---|---|---|---|\n"
 	for _, row := range *t {
-		tstr.WriteString(row.String() + "\n")
+		tstr += row.String() + "\n"
 	}
-	return tstr.String()
+	return tstr
 }
 
 // Adds a final row to the table with the total sum
@@ -210,19 +366,29 @@ func (t *Table) AddSum() {
 	for _, row := range *t {
 		sum += row.Sum
 	}
+	// Only add the total row if it doesn't already exist (e.g. from LLM restructuring)
+	if len(*t) > 0 {
+		lastRow := (*t)[len(*t)-1]
+		if strings.Contains(lastRow.Content, "Gesamt") || strings.Contains(lastRow.Content, "Total") {
+			return
+		}
+	}
 	*t = append(*t, Row{Content: "Gesamt", Sum: sum})
 }
 
-// Recalculates the sum for each row
+// Recalculates the sum for each row and updates Distance for parent rows
 // This is useful if the table has been modified and we need to update the sums
 func (t *Table) UpdateSum() {
 	total := 0
-	for i, row := range *t {
+	for i := range *t {
+		row := &(*t)[i]
 		if strings.Contains(row.Content, "Gesamt") || strings.Contains(row.Content, "Total") {
-			(*t)[i].Sum = total
+			row.Sum = total
 		} else {
-			(*t)[i].Sum = row.Amount * row.Distance
-			total += (*t)[i].Sum
+			row.UpdateSum()
+			// Flat row calculation (backward compatible)
+			row.Sum = row.Amount * row.Distance
+			total += row.Sum
 		}
 	}
 }
@@ -255,6 +421,71 @@ func (t *Table) JSON() (string, error) {
 		return "", fmt.Errorf("failed to marshal table to JSON: %w", err)
 	}
 	return string(bytes), nil
+}
+
+// Validate recursively validates the table structure
+func (t *Table) Validate() error {
+	return t.validateRowDepth(0)
+}
+
+func (t *Table) validateRowDepth(depth int) error {
+	if depth > 4 {
+		return fmt.Errorf("maximum nesting depth (4) exceeded")
+	}
+
+	for i, row := range *t {
+		if row.Amount < 0 {
+			return fmt.Errorf("row %d has negative amount: %d", i, row.Amount)
+		}
+		if row.Distance < 0 {
+			return fmt.Errorf("row %d has negative distance: %d", i, row.Distance)
+		}
+
+		if len(row.SubRows) > 0 {
+			if row.Amount == 0 {
+				return fmt.Errorf("row %d has subRows but Amount = 0", i)
+			}
+			subRowsTable := Table(row.SubRows)
+			if err := subRowsTable.validateRowDepth(depth + 1); err != nil {
+				return fmt.Errorf("row %d subRows: %w", i, err)
+			}
+		}
+	}
+	return nil
+}
+
+// FlattenTable converts a nested table to a flat representation for display
+func (t *Table) FlattenTable(indent string) []string {
+	lines := []string{}
+	for _, row := range *t {
+		if len(row.SubRows) > 0 {
+			subRowsStr := ""
+			for i, child := range row.SubRows {
+				if i > 0 {
+					subRowsStr += " + "
+				}
+				subRowsStr += fmt.Sprintf("%dm", child.Distance)
+			}
+			lines = append(lines, fmt.Sprintf("%s%d x (%s) - %s (Sum: %dm)", indent, row.Amount, subRowsStr, row.Content, row.Sum))
+			subRowsTable := Table(row.SubRows)
+			lines = append(lines, subRowsTable.FlattenTable(indent+"  ")...)
+		} else {
+			lines = append(lines, fmt.Sprintf("%s%d x %dm - %s (Sum: %dm)", indent, row.Amount, row.Distance, row.Content, row.Sum))
+		}
+	}
+	return lines
+}
+
+// GetTotalVolume calculates total volume from row sums
+// Assumes UpdateSum() has been called to set correct Sum values
+func (t *Table) GetTotalVolume() int {
+	total := 0
+	for _, row := range *t {
+		if !strings.Contains(row.Content, "Gesamt") && !strings.Contains(row.Content, "Total") {
+			total += row.Sum
+		}
+	}
+	return total
 }
 
 type Document struct {
