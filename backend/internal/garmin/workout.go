@@ -14,12 +14,14 @@ type SportTypeID int
 const (
 	SportTypeRunning          SportTypeID = 1
 	SportTypeCycling          SportTypeID = 2
-	SportTypeSwimming         SportTypeID = 3
-	SportTypeWalking          SportTypeID = 4
-	SportTypeMultiSport       SportTypeID = 5
-	SportTypeFitnessEquipment SportTypeID = 6
-	SportTypeHiking           SportTypeID = 7
-	SportTypeOther            SportTypeID = 8
+	SportTypeSwimming         SportTypeID = 4
+	SportTypeStrengthTraining SportTypeID = 5
+	SportTypeCardioTraining   SportTypeID = 6
+	SportTypeYoga             SportTypeID = 7
+	SportTypeHIIT             SportTypeID = 9
+	SportTypeMultiSport       SportTypeID = 10
+	SportTypeMobility         SportTypeID = 11
+	SportTypeOther            SportTypeID = 3
 )
 
 type StepTypeID int
@@ -31,29 +33,37 @@ const (
 	StepTypeRecovery StepTypeID = 4
 	StepTypeRest     StepTypeID = 5
 	StepTypeRepeat   StepTypeID = 6
+	StepTypeOther    StepTypeID = 7
+	StepTypeMain     StepTypeID = 8
 )
 
 type ConditionTypeID int
 
 const (
-	ConditionTypeDistance   ConditionTypeID = 1
-	ConditionTypeTime       ConditionTypeID = 2
-	ConditionTypeHeartRate  ConditionTypeID = 3
-	ConditionTypeCalories   ConditionTypeID = 4
-	ConditionTypeCadence    ConditionTypeID = 5
-	ConditionTypePower      ConditionTypeID = 6
-	ConditionTypeIterations ConditionTypeID = 7
+	ConditionTypeDistance      ConditionTypeID = 3
+	ConditionTypeTime          ConditionTypeID = 2
+	ConditionTypeHeartRate     ConditionTypeID = 6
+	ConditionTypeCalories      ConditionTypeID = 4
+	ConditionTypePower         ConditionTypeID = 5
+	ConditionTypeIterations    ConditionTypeID = 7
+	ConditionTypeFixedRest     ConditionTypeID = 8
+	ConditionTypeReps          ConditionTypeID = 10
+	ConditionTypeSwimCSSOffset ConditionTypeID = 16
 )
 
 type TargetTypeID int
 
 const (
-	TargetTypeNoTarget  TargetTypeID = 1
-	TargetTypeHeartRate TargetTypeID = 2
-	TargetTypeCadence   TargetTypeID = 3
-	TargetTypeSpeed     TargetTypeID = 4
-	TargetTypePower     TargetTypeID = 5
-	TargetTypeOpen      TargetTypeID = 6
+	TargetTypeNoTarget        TargetTypeID = 1
+	TargetTypePower           TargetTypeID = 2
+	TargetTypeCadence         TargetTypeID = 3
+	TargetTypeHeartRate       TargetTypeID = 4
+	TargetTypeSpeed           TargetTypeID = 5
+	TargetTypePaceZone        TargetTypeID = 6
+	TargetTypeGrade           TargetTypeID = 7
+	TargetTypeSwimStroke      TargetTypeID = 14
+	TargetTypeSwimCSS         TargetTypeID = 17
+	TargetTypeSwimInstruction TargetTypeID = 18
 )
 
 type SportTypeModel struct {
@@ -80,10 +90,35 @@ type StrokeTypeModel struct {
 	DisplayOrder int `json:"displayOrder"`
 }
 
+type StrokeTypeID int
+
+const (
+	StrokeTypeAny          StrokeTypeID = 1
+	StrokeTypeBackstroke   StrokeTypeID = 2
+	StrokeTypeBreaststroke StrokeTypeID = 3
+	StrokeTypeDrill        StrokeTypeID = 4
+	StrokeTypeFly          StrokeTypeID = 5
+	StrokeTypeFree         StrokeTypeID = 6
+	StrokeTypeIM           StrokeTypeID = 7
+	StrokeTypeMixed        StrokeTypeID = 8
+	StrokeTypeIMByRound    StrokeTypeID = 9
+	StrokeTypeReverseIM    StrokeTypeID = 10
+)
+
 type EquipmentTypeModel struct {
 	EquipmentTypeID int `json:"equipmentTypeId"`
 	DisplayOrder    int `json:"displayOrder"`
 }
+
+type EquipmentTypeID int
+
+const (
+	EquipmentFins      EquipmentTypeID = 1
+	EquipmentKickboard EquipmentTypeID = 2
+	EquipmentPaddles   EquipmentTypeID = 3
+	EquipmentBuoy      EquipmentTypeID = 4
+	EquipmentSnorkel   EquipmentTypeID = 5
+)
 
 type StepTypeModel struct {
 	StepTypeID   StepTypeID `json:"stepTypeId"`
@@ -124,6 +159,214 @@ type RepeatGroup struct {
 }
 
 func (r RepeatGroup) IsWorkoutStep() {}
+
+// Equipment type key mapping from German to Garmin
+var equipmentTypeIDMap = map[models.EquipmentType]EquipmentTypeID{
+	models.EquipmentFins:      EquipmentFins,
+	models.EquipmentKickboard: EquipmentKickboard,
+	models.EquipmentPaddles:   EquipmentPaddles,
+	models.EquipmentBuoy:      EquipmentBuoy,
+	models.EquipmentSnorkel:   EquipmentSnorkel,
+}
+
+// detectStrokeType analyzes the row content and returns the appropriate stroke type
+// TODO: Implement GenAI-based detection for accurate stroke type identification
+// For now, returns StrokeTypeAny as placeholder
+func detectStrokeType(row models.Row) *StrokeTypeModel {
+	return &StrokeTypeModel{
+		StrokeTypeID: int(StrokeTypeAny),
+		DisplayOrder: 1,
+	}
+}
+
+// detectEquipmentType maps the first equipment item to Garmin equipment type
+func detectEquipmentType(equipment []models.EquipmentType) *EquipmentTypeModel {
+	if len(equipment) == 0 {
+		return nil
+	}
+
+	firstEquip := equipment[0]
+	if id, ok := equipmentTypeIDMap[firstEquip]; ok {
+		return &EquipmentTypeModel{
+			EquipmentTypeID: int(id),
+			DisplayOrder:    int(id),
+		}
+	}
+
+	return nil
+}
+
+// determineStepType determines the step type based on row position and content
+func determineStepType(row models.Row, rowIdx, warmupIdx, cooldownIdx int) StepTypeModel {
+	contentLower := strings.ToLower(row.Content)
+	intensityLower := strings.ToLower(row.Intensity)
+
+	// Check explicit warmup/cooldown keywords first
+	if strings.Contains(contentLower, "einschwimmen") || strings.Contains(intensityLower, "einschwimmen") ||
+		strings.Contains(intensityLower, "warmup") {
+		return StepTypeModel{
+			StepTypeID:   StepTypeWarmup,
+			StepTypeKey:  "warmup",
+			DisplayOrder: 1,
+		}
+	}
+
+	if strings.Contains(contentLower, "ausschwimmen") || strings.Contains(intensityLower, "ausschwimmen") ||
+		strings.Contains(intensityLower, "cooldown") {
+		return StepTypeModel{
+			StepTypeID:   StepTypeCooldown,
+			StepTypeKey:  "cooldown",
+			DisplayOrder: 2,
+		}
+	}
+
+	// Fall back to position-based detection
+	if rowIdx == warmupIdx {
+		return StepTypeModel{
+			StepTypeID:   StepTypeWarmup,
+			StepTypeKey:  "warmup",
+			DisplayOrder: 1,
+		}
+	}
+
+	if rowIdx == cooldownIdx {
+		return StepTypeModel{
+			StepTypeID:   StepTypeCooldown,
+			StepTypeKey:  "cooldown",
+			DisplayOrder: 2,
+		}
+	}
+
+	return StepTypeModel{
+		StepTypeID:   StepTypeInterval,
+		StepTypeKey:  "interval",
+		DisplayOrder: 3,
+	}
+}
+
+// createExecutableStep creates an executable step from a row
+func createExecutableStep(row models.Row, stepType StepTypeModel,
+	strokeType *StrokeTypeModel, equipmentType *EquipmentTypeModel, stepOrder int) ExecutableStep {
+
+	distance := float64(row.Distance)
+
+	return ExecutableStep{
+		Type:      "ExecutableStepDTO",
+		StepOrder: stepOrder,
+		StepType:  &stepType,
+		EndCondition: &EndConditionModel{
+			ConditionTypeID:  ConditionTypeDistance,
+			ConditionTypeKey: "distance",
+			DisplayOrder:     3,
+			Displayable:      true,
+		},
+		EndConditionValue: &distance,
+		TargetType: &TargetTypeModel{
+			WorkoutTargetTypeID:  TargetTypeNoTarget,
+			WorkoutTargetTypeKey: "no.target",
+			DisplayOrder:         1,
+		},
+		StrokeType:    strokeType,
+		EquipmentType: equipmentType,
+	}
+}
+
+// createRestStep creates a rest step with time-based end condition
+func createRestStep(breakSecs int, stepOrder int) ExecutableStep {
+	duration := float64(breakSecs)
+
+	return ExecutableStep{
+		Type:      "ExecutableStepDTO",
+		StepOrder: stepOrder,
+		StepType: &StepTypeModel{
+			StepTypeID:   StepTypeRest,
+			StepTypeKey:  "rest",
+			DisplayOrder: 5,
+		},
+		EndCondition: &EndConditionModel{
+			ConditionTypeID:  ConditionTypeTime,
+			ConditionTypeKey: "time",
+			DisplayOrder:     2,
+			Displayable:      true,
+		},
+		EndConditionValue: &duration,
+		TargetType: &TargetTypeModel{
+			WorkoutTargetTypeID:  TargetTypeNoTarget,
+			WorkoutTargetTypeKey: "no.target",
+			DisplayOrder:         1,
+		},
+	}
+}
+
+// convertSubRowsToSteps converts SubRows into sequential workout steps
+func convertSubRowsToSteps(parentRow models.Row, stepType StepTypeModel,
+	strokeType *StrokeTypeModel, equipmentType *EquipmentTypeModel) []WorkoutStep {
+
+	var groupSteps []WorkoutStep
+	subStepOrder := 1
+
+	for _, subRow := range parentRow.SubRows {
+		step := createExecutableStep(subRow, stepType, strokeType, equipmentType, subStepOrder)
+		groupSteps = append(groupSteps, step)
+		subStepOrder++
+	}
+
+	// Add break AFTER complete set (per user preference)
+	if breakSecs := parentRow.BreakInSeconds(); breakSecs > 0 {
+		restStep := createRestStep(breakSecs, subStepOrder)
+		groupSteps = append(groupSteps, restStep)
+	}
+
+	return groupSteps
+}
+
+// calculateEstimatedDuration calculates estimated workout duration in seconds
+func calculateEstimatedDuration(table models.Table) int {
+	totalSecs := 0
+
+	pacePer100m := map[string]int{
+		"recovery":  120,
+		"easy":      90,
+		"warmup":    90,
+		"moderate":  75,
+		"hard":      60,
+		"very hard": 50,
+		"all out":   45,
+		"fast":      55,
+	}
+
+	for _, row := range table {
+		if strings.Contains(row.Content, "Gesamt") || strings.Contains(row.Content, "Total") {
+			continue
+		}
+
+		intensity := strings.ToLower(row.Intensity)
+		pace := pacePer100m[intensity]
+		if pace == 0 {
+			pace = 75
+		}
+
+		distanceMeters := row.Distance
+		if len(row.SubRows) > 0 {
+			for _, subRow := range row.SubRows {
+				distanceMeters += subRow.Distance
+			}
+		}
+
+		swimSecs := (distanceMeters / 100) * pace
+		totalSecs += row.Amount * swimSecs
+
+		if breakSecs := row.BreakInSeconds(); breakSecs > 0 {
+			if len(row.SubRows) > 0 {
+				totalSecs += row.Amount * breakSecs
+			} else {
+				totalSecs += breakSecs
+			}
+		}
+	}
+
+	return totalSecs
+}
 
 type WorkoutSegment struct {
 	SegmentOrder int             `json:"segmentOrder"`
@@ -273,87 +516,26 @@ func CreateRepeatGroup(iterations int, workoutSteps []WorkoutStep, stepOrder int
 func ConvertTrainingPlanToSwimWorkout(p *models.Plan, poolLength int) *BaseWorkout {
 	var steps []WorkoutStep
 	stepOrder := 1
-	totalSecs := 0
 
+	totalSecs := calculateEstimatedDuration(p.Table)
+
+	warmupIndex := 0
+	cooldownIndex := len(p.Table) - 1
+
+	rowIdx := 0
 	for _, row := range p.Table {
 		if strings.Contains(row.Content, "Gesamt") || strings.Contains(row.Content, "Total") {
 			continue
 		}
 
-		stepTypeID := StepTypeInterval
-		stepTypeKey := "interval"
-		displayOrder := 3
+		stepType := determineStepType(row, rowIdx, warmupIndex, cooldownIndex)
+		strokeType := detectStrokeType(row)
+		equipmentType := detectEquipmentType(row.Equipment)
 
-		contentLower := strings.ToLower(row.Content)
-		intensityLower := strings.ToLower(row.Intensity)
+		if len(row.SubRows) > 0 {
+			groupSteps := convertSubRowsToSteps(row, stepType, strokeType, equipmentType)
 
-		if strings.Contains(contentLower, "einschwimmen") || strings.Contains(intensityLower, "einschwimmen") || strings.Contains(intensityLower, "warmup") {
-			stepTypeID = StepTypeWarmup
-			stepTypeKey = "warmup"
-			displayOrder = 1
-		} else if strings.Contains(contentLower, "ausschwimmen") || strings.Contains(intensityLower, "ausschwimmen") || strings.Contains(intensityLower, "cooldown") {
-			stepTypeID = StepTypeCooldown
-			stepTypeKey = "cooldown"
-			displayOrder = 2
-		}
-
-		activeDist := float64(row.Distance)
-
-		activeStep := ExecutableStep{
-			Type:      "ExecutableStepDTO",
-			StepOrder: 0,
-			StepType: &StepTypeModel{
-				StepTypeID:   stepTypeID,
-				StepTypeKey:  stepTypeKey,
-				DisplayOrder: displayOrder,
-			},
-			EndCondition: &EndConditionModel{
-				ConditionTypeID:  ConditionTypeDistance,
-				ConditionTypeKey: "distance",
-				DisplayOrder:     3,
-				Displayable:      true,
-			},
-			EndConditionValue: &activeDist,
-			TargetType: &TargetTypeModel{
-				WorkoutTargetTypeID: TargetTypeNoTarget, WorkoutTargetTypeKey: "no.target", DisplayOrder: 1,
-			},
-		}
-
-		var restStep *ExecutableStep
-		breakSecs := row.BreakInSeconds()
-		if breakSecs > 0 {
-			bs := float64(breakSecs)
-			restStep = &ExecutableStep{
-				Type:      "ExecutableStepDTO",
-				StepOrder: 0,
-				StepType: &StepTypeModel{
-					StepTypeID:   StepTypeRest,
-					StepTypeKey:  "rest",
-					DisplayOrder: 5,
-				},
-				EndCondition: &EndConditionModel{
-					ConditionTypeID:  ConditionTypeTime,
-					ConditionTypeKey: "time",
-					DisplayOrder:     2,
-					Displayable:      true,
-				},
-				EndConditionValue: &bs,
-				TargetType: &TargetTypeModel{
-					WorkoutTargetTypeID: TargetTypeNoTarget, WorkoutTargetTypeKey: "no.target", DisplayOrder: 1,
-				},
-			}
-		}
-
-		if row.Amount > 1 {
-			var groupSteps []WorkoutStep
-			
-			activeStep.StepOrder = stepOrder + 1
-			groupSteps = append(groupSteps, activeStep)
-			if restStep != nil {
-				restStep.StepOrder = stepOrder + 2
-				groupSteps = append(groupSteps, *restStep)
-			}
-
+			fv := float64(row.Amount)
 			group := RepeatGroup{
 				Type:      "RepeatGroupDTO",
 				StepOrder: stepOrder,
@@ -364,21 +546,65 @@ func ConvertTrainingPlanToSwimWorkout(p *models.Plan, poolLength int) *BaseWorko
 				},
 				NumberOfIterations: row.Amount,
 				WorkoutSteps:       groupSteps,
-				SmartRepeat:        false,
+				EndCondition: &EndConditionModel{
+					ConditionTypeID:  ConditionTypeIterations,
+					ConditionTypeKey: "iterations",
+					DisplayOrder:     7,
+					Displayable:      false,
+				},
+				EndConditionValue: &fv,
+				SmartRepeat:       false,
 			}
+
 			steps = append(steps, group)
-			
+			stepOrder += len(groupSteps) + 1
+		} else if row.Amount > 1 {
+			step := createExecutableStep(row, stepType, strokeType, equipmentType, 1)
+
+			var groupSteps []WorkoutStep
+			groupSteps = append(groupSteps, step)
+
+			if breakSecs := row.BreakInSeconds(); breakSecs > 0 {
+				restStep := createRestStep(breakSecs, 2)
+				groupSteps = append(groupSteps, restStep)
+			}
+
+			fv := float64(row.Amount)
+			group := RepeatGroup{
+				Type:      "RepeatGroupDTO",
+				StepOrder: stepOrder,
+				StepType: &StepTypeModel{
+					StepTypeID:   StepTypeRepeat,
+					StepTypeKey:  "repeat",
+					DisplayOrder: 6,
+				},
+				NumberOfIterations: row.Amount,
+				WorkoutSteps:       groupSteps,
+				EndCondition: &EndConditionModel{
+					ConditionTypeID:  ConditionTypeIterations,
+					ConditionTypeKey: "iterations",
+					DisplayOrder:     7,
+					Displayable:      false,
+				},
+				EndConditionValue: &fv,
+				SmartRepeat:       false,
+			}
+
+			steps = append(steps, group)
 			stepOrder += len(groupSteps) + 1
 		} else {
-			activeStep.StepOrder = stepOrder
-			steps = append(steps, activeStep)
+			step := createExecutableStep(row, stepType, strokeType, equipmentType, stepOrder)
+			steps = append(steps, step)
 			stepOrder++
-			if restStep != nil {
-				restStep.StepOrder = stepOrder
-				steps = append(steps, *restStep)
+
+			if breakSecs := row.BreakInSeconds(); breakSecs > 0 {
+				restStep := createRestStep(breakSecs, stepOrder)
+				steps = append(steps, restStep)
 				stepOrder++
 			}
 		}
+
+		rowIdx++
 	}
 
 	segment := WorkoutSegment{
@@ -391,5 +617,11 @@ func ConvertTrainingPlanToSwimWorkout(p *models.Plan, poolLength int) *BaseWorko
 		WorkoutSteps: steps,
 	}
 
-	return NewSwimmingWorkout(p.Title, totalSecs, []WorkoutSegment{segment})
+	return &BaseWorkout{
+		WorkoutName:             p.Title,
+		SportType:               segment.SportType,
+		EstimatedDurationInSecs: totalSecs,
+		WorkoutSegments:         []WorkoutSegment{segment},
+		Author:                  make(map[string]any),
+	}
 }

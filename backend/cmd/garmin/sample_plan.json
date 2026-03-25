@@ -1,0 +1,44 @@
+{
+  "Title": "Technique Focus Workout",
+  "Description": "Focus on stroke technique with equipment drills",
+  "Table": [
+    {
+      "Amount": 1,
+      "Distance": 300,
+      "Content": "Einschwimmen",
+      "Intensity": "Warmup",
+      "Break": ""
+    },
+    {
+      "Amount": 8,
+      "Distance": 25,
+      "Content": "Sculling",
+      "Intensity": "Technique",
+      "Break": "20s",
+      "Equipment": ["Handpaddles"]
+    },
+    {
+      "Amount": 4,
+      "Distance": 100,
+      "Content": "Pull Set",
+      "Intensity": "Moderate",
+      "Break": "25s",
+      "Equipment": ["Pull buoy"]
+    },
+    {
+      "Amount": 6,
+      "Distance": 50,
+      "Content": "Kick",
+      "Intensity": "Hard",
+      "Break": "15s",
+      "Equipment": ["Kickboard"]
+    },
+    {
+      "Amount": 1,
+      "Distance": 200,
+      "Content": "Ausschwimmen",
+      "Intensity": "Cooldown",
+      "Break": ""
+    }
+  ]
+}
