@@ -70,8 +70,8 @@ docker-run() {
 
 docker-build-and-run() {
   local env_file=${1:-".env"}
-  docker build .
-  docker-run $(docker images --format "{{.ID}}" | head -n 1) 8080 $env_file
+  docker build --platform linux/arm64/v8 .
+  docker-run swim-gen-backend:latest 8080 $env_file
 }
 
 scrape() {
@@ -87,10 +87,10 @@ scrape() {
 }
 
 # Check if the provided argument matches any of the functions
-if [ -n "$1" ] && ! declare -f "$1" > /dev/null; then
+if [ -n "$1" ] && ! declare -f "$1" >/dev/null; then
   echo "Error: Unknown task '$1'"
   echo
-  help  # Show help if the task is not recognized
+  help # Show help if the task is not recognized
   exit 1
 fi
 
