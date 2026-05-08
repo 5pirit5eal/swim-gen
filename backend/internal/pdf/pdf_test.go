@@ -612,7 +612,7 @@ func TestSubRows(t *testing.T) {
 			Intensity:  "ReKom",
 			Sum:        400,
 		},
-		// Row with nested subrows (depth 2)
+		// Row with nested subrows (depth 1)
 		{
 			Amount:     3,
 			Multiplier: "x",
