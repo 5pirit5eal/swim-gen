@@ -42,8 +42,8 @@ const createSimplePlan = (): RAGResponse => ({
  * Fixture: Nested plan with depth 1 (parent + children).
  * Top-level: [Exercise-A (parent with SubRows), Exercise-B, Total]
  */
-const createNestedDepth2Plan = (): RAGResponse => ({
-  title: 'Nested Plan (Depth 2)',
+const createNestedDepth1Plan = (): RAGResponse => ({
+  title: 'Nested Plan (Depth 1)',
   description: 'Plan with nested rows at depth 1.',
   table: [
     {
