@@ -103,11 +103,11 @@ const createNestedDepth1Plan = (): RAGResponse => ({
 })
 
 /**
- * Fixture: Deep nesting (depth 1: top-level parent with children).
+ * Fixture: Deep nesting (depth 2: top-level parent with child that has grandchildren).
  */
-const createNestedDepth3Plan = (): RAGResponse => ({
-  title: 'Deep Nested Plan (Depth 3)',
-  description: 'Plan with nested rows at depth 1.',
+const createNestedDepth2Plan = (): RAGResponse => ({
+  title: 'Deep Nested Plan (Depth 2)',
+  description: 'Plan with nested rows at depth 2.',
   table: [
     {
       Amount: 1,
@@ -171,7 +171,7 @@ const createNestedDepth3Plan = (): RAGResponse => ({
       Content: 'Total',
       Intensity: '',
       Sum: 1000,
-      _id: 'total-depth3',
+      _id: 'total-depth2',
     },
   ],
 })
@@ -457,7 +457,7 @@ describe('TrainingPlanDisplay.vue', () => {
         },
       })
       const store = useTrainingPlanStore()
-      store.currentPlan = JSON.parse(JSON.stringify(createNestedDepth2Plan()))
+      store.currentPlan = JSON.parse(JSON.stringify(createNestedDepth1Plan()))
       await wrapper.vm.$nextTick()
 
       await wrapper.find('button[data-testid="plan-edit-btn"]').trigger('click')
@@ -602,7 +602,7 @@ describe('TrainingPlanDisplay.vue', () => {
         },
       })
       const store = useTrainingPlanStore()
-      store.currentPlan = createNestedDepth2Plan() // has Equipment: ['Flossen'] in child
+      store.currentPlan = createNestedDepth1Plan() // has Equipment: ['Flossen'] in child
       await wrapper.vm.$nextTick()
 
       const equipmentFooter = wrapper.find('[data-testid="plan-footer-equipment"]')
@@ -719,7 +719,7 @@ describe('TrainingPlanDisplay.vue', () => {
         },
       })
       const store = useTrainingPlanStore()
-      store.currentPlan = createNestedDepth2Plan()
+      store.currentPlan = createNestedDepth1Plan()
       await wrapper.vm.$nextTick()
 
       const planCards = wrapper.findAll('[data-testid="plan-card"]')
@@ -734,7 +734,7 @@ describe('TrainingPlanDisplay.vue', () => {
       expect(totalCard.length).toBe(0)
     })
 
-    it('renders nested depth-1 plan with proper hierarchy', async () => {
+    it('renders nested depth-2 plan with proper hierarchy', async () => {
       const wrapper = mount(TrainingPlanDisplay, {
         global: {
           plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
@@ -744,7 +744,7 @@ describe('TrainingPlanDisplay.vue', () => {
         },
       })
       const store = useTrainingPlanStore()
-      store.currentPlan = createNestedDepth3Plan()
+      store.currentPlan = createNestedDepth2Plan()
       await wrapper.vm.$nextTick()
 
       const planCards = wrapper.findAll('[data-testid="plan-card"]')
@@ -792,7 +792,7 @@ describe('TrainingPlanDisplay.vue', () => {
         },
       })
       const store = useTrainingPlanStore()
-      store.currentPlan = createNestedDepth2Plan()
+      store.currentPlan = createNestedDepth1Plan()
       await wrapper.vm.$nextTick()
 
       const nestedCards = wrapper.findAll('[data-testid="plan-card-nested"]')
