@@ -97,25 +97,14 @@ function subRowPath(subIndex: number): number[] {
 </script>
 
 <template>
-  <div
-    class="plan-row-card"
-    :class="[`plan-row-card--depth-${depth}`, { 'plan-row-card--parent': hasSubRows }]"
-    :data-testid="depth === 0 ? 'plan-card' : 'plan-card-nested'"
-  >
+  <div class="plan-row-card" :class="[`plan-row-card--depth-${depth}`, { 'plan-row-card--parent': hasSubRows }]"
+    :data-testid="depth === 0 ? 'plan-card' : 'plan-card-nested'">
     <!-- ── Content body ─────────────────────────────────────────────────── -->
-    <div>
-      <textarea
-        v-if="isEditing"
-        :value="row.Content"
-        @blur="handleFieldBlur($event, 'Content')"
-        @keyup.enter.prevent="handleFieldBlur($event, 'Content')"
-        class="plan-row-card__textarea"
-        rows="2"
-        :aria-label="t('display.content')"
-      ></textarea>
-      <div v-else class="plan-row-card__content-view">
-        <ContentWithDrillLinks :content="row.Content" />
-      </div>
+    <textarea v-if="isEditing" :value="row.Content" @blur="handleFieldBlur($event, 'Content')"
+      @keyup.enter.prevent="handleFieldBlur($event, 'Content')" class="plan-row-card__textarea" rows="2"
+      :aria-label="t('display.content')"></textarea>
+    <div v-else class="plan-row-card__content-view">
+      <ContentWithDrillLinks :content="row.Content" />
     </div>
 
     <!-- ── Card header: metrics + actions ──────────────────────────────── -->
@@ -125,106 +114,61 @@ function subRowPath(subIndex: number): number[] {
         <!-- Amount -->
         <div class="plan-row-card__metric">
           <span class="plan-row-card__metric-label">{{ t('display.amount') }}</span>
-          <input
-            v-if="isEditing"
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            :value="row.Amount"
-            @blur="handleFieldBlur($event, 'Amount')"
-            @keyup.enter="handleFieldBlur($event, 'Amount')"
-            class="plan-row-card__input plan-row-card__input--small"
-            :aria-label="t('display.amount')"
-          />
+          <input v-if="isEditing" type="text" inputmode="numeric" pattern="[0-9]*" :value="row.Amount"
+            @blur="handleFieldBlur($event, 'Amount')" @keyup.enter="handleFieldBlur($event, 'Amount')"
+            class="plan-row-card__input plan-row-card__input--small" :aria-label="t('display.amount')" />
           <span v-else class="plan-row-card__metric-value">{{ row.Amount }}</span>
         </div>
 
         <!-- Multiplier placeholder to preserve flex layout without visual redundancy -->
         <div class="plan-row-card__metric">
-          <span
-            class="plan-row-card__metric-label plan-row-card__metric--placeholder"
-            aria-hidden="true"
-            >{{ t('display.multiplier') }}</span
-          >
+          <span class="plan-row-card__metric-label plan-row-card__metric--placeholder" aria-hidden="true">{{
+            t('display.multiplier') }}</span>
           <span class="plan-row-card__metric-value">{{ row.Multiplier }}</span>
         </div>
 
         <!-- Distance -->
         <div class="plan-row-card__metric">
           <span class="plan-row-card__metric-label">{{ t('display.distance') }}</span>
-          <input
-            v-if="isEditing && isDistanceEditable"
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            :value="row.Distance"
-            @blur="handleFieldBlur($event, 'Distance')"
-            @keyup.enter="handleFieldBlur($event, 'Distance')"
-            class="plan-row-card__input plan-row-card__input--small"
-            :aria-label="t('display.distance')"
-          />
+          <input v-if="isEditing && isDistanceEditable" type="text" inputmode="numeric" pattern="[0-9]*"
+            :value="row.Distance" @blur="handleFieldBlur($event, 'Distance')"
+            @keyup.enter="handleFieldBlur($event, 'Distance')" class="plan-row-card__input plan-row-card__input--small"
+            :aria-label="t('display.distance')" />
           <span v-else class="plan-row-card__metric-value">{{ row.Distance }}</span>
         </div>
 
         <!-- Break -->
         <div class="plan-row-card__metric">
           <span class="plan-row-card__metric-label">{{ t('display.break') }}</span>
-          <input
-            v-if="isEditing"
-            type="text"
-            :value="row.Break"
-            @blur="handleFieldBlur($event, 'Break')"
-            @keyup.enter="handleFieldBlur($event, 'Break')"
-            class="plan-row-card__input plan-row-card__input--small"
-            :aria-label="t('display.break')"
-          />
+          <input v-if="isEditing" type="text" :value="row.Break" @blur="handleFieldBlur($event, 'Break')"
+            @keyup.enter="handleFieldBlur($event, 'Break')" class="plan-row-card__input plan-row-card__input--small"
+            :aria-label="t('display.break')" />
           <span v-else class="plan-row-card__metric-value">{{ row.Break }}</span>
         </div>
 
         <!-- Intensity -->
         <div class="plan-row-card__metric">
           <span class="plan-row-card__metric-label">{{ t('display.intensity') }}</span>
-          <input
-            v-if="isEditing"
-            type="text"
-            :value="row.Intensity"
-            @blur="handleFieldBlur($event, 'Intensity')"
-            @keyup.enter="handleFieldBlur($event, 'Intensity')"
-            class="plan-row-card__input plan-row-card__input--small"
-            :aria-label="t('display.intensity')"
-          />
+          <input v-if="isEditing" type="text" :value="row.Intensity" @blur="handleFieldBlur($event, 'Intensity')"
+            @keyup.enter="handleFieldBlur($event, 'Intensity')" class="plan-row-card__input plan-row-card__input--small"
+            :aria-label="t('display.intensity')" />
           <span v-else class="plan-row-card__metric-value plan-row-card__metric-value--intensity">{{
             row.Intensity
-          }}</span>
+            }}</span>
         </div>
 
         <!-- Equipment badges — inline with metrics on wide screens, wraps below on narrow -->
-        <div
-          v-if="shouldShowEquipmentMetric"
-          data-testid="equipment-metric"
-          class="plan-row-card__metric plan-row-card__metric--equipment"
-        >
+        <div v-if="shouldShowEquipmentMetric" data-testid="equipment-metric"
+          class="plan-row-card__metric plan-row-card__metric--equipment">
           <span class="plan-row-card__metric-label">{{ t('display.equipment') }}</span>
-          <Multiselect
-            v-if="isEditing"
-            v-model="selectedEquipmentOptions"
-            :options="equipmentOptions"
-            :multiple="true"
-            :close-on-select="false"
-            :clear-on-select="false"
-            :preserve-search="true"
-            :show-labels="false"
-            :placeholder="t('display.equipment')"
-            label="label"
-            track-by="value"
-            class="plan-row-card__multiselect"
-            data-testid="equipment-multiselect"
-            :aria-label="t('display.equipment')"
-          />
+          <Multiselect v-if="isEditing" v-model="selectedEquipmentOptions" :options="equipmentOptions" :multiple="true"
+            :close-on-select="false" :clear-on-select="false" :preserve-search="true" :show-labels="false"
+            :placeholder="t('display.equipment')" label="label" track-by="value" class="plan-row-card__multiselect"
+            data-testid="equipment-multiselect" :aria-label="t('display.equipment')" :max-height="160" />
           <span v-else class="plan-row-card__equipment-badges">
             <span v-for="eq in row.Equipment" :key="eq" class="plan-row-card__equipment-badge">{{
               getEquipmentLabel(eq)
-            }}</span>
+              }}</span>
           </span>
         </div>
 
@@ -233,75 +177,33 @@ function subRowPath(subIndex: number): number[] {
           <span class="plan-row-card__metric-label">{{ t('display.sum') }}</span>
           <span class="plan-row-card__metric-value plan-row-card__metric-value--sum">{{
             row.Sum
-          }}</span>
+            }}</span>
         </div>
       </div>
 
       <!-- Edit-mode inline action controls (NOT hover-only) -->
-      <div
-        v-if="isEditing"
-        class="plan-row-card__actions"
-        role="toolbar"
-        :aria-label="t('display.row_actions')"
-      >
-        <button
-          class="plan-row-card__action-btn plan-row-card__action-btn--move-up"
-          :disabled="isFirst"
-          @click.stop="handleMoveRow('up')"
-          :title="t('display.move_row_up')"
-          :aria-label="t('display.move_row_up')"
-        >
+      <div v-if="isEditing" class="plan-row-card__actions" role="toolbar" :aria-label="t('display.row_actions')">
+        <button class="plan-row-card__action-btn plan-row-card__action-btn--move-up" :disabled="isFirst"
+          @click.stop="handleMoveRow('up')" :title="t('display.move_row_up')" :aria-label="t('display.move_row_up')">
           <!-- Up arrow pseudo-element via CSS; inner text for a11y -->
-          <span
-            aria-hidden="true"
-            class="plan-row-card__action-icon plan-row-card__action-icon--up"
-          ></span>
+          <span aria-hidden="true" class="plan-row-card__action-icon plan-row-card__action-icon--up"></span>
         </button>
-        <button
-          class="plan-row-card__action-btn plan-row-card__action-btn--move-down"
-          :disabled="isLast"
-          @click.stop="handleMoveRow('down')"
-          :title="t('display.move_row_down')"
-          :aria-label="t('display.move_row_down')"
-        >
-          <span
-            aria-hidden="true"
-            class="plan-row-card__action-icon plan-row-card__action-icon--down"
-          ></span>
+        <button class="plan-row-card__action-btn plan-row-card__action-btn--move-down" :disabled="isLast"
+          @click.stop="handleMoveRow('down')" :title="t('display.move_row_down')"
+          :aria-label="t('display.move_row_down')">
+          <span aria-hidden="true" class="plan-row-card__action-icon plan-row-card__action-icon--down"></span>
         </button>
-        <button
-          class="plan-row-card__action-btn plan-row-card__action-btn--add"
-          @click.stop="handleAddRow"
-          :title="t('display.add_row')"
-          :aria-label="t('display.add_row')"
-        >
-          <span
-            aria-hidden="true"
-            class="plan-row-card__action-icon plan-row-card__action-icon--add"
-          ></span>
+        <button class="plan-row-card__action-btn plan-row-card__action-btn--add" @click.stop="handleAddRow"
+          :title="t('display.add_row')" :aria-label="t('display.add_row')">
+          <span aria-hidden="true" class="plan-row-card__action-icon plan-row-card__action-icon--add"></span>
         </button>
-        <button
-          class="plan-row-card__action-btn plan-row-card__action-btn--remove"
-          @click.stop="handleRemoveRow"
-          :title="t('display.remove_row')"
-          :aria-label="t('display.remove_row')"
-        >
-          <span
-            aria-hidden="true"
-            class="plan-row-card__action-icon plan-row-card__action-icon--remove"
-          ></span>
+        <button class="plan-row-card__action-btn plan-row-card__action-btn--remove" @click.stop="handleRemoveRow"
+          :title="t('display.remove_row')" :aria-label="t('display.remove_row')">
+          <span aria-hidden="true" class="plan-row-card__action-icon plan-row-card__action-icon--remove"></span>
         </button>
-        <button
-          v-if="canAddSubRow"
-          class="plan-row-card__action-btn plan-row-card__action-btn--add-subrow"
-          @click.stop="handleAddSubRow"
-          :title="t('display.add_subrow')"
-          :aria-label="t('display.add_subrow')"
-        >
-          <span
-            aria-hidden="true"
-            class="plan-row-card__action-icon plan-row-card__action-icon--subrow"
-          ></span>
+        <button v-if="canAddSubRow" class="plan-row-card__action-btn plan-row-card__action-btn--add-subrow"
+          @click.stop="handleAddSubRow" :title="t('display.add_subrow')" :aria-label="t('display.add_subrow')">
+          <span aria-hidden="true" class="plan-row-card__action-icon plan-row-card__action-icon--subrow"></span>
         </button>
       </div>
     </div>
@@ -310,17 +212,9 @@ function subRowPath(subIndex: number): number[] {
     <Transition name="subrows-expand">
       <div v-show="hasSubRows" class="plan-row-card__subrows">
         <TransitionGroup name="list">
-          <PlanRowCard
-            v-for="(subRow, subIndex) in row.SubRows"
-            :key="subRow._id || subIndex"
-            :row="subRow"
-            :path="subRowPath(subIndex)"
-            :depth="depth + 1"
-            :is-editing="isEditing"
-            :store="store"
-            :is-first="subIndex === 0"
-            :is-last="subIndex === (row.SubRows?.length ?? 1) - 1"
-          />
+          <PlanRowCard v-for="(subRow, subIndex) in row.SubRows" :key="subRow._id || subIndex" :row="subRow"
+            :path="subRowPath(subIndex)" :depth="depth + 1" :is-editing="isEditing" :store="store"
+            :is-first="subIndex === 0" :is-last="subIndex === (row.SubRows?.length ?? 1) - 1" />
         </TransitionGroup>
       </div>
     </Transition>
@@ -353,7 +247,7 @@ export default {
   background: var(--color-background-mute);
 }
 
-/* Depth-specific tinting/indentation — gradient of prominence depth 0→4 */
+/* Depth-specific tinting/indentation — depth 0→1 */
 
 /* Depth 0: top-level, most prominent — strong primary accent */
 .plan-row-card--depth-0 {
@@ -370,31 +264,6 @@ export default {
   font-size: 0.93rem;
 }
 
-/* Depth 2: second-level nesting — muted border, more indent */
-.plan-row-card--depth-2 {
-  border-left: 2px solid var(--color-border-hover);
-  margin-left: 0.5rem;
-  background: var(--color-background-mute);
-  font-size: 0.875rem;
-}
-
-/* Depth 3: very nested — subtle border */
-.plan-row-card--depth-3 {
-  border-left: 2px solid var(--color-border);
-  margin-left: 0.35rem;
-  background: var(--color-background-soft);
-  font-size: 0.82rem;
-}
-
-/* Depth 4: maximum depth — minimal, near-invisible border */
-.plan-row-card--depth-4 {
-  border-left: 1px solid var(--color-border);
-  margin-left: 0.25rem;
-  background: var(--color-background-mute);
-  font-size: 0.78rem;
-  opacity: 0.88;
-}
-
 /* ── Data row ─────────────────────────────────────────────────────────────── */
 
 .plan-row-card__data {
@@ -402,6 +271,7 @@ export default {
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
+  margin-top: 0.25rem;
 }
 
 /* ── Metrics ────────────────────────────────────────────────────────────────── */
@@ -467,7 +337,7 @@ export default {
   font-family: inherit;
   font-size: inherit;
   box-sizing: border-box;
-  padding: 0.15rem 0.25rem;
+  padding: 0.25rem 0.25rem;
 }
 
 .plan-row-card__input--small {
@@ -477,7 +347,6 @@ export default {
 
 .plan-row-card__multiselect {
   min-width: 14rem;
-  width: 100%;
   max-width: 18rem;
   font-size: 0.9rem;
 }
@@ -494,8 +363,12 @@ export default {
   color: var(--color-text);
   font-family: inherit;
   font-size: inherit;
-  box-sizing: border-box;
-  min-height: 2.25rem;
+  min-height: 1.8rem;
+  padding: 0.15rem 2rem 0 0.25rem;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__tags-wrap) {
+  display: block;
 }
 
 .plan-row-card__multiselect:deep(.multiselect__content-wrapper) {
@@ -507,14 +380,30 @@ export default {
 .plan-row-card__multiselect:deep(.multiselect__single) {
   background: var(--color-background);
   color: var(--color-text);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   margin-bottom: 0;
+  padding: 0;
+  min-height: 1.2rem;
+  line-height: 1.2rem;
+  border: none;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__input::placeholder) {
+  color: var(--color-heading);
+  opacity: 0.6;
 }
 
 .plan-row-card__multiselect:deep(.multiselect__placeholder) {
   color: var(--color-heading);
   opacity: 0.6;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
+  margin-bottom: 0;
+  padding-top: 0;
+  line-height: 1.2rem;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__select) {
+  height: 1.8rem;
 }
 
 .plan-row-card__multiselect:deep(.multiselect__tag) {
@@ -522,7 +411,20 @@ export default {
   color: white;
   border-radius: 4px;
   font-size: 0.85rem;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0rem;
+  margin-top: 0.1rem;
+  margin-right: 0.25rem;
+  padding: 0.15rem 1.4rem 0.15rem 0.4rem;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__option) {
+  padding: 0.4rem 0.5rem;
+  min-height: auto;
+  font-size: 0.85rem;
+}
+
+.plan-row-card__multiselect:deep(.multiselect__tag-icon) {
+  line-height: 16px;
 }
 
 .plan-row-card__multiselect:deep(.multiselect__tag-icon::after) {
@@ -774,6 +676,7 @@ export default {
 }
 
 /* List Transitions for nested cards */
+.list-move,
 .list-enter-active,
 .list-leave-active {
   transition: all 0.4s ease;
@@ -819,24 +722,24 @@ export default {
     margin-left: 0.5rem;
   }
 
-  .plan-row-card--depth-2 {
-    margin-left: 0.35rem;
-  }
-
-  .plan-row-card--depth-3 {
-    margin-left: 0.25rem;
-  }
-
-  .plan-row-card--depth-4 {
-    margin-left: 0.15rem;
-  }
-
   .plan-row-card__metrics {
     gap: 0.4rem;
+    flex: 1 1 100%;
   }
 
   .plan-row-card__metric {
     min-width: 2rem;
+  }
+
+  .plan-row-card__metric--equipment {
+    flex: 1 1 auto;
+    min-width: 8rem;
+    max-width: 14rem;
+  }
+
+  .plan-row-card__metric--sum {
+    margin-left: auto;
+    text-align: right;
   }
 
   .plan-row-card__metric-label {
@@ -853,8 +756,9 @@ export default {
   }
 
   .plan-row-card__multiselect {
-    min-width: 100%;
-    max-width: none;
+    min-width: auto;
+    width: 100%;
+    max-width: 100%;
   }
 
   /* Ensure touch-friendly button targets (min 44px) */
@@ -866,7 +770,10 @@ export default {
   }
 
   .plan-row-card__actions {
-    gap: 0.15rem;
+    gap: 0.25rem;
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 0.25rem;
   }
 
   .plan-row-card__subrows {
@@ -887,13 +794,6 @@ export default {
     order: 99;
     flex-basis: 100%;
     margin-top: 0.2rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .plan-row-card__data {
-    flex-direction: column;
-    align-items: stretch;
   }
 }
 </style>
