@@ -70,7 +70,7 @@ docker-run() {
 
 docker-build-and-run() {
   local env_file=${1:-".env"}
-  docker build --platform linux/arm64/v8 .
+  docker build --platform linux/arm64/v8 -t swim-gen-backend:latest .
   docker-run swim-gen-backend:latest 8080 $env_file
 }
 
