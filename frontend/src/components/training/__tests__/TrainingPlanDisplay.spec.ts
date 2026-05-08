@@ -39,12 +39,12 @@ const createSimplePlan = (): RAGResponse => ({
 })
 
 /**
- * Fixture: Nested plan with depth 2 (parent + 2 children).
+ * Fixture: Nested plan with depth 1 (parent + children).
  * Top-level: [Exercise-A (parent with SubRows), Exercise-B, Total]
  */
 const createNestedDepth2Plan = (): RAGResponse => ({
   title: 'Nested Plan (Depth 2)',
-  description: 'Plan with nested rows at depth 2.',
+  description: 'Plan with nested rows at depth 1.',
   table: [
     {
       Amount: 3,
@@ -103,11 +103,11 @@ const createNestedDepth2Plan = (): RAGResponse => ({
 })
 
 /**
- * Fixture: Deep nesting (depth 3: top-level parent with child that has grandchildren).
+ * Fixture: Deep nesting (depth 1: top-level parent with children).
  */
 const createNestedDepth3Plan = (): RAGResponse => ({
   title: 'Deep Nested Plan (Depth 3)',
-  description: 'Plan with nested rows at depth 3.',
+  description: 'Plan with nested rows at depth 1.',
   table: [
     {
       Amount: 1,
@@ -709,7 +709,7 @@ describe('TrainingPlanDisplay.vue', () => {
       expect(planCards[0]?.text()).not.toContain('Total')
     })
 
-    it('renders nested depth-2 plan with parent and sibling cards', async () => {
+    it('renders nested depth-1 plan with parent and sibling cards', async () => {
       const wrapper = mount(TrainingPlanDisplay, {
         global: {
           plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
@@ -734,7 +734,7 @@ describe('TrainingPlanDisplay.vue', () => {
       expect(totalCard.length).toBe(0)
     })
 
-    it('renders nested depth-3 plan with proper hierarchy', async () => {
+    it('renders nested depth-1 plan with proper hierarchy', async () => {
       const wrapper = mount(TrainingPlanDisplay, {
         global: {
           plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
