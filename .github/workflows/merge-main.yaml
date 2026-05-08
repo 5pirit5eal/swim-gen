@@ -34,7 +34,7 @@ jobs:
       next_version: ${{ steps.semantic.outputs.new_release_version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Required for semantic-release to analyze the full commit history
       - name: Get next version
@@ -95,7 +95,7 @@ jobs:
       - opentofu-services
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Semantic Release

@@ -44,7 +44,7 @@ jobs:
     environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     steps:
       - name: ⬇️ Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.checkout_repo }}
           ref: ${{ inputs.checkout_ref }}
@@ -59,7 +59,7 @@ jobs:
           env-file: frontend/.env.development
 
       - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24.x
 
@@ -74,7 +74,7 @@ jobs:
 
       - name: 🔄 Auto-commit formatting
         if: github.event_name == 'pull_request'
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore(fmt): apply prettier formatting"
           file_pattern: frontend/**

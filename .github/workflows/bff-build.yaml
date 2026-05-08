@@ -1,4 +1,3 @@
-
 name: 📦 Build BFF and Push to Google Cloud
 
 on:
@@ -31,7 +30,7 @@ on:
 
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: write  # This is required for actions/checkout
+  contents: write # This is required for actions/checkout
 
 concurrency:
   group: bff-build-${{ github.workflow }}-${{ github.ref }}
@@ -53,7 +52,7 @@ jobs:
     environment: ${{ inputs.env }}
     steps:
       - name: ⬇️ Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.checkout_repo }}
           ref: ${{ inputs.checkout_ref }}
