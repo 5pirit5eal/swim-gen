@@ -1,7 +1,7 @@
 import type { Row } from '@/types'
 
 /** Matches backend validateRowDepth max depth (plan.go). */
-export const MAX_NESTING_DEPTH = 4
+export const MAX_NESTING_DEPTH = 1
 
 /** Matches backend EquipmentType constants (metadata.go). */
 export const EQUIPMENT_TYPES = [
