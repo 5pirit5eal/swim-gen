@@ -258,7 +258,7 @@ func TestValidate_MaxDepth(t *testing.T) {
 		},
 	}
 	err := table.Validate()
-	assert.Error(t, err, "Table exceeding max depth (5) should fail validation")
+	assert.Error(t, err, "Table exceeding max depth (2) should fail validation")
 }
 
 func TestValidate_ValidMaxDepth(t *testing.T) {
@@ -268,33 +268,12 @@ func TestValidate_ValidMaxDepth(t *testing.T) {
 			Multiplier: "x",
 			Distance:   0,
 			SubRows: []models.Row{
-				{
-					Amount:     2,
-					Multiplier: "x",
-					Distance:   0,
-					SubRows: []models.Row{
-						{
-							Amount:     2,
-							Multiplier: "x",
-							Distance:   0,
-							SubRows: []models.Row{
-								{
-									Amount:     2,
-									Multiplier: "x",
-									Distance:   0,
-									SubRows: []models.Row{
-										{Amount: 1, Distance: 100, Content: "Test", Intensity: "GA1"},
-									},
-								},
-							},
-						},
-					},
-				},
+				{Amount: 1, Distance: 100, Content: "Test", Intensity: "GA1"},
 			},
 		},
 	}
 	err := table.Validate()
-	assert.NoError(t, err, "Valid table at max depth (4) should pass validation")
+	assert.NoError(t, err, "Valid table at max depth (1) should pass validation")
 }
 
 func TestFlattenTable(t *testing.T) {

@@ -411,8 +411,8 @@ func (t *Table) Validate() error {
 }
 
 func (t *Table) validateRowDepth(depth int) error {
-	if depth > 4 {
-		return fmt.Errorf("maximum nesting depth (4) exceeded")
+	if depth > 1 {
+		return fmt.Errorf("maximum nesting depth (1) exceeded")
 	}
 
 	for i, row := range *t {
