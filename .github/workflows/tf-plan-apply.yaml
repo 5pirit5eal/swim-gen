@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - name: ⬇️ Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.checkout_repo }}
           ref: ${{ inputs.checkout_ref }}
@@ -91,7 +91,7 @@ jobs:
           WIF_SA: ${{ vars.WIF_SA }}
 
       - name: 🧩 Install OpenTofu
-        uses: opentofu/setup-opentofu@v1
+        uses: opentofu/setup-opentofu@v2
         with:
           tofu_wrapper: false
 

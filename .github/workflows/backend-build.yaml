@@ -52,7 +52,7 @@ jobs:
     environment: ${{ inputs.env }}
     steps:
       - name: ⬇️ Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.checkout_repo }}
           ref: ${{ inputs.checkout_ref }}

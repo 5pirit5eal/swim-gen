@@ -44,7 +44,7 @@ jobs:
     environment: ${{ (github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch') && inputs.env || (github.ref_name == 'main' && 'prod' || 'dev') }}
     steps:
       - name: ⬇️ Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.checkout_repo }}
           ref: ${{ inputs.checkout_ref }}
@@ -75,7 +75,7 @@ jobs:
 
       - name: 🔄 Auto-commit formatting
         if: github.event_name == 'pull_request'
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore(fmt): apply go fmt"
           file_pattern: backend/**
@@ -90,13 +90,13 @@ jobs:
 
       - name: 🔄 Auto-commit formatting
         if: github.event_name == 'pull_request'
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore(docs): update swagger docs"
           file_pattern: backend/**
 
       - name: 🔎 Lint Code
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
           install-mode: goinstall
           working-directory: backend
