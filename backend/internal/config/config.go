@@ -91,7 +91,7 @@ func setField(field reflect.Value, val string) error {
 // set populates the struct fields with values from environment variables or default values.
 // It uses the struct field tags to determine which environment variable to use.
 func set(ptr any, envTag string, defaultTag string, overwrite bool) error {
-	if reflect.TypeOf(ptr).Kind() != reflect.Ptr {
+	if reflect.TypeOf(ptr).Kind() != reflect.Pointer {
 		return fmt.Errorf("not a pointer")
 	}
 
