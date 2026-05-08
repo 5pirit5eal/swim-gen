@@ -346,9 +346,10 @@ export default {
 }
 
 .plan-row-card__multiselect {
-  min-width: 14rem;
+  min-width: 10rem;
   max-width: 18rem;
   font-size: 0.9rem;
+  min-height: unset;
 }
 
 .plan-row-card__input:focus {
@@ -363,12 +364,9 @@ export default {
   color: var(--color-text);
   font-family: inherit;
   font-size: inherit;
+  box-sizing: border-box;
   min-height: 1.8rem;
-  padding: 0.15rem 2rem 0 0.25rem;
-}
-
-.plan-row-card__multiselect:deep(.multiselect__tags-wrap) {
-  display: block;
+  padding: 0.1rem 2rem 0 0.25rem;
 }
 
 .plan-row-card__multiselect:deep(.multiselect__content-wrapper) {
@@ -378,14 +376,15 @@ export default {
 
 .plan-row-card__multiselect:deep(.multiselect__input),
 .plan-row-card__multiselect:deep(.multiselect__single) {
-  background: var(--color-background);
+  background: transparent;
   color: var(--color-text);
   font-size: 0.85rem;
-  margin-bottom: 0;
+  margin: 0 0 0.15rem 0;
   padding: 0;
-  min-height: 1.2rem;
-  line-height: 1.2rem;
+  min-height: 1.5rem;
+  line-height: 1.5rem;
   border: none;
+  display: inherit;
 }
 
 .plan-row-card__multiselect:deep(.multiselect__input::placeholder) {
@@ -397,13 +396,14 @@ export default {
   color: var(--color-heading);
   opacity: 0.6;
   font-size: 0.85rem;
-  margin-bottom: 0;
-  padding-top: 0;
-  line-height: 1.2rem;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5rem;
 }
 
 .plan-row-card__multiselect:deep(.multiselect__select) {
   height: 1.8rem;
+  padding: 0.5rem;
 }
 
 .plan-row-card__multiselect:deep(.multiselect__tag) {
@@ -411,19 +411,16 @@ export default {
   color: white;
   border-radius: 4px;
   font-size: 0.85rem;
-  margin-bottom: 0rem;
-  margin-top: 0.1rem;
-  margin-right: 0.25rem;
-  padding: 0.15rem 1.4rem 0.15rem 0.4rem;
-}
-
-.plan-row-card__multiselect:deep(.multiselect__option) {
-  padding: 0.4rem 0.5rem;
-  min-height: auto;
-  font-size: 0.85rem;
+  margin: 0.2rem 0.15rem 0.2rem 0.1rem;
+  padding: 0 1.4rem 0 0.4rem;
+  line-height: 16px;
+  height: 1.1rem;
+  vertical-align: top;
+  display: inline-block;
 }
 
 .plan-row-card__multiselect:deep(.multiselect__tag-icon) {
+  width: 20px;
   line-height: 16px;
 }
 
@@ -434,6 +431,12 @@ export default {
 .plan-row-card__multiselect:deep(.multiselect__tag-icon:hover) {
   background: var(--color-primary-hover, color-mix(in srgb, var(--color-primary) 80%, black));
 }
+
+.plan-row-card__multiselect:deep(.multiselect__option) {
+  padding: 0.75rem;
+  font-size: 0.85rem;
+}
+
 
 .plan-row-card__multiselect:deep(.multiselect__option--highlight) {
   background: var(--color-primary);
