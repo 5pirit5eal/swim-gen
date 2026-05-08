@@ -1,3 +1,13 @@
+## [2.37.1](https://github.com/5pirit5eal/swim-gen/compare/v2.37.0...v2.37.1) (2026-05-08)
+
+### Bug Fixes
+
+* added better formatting of multiselect ([37d202a](https://github.com/5pirit5eal/swim-gen/commit/37d202a5bc422f2ddc7c1b43849c6ff9f104f1ad))
+* align test fixture names and descriptions with actual nesting depth ([e115b86](https://github.com/5pirit5eal/swim-gen/commit/e115b8620b4cb6a21b7e028a1cc96db570e8810f))
+* **backend:** set explicit Docker build platform for Apple Silicon ([369d6e4](https://github.com/5pirit5eal/swim-gen/commit/369d6e4ddf448f9978f208673d8814e511126bcf))
+* **backend:** use reflect.Pointer instead of deprecated reflect.Ptr ([e92ef1c](https://github.com/5pirit5eal/swim-gen/commit/e92ef1cba7683af438b48b04ebe8cee240fee37b))
+* tag image explicitly ([07a41fb](https://github.com/5pirit5eal/swim-gen/commit/07a41fbc50f1ae38b283c316a9dc604b9e5b0d46))
+
 ## [2.37.0](https://github.com/5pirit5eal/swim-gen/compare/v2.36.0...v2.37.0) (2026-03-23)
 
 ### Features
