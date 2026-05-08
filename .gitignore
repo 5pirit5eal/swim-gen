@@ -40,6 +40,7 @@ third-party/*
 # misc
 .DS_Store
 .sisyphus
+.playwright-mcp
 
 # credentials
 gha-creds-*.json
