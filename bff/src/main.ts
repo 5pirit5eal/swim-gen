@@ -1,8 +1,12 @@
+// OTel must be imported before any other module to enable auto-instrumentation
+import "./tracing";
+
 import express from "express";
 import dotenv from "dotenv";
 import axios from "axios";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
+import { trace, context as otelContext } from "@opentelemetry/api";
 import { MemoryStore } from "./memory-store";
 import * as authModule from "./auth";
 import { logger } from "./logger";
@@ -48,6 +52,56 @@ export const apiLimiter = rateLimit({
 
 // Apply the rate limiting middleware to API calls only
 app.use("/api", apiLimiter);
+
+// Request logging middleware — logs structured JSON for Cloud Logging with traceId and userId
+app.use((req, res, next) => {
+  const start = Date.now();
+
+  res.on("finish", () => {
+    // Skip health checks
+    if (req.path === "/health") return;
+
+    // Extract traceId from OTel span context
+    const span = trace.getSpan(otelContext.active());
+    const traceId = span?.spanContext().traceId;
+
+    // Extract userId from Supabase JWT (base64 decode, no validation — backend validates)
+    let userId: string | undefined;
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith("Bearer ")) {
+      try {
+        const payload = authHeader.split(".")[1];
+        if (payload) {
+          const decoded = JSON.parse(Buffer.from(payload, "base64url").toString());
+          userId = decoded.sub;
+        }
+      } catch {
+        // JWT decode failed — not critical for logging
+      }
+    }
+
+    logger.structured({
+      severity: res.statusCode >= 500 ? "ERROR" : res.statusCode >= 400 ? "WARNING" : "INFO",
+      message: `${req.method} ${req.originalUrl} ${res.statusCode}`,
+      "logging.googleapis.com/trace":
+        traceId && process.env.GOOGLE_CLOUD_PROJECT
+          ? `projects/${process.env.GOOGLE_CLOUD_PROJECT}/traces/${traceId}`
+          : undefined,
+      traceId,
+      user_id: userId,
+      httpRequest: {
+        method: req.method,
+        path: req.originalUrl,
+      },
+      httpResponse: {
+        status: res.statusCode,
+        elapsed: Date.now() - start,
+      },
+    });
+  });
+
+  next();
+});
 
 // Generic proxy handler for all API requests
 async function proxyRequest(req: express.Request, res: express.Response) {

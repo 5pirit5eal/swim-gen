@@ -18,9 +18,11 @@ import (
 	"github.com/go-chi/httplog/v2"
 	"github.com/go-chi/render"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/5pirit5eal/swim-gen/internal/config"
 	"github.com/5pirit5eal/swim-gen/internal/server"
+	"github.com/5pirit5eal/swim-gen/internal/telemetry"
 )
 
 // Package main provides the swim-gen API server
@@ -68,12 +70,27 @@ func main() {
 	}
 	defer ragServer.Close()
 
+	// Initialize OpenTelemetry tracing
+	shutdownTracer, err := telemetry.Init(ctx)
+	if err != nil {
+		logger.Warn("Failed to initialize OTel tracing, continuing without tracing", httplog.ErrAttr(err))
+	} else {
+		defer func() {
+			if err := shutdownTracer(ctx); err != nil {
+				logger.Error("Failed to shut down OTel tracer", httplog.ErrAttr(err))
+			}
+		}()
+	}
+
 	router := setupRouter("/", ragServer, cfg, logger)
 
 	port := cmp.Or(cfg.Port, "8080")
 	address := "0.0.0.0:" + port
 	logger.Info("Starting server", "listening on", address)
-	if err := http.ListenAndServe(address, router); err != nil {
+
+	// Wrap the router with OTel HTTP instrumentation for automatic span creation
+	handler := otelhttp.NewHandler(router, "swim-gen-backend")
+	if err := http.ListenAndServe(address, handler); err != nil {
 		logger.Error("Server stopped with error", httplog.ErrAttr(err))
 		log.Fatal(err)
 	}
@@ -128,12 +145,30 @@ func basicHealthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// traceIDMiddleware extracts the OTel trace ID from the span context and injects
+// it into the httplog structured log entry, enabling correlation between
+// application logs and Cloud Trace spans.
+func traceIDMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if traceID := telemetry.TraceIDFromContext(r.Context()); traceID != "" {
+			httplog.LogEntrySetField(r.Context(), "traceId", slog.StringValue(traceID))
+			// Also set the Cloud Logging trace field for automatic trace correlation
+			if project := os.Getenv("GOOGLE_CLOUD_PROJECT"); project != "" {
+				httplog.LogEntrySetField(r.Context(), "logging.googleapis.com/trace",
+					slog.StringValue(fmt.Sprintf("projects/%s/traces/%s", project, traceID)))
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // Setup of routes for the RAG service
 func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Config, logger *httplog.Logger) chi.Router {
 
 	// Service
 	r := chi.NewRouter()
 	r.Use(httplog.RequestLogger(logger, []string{"/health"}))
+	r.Use(traceIDMiddleware) // inject traceId into structured logs
 	r.Use(middleware.Heartbeat("/health"))
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
