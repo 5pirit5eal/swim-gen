@@ -135,6 +135,8 @@ tofu apply -target google_cloud_run_domain_mapping.frontend_domain_mapping
 tofu apply
 ```
 
+**PostGres Plugins**: Activate pgvector and pg_cron on your supase databases manually so that the system can use these dependencies.
+
 #### Subsequent Manual Runs
 
 After the initial setup, you can run subsequent deployments manually if required.
