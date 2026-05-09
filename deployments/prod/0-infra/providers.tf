@@ -34,18 +34,3 @@ provider "github" {
 provider "supabase" {
   access_token = var.supabase_access_token
 }
-
-# The postgresql provider will connect to the Supabase connection pooler (PGBouncer)
-# Using the project ref id once created.
-provider "postgresql" {
-  scheme            = "postgres"
-  host              = "aws-1-${var.supabase.region}.pooler.supabase.com"
-  port              = 5432
-  username          = "postgres.${supabase_project.production.id}"
-  password          = data.google_secret_manager_secret_version_access.dbpassword_root.secret_data
-  database          = "postgres"
-  database_username = "postgres"
-  sslmode           = "require"
-  connect_timeout   = 180
-  superuser         = false
-}
