@@ -3,7 +3,7 @@ import path from 'node:path'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import imagemin from 'vite-plugin-imagemin'
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 
 // https://vite.dev/config/
@@ -17,29 +17,17 @@ export default defineConfig(({ mode }) => {
       VueI18nPlugin({
         include: [path.resolve(__dirname, './src/locales/**')]
       }),
-      imagemin({
-        gifsicle: {
-          optimizationLevel: 3,
-          interlaced: false,
+      ViteImageOptimizer({
+        png: {
+          quality: 80,
         },
-        optipng: {
-          optimizationLevel: 3,
-        },
-        mozjpeg: {
+        jpeg: {
           quality: 75,
         },
-        pngquant: {
-          quality: [0.65, 0.8],
-          speed: 4,
-        },
-        svgo: {
+        svg: {
           plugins: [
             {
               name: 'removeViewBox',
-            },
-            {
-              name: 'removeEmptyAttrs',
-              active: false,
             },
           ],
         },
