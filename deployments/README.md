@@ -137,6 +137,22 @@ tofu apply
 
 **PostGres Plugins**: Activate pgvector and pg_cron on your supase databases manually so that the system can use these dependencies.
 
+#### Telemetry & Billing (One-Time)
+
+After applying the `0-infra` stage with the telemetry and billing resources, complete these manual steps:
+
+1. **Billing Export to BigQuery** (prod only):
+   - Go to GCP Console → Billing → Billing export → BigQuery export
+   - Enable "Detailed usage cost" export
+   - Select project: `swim-gen-prod`, dataset: `swim_gen_billing`
+   - GCP will create a table named `gcp_billing_export_v1_<BILLING_ACCOUNT_ID>` in the dataset
+
+2. **Cloud Monitoring Metrics Export** (both environments):
+   - Go to GCP Console → Monitoring → Settings → Metrics management
+   - Configure a Metrics Export to BigQuery targeting the `swim_gen_<env>_telemetry` dataset
+   - This retains metrics beyond the default 6-week window
+   - Terraform does not support this configuration natively
+
 #### Subsequent Manual Runs
 
 After the initial setup, you can run subsequent deployments manually if required.
