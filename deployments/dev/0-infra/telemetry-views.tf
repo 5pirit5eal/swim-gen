@@ -2,28 +2,25 @@
 # Analytics Views for Looker Studio — Dev
 # =============================================================================
 #
-# These views live in the writable `swim_gen_dev_analytics` dataset and query
-# the read-only linked dataset `swim_gen_dev_logs` (backed by the log bucket).
+# _AllLogs schema (linked log bucket dataset — LogEntry proto):
 #
-# _AllLogs schema (linked log bucket dataset — LogEntry proto representation):
+#   timestamp                          TIMESTAMP
+#   log_id                             STRING
+#   resource                           STRUCT<type STRING, labels JSON>
+#     resource.labels                  JSON  → JSON_VALUE(resource.labels, '$.service_name')
+#   json_payload                       JSON  → JSON_VALUE(json_payload, '$.user_id')
+#   http_request                       STRUCT
+#     .request_method                  STRING
+#     .request_url                     STRING  (full URL incl. origin + query)
+#     .status                          INT64
+#     .latency                         STRUCT<seconds INT64, nanos INT64>
 #
-#   timestamp            TIMESTAMP
-#   log_id               STRING
-#   severity             STRING
-#   resource             JSON        ← nested, use JSON_VALUE()
-#   json_payload         JSON        ← nested, use JSON_VALUE()
-#   http_request         STRUCT      ← direct field access
-#     .request_method    STRING
-#     .request_url       STRING
-#     .status            INT64
-#     .latency           STRUCT<seconds INT64, nanos INT64>  ← Duration proto
-#     .user_agent        STRING
-#     .remote_ip         STRING
-#
-# Extract service name:  JSON_VALUE(resource.labels, '$.service_name')
-# Extract latency ms:    http_request.latency.seconds * 1000
-#                        + http_request.latency.nanos / 1000000
-# Extract user_id:       JSON_VALUE(json_payload, '$.user_id')
+# Route extraction from request_url:
+#   1. Extract path:  REGEXP_EXTRACT(request_url, r'https?://[^/]+(/[^?]*)')
+#   2. Strip /api prefix for swim-gen-frontend and swim-gen-bff (routing
+#      convention — the frontend calls /api/<path>, the BFF strips /api before
+#      forwarding to the backend, so all three services should show the same
+#      canonical route).  Backend routes are already clean.
 #
 # IMPORTANT: Views return no rows until traffic arrives. This is expected.
 # =============================================================================
@@ -33,15 +30,13 @@ locals {
 }
 
 # -----------------------------------------------------------------------------
-# Daily Active Users
+# Monthly Active Users (per month, per year, per service)
 # -----------------------------------------------------------------------------
-# Counts distinct authenticated users per day from structured app logs.
-# Both BFF and Backend emit user_id (JWT sub) in structured stdout logs.
 
-resource "google_bigquery_table" "v_daily_active_users" {
+resource "google_bigquery_table" "v_monthly_active_users" {
   project    = var.project_id
   dataset_id = google_bigquery_dataset.analytics.dataset_id
-  table_id   = "v_daily_active_users"
+  table_id   = "v_monthly_active_users"
 
   deletion_protection = false
 
@@ -49,16 +44,18 @@ resource "google_bigquery_table" "v_daily_active_users" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp)                                        AS day,
-        JSON_VALUE(resource.labels, '$.service_name')         AS service,
-        COUNT(DISTINCT JSON_VALUE(json_payload, '$.user_id')) AS active_users
+        FORMAT_DATE('%Y-%m', DATE(timestamp))                  AS month,
+        EXTRACT(YEAR  FROM timestamp)                          AS year,
+        EXTRACT(MONTH FROM timestamp)                          AS month_num,
+        JSON_VALUE(resource.labels, '$.service_name')          AS service,
+        COUNT(DISTINCT JSON_VALUE(json_payload, '$.user_id'))  AS active_users
       FROM ${local.linked_logs}
       WHERE
         log_id = "run.googleapis.com/stdout"
         AND JSON_VALUE(json_payload, '$.user_id') IS NOT NULL
         AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
-      GROUP BY day, service
-      ORDER BY day DESC
+      GROUP BY month, year, month_num, service
+      ORDER BY month DESC, service
     SQL
   }
 
@@ -66,9 +63,8 @@ resource "google_bigquery_table" "v_daily_active_users" {
 }
 
 # -----------------------------------------------------------------------------
-# Total (All-Time) Unique Users
+# Total Unique Users (all-time, per year)
 # -----------------------------------------------------------------------------
-# Every distinct user_id ever seen — proxy for total registered active users.
 
 resource "google_bigquery_table" "v_total_users" {
   project    = var.project_id
@@ -80,14 +76,33 @@ resource "google_bigquery_table" "v_total_users" {
   view {
     use_legacy_sql = false
     query          = <<-SQL
+      -- All-time total
       SELECT
-        COUNT(DISTINCT JSON_VALUE(json_payload, '$.user_id')) AS total_unique_users,
-        MIN(DATE(timestamp))                                  AS first_seen,
-        MAX(DATE(timestamp))                                  AS last_seen
+        'all_time'                                             AS period,
+        NULL                                                   AS year_date,
+        COUNT(DISTINCT JSON_VALUE(json_payload, '$.user_id')) AS unique_users,
+        MIN(DATE(timestamp))                                   AS first_seen,
+        MAX(DATE(timestamp))                                   AS last_seen
       FROM ${local.linked_logs}
       WHERE
         log_id = "run.googleapis.com/stdout"
         AND JSON_VALUE(json_payload, '$.user_id') IS NOT NULL
+
+      UNION ALL
+
+      -- Per-year totals
+      SELECT
+        'yearly'                                                         AS period,
+        DATE(EXTRACT(YEAR FROM timestamp), 1, 1)                        AS year_date,
+        COUNT(DISTINCT JSON_VALUE(json_payload, '$.user_id'))           AS unique_users,
+        MIN(DATE(timestamp))                                             AS first_seen,
+        MAX(DATE(timestamp))                                             AS last_seen
+      FROM ${local.linked_logs}
+      WHERE
+        log_id = "run.googleapis.com/stdout"
+        AND JSON_VALUE(json_payload, '$.user_id') IS NOT NULL
+      GROUP BY year_date
+      ORDER BY period, year_date DESC
     SQL
   }
 
@@ -95,10 +110,10 @@ resource "google_bigquery_table" "v_total_users" {
 }
 
 # -----------------------------------------------------------------------------
-# Request Volume by Day, Service, and Status Class
+# Request Volume by Day, Service, Route, and Status Class
 # -----------------------------------------------------------------------------
-# Cloud Run request logs populate http_request as a STRUCT.
-# http_request.status is INT64.
+# route = URL path without query string, extracted from http_request.request_url.
+# Also includes a rolled-up total row per day+service (route = '_total').
 
 resource "google_bigquery_table" "v_request_volume" {
   project    = var.project_id
@@ -110,21 +125,50 @@ resource "google_bigquery_table" "v_request_volume" {
   view {
     use_legacy_sql = false
     query          = <<-SQL
-      SELECT
-        DATE(timestamp)                               AS day,
-        JSON_VALUE(resource.labels, '$.service_name') AS service,
-        http_request.status                           AS status_code,
-        CONCAT(
-          CAST(CAST(http_request.status / 100 AS INT64) AS STRING), 'xx'
-        )                                             AS status_class,
-        COUNT(*)                                      AS request_count
-      FROM ${local.linked_logs}
-      WHERE
-        log_id = "run.googleapis.com/requests"
-        AND http_request.status IS NOT NULL
-        AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+      WITH base AS (
+        SELECT
+          DATE(timestamp)                                AS day,
+          JSON_VALUE(resource.labels, '$.service_name') AS service,
+          -- Strip /api prefix for frontend + bff; backend routes are already clean.
+          IFNULL(
+            CASE
+              WHEN JSON_VALUE(resource.labels, '$.service_name')
+                     IN ('swim-gen-frontend', 'swim-gen-bff')
+              THEN REGEXP_REPLACE(
+                     IFNULL(
+                       REGEXP_EXTRACT(http_request.request_url, r'https?://[^/]+(/[^?]*)'),
+                       '/'
+                     ),
+                     r'^/api', ''
+                   )
+              ELSE REGEXP_EXTRACT(http_request.request_url, r'https?://[^/]+(/[^?]*)')
+            END,
+            '/'
+          )                                              AS route,
+          http_request.status                            AS status_code,
+          CONCAT(
+            CAST(CAST(http_request.status / 100 AS INT64) AS STRING), 'xx'
+          )                                              AS status_class
+        FROM ${local.linked_logs}
+        WHERE
+          log_id = "run.googleapis.com/requests"
+          AND http_request.status IS NOT NULL
+          AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+      )
+
+      -- Per-route breakdown
+      SELECT day, service, route, status_code, status_class, COUNT(*) AS request_count
+      FROM base
+      GROUP BY day, service, route, status_code, status_class
+
+      UNION ALL
+
+      -- Daily total per service (all routes combined)
+      SELECT day, service, '_total' AS route, status_code, status_class, COUNT(*) AS request_count
+      FROM base
       GROUP BY day, service, status_code, status_class
-      ORDER BY day DESC, service, status_code
+
+      ORDER BY day DESC, service, route, status_code
     SQL
   }
 
@@ -132,10 +176,10 @@ resource "google_bigquery_table" "v_request_volume" {
 }
 
 # -----------------------------------------------------------------------------
-# Request Latency Percentiles by Day and Service
+# Request Latency Percentiles by Day, Service, and Route
 # -----------------------------------------------------------------------------
-# http_request.latency is STRUCT<seconds INT64, nanos INT64> (Duration proto).
-# Convert to milliseconds: seconds * 1000 + nanos / 1_000_000
+# http_request.latency is STRUCT<seconds INT64, nanos INT64>.
+# Also includes a rolled-up _total row per day+service.
 
 resource "google_bigquery_table" "v_request_latency" {
   project    = var.project_id
@@ -147,38 +191,58 @@ resource "google_bigquery_table" "v_request_latency" {
   view {
     use_legacy_sql = false
     query          = <<-SQL
+      WITH base AS (
+        SELECT
+          DATE(timestamp)                                AS day,
+          JSON_VALUE(resource.labels, '$.service_name') AS service,
+          -- Strip /api prefix for frontend + bff; backend routes are already clean.
+          IFNULL(
+            CASE
+              WHEN JSON_VALUE(resource.labels, '$.service_name')
+                     IN ('swim-gen-frontend', 'swim-gen-bff')
+              THEN REGEXP_REPLACE(
+                     IFNULL(
+                       REGEXP_EXTRACT(http_request.request_url, r'https?://[^/]+(/[^?]*)'),
+                       '/'
+                     ),
+                     r'^/api', ''
+                   )
+              ELSE REGEXP_EXTRACT(http_request.request_url, r'https?://[^/]+(/[^?]*)')
+            END,
+            '/'
+          )                                              AS route,
+          http_request.latency.seconds * 1000.0
+            + http_request.latency.nanos / 1000000.0    AS latency_ms
+        FROM ${local.linked_logs}
+        WHERE
+          log_id = "run.googleapis.com/requests"
+          AND http_request.latency IS NOT NULL
+          AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+      )
+
+      -- Per-route latency
       SELECT
-        DATE(timestamp)                               AS day,
-        JSON_VALUE(resource.labels, '$.service_name') AS service,
-        COUNT(*)                                      AS request_count,
-        ROUND(
-          APPROX_QUANTILES(
-            http_request.latency.seconds * 1000.0
-              + http_request.latency.nanos / 1000000.0,
-            100
-          )[OFFSET(50)], 2
-        )                                             AS p50_ms,
-        ROUND(
-          APPROX_QUANTILES(
-            http_request.latency.seconds * 1000.0
-              + http_request.latency.nanos / 1000000.0,
-            100
-          )[OFFSET(95)], 2
-        )                                             AS p95_ms,
-        ROUND(
-          APPROX_QUANTILES(
-            http_request.latency.seconds * 1000.0
-              + http_request.latency.nanos / 1000000.0,
-            100
-          )[OFFSET(99)], 2
-        )                                             AS p99_ms
-      FROM ${local.linked_logs}
-      WHERE
-        log_id = "run.googleapis.com/requests"
-        AND http_request.latency IS NOT NULL
-        AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+        day, service, route,
+        COUNT(*)                                                            AS request_count,
+        ROUND(APPROX_QUANTILES(latency_ms, 100)[OFFSET(50)], 2)           AS p50_ms,
+        ROUND(APPROX_QUANTILES(latency_ms, 100)[OFFSET(95)], 2)           AS p95_ms,
+        ROUND(APPROX_QUANTILES(latency_ms, 100)[OFFSET(99)], 2)           AS p99_ms
+      FROM base
+      GROUP BY day, service, route
+
+      UNION ALL
+
+      -- Daily total per service (all routes combined)
+      SELECT
+        day, service, '_total' AS route,
+        COUNT(*)                                                            AS request_count,
+        ROUND(APPROX_QUANTILES(latency_ms, 100)[OFFSET(50)], 2)           AS p50_ms,
+        ROUND(APPROX_QUANTILES(latency_ms, 100)[OFFSET(95)], 2)           AS p95_ms,
+        ROUND(APPROX_QUANTILES(latency_ms, 100)[OFFSET(99)], 2)           AS p99_ms
+      FROM base
       GROUP BY day, service
-      ORDER BY day DESC, service
+
+      ORDER BY day DESC, service, route
     SQL
   }
 
@@ -186,8 +250,9 @@ resource "google_bigquery_table" "v_request_latency" {
 }
 
 # -----------------------------------------------------------------------------
-# Error Rate by Day and Service
+# Error Rate by Day, Service, and Route
 # -----------------------------------------------------------------------------
+# Also includes a rolled-up _total row per day+service.
 
 resource "google_bigquery_table" "v_error_rate" {
   project    = var.project_id
@@ -199,32 +264,59 @@ resource "google_bigquery_table" "v_error_rate" {
   view {
     use_legacy_sql = false
     query          = <<-SQL
+      WITH base AS (
+        SELECT
+          DATE(timestamp)                                AS day,
+          JSON_VALUE(resource.labels, '$.service_name') AS service,
+          -- Strip /api prefix for frontend + bff; backend routes are already clean.
+          IFNULL(
+            CASE
+              WHEN JSON_VALUE(resource.labels, '$.service_name')
+                     IN ('swim-gen-frontend', 'swim-gen-bff')
+              THEN REGEXP_REPLACE(
+                     IFNULL(
+                       REGEXP_EXTRACT(http_request.request_url, r'https?://[^/]+(/[^?]*)'),
+                       '/'
+                     ),
+                     r'^/api', ''
+                   )
+              ELSE REGEXP_EXTRACT(http_request.request_url, r'https?://[^/]+(/[^?]*)')
+            END,
+            '/'
+          )                                              AS route,
+          http_request.status                            AS status
+        FROM ${local.linked_logs}
+        WHERE
+          log_id = "run.googleapis.com/requests"
+          AND http_request.status IS NOT NULL
+          AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+      )
+
+      -- Per-route error rate
       SELECT
-        DATE(timestamp)                               AS day,
-        JSON_VALUE(resource.labels, '$.service_name') AS service,
-        COUNT(*)                                      AS total_requests,
-        COUNTIF(http_request.status >= 500)           AS server_errors,
-        COUNTIF(http_request.status >= 400
-          AND http_request.status < 500)              AS client_errors,
-        ROUND(
-          SAFE_DIVIDE(
-            COUNTIF(http_request.status >= 500),
-            COUNT(*)
-          ) * 100, 4
-        )                                             AS server_error_rate_pct,
-        ROUND(
-          SAFE_DIVIDE(
-            COUNTIF(http_request.status >= 400),
-            COUNT(*)
-          ) * 100, 4
-        )                                             AS error_rate_pct
-      FROM ${local.linked_logs}
-      WHERE
-        log_id = "run.googleapis.com/requests"
-        AND http_request.status IS NOT NULL
-        AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+        day, service, route,
+        COUNT(*)                                                        AS total_requests,
+        COUNTIF(status >= 500)                                          AS server_errors,
+        COUNTIF(status >= 400 AND status < 500)                        AS client_errors,
+        ROUND(SAFE_DIVIDE(COUNTIF(status >= 500), COUNT(*)) * 100, 4)  AS server_error_rate_pct,
+        ROUND(SAFE_DIVIDE(COUNTIF(status >= 400), COUNT(*)) * 100, 4)  AS error_rate_pct
+      FROM base
+      GROUP BY day, service, route
+
+      UNION ALL
+
+      -- Daily total per service (all routes combined)
+      SELECT
+        day, service, '_total' AS route,
+        COUNT(*)                                                        AS total_requests,
+        COUNTIF(status >= 500)                                          AS server_errors,
+        COUNTIF(status >= 400 AND status < 500)                        AS client_errors,
+        ROUND(SAFE_DIVIDE(COUNTIF(status >= 500), COUNT(*)) * 100, 4)  AS server_error_rate_pct,
+        ROUND(SAFE_DIVIDE(COUNTIF(status >= 400), COUNT(*)) * 100, 4)  AS error_rate_pct
+      FROM base
       GROUP BY day, service
-      ORDER BY day DESC, service
+
+      ORDER BY day DESC, service, route
     SQL
   }
 
