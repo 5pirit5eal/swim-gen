@@ -47,13 +47,19 @@ resource "google_logging_project_sink" "cloud_run_logs" {
 
   destination = "logging.googleapis.com/${google_logging_project_bucket_config.cloud_run.id}"
 
+  # Frontend (swim-gen-frontend) is excluded from stdout/stderr — it produces
+  # high-volume SSR logs that are not useful for long-term analysis.
+  # Request logs from the frontend ARE still captured for traffic/error tracking.
   filter = <<-FILTER
     resource.type="cloud_run_revision"
     AND (
-      log_id("run.googleapis.com/stdout")
-      OR log_id("run.googleapis.com/stderr")
-      OR log_id("run.googleapis.com/requests")
+      (
+        log_id("run.googleapis.com/stdout")
+        OR log_id("run.googleapis.com/stderr")
+      )
+      AND resource.labels.service_name!="swim-gen-frontend"
     )
+    OR log_id("run.googleapis.com/requests")
   FILTER
 
   # unique_writer_identity is not set for same-project log bucket destinations.
