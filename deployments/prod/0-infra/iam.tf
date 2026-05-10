@@ -138,22 +138,3 @@ resource "google_storage_bucket_iam_member" "pdf_export_sa_access" {
   role   = each.key
   member = "serviceAccount:${google_service_account.pdf_export_sa.email}"
 }
-
-# =============================================================================
-# Observability Analytics IAM
-# =============================================================================
-
-data "google_client_openid_userinfo" "me" {}
-
-resource "google_project_iam_member" "observability_analytics" {
-  for_each = toset([
-    "roles/observability.viewAccessor",
-    "roles/observability.analyticsUser",
-    "roles/logging.viewAccessor",
-    "roles/bigquery.dataViewer",
-    "roles/bigquery.jobUser",
-  ])
-  project = var.project_id
-  role    = each.key
-  member  = "user:${data.google_client_openid_userinfo.me.email}"
-}
