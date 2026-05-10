@@ -49,15 +49,10 @@ resource "google_logging_project_sink" "cloud_run_logs" {
     )
   FILTER
 
-  unique_writer_identity = true
+  # unique_writer_identity is not set for same-project log bucket destinations.
+  # Cloud Logging automatically uses its own service account; no IAM binding needed.
 
   depends_on = [google_logging_project_bucket_config.cloud_run]
-}
-
-resource "google_project_iam_member" "log_sink_bucket_writer" {
-  project = var.project_id
-  role    = "roles/logging.bucketWriter"
-  member  = google_logging_project_sink.cloud_run_logs.writer_identity
 }
 
 # -----------------------------------------------------------------------------

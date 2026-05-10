@@ -5,6 +5,10 @@
 # Identical to dev views except:
 #   - References `swim-gen-prod.swim_gen_prod_logs._AllLogs`
 #   - Includes v_costs (billing dataset only exists in prod)
+#
+# Schema corrections (linked log bucket dataset — LogEntry proto):
+#   resource             → JSON, use JSON_VALUE(resource, '$.labels.service_name')
+#   http_request.latency → STRUCT<seconds INT64, nanos INT64> (Duration proto)
 # =============================================================================
 
 locals {
@@ -26,8 +30,8 @@ resource "google_bigquery_table" "v_daily_active_users" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp)                                       AS day,
-        resource.labels.service_name                         AS service,
+        DATE(timestamp)                                        AS day,
+        JSON_VALUE(resource, '$.labels.service_name')         AS service,
         COUNT(DISTINCT JSON_VALUE(json_payload, '$.user_id')) AS active_users
       FROM ${local.linked_logs}
       WHERE
@@ -85,13 +89,13 @@ resource "google_bigquery_table" "v_request_volume" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp)               AS day,
-        resource.labels.service_name  AS service,
-        http_request.status           AS status_code,
+        DATE(timestamp)                               AS day,
+        JSON_VALUE(resource, '$.labels.service_name') AS service,
+        http_request.status                           AS status_code,
         CONCAT(
           CAST(CAST(http_request.status / 100 AS INT64) AS STRING), 'xx'
-        )                             AS status_class,
-        COUNT(*)                      AS request_count
+        )                                             AS status_class,
+        COUNT(*)                                      AS request_count
       FROM ${local.linked_logs}
       WHERE
         log_id = "run.googleapis.com/requests"
@@ -108,6 +112,7 @@ resource "google_bigquery_table" "v_request_volume" {
 # -----------------------------------------------------------------------------
 # Request Latency Percentiles by Day and Service
 # -----------------------------------------------------------------------------
+# http_request.latency is STRUCT<seconds INT64, nanos INT64> (Duration proto).
 
 resource "google_bigquery_table" "v_request_latency" {
   project    = var.project_id
@@ -120,27 +125,30 @@ resource "google_bigquery_table" "v_request_latency" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp)              AS day,
-        resource.labels.service_name AS service,
-        COUNT(*)                     AS request_count,
+        DATE(timestamp)                               AS day,
+        JSON_VALUE(resource, '$.labels.service_name') AS service,
+        COUNT(*)                                      AS request_count,
         ROUND(
           APPROX_QUANTILES(
-            CAST(REGEXP_REPLACE(http_request.latency, r's$', '') AS FLOAT64) * 1000,
+            http_request.latency.seconds * 1000.0
+              + http_request.latency.nanos / 1000000.0,
             100
           )[OFFSET(50)], 2
-        )                            AS p50_ms,
+        )                                             AS p50_ms,
         ROUND(
           APPROX_QUANTILES(
-            CAST(REGEXP_REPLACE(http_request.latency, r's$', '') AS FLOAT64) * 1000,
+            http_request.latency.seconds * 1000.0
+              + http_request.latency.nanos / 1000000.0,
             100
           )[OFFSET(95)], 2
-        )                            AS p95_ms,
+        )                                             AS p95_ms,
         ROUND(
           APPROX_QUANTILES(
-            CAST(REGEXP_REPLACE(http_request.latency, r's$', '') AS FLOAT64) * 1000,
+            http_request.latency.seconds * 1000.0
+              + http_request.latency.nanos / 1000000.0,
             100
           )[OFFSET(99)], 2
-        )                            AS p99_ms
+        )                                             AS p99_ms
       FROM ${local.linked_logs}
       WHERE
         log_id = "run.googleapis.com/requests"
@@ -169,24 +177,24 @@ resource "google_bigquery_table" "v_error_rate" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp)              AS day,
-        resource.labels.service_name AS service,
-        COUNT(*)                     AS total_requests,
-        COUNTIF(http_request.status >= 500)             AS server_errors,
+        DATE(timestamp)                               AS day,
+        JSON_VALUE(resource, '$.labels.service_name') AS service,
+        COUNT(*)                                      AS total_requests,
+        COUNTIF(http_request.status >= 500)           AS server_errors,
         COUNTIF(http_request.status >= 400
-          AND http_request.status < 500)                AS client_errors,
+          AND http_request.status < 500)              AS client_errors,
         ROUND(
           SAFE_DIVIDE(
             COUNTIF(http_request.status >= 500),
             COUNT(*)
           ) * 100, 4
-        )                            AS server_error_rate_pct,
+        )                                             AS server_error_rate_pct,
         ROUND(
           SAFE_DIVIDE(
             COUNTIF(http_request.status >= 400),
             COUNT(*)
           ) * 100, 4
-        )                            AS error_rate_pct
+        )                                             AS error_rate_pct
       FROM ${local.linked_logs}
       WHERE
         log_id = "run.googleapis.com/requests"
@@ -201,11 +209,8 @@ resource "google_bigquery_table" "v_error_rate" {
 }
 
 # -----------------------------------------------------------------------------
-# Daily GCP Costs (prod only — billing export only exists here)
+# Daily GCP Costs (prod only)
 # -----------------------------------------------------------------------------
-# Requires billing export to be configured manually (see billing.tf).
-# Table name: gcp_billing_export_v1_<BILLING_ACCOUNT_ID_UNDERSCORED>
-# The wildcard matches regardless of billing account ID format.
 
 resource "google_bigquery_table" "v_costs" {
   project    = var.project_id

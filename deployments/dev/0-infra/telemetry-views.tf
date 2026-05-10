@@ -5,30 +5,27 @@
 # These views live in the writable `swim_gen_dev_analytics` dataset and query
 # the read-only linked dataset `swim_gen_dev_logs` (backed by the log bucket).
 #
-# Schema reference — LogEntry fields available in _AllLogs:
-#   timestamp                          TIMESTAMP
-#   log_id                             STRING  ("run.googleapis.com/stdout" etc.)
-#   json_payload                       JSON    (structured app logs)
-#   http_request.request_method        STRING
-#   http_request.request_url           STRING
-#   http_request.status                INT64
-#   http_request.latency               STRING  ("0.115239727s")
-#   resource.labels.service_name       STRING  (Cloud Run service)
-#   resource.labels.revision_name      STRING
+# _AllLogs schema (linked log bucket dataset — LogEntry proto representation):
 #
-# App-log user context (emitted by both BFF and Backend):
-#   JSON_VALUE(json_payload, '$.user_id')                    STRING
-#   JSON_VALUE(json_payload, '$.httpRequest.method')         STRING
-#   JSON_VALUE(json_payload, '$.httpRequest.path')           STRING
-#   JSON_VALUE(json_payload, '$.httpResponse.status')        STRING
-#   JSON_VALUE(json_payload, '$.httpResponse.elapsed')       STRING (ms as number)
+#   timestamp            TIMESTAMP
+#   log_id               STRING
+#   severity             STRING
+#   resource             JSON        ← nested, use JSON_VALUE()
+#   json_payload         JSON        ← nested, use JSON_VALUE()
+#   http_request         STRUCT      ← direct field access
+#     .request_method    STRING
+#     .request_url       STRING
+#     .status            INT64
+#     .latency           STRUCT<seconds INT64, nanos INT64>  ← Duration proto
+#     .user_agent        STRING
+#     .remote_ip         STRING
 #
-# Linked dataset fully-qualified view:
-#   `rubenschulze-sandbox.swim_gen_dev_logs._AllLogs`
+# Extract service name:  JSON_VALUE(resource, '$.labels.service_name')
+# Extract latency ms:    http_request.latency.seconds * 1000
+#                        + http_request.latency.nanos / 1000000
+# Extract user_id:       JSON_VALUE(json_payload, '$.user_id')
 #
-# IMPORTANT: Views will return no rows until traffic arrives and logs are
-# routed to the bucket. This is expected — views are created at apply time
-# but data arrives later.
+# IMPORTANT: Views return no rows until traffic arrives. This is expected.
 # =============================================================================
 
 locals {
@@ -39,8 +36,7 @@ locals {
 # Daily Active Users
 # -----------------------------------------------------------------------------
 # Counts distinct authenticated users per day from structured app logs.
-# A user is "active" if they made at least one authenticated request.
-# Both BFF and Backend emit user_id from the JWT sub claim.
+# Both BFF and Backend emit user_id (JWT sub) in structured stdout logs.
 
 resource "google_bigquery_table" "v_daily_active_users" {
   project    = var.project_id
@@ -53,8 +49,8 @@ resource "google_bigquery_table" "v_daily_active_users" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp)                                       AS day,
-        resource.labels.service_name                         AS service,
+        DATE(timestamp)                                        AS day,
+        JSON_VALUE(resource, '$.labels.service_name')         AS service,
         COUNT(DISTINCT JSON_VALUE(json_payload, '$.user_id')) AS active_users
       FROM ${local.linked_logs}
       WHERE
@@ -72,8 +68,7 @@ resource "google_bigquery_table" "v_daily_active_users" {
 # -----------------------------------------------------------------------------
 # Total (All-Time) Unique Users
 # -----------------------------------------------------------------------------
-# Counts every distinct user_id ever seen across all time. Useful as a
-# "total registered active users" proxy (users who have logged in at least once).
+# Every distinct user_id ever seen — proxy for total registered active users.
 
 resource "google_bigquery_table" "v_total_users" {
   project    = var.project_id
@@ -102,8 +97,8 @@ resource "google_bigquery_table" "v_total_users" {
 # -----------------------------------------------------------------------------
 # Request Volume by Day, Service, and Status Class
 # -----------------------------------------------------------------------------
-# Uses Cloud Run auto-generated request logs (http_request struct is populated).
-# Groups by HTTP status class (2xx, 4xx, 5xx) for error-rate visibility.
+# Cloud Run request logs populate http_request as a STRUCT.
+# http_request.status is INT64.
 
 resource "google_bigquery_table" "v_request_volume" {
   project    = var.project_id
@@ -116,13 +111,13 @@ resource "google_bigquery_table" "v_request_volume" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp)               AS day,
-        resource.labels.service_name  AS service,
-        http_request.status           AS status_code,
+        DATE(timestamp)                               AS day,
+        JSON_VALUE(resource, '$.labels.service_name') AS service,
+        http_request.status                           AS status_code,
         CONCAT(
           CAST(CAST(http_request.status / 100 AS INT64) AS STRING), 'xx'
-        )                             AS status_class,
-        COUNT(*)                      AS request_count
+        )                                             AS status_class,
+        COUNT(*)                                      AS request_count
       FROM ${local.linked_logs}
       WHERE
         log_id = "run.googleapis.com/requests"
@@ -139,8 +134,8 @@ resource "google_bigquery_table" "v_request_volume" {
 # -----------------------------------------------------------------------------
 # Request Latency Percentiles by Day and Service
 # -----------------------------------------------------------------------------
-# Uses Cloud Run request logs. http_request.latency is a duration string
-# like "0.115239727s" — stripped of "s" and converted to milliseconds.
+# http_request.latency is STRUCT<seconds INT64, nanos INT64> (Duration proto).
+# Convert to milliseconds: seconds * 1000 + nanos / 1_000_000
 
 resource "google_bigquery_table" "v_request_latency" {
   project    = var.project_id
@@ -153,27 +148,30 @@ resource "google_bigquery_table" "v_request_latency" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp)              AS day,
-        resource.labels.service_name AS service,
-        COUNT(*)                     AS request_count,
+        DATE(timestamp)                               AS day,
+        JSON_VALUE(resource, '$.labels.service_name') AS service,
+        COUNT(*)                                      AS request_count,
         ROUND(
           APPROX_QUANTILES(
-            CAST(REGEXP_REPLACE(http_request.latency, r's$', '') AS FLOAT64) * 1000,
+            http_request.latency.seconds * 1000.0
+              + http_request.latency.nanos / 1000000.0,
             100
           )[OFFSET(50)], 2
-        )                            AS p50_ms,
+        )                                             AS p50_ms,
         ROUND(
           APPROX_QUANTILES(
-            CAST(REGEXP_REPLACE(http_request.latency, r's$', '') AS FLOAT64) * 1000,
+            http_request.latency.seconds * 1000.0
+              + http_request.latency.nanos / 1000000.0,
             100
           )[OFFSET(95)], 2
-        )                            AS p95_ms,
+        )                                             AS p95_ms,
         ROUND(
           APPROX_QUANTILES(
-            CAST(REGEXP_REPLACE(http_request.latency, r's$', '') AS FLOAT64) * 1000,
+            http_request.latency.seconds * 1000.0
+              + http_request.latency.nanos / 1000000.0,
             100
           )[OFFSET(99)], 2
-        )                            AS p99_ms
+        )                                             AS p99_ms
       FROM ${local.linked_logs}
       WHERE
         log_id = "run.googleapis.com/requests"
@@ -190,8 +188,6 @@ resource "google_bigquery_table" "v_request_latency" {
 # -----------------------------------------------------------------------------
 # Error Rate by Day and Service
 # -----------------------------------------------------------------------------
-# Computes error rate (5xx / total) and client-error rate (4xx / total).
-# Useful for SLO tracking in Looker Studio.
 
 resource "google_bigquery_table" "v_error_rate" {
   project    = var.project_id
@@ -204,24 +200,24 @@ resource "google_bigquery_table" "v_error_rate" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp)              AS day,
-        resource.labels.service_name AS service,
-        COUNT(*)                     AS total_requests,
-        COUNTIF(http_request.status >= 500)             AS server_errors,
+        DATE(timestamp)                               AS day,
+        JSON_VALUE(resource, '$.labels.service_name') AS service,
+        COUNT(*)                                      AS total_requests,
+        COUNTIF(http_request.status >= 500)           AS server_errors,
         COUNTIF(http_request.status >= 400
-          AND http_request.status < 500)                AS client_errors,
+          AND http_request.status < 500)              AS client_errors,
         ROUND(
           SAFE_DIVIDE(
             COUNTIF(http_request.status >= 500),
             COUNT(*)
           ) * 100, 4
-        )                            AS server_error_rate_pct,
+        )                                             AS server_error_rate_pct,
         ROUND(
           SAFE_DIVIDE(
             COUNTIF(http_request.status >= 400),
             COUNT(*)
           ) * 100, 4
-        )                            AS error_rate_pct
+        )                                             AS error_rate_pct
       FROM ${local.linked_logs}
       WHERE
         log_id = "run.googleapis.com/requests"
