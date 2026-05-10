@@ -138,3 +138,33 @@ resource "google_storage_bucket_iam_member" "pdf_export_sa_access" {
   role   = each.key
   member = "serviceAccount:${google_service_account.pdf_export_sa.email}"
 }
+
+# =============================================================================
+# Observability Analytics IAM
+# =============================================================================
+# Grants the deploying user (identified via gcloud application-default login)
+# the roles required to:
+#   - Query log views in the custom log bucket via Observability Analytics
+#   - Query trace spans via the _Trace._AllSpans view
+#   - Run and save SQL queries, and pin charts to Cloud Monitoring dashboards
+#   - Read linked BigQuery datasets from Looker Studio
+#
+# roles/observability.viewAccessor  — read access to observability views (logs + traces)
+# roles/observability.analyticsUser — run/save queries in Observability Analytics UI
+# roles/logging.viewAccessor        — read access to log views in the log bucket
+# roles/bigquery.dataViewer         — read linked BQ datasets from Looker Studio / BigQuery Studio
+
+data "google_client_openid_userinfo" "me" {}
+
+resource "google_project_iam_member" "observability_analytics" {
+  for_each = toset([
+    "roles/observability.viewAccessor",
+    "roles/observability.analyticsUser",
+    "roles/logging.viewAccessor",
+    "roles/bigquery.dataViewer",
+    "roles/bigquery.jobUser",
+  ])
+  project = var.project_id
+  role    = each.key
+  member  = "user:${data.google_client_openid_userinfo.me.email}"
+}

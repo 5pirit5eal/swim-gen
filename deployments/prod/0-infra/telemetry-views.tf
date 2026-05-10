@@ -1,30 +1,24 @@
-# --------------------------------------------------------------------------
-# BigQuery Views for Looker Studio Dashboard
-# --------------------------------------------------------------------------
-# These views query tables auto-created by the Cloud Logging sink.
-# Table names are determined by Cloud Logging:
-#   - run_googleapis_com_requests  (Cloud Run auto-generated request logs)
-#   - run_googleapis_com_stdout    (application stdout logs)
+# =============================================================================
+# Analytics Views for Looker Studio — Prod
+# =============================================================================
 #
-# Column naming: BigQuery Cloud Logging export uses snake_case columns
-#   - json_payload (not jsonPayload)
-#   - http_request (not httpRequest)
-#   - resource.labels.service_name
-#
-# IMPORTANT: These views will fail until the logging sink has created
-# the underlying tables (i.e., after first deployment + traffic).
-# --------------------------------------------------------------------------
+# Identical to dev views except:
+#   - References `swim-gen-prod.swim_gen_prod_logs._AllLogs`
+#   - Includes v_costs (billing dataset only exists in prod)
+# =============================================================================
 
-# --------------------------------------------------------------------------
-# Active Users per Day
-# --------------------------------------------------------------------------
-# Uses application stdout logs where user_id is present.
-# Both BFF and backend emit user_id in structured logs.
+locals {
+  linked_logs = "`${var.project_id}.swim_gen_prod_logs._AllLogs`"
+}
 
-resource "google_bigquery_table" "v_active_users" {
+# -----------------------------------------------------------------------------
+# Daily Active Users
+# -----------------------------------------------------------------------------
+
+resource "google_bigquery_table" "v_daily_active_users" {
   project    = var.project_id
-  dataset_id = google_bigquery_dataset.telemetry.dataset_id
-  table_id   = "v_active_users"
+  dataset_id = google_bigquery_dataset.analytics.dataset_id
+  table_id   = "v_daily_active_users"
 
   deletion_protection = false
 
@@ -32,30 +26,30 @@ resource "google_bigquery_table" "v_active_users" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp) AS day,
-        COUNT(DISTINCT JSON_VALUE(json_payload, '$.user_id')) AS daily_active_users
-      FROM `${var.project_id}.${google_bigquery_dataset.telemetry.dataset_id}.run_googleapis_com_stdout`
+        DATE(timestamp)                                       AS day,
+        resource.labels.service_name                         AS service,
+        COUNT(DISTINCT JSON_VALUE(json_payload, '$.user_id')) AS active_users
+      FROM ${local.linked_logs}
       WHERE
-        JSON_VALUE(json_payload, '$.user_id') IS NOT NULL
-        AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 365 DAY)
-      GROUP BY day
-      ORDER BY day
+        log_id = "run.googleapis.com/stdout"
+        AND JSON_VALUE(json_payload, '$.user_id') IS NOT NULL
+        AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+      GROUP BY day, service
+      ORDER BY day DESC
     SQL
   }
 
-  depends_on = [google_bigquery_dataset.telemetry]
+  depends_on = [google_bigquery_dataset.analytics, google_logging_linked_dataset.telemetry]
 }
 
-# --------------------------------------------------------------------------
-# Request Latency Percentiles per Day and Service
-# --------------------------------------------------------------------------
-# Uses Cloud Run auto-generated request logs.
-# http_request.latency is a duration string (e.g. "0.115239727s").
+# -----------------------------------------------------------------------------
+# Total (All-Time) Unique Users
+# -----------------------------------------------------------------------------
 
-resource "google_bigquery_table" "v_request_latency" {
+resource "google_bigquery_table" "v_total_users" {
   project    = var.project_id
-  dataset_id = google_bigquery_dataset.telemetry.dataset_id
-  table_id   = "v_request_latency"
+  dataset_id = google_bigquery_dataset.analytics.dataset_id
+  table_id   = "v_total_users"
 
   deletion_protection = false
 
@@ -63,34 +57,26 @@ resource "google_bigquery_table" "v_request_latency" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp) AS day,
-        resource.labels.service_name AS service,
-        APPROX_QUANTILES(
-          CAST(REPLACE(http_request.latency, 's', '') AS FLOAT64) * 1000, 100
-        )[OFFSET(50)] AS p50_ms,
-        APPROX_QUANTILES(
-          CAST(REPLACE(http_request.latency, 's', '') AS FLOAT64) * 1000, 100
-        )[OFFSET(95)] AS p95_ms,
-        APPROX_QUANTILES(
-          CAST(REPLACE(http_request.latency, 's', '') AS FLOAT64) * 1000, 100
-        )[OFFSET(99)] AS p99_ms
-      FROM `${var.project_id}.${google_bigquery_dataset.telemetry.dataset_id}.run_googleapis_com_requests`
-      WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 365 DAY)
-      GROUP BY day, service
-      ORDER BY day
+        COUNT(DISTINCT JSON_VALUE(json_payload, '$.user_id')) AS total_unique_users,
+        MIN(DATE(timestamp))                                  AS first_seen,
+        MAX(DATE(timestamp))                                  AS last_seen
+      FROM ${local.linked_logs}
+      WHERE
+        log_id = "run.googleapis.com/stdout"
+        AND JSON_VALUE(json_payload, '$.user_id') IS NOT NULL
     SQL
   }
 
-  depends_on = [google_bigquery_dataset.telemetry]
+  depends_on = [google_bigquery_dataset.analytics, google_logging_linked_dataset.telemetry]
 }
 
-# --------------------------------------------------------------------------
-# Request Volume per Day, Service, and Status Code
-# --------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Request Volume by Day, Service, and Status Class
+# -----------------------------------------------------------------------------
 
 resource "google_bigquery_table" "v_request_volume" {
   project    = var.project_id
-  dataset_id = google_bigquery_dataset.telemetry.dataset_id
+  dataset_id = google_bigquery_dataset.analytics.dataset_id
   table_id   = "v_request_volume"
 
   deletion_protection = false
@@ -99,34 +85,131 @@ resource "google_bigquery_table" "v_request_volume" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(timestamp) AS day,
-        resource.labels.service_name AS service,
-        http_request.status AS status_code,
-        COUNT(*) AS request_count
-      FROM `${var.project_id}.${google_bigquery_dataset.telemetry.dataset_id}.run_googleapis_com_requests`
-      WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 365 DAY)
-      GROUP BY day, service, status_code
-      ORDER BY day
+        DATE(timestamp)               AS day,
+        resource.labels.service_name  AS service,
+        http_request.status           AS status_code,
+        CONCAT(
+          CAST(CAST(http_request.status / 100 AS INT64) AS STRING), 'xx'
+        )                             AS status_class,
+        COUNT(*)                      AS request_count
+      FROM ${local.linked_logs}
+      WHERE
+        log_id = "run.googleapis.com/requests"
+        AND http_request.status IS NOT NULL
+        AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+      GROUP BY day, service, status_code, status_class
+      ORDER BY day DESC, service, status_code
     SQL
   }
 
-  depends_on = [google_bigquery_dataset.telemetry]
+  depends_on = [google_bigquery_dataset.analytics, google_logging_linked_dataset.telemetry]
 }
 
-# --------------------------------------------------------------------------
-# Daily GCP Costs
-# --------------------------------------------------------------------------
-# Uses the billing export table in the billing dataset.
-# The table name follows the pattern: gcp_billing_export_v1_<BILLING_ACCOUNT_ID>
-# Replace the placeholder below after billing export is configured.
-#
-# NOTE: This view will fail until:
-#   1. Billing export is manually configured (see billing.tf)
-#   2. The actual table name is confirmed and substituted below
+# -----------------------------------------------------------------------------
+# Request Latency Percentiles by Day and Service
+# -----------------------------------------------------------------------------
+
+resource "google_bigquery_table" "v_request_latency" {
+  project    = var.project_id
+  dataset_id = google_bigquery_dataset.analytics.dataset_id
+  table_id   = "v_request_latency"
+
+  deletion_protection = false
+
+  view {
+    use_legacy_sql = false
+    query          = <<-SQL
+      SELECT
+        DATE(timestamp)              AS day,
+        resource.labels.service_name AS service,
+        COUNT(*)                     AS request_count,
+        ROUND(
+          APPROX_QUANTILES(
+            CAST(REGEXP_REPLACE(http_request.latency, r's$', '') AS FLOAT64) * 1000,
+            100
+          )[OFFSET(50)], 2
+        )                            AS p50_ms,
+        ROUND(
+          APPROX_QUANTILES(
+            CAST(REGEXP_REPLACE(http_request.latency, r's$', '') AS FLOAT64) * 1000,
+            100
+          )[OFFSET(95)], 2
+        )                            AS p95_ms,
+        ROUND(
+          APPROX_QUANTILES(
+            CAST(REGEXP_REPLACE(http_request.latency, r's$', '') AS FLOAT64) * 1000,
+            100
+          )[OFFSET(99)], 2
+        )                            AS p99_ms
+      FROM ${local.linked_logs}
+      WHERE
+        log_id = "run.googleapis.com/requests"
+        AND http_request.latency IS NOT NULL
+        AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+      GROUP BY day, service
+      ORDER BY day DESC, service
+    SQL
+  }
+
+  depends_on = [google_bigquery_dataset.analytics, google_logging_linked_dataset.telemetry]
+}
+
+# -----------------------------------------------------------------------------
+# Error Rate by Day and Service
+# -----------------------------------------------------------------------------
+
+resource "google_bigquery_table" "v_error_rate" {
+  project    = var.project_id
+  dataset_id = google_bigquery_dataset.analytics.dataset_id
+  table_id   = "v_error_rate"
+
+  deletion_protection = false
+
+  view {
+    use_legacy_sql = false
+    query          = <<-SQL
+      SELECT
+        DATE(timestamp)              AS day,
+        resource.labels.service_name AS service,
+        COUNT(*)                     AS total_requests,
+        COUNTIF(http_request.status >= 500)             AS server_errors,
+        COUNTIF(http_request.status >= 400
+          AND http_request.status < 500)                AS client_errors,
+        ROUND(
+          SAFE_DIVIDE(
+            COUNTIF(http_request.status >= 500),
+            COUNT(*)
+          ) * 100, 4
+        )                            AS server_error_rate_pct,
+        ROUND(
+          SAFE_DIVIDE(
+            COUNTIF(http_request.status >= 400),
+            COUNT(*)
+          ) * 100, 4
+        )                            AS error_rate_pct
+      FROM ${local.linked_logs}
+      WHERE
+        log_id = "run.googleapis.com/requests"
+        AND http_request.status IS NOT NULL
+        AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+      GROUP BY day, service
+      ORDER BY day DESC, service
+    SQL
+  }
+
+  depends_on = [google_bigquery_dataset.analytics, google_logging_linked_dataset.telemetry]
+}
+
+# -----------------------------------------------------------------------------
+# Daily GCP Costs (prod only — billing export only exists here)
+# -----------------------------------------------------------------------------
+# Requires billing export to be configured manually (see billing.tf).
+# Table name: gcp_billing_export_v1_<BILLING_ACCOUNT_ID_UNDERSCORED>
+# The wildcard matches regardless of billing account ID format.
 
 resource "google_bigquery_table" "v_costs" {
   project    = var.project_id
-  dataset_id = google_bigquery_dataset.telemetry.dataset_id
+  dataset_id = google_bigquery_dataset.analytics.dataset_id
   table_id   = "v_costs"
 
   deletion_protection = false
@@ -135,19 +218,21 @@ resource "google_bigquery_table" "v_costs" {
     use_legacy_sql = false
     query          = <<-SQL
       SELECT
-        DATE(usage_start_time) AS day,
-        service.description AS gcp_service,
-        SUM(cost) AS daily_cost,
+        DATE(usage_start_time)    AS day,
+        service.description       AS gcp_service,
+        sku.description           AS sku,
+        SUM(cost)                 AS daily_cost,
         currency
       FROM `${var.project_id}.${google_bigquery_dataset.billing.dataset_id}.gcp_billing_export_v1_*`
-      WHERE usage_start_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 365 DAY)
-      GROUP BY day, gcp_service, currency
-      ORDER BY day
+      WHERE
+        usage_start_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+      GROUP BY day, gcp_service, sku, currency
+      ORDER BY day DESC, daily_cost DESC
     SQL
   }
 
   depends_on = [
-    google_bigquery_dataset.telemetry,
+    google_bigquery_dataset.analytics,
     google_bigquery_dataset.billing,
   ]
 }

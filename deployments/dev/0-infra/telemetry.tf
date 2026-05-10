@@ -1,63 +1,123 @@
-# --------------------------------------------------------------------------
-# BigQuery Dataset for Telemetry (Cloud Logging sink destination)
-# --------------------------------------------------------------------------
+# =============================================================================
+# Telemetry Infrastructure — Dev
+# =============================================================================
+#
+# Architecture:
+#
+#   Cloud Run logs
+#     └─► Log Sink ──► Custom Log Bucket (analytics-enabled, 5yr retention)
+#                          ├─ Observability Analytics  (SQL in GCP console)
+#                          └─ Linked BigQuery Dataset  (for Looker Studio)
+#                               └─ _AllLogs virtual view
+#
+#   Custom views for Looker Studio live in a separate google_bigquery_dataset
+#   ("analytics") because the linked dataset is read-only.
+#
+# =============================================================================
 
-resource "google_bigquery_dataset" "telemetry" {
-  dataset_id  = "swim_gen_dev_telemetry"
-  description = "Telemetry data from Cloud Run services (logs, metrics)"
+# -----------------------------------------------------------------------------
+# 1. Custom Log Bucket — analytics-enabled, 5-year retention
+# -----------------------------------------------------------------------------
+# Routes only application-relevant logs (stdout/stderr + Cloud Run request
+# logs). System/lifecycle events are excluded to reduce noise and storage.
+#
+# NOTE: enable_analytics cannot be disabled once set. Location cannot be
+# changed after creation. Both are intentional.
+
+resource "google_logging_project_bucket_config" "cloud_run" {
+  project          = var.project_id
+  location         = var.region
+  bucket_id        = "swim-gen-cloud-run"
+  description      = "Cloud Run application logs (stdout, stderr, requests) — 5yr retention"
+  retention_days   = 1825 # 5 years
+  enable_analytics = true
+
+  depends_on = [google_project_service.apis]
+}
+
+# -----------------------------------------------------------------------------
+# 2. Log Sink → Custom Log Bucket
+# -----------------------------------------------------------------------------
+# Captures Cloud Run stdout/stderr (structured app logs) and the
+# auto-generated request logs. System/lifecycle logs are excluded.
+
+resource "google_logging_project_sink" "cloud_run_logs" {
+  name    = "cloud-run-logs-to-bucket"
+  project = var.project_id
+
+  destination = "logging.googleapis.com/${google_logging_project_bucket_config.cloud_run.id}"
+
+  filter = <<-FILTER
+    resource.type="cloud_run_revision"
+    AND (
+      log_id("run.googleapis.com/stdout")
+      OR log_id("run.googleapis.com/stderr")
+      OR log_id("run.googleapis.com/requests")
+    )
+  FILTER
+
+  unique_writer_identity = true
+
+  depends_on = [google_logging_project_bucket_config.cloud_run]
+}
+
+# Grant the sink's writer identity permission to write to the log bucket.
+resource "google_project_iam_member" "log_sink_bucket_writer" {
+  project = var.project_id
+  role    = "roles/logging.bucketWriter"
+  member  = google_logging_project_sink.cloud_run_logs.writer_identity
+}
+
+# -----------------------------------------------------------------------------
+# 3. Linked BigQuery Dataset on the Log Bucket
+# -----------------------------------------------------------------------------
+# Creates a read-only BigQuery dataset backed by the log bucket.
+# Cloud Logging automatically maps log views → BigQuery virtual views:
+#   _AllLogs  →  PROJECT.swim_gen_dev_logs._AllLogs
+#
+# This dataset can be queried from Looker Studio (BigQuery connector) and
+# from Observability Analytics in the GCP console.
+
+resource "google_logging_linked_dataset" "telemetry" {
+  link_id     = "swim_gen_dev_logs"
+  bucket      = google_logging_project_bucket_config.cloud_run.id
+  description = "Linked BigQuery dataset for Cloud Run log analytics (dev)"
+
+  depends_on = [google_logging_project_bucket_config.cloud_run]
+}
+
+# -----------------------------------------------------------------------------
+# 4. Analytics BigQuery Dataset — custom views for Looker Studio
+# -----------------------------------------------------------------------------
+# The linked dataset is read-only; we cannot create views inside it.
+# This writable dataset holds our pre-built views that reference _AllLogs.
+
+resource "google_bigquery_dataset" "analytics" {
+  dataset_id  = "swim_gen_dev_analytics"
+  description = "Pre-built analytics views for Looker Studio (sourced from log bucket linked dataset)"
   project     = var.project_id
   location    = var.region
-
-  # Keep data indefinitely for 1-year+ analysis
-  # default_table_expiration_ms not set
 
   delete_contents_on_destroy = true # dev only — safe to destroy
 
   depends_on = [google_project_service.apis]
 }
 
-# --------------------------------------------------------------------------
-# Cloud Logging Sink → BigQuery
-# --------------------------------------------------------------------------
-
-resource "google_logging_project_sink" "cloud_run_logs" {
-  name        = "cloud-run-logs-to-bigquery"
-  project     = var.project_id
-  destination = "bigquery.googleapis.com/projects/${var.project_id}/datasets/${google_bigquery_dataset.telemetry.dataset_id}"
-  filter      = "resource.type=\"cloud_run_revision\""
-
-  unique_writer_identity = true
-
-  bigquery_options {
-    use_partitioned_tables = true
-  }
-
-  depends_on = [google_project_service.apis]
-}
-
-# --------------------------------------------------------------------------
-# Grant the log sink's writer identity BigQuery Data Editor on the dataset
-# --------------------------------------------------------------------------
-
-resource "google_bigquery_dataset_iam_member" "log_sink_writer" {
-  project    = var.project_id
-  dataset_id = google_bigquery_dataset.telemetry.dataset_id
-  role       = "roles/bigquery.dataEditor"
-  member     = google_logging_project_sink.cloud_run_logs.writer_identity
-}
-
-# --------------------------------------------------------------------------
-# Cloud Monitoring Metrics Export to BigQuery
-# --------------------------------------------------------------------------
-# Terraform does not currently support configuring Cloud Monitoring
-# metrics export to BigQuery natively. To retain metrics beyond the
-# default 6-week window:
+# =============================================================================
+# _Trace Linked BigQuery Dataset (Cloud Trace / Observability Analytics)
+# =============================================================================
+# Cloud Trace stores spans in a system-managed observability bucket (_Trace).
+# The _AllSpans view is auto-created when the first trace arrives.
 #
-# 1. Go to GCP Console → Monitoring → Settings → Metrics management
-# 2. Configure a Metrics Export to BigQuery targeting the telemetry dataset
+# Terraform does NOT yet support google_observability_linked_dataset.
+# To expose traces in BigQuery / Looker Studio, run once per project:
 #
-# Alternatively, use gcloud:
-#   gcloud alpha monitoring metrics-scopes create ...
+#   gcloud beta observability buckets datasets links create swim_gen_dev_traces \
+#     --dataset=Spans \
+#     --bucket=_Trace \
+#     --location=global \
+#     --project=rubenschulze-sandbox
 #
-# This is a one-time manual configuration per project.
-# --------------------------------------------------------------------------
+# After creation, reference the view as:
+#   `rubenschulze-sandbox.swim_gen_dev_traces._AllSpans`
+# =============================================================================
