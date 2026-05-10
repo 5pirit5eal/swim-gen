@@ -20,7 +20,7 @@
 #     .user_agent        STRING
 #     .remote_ip         STRING
 #
-# Extract service name:  JSON_VALUE(resource, '$.labels.service_name')
+# Extract service name:  JSON_VALUE(resource.labels, '$.service_name')
 # Extract latency ms:    http_request.latency.seconds * 1000
 #                        + http_request.latency.nanos / 1000000
 # Extract user_id:       JSON_VALUE(json_payload, '$.user_id')
@@ -50,7 +50,7 @@ resource "google_bigquery_table" "v_daily_active_users" {
     query          = <<-SQL
       SELECT
         DATE(timestamp)                                        AS day,
-        JSON_VALUE(resource, '$.labels.service_name')         AS service,
+        JSON_VALUE(resource.labels, '$.service_name')         AS service,
         COUNT(DISTINCT JSON_VALUE(json_payload, '$.user_id')) AS active_users
       FROM ${local.linked_logs}
       WHERE
@@ -112,7 +112,7 @@ resource "google_bigquery_table" "v_request_volume" {
     query          = <<-SQL
       SELECT
         DATE(timestamp)                               AS day,
-        JSON_VALUE(resource, '$.labels.service_name') AS service,
+        JSON_VALUE(resource.labels, '$.service_name') AS service,
         http_request.status                           AS status_code,
         CONCAT(
           CAST(CAST(http_request.status / 100 AS INT64) AS STRING), 'xx'
@@ -149,7 +149,7 @@ resource "google_bigquery_table" "v_request_latency" {
     query          = <<-SQL
       SELECT
         DATE(timestamp)                               AS day,
-        JSON_VALUE(resource, '$.labels.service_name') AS service,
+        JSON_VALUE(resource.labels, '$.service_name') AS service,
         COUNT(*)                                      AS request_count,
         ROUND(
           APPROX_QUANTILES(
@@ -201,7 +201,7 @@ resource "google_bigquery_table" "v_error_rate" {
     query          = <<-SQL
       SELECT
         DATE(timestamp)                               AS day,
-        JSON_VALUE(resource, '$.labels.service_name') AS service,
+        JSON_VALUE(resource.labels, '$.service_name') AS service,
         COUNT(*)                                      AS total_requests,
         COUNTIF(http_request.status >= 500)           AS server_errors,
         COUNTIF(http_request.status >= 400
