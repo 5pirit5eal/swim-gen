@@ -105,9 +105,9 @@ resource "github_actions_environment_variable" "prod_project_id" {
 }
 
 resource "github_actions_environment_secret" "prod_supabase_access_token" {
-  for_each        = local.github_env_secrets
-  repository      = data.github_repository.swim_gen_repo.name
-  environment     = github_repository_environment.prod.environment
-  secret_name     = each.key
-  plaintext_value = each.value
+  for_each    = local.github_env_secrets
+  repository  = data.github_repository.swim_gen_repo.name
+  environment = github_repository_environment.prod.environment
+  secret_name = each.key
+  value       = each.value
 }
