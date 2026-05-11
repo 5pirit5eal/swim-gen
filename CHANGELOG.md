@@ -1,3 +1,17 @@
+## [2.38.1](https://github.com/5pirit5eal/swim-gen/compare/v2.38.0...v2.38.1) (2026-05-11)
+
+### Bug Fixes
+
+* **a11y:** improve accessibility and fix canonical link typo ([d0d9b52](https://github.com/5pirit5eal/swim-gen/commit/d0d9b52b21d9b8687c97f1fbe7ea030fb01bcd35)), closes [#1a6d93](https://github.com/5pirit5eal/swim-gen/issues/1a6d93) [#145775](https://github.com/5pirit5eal/swim-gen/issues/145775)
+* **a11y:** localise aria-label strings in sidebar and drill filters ([eee22a7](https://github.com/5pirit5eal/swim-gen/commit/eee22a78b28bd1c5e228891f04503b5d3cdd1df4))
+* **perf:** address Copilot review issues in lazy-loading and nginx caching ([f2e1e28](https://github.com/5pirit5eal/swim-gen/commit/f2e1e28c142f8c21c26c643acadfc56996531ffe))
+
+### Performance Improvements
+
+* **assets:** convert background images from PNG to WebP ([70f7089](https://github.com/5pirit5eal/swim-gen/commit/70f70896e1982233885cba743cf616096c8a6e31))
+* **bundle:** lazy-load Supabase and driver.js to reduce initial JS ([663208a](https://github.com/5pirit5eal/swim-gen/commit/663208a78a2b4864b6c529a4cedcc0def71c0c79))
+* **nginx:** enable gzip, long-term caching, and security headers ([3d6c0b0](https://github.com/5pirit5eal/swim-gen/commit/3d6c0b04539b793c6ba6bbe09eb1e29fc461a0fc))
+
 ## [2.38.0](https://github.com/5pirit5eal/swim-gen/compare/v2.37.1...v2.38.0) (2026-05-11)
 
 ### Features
