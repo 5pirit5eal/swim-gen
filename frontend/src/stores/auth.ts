@@ -10,15 +10,21 @@ export const useAuthStore = defineStore('auth', () => {
   const hasInitialized = ref(false)
 
   void (async () => {
-    const supabase = await getSupabase()
-    supabase.auth.onAuthStateChange((event, newSession) => {
-      console.debug('Auth state changed:', event, newSession)
-      if (event === 'INITIAL_SESSION' && !hasInitialized.value) {
-        hasInitialized.value = true
-      }
-      session.value = newSession
-      user.value = newSession?.user ?? null
-    })
+    try {
+      const supabase = await getSupabase()
+      supabase.auth.onAuthStateChange((event, newSession) => {
+        console.debug('Auth state changed:', event, newSession)
+        if (event === 'INITIAL_SESSION' && !hasInitialized.value) {
+          hasInitialized.value = true
+        }
+        session.value = newSession
+        user.value = newSession?.user ?? null
+      })
+    } catch (e) {
+      // Ensure the router guard is never blocked if Supabase fails to load
+      console.error('[AuthStore] Failed to initialise Supabase auth listener:', e)
+      hasInitialized.value = true
+    }
   })()
 
   // --- COMPUTED ---

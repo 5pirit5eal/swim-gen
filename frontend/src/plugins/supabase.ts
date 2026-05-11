@@ -13,4 +13,16 @@ export async function getSupabase() {
   return supabaseClientPromise
 }
 
-export const supabase = {} as import('@supabase/supabase-js').SupabaseClient
+/**
+ * @deprecated Do not use this export directly. Always call `await getSupabase()` instead.
+ * This Proxy exists solely for backwards-compatibility with test mocks and will throw
+ * a descriptive error at runtime if any code accidentally accesses it outside of tests.
+ */
+export const supabase = new Proxy({} as import('@supabase/supabase-js').SupabaseClient, {
+  get(_target, prop) {
+    throw new Error(
+      `[supabase] Attempted to access .${String(prop)} on the legacy 'supabase' export. ` +
+        `Use 'await getSupabase()' instead.`,
+    )
+  },
+})
