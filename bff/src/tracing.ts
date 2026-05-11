@@ -41,10 +41,12 @@ const sdk = new NodeSDK({
   ...(sampler && { sampler }),
 });
 
-// start() is async; await it and log any startup failure before the server handles requests.
-sdk.start().catch((err: unknown) => {
+// start() is synchronous in this SDK version; wrap in try/catch to surface any startup errors.
+try {
+  sdk.start();
+} catch (err: unknown) {
   console.error("OTel SDK failed to start:", err);
-});
+}
 
 // Graceful shutdown
 process.on("SIGTERM", () => {
