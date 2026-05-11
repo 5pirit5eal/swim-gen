@@ -5,10 +5,6 @@ terraform {
       source  = "supabase/supabase"
       version = "~> 1.0"
     }
-    postgresql = {
-      source  = "cyrilgdn/postgresql"
-      version = ">= 1.15.0"
-    }
   }
   backend "gcs" {
     bucket = "swim-gen-state-prod"

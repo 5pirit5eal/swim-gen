@@ -57,6 +57,8 @@ resource "google_bigquery_table" "v_monthly_active_users" {
       WHERE
         log_id = "run.googleapis.com/stdout"
         AND JSON_VALUE(json_payload, '$.user_id') IS NOT NULL
+        -- Only count successful responses to prevent inflating MAU with failed/unauthorized requests
+        AND CAST(JSON_VALUE(json_payload, '$.httpResponse.status') AS INT64) < 400
         AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
       GROUP BY month, year, month_num, service
       ORDER BY month DESC, service
@@ -91,6 +93,8 @@ resource "google_bigquery_table" "v_total_users" {
       WHERE
         log_id = "run.googleapis.com/stdout"
         AND JSON_VALUE(json_payload, '$.user_id') IS NOT NULL
+        -- Only count successful responses to prevent inflating counts with failed/unauthorized requests
+        AND CAST(JSON_VALUE(json_payload, '$.httpResponse.status') AS INT64) < 400
 
       UNION ALL
 
@@ -105,6 +109,8 @@ resource "google_bigquery_table" "v_total_users" {
       WHERE
         log_id = "run.googleapis.com/stdout"
         AND JSON_VALUE(json_payload, '$.user_id') IS NOT NULL
+        -- Only count successful responses to prevent inflating counts with failed/unauthorized requests
+        AND CAST(JSON_VALUE(json_payload, '$.httpResponse.status') AS INT64) < 400
       GROUP BY year_date
       ORDER BY period, year_date DESC
     SQL

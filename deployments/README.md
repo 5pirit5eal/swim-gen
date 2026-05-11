@@ -135,7 +135,7 @@ tofu apply -target google_cloud_run_domain_mapping.frontend_domain_mapping
 tofu apply
 ```
 
-**PostGres Plugins**: Activate pgvector and pg_cron on your supase databases manually so that the system can use these dependencies.
+**PostgreSQL Plugins**: Activate pgvector and pg_cron on your Supabase databases manually so that the system can use these dependencies.
 
 #### Telemetry & Billing (One-Time)
 
@@ -170,14 +170,16 @@ The `_Trace` linked dataset enables querying Cloud Trace spans directly from Big
 ```bash
 # Dev
 gcloud beta observability buckets datasets links create swim_gen_dev_traces \
-  --bucket=swim-gen-cloud-run \
-  --location=europe-west4 \
+  --dataset=Spans \
+  --bucket=_Trace \
+  --location=global \
   --project=rubenschulze-sandbox
 
 # Prod
 gcloud beta observability buckets datasets links create swim_gen_prod_traces \
-  --bucket=swim-gen-cloud-run \
-  --location=europe-west4 \
+  --dataset=Spans \
+  --bucket=_Trace \
+  --location=global \
   --project=swim-gen-prod
 ```
 

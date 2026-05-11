@@ -13,7 +13,12 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import { ParentBasedSampler, TraceIdRatioBasedSampler } from "@opentelemetry/sdk-trace-node";
 
 const serviceName = process.env.OTEL_SERVICE_NAME || "swim-gen-bff";
-const samplerArg = parseFloat(process.env.OTEL_TRACES_SAMPLER_ARG || "1.0");
+
+// Validate samplerArg: must be a finite number in [0, 1]; default to 1.0 otherwise.
+const _rawSamplerArg = parseFloat(process.env.OTEL_TRACES_SAMPLER_ARG || "1.0");
+const samplerArg = Number.isFinite(_rawSamplerArg)
+  ? Math.min(1.0, Math.max(0.0, _rawSamplerArg))
+  : 1.0;
 
 const sampler =
   samplerArg < 1.0
@@ -36,7 +41,10 @@ const sdk = new NodeSDK({
   ...(sampler && { sampler }),
 });
 
-sdk.start();
+// start() is async; await it and log any startup failure before the server handles requests.
+sdk.start().catch((err: unknown) => {
+  console.error("OTel SDK failed to start:", err);
+});
 
 // Graceful shutdown
 process.on("SIGTERM", () => {

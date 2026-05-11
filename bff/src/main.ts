@@ -65,18 +65,22 @@ app.use((req, res, next) => {
     const span = trace.getSpan(otelContext.active());
     const traceId = span?.spanContext().traceId;
 
-    // Extract userId from Supabase JWT (base64 decode, no validation — backend validates)
+    // Extract userId from Supabase JWT (base64 decode, no validation — backend validates).
+    // Only include in logs on successful responses (< 400) to avoid inflating MAU counts
+    // with requests that carry a spoofed or invalid token.
     let userId: string | undefined;
-    const authHeader = req.headers.authorization;
-    if (authHeader?.startsWith("Bearer ")) {
-      try {
-        const payload = authHeader.split(".")[1];
-        if (payload) {
-          const decoded = JSON.parse(Buffer.from(payload, "base64url").toString());
-          userId = decoded.sub;
+    if (res.statusCode < 400) {
+      const authHeader = req.headers.authorization;
+      if (authHeader?.startsWith("Bearer ")) {
+        try {
+          const payload = authHeader.split(".")[1];
+          if (payload) {
+            const decoded = JSON.parse(Buffer.from(payload, "base64url").toString());
+            userId = decoded.sub;
+          }
+        } catch {
+          // JWT decode failed — not critical for logging
         }
-      } catch {
-        // JWT decode failed — not critical for logging
       }
     }
 

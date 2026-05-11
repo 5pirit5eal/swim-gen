@@ -88,8 +88,19 @@ func main() {
 	address := "0.0.0.0:" + port
 	logger.Info("Starting server", "listening on", address)
 
-	// Wrap the router with OTel HTTP instrumentation for automatic span creation
-	handler := otelhttp.NewHandler(router, "swim-gen-backend")
+	// Wrap the router with OTel HTTP instrumentation for automatic span creation.
+	// Use a span name formatter so each span reflects the matched route template
+	// (e.g. "GET /uploads/{plan_id}") rather than a static service name.
+	handler := otelhttp.NewHandler(router, "swim-gen-backend",
+		otelhttp.WithSpanNameFormatter(func(operation string, r *http.Request) string {
+			if route := chi.RouteContext(r.Context()); route != nil {
+				if pattern := route.RoutePattern(); pattern != "" {
+					return r.Method + " " + pattern
+				}
+			}
+			return operation
+		}),
+	)
 	if err := http.ListenAndServe(address, handler); err != nil {
 		logger.Error("Server stopped with error", httplog.ErrAttr(err))
 		log.Fatal(err)
