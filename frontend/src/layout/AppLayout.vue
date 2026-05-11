@@ -37,14 +37,14 @@ const sidebarStore = useSidebarStore()
 /* Light mode background */
 @media (prefers-color-scheme: light) {
   .app-layout {
-    background-image: url('@/assets/light_mode.png');
+    background-image: url('@/assets/light_mode.webp');
   }
 }
 
 /* Dark mode backgrounds */
 @media (prefers-color-scheme: dark) {
   .app-layout {
-    background-image: url('@/assets/dark_mode.png');
+    background-image: url('@/assets/dark_mode.webp');
   }
 }
 

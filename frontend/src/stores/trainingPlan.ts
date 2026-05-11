@@ -22,7 +22,7 @@ import {
 } from '@/utils/rowHelpers'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { supabase } from '@/plugins/supabase'
+import { getSupabase } from '@/plugins/supabase'
 import { useAuthStore } from '@/stores/auth'
 
 export const useTrainingPlanStore = defineStore('trainingPlan', () => {
@@ -91,6 +91,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   async function fetchHistory(reset = true) {
     console.debug('[TrainingPlanStore] fetchHistory', { reset, page: historyPage.value })
     if (!userStore.user) return
+    const supabase = await getSupabase()
     if (reset) {
       historyPage.value = 0
       historyHasMore.value = true
@@ -187,6 +188,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       return
     }
     if (!userStore.user) return
+    const supabase = await getSupabase()
 
     isSearching.value = true
     try {
@@ -258,6 +260,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
   // Update keep_forever for plan in history
   async function toggleKeepForever(planId: string | undefined) {
     if (!userStore.user || !planId) return
+    const supabase = await getSupabase()
     const metadataEntry = historyMetadata.value.find((entry) => entry.plan_id === planId)
     if (!metadataEntry) return
     const newKeepForever = !metadataEntry.keep_forever

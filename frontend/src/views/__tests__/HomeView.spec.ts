@@ -33,6 +33,19 @@ vi.mock('@/plugins/supabase', () => ({
     single: vi.fn().mockReturnThis(),
     maybeSingle: vi.fn().mockReturnThis(),
   },
+  getSupabase: vi.fn(async () => ({
+    auth: {
+      onAuthStateChange: vi.fn(),
+    },
+    from: vi.fn().mockReturnThis(),
+    select: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    range: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    single: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockReturnThis(),
+  })),
 }))
 
 describe('HomeView.vue', () => {

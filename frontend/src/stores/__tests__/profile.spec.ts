@@ -5,12 +5,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { supabase } from '@/plugins/supabase'
 import type { Mock } from 'vitest'
 
-const mockedSupabase = supabase as unknown as {
-  from: Mock
-}
-
-vi.mock('@/plugins/supabase', () => ({
-  supabase: {
+const { mockedSupabaseClient } = vi.hoisted(() => ({
+  mockedSupabaseClient: {
     from: vi.fn().mockReturnThis(),
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
@@ -36,6 +32,15 @@ vi.mock('@/plugins/supabase', () => ({
       onAuthStateChange: vi.fn(),
     },
   },
+}))
+
+const mockedSupabase = supabase as unknown as {
+  from: Mock
+}
+
+vi.mock('@/plugins/supabase', () => ({
+  supabase: mockedSupabaseClient,
+  getSupabase: vi.fn(async () => mockedSupabaseClient),
 }))
 
 describe('Profile Store', () => {

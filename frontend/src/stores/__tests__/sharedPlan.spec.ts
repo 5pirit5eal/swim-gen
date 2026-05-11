@@ -6,19 +6,7 @@ import { supabase } from '@/plugins/supabase'
 import { useAuthStore } from '@/stores/auth'
 import type { Mock } from 'vitest'
 
-// --- Mocks ---
-vi.mock('@/api/client', async (importOriginal) => {
-  const actual = (await importOriginal()) as typeof import('@/api/client')
-  return {
-    ...actual,
-    apiClient: {
-      upsertPlan: vi.fn(),
-    },
-    formatError: vi.fn((error) => `${error.message}: ${error.details}`),
-  }
-})
-
-vi.mock('@/plugins/supabase', () => {
+const { mockSupabase } = vi.hoisted(() => {
   const mockSupabase = {
     from: vi.fn(),
     select: vi.fn(),
@@ -33,7 +21,6 @@ vi.mock('@/plugins/supabase', () => {
     maybeSingle: vi.fn(),
   }
 
-  // Setup chaining
   mockSupabase.from.mockReturnValue(mockSupabase)
   mockSupabase.select.mockReturnValue(mockSupabase)
   mockSupabase.order.mockReturnValue(mockSupabase)
@@ -46,8 +33,25 @@ vi.mock('@/plugins/supabase', () => {
   mockSupabase.update.mockReturnValue(mockSupabase)
   mockSupabase.maybeSingle.mockReturnValue(mockSupabase)
 
+  return { mockSupabase }
+})
+
+// --- Mocks ---
+vi.mock('@/api/client', async (importOriginal) => {
+  const actual = (await importOriginal()) as typeof import('@/api/client')
+  return {
+    ...actual,
+    apiClient: {
+      upsertPlan: vi.fn(),
+    },
+    formatError: vi.fn((error) => `${error.message}: ${error.details}`),
+  }
+})
+
+vi.mock('@/plugins/supabase', () => {
   return {
     supabase: mockSupabase,
+    getSupabase: vi.fn(async () => mockSupabase),
   }
 })
 

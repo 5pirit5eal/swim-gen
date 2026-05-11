@@ -446,7 +446,8 @@
     "search_no_results": "Keine Pläne gefunden.",
     "search_results_info": "{count} Ergebnis(se) gefunden.",
     "search_limit_hit": "Zeige erste {count} Ergebnisse. Verfeinere deine Suche für genauere Treffer.",
-    "load_more": "Mehr laden"
+    "load_more": "Mehr laden",
+    "close_btn": "Seitenleiste schließen"
   },
   "donation": {
     "title": "Trainingsplan hochladen",
@@ -553,6 +554,9 @@
     "view_details": "Details ansehen",
     "search_placeholder": "Übungen suchen...",
     "all_difficulties": "Alle Schwierigkeitsgrade",
+    "aria_difficulty": "Schwierigkeitsgrad",
+    "aria_styles": "Stil",
+    "aria_target_groups": "Zielgruppe",
     "explore_drills": "Trainingsübungen entdecken",
     "no_results": "Keine Übungen gefunden, die deinen Kriterien entsprechen.",
     "difficulty": {

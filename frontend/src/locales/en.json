@@ -444,7 +444,8 @@
     "search_no_results": "No plans match your search.",
     "search_results_info": "Showing {count} result(s).",
     "search_limit_hit": "Showing first {count} results. Refine your search for more specific results.",
-    "load_more": "Load More"
+    "load_more": "Load More",
+    "close_btn": "Close sidebar"
   },
   "donation": {
     "title": "Upload Training Plan",
@@ -551,6 +552,9 @@
     "view_details": "View Details",
     "search_placeholder": "Search drills...",
     "all_difficulties": "All Difficulties",
+    "aria_difficulty": "Difficulty",
+    "aria_styles": "Stroke/Style",
+    "aria_target_groups": "Target Group",
     "explore_drills": "Explore Drills",
     "no_results": "No drills found matching your criteria.",
     "difficulty": {

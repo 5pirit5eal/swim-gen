@@ -338,7 +338,7 @@ async function loadUploadedPlan(plan_id: string) {
 <template>
   <aside class="sidebar" :class="{ 'is-open': sidebarStore.isOpen }">
     <div class="sidebar-header">
-      <button @click="sidebarStore.close" class="close-btn">
+      <button @click="sidebarStore.close" class="close-btn" :aria-label="t('sidebar.close_btn')">
         <IconCross />
       </button>
       <h3>{{ t('sidebar.history') }}</h3>
