@@ -128,7 +128,12 @@ const currentTargetGroup = computed({
     <div class="filters-row">
       <!-- Difficulty Filter -->
       <div class="filter-group">
-        <select v-model="selectedDifficulty" @change="handleFilterChange" class="filter-select">
+        <select
+          v-model="selectedDifficulty"
+          @change="handleFilterChange"
+          class="filter-select"
+          aria-label="Difficulty"
+        >
           <option v-for="opt in difficultyOptions" :key="opt.value" :value="opt.value">
             {{ opt.label }}
           </option>
@@ -137,7 +142,12 @@ const currentTargetGroup = computed({
 
       <!-- Style Filter -->
       <div class="filter-group">
-        <select v-model="currentStyle" @change="handleFilterChange" class="filter-select">
+        <select
+          v-model="currentStyle"
+          @change="handleFilterChange"
+          class="filter-select"
+          aria-label="Stroke/Style"
+        >
           <option value="">{{ t('drill.styles', 'Styles') }}</option>
           <option v-for="style in styleOptions" :key="style" :value="style">
             {{ style }}
@@ -147,7 +157,12 @@ const currentTargetGroup = computed({
 
       <!-- Target Group Filter -->
       <div class="filter-group">
-        <select v-model="currentTargetGroup" @change="handleFilterChange" class="filter-select">
+        <select
+          v-model="currentTargetGroup"
+          @change="handleFilterChange"
+          class="filter-select"
+          aria-label="Target Group"
+        >
           <option value="">{{ t('drill.target_groups', 'Target Groups') }}</option>
           <option v-for="tg in targetGroupOptions" :key="tg" :value="tg">
             {{ tg }}

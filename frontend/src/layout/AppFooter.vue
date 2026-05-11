@@ -62,6 +62,7 @@ const { t } = useI18n()
   background-color: var(--color-background-soft);
   border-top: 1px solid var(--color-border);
   margin-top: auto;
+  min-height: 280px;
   padding: 2rem 0 1rem 0;
 }
 
@@ -79,6 +80,10 @@ const { t } = useI18n()
 }
 
 @media (max-width: 740px) {
+  .app-footer {
+    min-height: 360px;
+  }
+
   .footer-content {
     justify-items: left;
   }
