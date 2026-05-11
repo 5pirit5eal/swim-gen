@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
 import type { Profile } from '@/types'
-import { supabase } from '@/plugins/supabase'
+import { getSupabase } from '@/plugins/supabase'
 import { useAuthStore } from '@/stores/auth'
 
 export const useProfileStore = defineStore('profile', () => {
@@ -28,6 +28,7 @@ export const useProfileStore = defineStore('profile', () => {
       error.value = 'User is not available.'
       return
     }
+    const supabase = await getSupabase()
     error.value = null
     const { data, error: query_error } = await supabase
       .from('profiles')
@@ -52,6 +53,7 @@ export const useProfileStore = defineStore('profile', () => {
     if (!userStore.user) {
       return
     }
+    const supabase = await getSupabase()
     loading.value = true
     error.value = null
     const { data, error: update_error } = await supabase

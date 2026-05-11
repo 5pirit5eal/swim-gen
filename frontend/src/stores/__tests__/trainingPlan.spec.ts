@@ -8,6 +8,19 @@ import { supabase } from '@/plugins/supabase'
 import { useAuthStore } from '@/stores/auth'
 import type { Mock } from 'vitest'
 
+const { mockedSupabaseClient } = vi.hoisted(() => ({
+  mockedSupabaseClient: {
+    from: vi.fn().mockReturnThis(),
+    select: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
+    update: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    range: vi.fn().mockReturnThis(),
+  },
+}))
+
 // --- Mocks ---
 vi.mock('@/api/client', async (importOriginal) => {
   const actual = (await importOriginal()) as typeof import('@/api/client')
@@ -25,16 +38,8 @@ vi.mock('@/api/client', async (importOriginal) => {
 })
 
 vi.mock('@/plugins/supabase', () => ({
-  supabase: {
-    from: vi.fn().mockReturnThis(),
-    select: vi.fn().mockReturnThis(),
-    order: vi.fn().mockReturnThis(),
-    in: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-    range: vi.fn().mockReturnThis(),
-  },
+  supabase: mockedSupabaseClient,
+  getSupabase: vi.fn(async () => mockedSupabaseClient),
 }))
 
 vi.mock('@/stores/auth', () => ({

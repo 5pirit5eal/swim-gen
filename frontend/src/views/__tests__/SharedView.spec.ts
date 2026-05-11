@@ -42,6 +42,26 @@ vi.mock('@/plugins/supabase', () => ({
       getSession: vi.fn(() => Promise.resolve({ data: { session: null }, error: null })),
     },
   },
+  getSupabase: vi.fn(async () => ({
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => ({
+            range: vi.fn(() => Promise.resolve({ data: [], error: null })),
+          })),
+        })),
+        in: vi.fn(() => ({
+          order: vi.fn(() => ({
+            range: vi.fn(() => Promise.resolve({ data: [], error: null })),
+          })),
+        })),
+      })),
+    })),
+    auth: {
+      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+      getSession: vi.fn(() => Promise.resolve({ data: { session: null }, error: null })),
+    },
+  })),
 }))
 
 const pushMock = vi.fn()

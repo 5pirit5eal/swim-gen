@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Session, User, EmailOtpType } from '@supabase/supabase-js'
-import { supabase } from '@/plugins/supabase'
+import { getSupabase } from '@/plugins/supabase'
 
 export const useAuthStore = defineStore('auth', () => {
   // --- STATE ---
@@ -9,20 +9,24 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const hasInitialized = ref(false)
 
-  supabase.auth.onAuthStateChange((event, newSession) => {
-    console.debug('Auth state changed:', event, newSession)
-    if (event === 'INITIAL_SESSION' && !hasInitialized.value) {
-      hasInitialized.value = true
-    }
-    session.value = newSession
-    user.value = newSession?.user ?? null
-  })
+  void (async () => {
+    const supabase = await getSupabase()
+    supabase.auth.onAuthStateChange((event, newSession) => {
+      console.debug('Auth state changed:', event, newSession)
+      if (event === 'INITIAL_SESSION' && !hasInitialized.value) {
+        hasInitialized.value = true
+      }
+      session.value = newSession
+      user.value = newSession?.user ?? null
+    })
+  })()
 
   // --- COMPUTED ---
 
   // --- ACTIONS ---
   async function signInWithPassword(email: string, password: string) {
     console.debug('[AuthStore] signInWithPassword', { email })
+    const supabase = await getSupabase()
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -33,6 +37,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function signUp(email: string, password: string, username: string) {
     console.debug('[AuthStore] signUp', { email, username })
+    const supabase = await getSupabase()
     // Check if the username is already taken
     const { data: existingUser, error: existingUserError } = await supabase
       .from('profiles')
@@ -68,6 +73,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function signInWithOAuth() {
     console.log('Signing in with OAuth and redirecting to', `${window.location.origin}/`)
+    const supabase = await getSupabase()
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -80,11 +86,13 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function signOut() {
     console.debug('[AuthStore] signOut')
+    const supabase = await getSupabase()
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   }
 
   async function resetPassword(email: string, redirectTo: string) {
+    const supabase = await getSupabase()
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo,
     })
@@ -92,11 +100,13 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function updatePassword(password: string) {
+    const supabase = await getSupabase()
     const { error } = await supabase.auth.updateUser({ password })
     if (error) throw error
   }
 
   async function verifyOtp(token_hash: string, type: EmailOtpType) {
+    const supabase = await getSupabase()
     const { error } = await supabase.auth.verifyOtp({ token_hash, type })
     if (error) throw error
   }

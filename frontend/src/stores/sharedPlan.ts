@@ -16,7 +16,7 @@ import {
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import router from '@/router'
-import { supabase } from '@/plugins/supabase'
+import { getSupabase } from '@/plugins/supabase'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useUploadStore } from '@/stores/uploads'
@@ -66,6 +66,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     isLoading.value = true
     error.value = null
     isForked.value = false
+    const supabase = await getSupabase()
 
     // Check if we are loading a plan from history
     if (hash === '' && sharedPlan.value !== null) {
@@ -198,6 +199,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   async function fetchSharedHistory(reset = true) {
     console.debug('[SharedPlanStore] fetchSharedHistory', { reset, page: historyPage.value })
     if (!authStore.user) return
+    const supabase = await getSupabase()
 
     if (reset) {
       historyPage.value = 0
@@ -301,6 +303,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     error.value = null
     sharedPlan.value = null
     isForked.value = false
+    const supabase = await getSupabase()
 
     try {
       // 1. Get the username from the profiles table using the shared_by ID
@@ -335,6 +338,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   // Adds a plan to the user's shared history
   async function addPlanToHistory(planId: string, sharedBy: string) {
     if (!authStore.user) return
+    const supabase = await getSupabase()
 
     try {
       // Check if already exists to avoid duplicates (or could use upsert)

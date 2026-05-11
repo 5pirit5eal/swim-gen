@@ -4,9 +4,8 @@ import { useAuthStore } from '../auth'
 import { supabase } from '@/plugins/supabase'
 import type { Mock } from 'vitest'
 
-// Mock the supabase client
-vi.mock('@/plugins/supabase', () => ({
-  supabase: {
+const { mockedSupabaseClient } = vi.hoisted(() => ({
+  mockedSupabaseClient: {
     auth: {
       getSession: vi.fn(),
       getUser: vi.fn(),
@@ -24,6 +23,12 @@ vi.mock('@/plugins/supabase', () => ({
       })),
     })),
   },
+}))
+
+// Mock the supabase client
+vi.mock('@/plugins/supabase', () => ({
+  supabase: mockedSupabaseClient,
+  getSupabase: vi.fn(async () => mockedSupabaseClient),
 }))
 
 const mockedGetSession = supabase.auth.getSession as Mock
@@ -123,8 +128,9 @@ describe('auth Store', () => {
     await expect(store.signOut()).rejects.toThrow(mockError)
   })
 
-  it('updates session and user on onAuthStateChange', () => {
+  it('updates session and user on onAuthStateChange', async () => {
     const store = useAuthStore()
+    await Promise.resolve()
     expect(mockedOnAuthStateChange).toHaveBeenCalled()
 
     const callback = mockedOnAuthStateChange.mock.calls[0]![0]
