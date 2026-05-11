@@ -1,3 +1,25 @@
+## [2.38.0](https://github.com/5pirit5eal/swim-gen/compare/v2.37.1...v2.38.0) (2026-05-11)
+
+### Features
+
+* add BigQuery telemetry infrastructure ([0ab977e](https://github.com/5pirit5eal/swim-gen/commit/0ab977e1dd3a56842e718f80748dc8cb22f1b5c9))
+* add BigQuery views for Looker Studio dashboard ([ef94033](https://github.com/5pirit5eal/swim-gen/commit/ef94033abc010cd1e8d1b48b72fc27b53bc5fc62))
+* add billing dataset, OTel env vars, and telemetry docs ([999791d](https://github.com/5pirit5eal/swim-gen/commit/999791d0c46dce0e9e79a3ffd2cfee7cf9dbad9a))
+* add OpenTelemetry tracing and structured logging to BFF and backend ([20d3952](https://github.com/5pirit5eal/swim-gen/commit/20d3952680e1f43e2e98004fac3a424c36ea34c2))
+* add per-route rollups and monthly MAU to telemetry views ([681c6f4](https://github.com/5pirit5eal/swim-gen/commit/681c6f479f798776ab56d1893e29048acd69b7c6))
+* add telemetry IAM roles for backend and frontend service accounts ([8be06a2](https://github.com/5pirit5eal/swim-gen/commit/8be06a20d0a9c658697f0d5d0be982f46d5aa38c))
+* rework telemetry to log bucket + linked dataset + monitoring dashboard ([cddf76b](https://github.com/5pirit5eal/swim-gen/commit/cddf76b9ddf823ec82ba561900ccd4c253eeae51))
+
+### Bug Fixes
+
+* add trailing backslash to docker build-arg command in deployments README ([76322c5](https://github.com/5pirit5eal/swim-gen/commit/76322c5a58b51fbd78bad1e9036ad41c111244d1))
+* address Copilot review issues from PR [#235](https://github.com/5pirit5eal/swim-gen/issues/235) ([af16f5c](https://github.com/5pirit5eal/swim-gen/commit/af16f5c3098d34d0956b7c45e31c1e12546d52ab))
+* correct _AllLogs schema and remove invalid sink IAM binding ([089861f](https://github.com/5pirit5eal/swim-gen/commit/089861f72dd9f85f641dbfa9933b3997b1847bdb))
+* exclude frontend stdout/stderr from long-term log sink ([ee9eb9c](https://github.com/5pirit5eal/swim-gen/commit/ee9eb9c38c7a9574529274569fd54c2491a747c4))
+* remove unused observability analytics IAM bindings ([36f5fd6](https://github.com/5pirit5eal/swim-gen/commit/36f5fd6ed8096bcc5ca48a660611e2dd986b98f1))
+* rename plaintext_value to value in github_actions_environment_secret ([8354b67](https://github.com/5pirit5eal/swim-gen/commit/8354b6762d737980ce7cdd4171f36cb4f48799f7))
+* resource.labels is JSON inside a STRUCT, not a top-level JSON ([485ba57](https://github.com/5pirit5eal/swim-gen/commit/485ba57e610b199a7fabfe7cd843f30b6502ea45))
+
 ## [2.37.1](https://github.com/5pirit5eal/swim-gen/compare/v2.37.0...v2.37.1) (2026-05-08)
 
 ### Bug Fixes
