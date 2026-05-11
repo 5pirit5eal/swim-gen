@@ -19,6 +19,9 @@ resource "google_project_iam_member" "github_actions_iam" {
     "roles/storage.admin",
     "roles/run.admin",
     "roles/logging.logWriter",
+    "roles/logging.configWriter", # manage log buckets, sinks, and linked datasets
+    "roles/bigquery.dataEditor",  # create/update BigQuery datasets and view tables
+    "roles/bigquery.jobUser",     # run BigQuery jobs (required alongside dataEditor)
     "roles/iam.serviceAccountUser",
     "roles/iam.serviceAccountTokenCreator",
     "roles/artifactregistry.admin",
