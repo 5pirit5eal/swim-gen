@@ -6,9 +6,10 @@ let driverModulePromise: Promise<typeof import('driver.js')> | null = null
 
 async function getDriverModule() {
   if (!driverModulePromise) {
-    driverModulePromise = Promise.all([import('driver.js'), import('driver.js/dist/driver.css')]).then(
-      ([driverModule]) => driverModule,
-    )
+    driverModulePromise = Promise.all([
+      import('driver.js'),
+      import('driver.js/dist/driver.css'),
+    ]).then(([driverModule]) => driverModule)
   }
 
   return driverModulePromise
