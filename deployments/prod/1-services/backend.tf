@@ -19,6 +19,9 @@ locals {
     SUPABASE_URL              = "https://${var.supabase.id}.supabase.co"
     SUPABASE_ANON_KEY         = data.supabase_apikeys.production_keys.anon_key
     SUPABASE_SERVICE_ROLE_KEY = data.supabase_apikeys.production_keys.service_role_key
+    # OTel — backend uses the Cloud Trace exporter directly; no OTLP endpoint needed
+    OTEL_SERVICE_NAME        = "swim-gen-backend"
+    OTEL_TRACES_SAMPLER_ARG  = "0.1"
   }
 }
 

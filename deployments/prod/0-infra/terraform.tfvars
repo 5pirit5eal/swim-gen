@@ -7,7 +7,13 @@ apis = [
   "container.googleapis.com",
   "compute.googleapis.com",
   "artifactregistry.googleapis.com",
-  "aiplatform.googleapis.com"
+  "aiplatform.googleapis.com",
+  "monitoring.googleapis.com",
+  "cloudtrace.googleapis.com",
+  "bigquery.googleapis.com",
+  "logging.googleapis.com",
+  "telemetry.googleapis.com",
+  "billingbudgets.googleapis.com"
 ]
 dbusers = {
   backend  = "coach"

@@ -41,6 +41,9 @@ third-party/*
 .DS_Store
 .sisyphus
 .playwright-mcp
+.opencode
+tokens
+*TODO.md
 
 # credentials
 gha-creds-*.json

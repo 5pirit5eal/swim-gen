@@ -57,7 +57,7 @@ docker build --build-arg VITE_IMPRESSUM_NAME="$VITE_IMPRESSUM_NAME" \
   --build-arg VITE_IMPRESSUM_EMAIL="$VITE_IMPRESSUM_EMAIL" \
   --build-arg VITE_SITE_URL="$VITE_SITE_URL" \
   --build-arg VITE_SUPABASE_URL="$VITE_SUPABASE_URL" \
-  --build-arg VITE_SUPABASE_ANON_KEY="$VITE_SUPABASE_ANON_KEY"
+  --build-arg VITE_SUPABASE_ANON_KEY="$VITE_SUPABASE_ANON_KEY" \
   .
 ```
 
@@ -134,6 +134,131 @@ tofu apply -target google_cloud_run_domain_mapping.frontend_domain_mapping
 ```bash
 tofu apply
 ```
+
+**PostgreSQL Plugins**: Activate pgvector and pg_cron on your Supabase databases manually so that the system can use these dependencies.
+
+#### Telemetry & Billing (One-Time)
+
+After applying the `0-infra` stage with the telemetry and billing resources, complete these manual steps.
+
+**Architecture overview:**
+
+```
+Cloud Run services (stdout/stderr + request logs)
+  └─→ Cloud Logging log bucket (swim-gen-cloud-run, 1825-day retention)
+        └─→ Linked BigQuery dataset (swim_gen_<env>_logs) — read-only, _AllLogs virtual view
+              └─→ Analytics views in swim_gen_<env>_analytics dataset
+                    └─→ Looker Studio dashboard
+
+GCP Billing export
+  └─→ BigQuery dataset (swim_gen_billing, prod only)
+        └─→ v_costs view in swim_gen_prod_analytics
+```
+
+**Step 1 — Billing Export to BigQuery** (prod only):
+
+- Go to GCP Console → Billing → Billing export → BigQuery export
+- Enable **Detailed usage cost** export
+- Select project: `swim-gen-prod`, dataset: `swim_gen_billing`
+- GCP will begin populating a table named `gcp_billing_export_v1_<BILLING_ACCOUNT_ID>`
+- Note: data appears with a ~1-day delay; the `v_costs` view will return no rows until the first export lands
+
+**Step 2 — Trace Linked Dataset** (both environments, optional):
+
+The `_Trace` linked dataset enables querying Cloud Trace spans directly from BigQuery. There is no Terraform resource for this — create it once with:
+
+```bash
+# Dev
+gcloud beta observability buckets datasets links create swim_gen_dev_traces \
+  --dataset=Spans \
+  --bucket=_Trace \
+  --location=global \
+  --project=rubenschulze-sandbox
+
+# Prod
+gcloud beta observability buckets datasets links create swim_gen_prod_traces \
+  --dataset=Spans \
+  --bucket=_Trace \
+  --location=global \
+  --project=swim-gen-prod
+```
+
+**Step 3 — Looker Studio Dashboard:**
+
+See the [Looker Studio Dashboard](#looker-studio-dashboard) section below.
+
+---
+
+#### Looker Studio Dashboard
+
+Go to [lookerstudio.google.com](https://lookerstudio.google.com) → **Create → Report**.
+
+##### Add data sources
+
+Add one BigQuery data source per view. For each: **Add data → BigQuery → My projects → select project → `swim_gen_<env>_analytics`** → select the view.
+
+| Data source name | View | Project |
+|---|---|---|
+| `swim-gen: Monthly Active Users` | `v_monthly_active_users` | dev or prod |
+| `swim-gen: Total Users` | `v_total_users` | dev or prod |
+| `swim-gen: Request Volume` | `v_request_volume` | dev or prod |
+| `swim-gen: Request Latency` | `v_request_latency` | dev or prod |
+| `swim-gen: Error Rate` | `v_error_rate` | dev or prod |
+| `swim-gen: Costs` | `v_costs` | prod only |
+
+> All views return no rows until traffic has flowed through the services and logs have been ingested. This is expected behaviour.
+
+##### Date range control
+
+Add a **Date range control** (Insert menu → Date range control). Set the default to **Last 12 months**. Connect it to all charts that have a `day` or `month` dimension — Looker Studio filters automatically when the dimension type is **Date** or **Year Month**.
+
+For charts using `v_monthly_active_users`, set the date dimension to `month` with type **Year Month**.
+
+##### Page 1 — Users
+
+| Chart | Type | Data source | Dimension | Metric | Notes |
+|---|---|---|---|---|---|
+| Monthly Active Users | Time series | Monthly Active Users | `month` | `active_users` | Add `service` as breakdown dimension |
+| All-time unique users | Scorecard | Total Users | — | `unique_users` | Add filter: `period = all_time` |
+| Yearly unique users | Bar chart | Total Users | `year` | `unique_users` | Add filter: `period = yearly` |
+
+##### Page 2 — Performance
+
+| Chart | Type | Data source | Dimension | Metric | Notes |
+|---|---|---|---|---|---|
+| Request Volume (total) | Time series | Request Volume | `day` | `request_count` | Add filter `route = _total`; use `service` as breakdown |
+| Request Volume by Route | Bar chart | Request Volume | `route` | `request_count` | Add filter `route != _total`; add `service` filter control |
+| Latency p50/p95/p99 (total) | Time series | Request Latency | `day` | `p50_ms`, `p95_ms`, `p99_ms` | Add filter `route = _total`; add `service` filter control |
+| Latency by Route | Table | Request Latency | `route`, `service` | `p50_ms`, `p95_ms`, `p99_ms` | Add filter `route != _total` |
+| Error Rate (total) | Time series | Error Rate | `day` | `error_rate_pct` | Add filter `route = _total`; add `service` filter control |
+| Error Rate by Route | Table | Error Rate | `route`, `service` | `error_rate_pct`, `server_error_rate_pct`, `total_requests` | Add filter `route != _total` |
+
+> The `route` field uses the value `_total` as a sentinel for the rolled-up daily total across all routes. Filter on `route = _total` for aggregate charts and `route != _total` for per-route breakdowns.
+
+##### Page 3 — Costs (prod only)
+
+Connect these charts to the prod project's `swim_gen_prod_analytics` dataset.
+
+| Chart | Type | Data source | Dimension | Metric | Notes |
+|---|---|---|---|---|---|
+| Daily Cost | Stacked area | Costs | `day` | `daily_cost` | Use `gcp_service` as breakdown dimension |
+| Cost by SKU | Bar chart | Costs | `sku` | `daily_cost` | Sort descending by `daily_cost` |
+| Total cost (period) | Scorecard | Costs | — | `SUM(daily_cost)` | Respects the date range control |
+
+##### Filter controls (report-level)
+
+Add these to the report header so they apply across all pages:
+
+- **Service** — dropdown filter on the `service` field
+- **Date range** — already added above
+
+Add this to Page 2 only:
+
+- **Route** — dropdown filter on the `route` field; set a default exclusion filter of `route != _total` on all per-route charts to avoid the rollup row appearing in breakdowns
+
+##### Switching to prod
+
+Once validated in dev, clone the report (**File → Make a copy**), then for each data source swap the project from `rubenschulze-sandbox` / `swim_gen_dev_analytics` to `swim-gen-prod` / `swim_gen_prod_analytics`, and add Page 3 (costs).
 
 #### Subsequent Manual Runs
 

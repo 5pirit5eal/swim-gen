@@ -19,6 +19,9 @@ resource "google_project_iam_member" "github_actions_iam" {
     "roles/storage.admin",
     "roles/run.admin",
     "roles/logging.logWriter",
+    "roles/logging.configWriter", # manage log buckets, sinks, and linked datasets
+    "roles/bigquery.dataEditor",  # create/update BigQuery datasets and view tables
+    "roles/bigquery.jobUser",     # run BigQuery jobs (required alongside dataEditor)
     "roles/iam.serviceAccountUser",
     "roles/iam.serviceAccountTokenCreator",
     "roles/artifactregistry.admin",
@@ -59,6 +62,8 @@ resource "google_project_iam_member" "swim_gen_backend_iam" {
     "roles/storage.admin",
     "roles/aiplatform.user",
     "roles/iam.serviceAccountTokenCreator",
+    "roles/monitoring.metricWriter",
+    "roles/cloudtrace.agent",
   ])
   project = var.project_id
   role    = each.key
@@ -85,6 +90,16 @@ resource "google_service_account_iam_member" "swim_gen_frontend_token_creator_se
   service_account_id = google_service_account.swim_gen_frontend_sa.name
   role               = "roles/iam.serviceAccountTokenCreator"
   member             = "serviceAccount:${google_service_account.swim_gen_frontend_sa.email}"
+}
+
+resource "google_project_iam_member" "swim_gen_frontend_iam" {
+  for_each = toset([
+    "roles/monitoring.metricWriter",
+    "roles/cloudtrace.agent",
+  ])
+  project = var.project_id
+  role    = each.key
+  member  = "serviceAccount:${google_service_account.swim_gen_frontend_sa.email}"
 }
 
 # Make the Github Actions service account a user of the Cloud Run service accounts

@@ -1,5 +1,6 @@
 /**
- * Simple logger utility that respects the LOG_LEVEL environment variable.
+ * Logger utility that outputs structured JSON on Cloud Run (detected via K_SERVICE env var)
+ * and human-readable text locally.
  *
  * Supported log levels (in order of severity):
  * - DEBUG: Detailed debugging information
@@ -16,6 +17,16 @@ const LOG_LEVELS: Record<LogLevel, number> = {
   WARN: 2,
   ERROR: 3,
 };
+
+// Map log levels to Cloud Logging severity names
+const SEVERITY_MAP: Record<LogLevel, string> = {
+  DEBUG: "DEBUG",
+  INFO: "INFO",
+  WARN: "WARNING",
+  ERROR: "ERROR",
+};
+
+const isCloudRun = !!process.env.K_SERVICE;
 
 function getConfiguredLogLevel(): LogLevel {
   const envLevel = process.env.LOG_LEVEL?.toUpperCase();
@@ -36,28 +47,66 @@ function formatMessage(level: LogLevel, message: string, ...args: unknown[]): st
   return `[${timestamp}] [${level}] ${message}${formattedArgs}`;
 }
 
+function writeStructured(level: LogLevel, message: string, ...args: unknown[]): void {
+  if (!shouldLog(level)) return;
+
+  if (isCloudRun) {
+    const entry: Record<string, unknown> = {
+      severity: SEVERITY_MAP[level],
+      message,
+      timestamp: new Date().toISOString(),
+    };
+    if (args.length > 0) {
+      entry.data = args;
+    }
+    const writer = level === "ERROR" ? process.stderr : process.stdout;
+    writer.write(JSON.stringify(entry) + "\n");
+  } else {
+    const writer =
+      level === "ERROR"
+        ? console.error
+        : level === "WARN"
+          ? console.warn
+          : level === "DEBUG"
+            ? console.debug
+            : console.info;
+    writer(formatMessage(level, message, ...args));
+  }
+}
+
 export const logger = {
   debug(message: string, ...args: unknown[]): void {
-    if (shouldLog("DEBUG")) {
-      console.debug(formatMessage("DEBUG", message, ...args));
-    }
+    writeStructured("DEBUG", message, ...args);
   },
 
   info(message: string, ...args: unknown[]): void {
-    if (shouldLog("INFO")) {
-      console.info(formatMessage("INFO", message, ...args));
-    }
+    writeStructured("INFO", message, ...args);
   },
 
   warn(message: string, ...args: unknown[]): void {
-    if (shouldLog("WARN")) {
-      console.warn(formatMessage("WARN", message, ...args));
-    }
+    writeStructured("WARN", message, ...args);
   },
 
   error(message: string, ...args: unknown[]): void {
-    if (shouldLog("ERROR")) {
-      console.error(formatMessage("ERROR", message, ...args));
+    writeStructured("ERROR", message, ...args);
+  },
+
+  /**
+   * Write a pre-built structured log entry directly to stdout as JSON.
+   * Used by the request logging middleware for full control over fields.
+   * Falls back to console.log in non-Cloud Run environments.
+   */
+  structured(entry: Record<string, unknown>): void {
+    if (isCloudRun) {
+      process.stdout.write(JSON.stringify(entry) + "\n");
+    } else {
+      const { severity, message, ...rest } = entry;
+      const level = (severity as string) || "INFO";
+      const fields = Object.entries(rest)
+        .filter(([, v]) => v !== undefined)
+        .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+        .join(" ");
+      console.log(`[${level}] ${message || ""} ${fields}`);
     }
   },
 
