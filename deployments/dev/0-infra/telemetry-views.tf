@@ -160,7 +160,7 @@ resource "google_bigquery_table" "v_request_volume" {
           log_id = "run.googleapis.com/requests"
           AND http_request.status IS NOT NULL
           AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
-          -- Exclude static asset requests (frontend noise: /_next/, /assets/, /public/, *.html, *.svg)
+          -- Exclude static asset requests (frontend noise: /_next/, /assets/, /public/, /wordpress/, *.html, *.svg, *.xml, *.php)
           AND NOT REGEXP_CONTAINS(
             http_request.request_url,
             r'(/_next/|/assets/|/public/|/wordpress/|\.(html|svg|xml|php)(\?|$))'
@@ -229,7 +229,7 @@ resource "google_bigquery_table" "v_request_latency" {
           log_id = "run.googleapis.com/requests"
           AND http_request.latency IS NOT NULL
           AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
-          -- Exclude static asset requests (frontend noise: /_next/, /assets/, /public/, *.html, *.svg)
+          -- Exclude static asset requests (frontend noise: /_next/, /assets/, /public/, /wordpress/, *.html, *.svg, *.xml, *.php)
           AND NOT REGEXP_CONTAINS(
             http_request.request_url,
             r'(/_next/|/assets/|/public/|/wordpress/|\.(html|svg|xml|php)(\?|$))'
