@@ -1,3 +1,11 @@
+## [2.38.3](https://github.com/5pirit5eal/swim-gen/compare/v2.38.2...v2.38.3) (2026-05-13)
+
+### Bug Fixes
+
+* **dev-telemetry:** align static asset filter comments with regex ([c0f2031](https://github.com/5pirit5eal/swim-gen/commit/c0f203195e28fb65f0f17a9d3015e09e5b39edbe))
+* **observability:** filter static asset requests from BigQuery teleme… ([#237](https://github.com/5pirit5eal/swim-gen/issues/237)) ([c17344a](https://github.com/5pirit5eal/swim-gen/commit/c17344a6697cd16217af5ab04f6d93715851cad2))
+* **observability:** filter static asset requests from BigQuery telemetry views ([9f100b0](https://github.com/5pirit5eal/swim-gen/commit/9f100b0b923ac2e884c4202acda59b500cd1d827))
+
 ## [2.38.2](https://github.com/5pirit5eal/swim-gen/compare/v2.38.1...v2.38.2) (2026-05-13)
 
 ### Bug Fixes
