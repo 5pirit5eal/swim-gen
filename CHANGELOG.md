@@ -1,3 +1,10 @@
+## [2.38.2](https://github.com/5pirit5eal/swim-gen/compare/v2.38.1...v2.38.2) (2026-05-13)
+
+### Bug Fixes
+
+* added new migration with correct job ([49b5ad3](https://github.com/5pirit5eal/swim-gen/commit/49b5ad30e4dc83af0236cccfda9d987afd02949e))
+* added new migration with correct job ([#238](https://github.com/5pirit5eal/swim-gen/issues/238)) ([4c25fd5](https://github.com/5pirit5eal/swim-gen/commit/4c25fd5e7e849ce7fcd1039c48eff0031c2905ac))
+
 ## [2.38.1](https://github.com/5pirit5eal/swim-gen/compare/v2.38.0...v2.38.1) (2026-05-11)
 
 ### Bug Fixes
