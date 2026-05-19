@@ -1,3 +1,10 @@
+## [2.38.4](https://github.com/5pirit5eal/swim-gen/compare/v2.38.3...v2.38.4) (2026-05-19)
+
+### Bug Fixes
+
+* **frontend:** add /drill/ location block to ensure SPA fallback with extensions ([6460e5e](https://github.com/5pirit5eal/swim-gen/commit/6460e5e3983b3346496744076395e29e0b0dfab3))
+* **frontend:** add /drill/ location block to ensure SPA fallback with… ([#239](https://github.com/5pirit5eal/swim-gen/issues/239)) ([e9984b0](https://github.com/5pirit5eal/swim-gen/commit/e9984b0612c6000927c8082a1fad531ff31d4ceb))
+
 ## [2.38.3](https://github.com/5pirit5eal/swim-gen/compare/v2.38.2...v2.38.3) (2026-05-13)
 
 ### Bug Fixes
