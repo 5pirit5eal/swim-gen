@@ -125,9 +125,7 @@ describe('markdownParser', () => {
     it('handles drill links with .png file as ID by stripping suffix', () => {
       const content = '[Drill Image](some_drill.png)'
       const result = parseContentForDrillLinks(content)
-      expect(result).toEqual([
-        { type: 'drill-link', drillId: 'some_drill', text: 'Drill Image' },
-      ])
+      expect(result).toEqual([{ type: 'drill-link', drillId: 'some_drill', text: 'Drill Image' }])
     })
 
     it('handles consecutive drill links', () => {
