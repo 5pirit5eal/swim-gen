@@ -7,7 +7,7 @@
             "Water Feel"
         ],
         "short_description": "Exercise to experience water resistance and gliding ability.",
-        "img_name": "seestern.png",
+        "img_name": "seestern.webp",
         "img_description": "The swimmer pushes off the pool wall and stretches arms and legs far away from the body.",
         "title": "The Starfish - A simple exercise for water feel while gliding",
         "description": [
@@ -35,7 +35,7 @@
             "Water Feel"
         ],
         "short_description": "Optimization of the gliding position through a stretched body posture.",
-        "img_name": "ohren_klemmen.png",
+        "img_name": "ohren_klemmen.webp",
         "img_description": "The swimmer glides with stretched arms, hands lie flat on top of each other and ears are squeezed between the shoulders.",
         "title": "Squeeze Ears - Basics of Gliding",
         "description": [
@@ -63,7 +63,7 @@
             "Body Tension"
         ],
         "short_description": "Flutter kick with kickboard to focus on leg work.",
-        "img_name": "kraulbeine_brett.png",
+        "img_name": "kraulbeine_brett.webp",
         "img_description": "Swimmer with kickboard, arms and shoulders are stretched far forward, face is in the water.",
         "title": "Flutter Kick: Shoulder Extension",
         "description": [
@@ -93,7 +93,7 @@
             "Gliding"
         ],
         "short_description": "Alternating arm stroke with a pause in the extension.",
-        "img_name": "abschlagschwimmen.png",
+        "img_name": "abschlagschwimmen.webp",
         "img_description": "Swimmer performs an arm stroke alternately while the other arm waits stretched out in front.",
         "title": "Freestyle Catch-up Drill",
         "description": [
@@ -123,7 +123,7 @@
             "Sprint"
         ],
         "short_description": "Short distances freestyle swimming without breathing.",
-        "img_name": "kraul_ohne_atmung.png",
+        "img_name": "kraul_ohne_atmung.webp",
         "img_description": "Swimmer in full freestyle motion, head remains underwater.",
         "title": "Coordination: Freestyle No Breathing",
         "description": [
@@ -151,7 +151,7 @@
             "Head Rotation"
         ],
         "short_description": "Exercise of lateral inhalation while walking in water.",
-        "img_name": "atmen_im_gehen.png",
+        "img_name": "atmen_im_gehen.webp",
         "img_description": "Practitioner walks through the water, turns head to the side to breathe and forms a 'window' with the arm.",
         "title": "Breathing: Breathing while Walking",
         "description": [
@@ -179,7 +179,7 @@
             "Body Position"
         ],
         "short_description": "Freestyle swimming with only one arm with emphasized rotation and pressure.",
-        "img_name": "kraul_einarmig.png",
+        "img_name": "kraul_einarmig.webp",
         "img_description": "Swimmer swims freestyle with only one arm, the other arm is close to the body.",
         "title": "Single Arm Freestyle - Focus on Arm Stroke and Torso Rotation",
         "description": [
@@ -210,7 +210,7 @@
             "Catch Phase"
         ],
         "short_description": "Freestyle sculling to improve water feel and hand position.",
-        "img_name": "kraul_skulling.png",
+        "img_name": "kraul_skulling.webp",
         "img_description": "Swimmer performs freestyle sculling with slightly bent arms, hands move laterally in the water.",
         "title": "Freestyle Sculling - Improving Water Feel",
         "description": [
@@ -240,7 +240,7 @@
             "Body Tension"
         ],
         "short_description": "Freestyle swimming with pullbuoy between feet to focus on arm stroke.",
-        "img_name": "pullbuoy_zwischen_fuessen.png",
+        "img_name": "pullbuoy_zwischen_fuessen.webp",
         "img_description": "Swimmer swims freestyle with a pullbuoy tightly squeezed between feet, arms in full freestyle motion. The head is face down in the water, the legs are closed. The pullbuoy is small and red.",
         "title": "Pullbuoy between Feet - Focus on Arm Stroke",
         "description": [
@@ -269,7 +269,7 @@
             "Strength Endurance"
         ],
         "short_description": "Freestyle swimming like in water polo, head remains above water.",
-        "img_name": "wasserballkraul.png",
+        "img_name": "wasserballkraul.webp",
         "img_description": "Swimmer with head above water and splashing water, swimming in water polo fashion.",
         "title": "Water Polo Freestyle - Freestyle Technique with Head Above Water",
         "description": [
@@ -300,7 +300,7 @@
             "Body Tension"
         ],
         "short_description": "Flutter kick without board in prone and side position.",
-        "img_name": "kraulbeine_ohne_brett.png",
+        "img_name": "kraulbeine_ohne_brett.webp",
         "img_description": "Swimmer with arms and shoulders stretched far forward, face is in the water.",
         "title": "Flutter Kick: Shoulder Extension",
         "description": [
@@ -331,7 +331,7 @@
             "Catch Phase"
         ],
         "short_description": "Freestyle swimming with clenched fists to improve water feel.",
-        "img_name": "kraul_mit_fausten.png",
+        "img_name": "kraul_mit_fausten.webp",
         "img_description": "Swimmer in full freestyle motion with clenched fists.",
         "title": "Fists Freestyle - Improving Water Feel",
         "description": [
@@ -361,7 +361,7 @@
             "Body Position"
         ],
         "short_description": "Freestyle swimming with 3 touch points, high elbow and tight arm stroke.",
-        "img_name": "3_punkt_reissverschlusskraul.png",
+        "img_name": "3_punkt_reissverschlusskraul.webp",
         "img_description": "Swimmer performs freestyle arm stroke with high elbow and tight arm stroke.",
         "title": "3-Point Zipper Freestyle - Refining Freestyle Technique",
         "description": [
@@ -392,7 +392,7 @@
             "Shoulder Mobility"
         ],
         "short_description": "Freestyle or backstroke swimming with fully stretched arms.",
-        "img_name": "windmuehlen.png",
+        "img_name": "windmuehlen.webp",
         "img_description": "Swimmer performs the arm stroke stretched.",
         "title": "Windmills - Freestyle Technique with Stretched Arms",
         "description": [
@@ -423,7 +423,7 @@
             "Shoulder Rotation"
         ],
         "short_description": "Freestyle swimming \"dragging\" fingers over the water surface during arm stroke.",
-        "img_name": "fingerschleifen.png",
+        "img_name": "fingerschleifen.webp",
         "img_description": "Swimmer drags fingers over the water surface during freestyle arm stroke.",
         "title": "Finger Drag - Refining Freestyle Technique",
         "description": [
@@ -453,7 +453,7 @@
             "Kick"
         ],
         "short_description": "3 arm strokes with 6 kicks and then 6 kicks on the side.",
-        "img_name": "3_zuege_12_kicks.png",
+        "img_name": "3_zuege_12_kicks.webp",
         "img_description": "Swimmer performs 3 freestyle arm strokes, followed by 12 freestyle kicks on the side.",
         "title": "3 Strokes, 12 Kicks - Improving Freestyle Coordination",
         "description": [
@@ -483,7 +483,7 @@
             "Freestyle Technique"
         ],
         "short_description": "Freestyle swimming with minimal noise generation and full mindfulness.",
-        "img_name": "stilles_kraul.png",
+        "img_name": "stilles_kraul.webp",
         "img_description": "Swimmer in full freestyle motion, concentrated on a quiet and silent execution.",
         "title": "Silent Freestyle - Mindfulness in Water",
         "description": [
@@ -515,7 +515,7 @@
             "Strengthening"
         ],
         "short_description": "Sculling exercise for body tension, strengthening and water feel.",
-        "img_name": "badewanne.png",
+        "img_name": "badewanne.webp",
         "img_description": "Swimmer in supine position, arms slightly stretched sideways in the water.",
         "title": "Bathtub - Sculling Exercise for Body Tension and Water Feel",
         "description": [
@@ -547,7 +547,7 @@
             "Water Feel"
         ],
         "short_description": "Breaststroke swimming with maximum emergence from the water during arm stroke.",
-        "img_name": "hohes_brust.png",
+        "img_name": "hohes_brust.webp",
         "img_description": "Swimmer performs breaststroke arm stroke with high emergence from the water.",
         "title": "High Breaststroke - Developing Feel for the Catch Phase",
         "description": [
@@ -578,7 +578,7 @@
             "Water Feel"
         ],
         "short_description": "Breaststroke swimming as flat as possible in the water, without emerging.",
-        "img_name": "flaches_brust.png",
+        "img_name": "flaches_brust.webp",
         "img_description": "Swimmer performs breaststroke arm stroke flat in the water.",
         "title": "Flat Breaststroke - Developing Feel for the Catch Phase",
         "description": [
@@ -609,7 +609,7 @@
             "Arm Stroke"
         ],
         "short_description": "Breaststroke swimming with dolphin kicks.",
-        "img_name": "brustarme_delfinbeine.png",
+        "img_name": "brustarme_delfinbeine.webp",
         "img_description": "Swimmer performs breaststroke arm stroke with dolphin kicks.",
         "title": "Breaststroke Arms, Dolphin Kick - Dynamic Arm Stroke with Core Training",
         "description": [
@@ -638,7 +638,7 @@
             "Body Tension"
         ],
         "short_description": "Alternating one-sided breaststroke swimming - diagonal arms to legs.",
-        "img_name": "diagonales_brust.png",
+        "img_name": "diagonales_brust.webp",
         "img_description": "Swimmer performs diagonal breaststroke swimming, one arm and the opposite leg move simultaneously.",
         "title": "Diagonal Breaststroke - Improving Coordination and Body Tension",
         "description": [
@@ -668,7 +668,7 @@
             "Gliding"
         ],
         "short_description": "Alternating breaststroke arm stroke with 2 kicks and pause in extension.",
-        "img_name": "1_armzug_2_kicks_brust.png",
+        "img_name": "1_armzug_2_kicks_brust.webp",
         "img_description": "Swimmer swims breaststroke.",
         "title": "1 Pull, 2 Kicks Breaststroke - Improving Coordination",
         "description": [
@@ -696,7 +696,7 @@
             "Strengthening"
         ],
         "short_description": "Sculling exercise to improve water feel and catch phase.",
-        "img_name": "stuhlschwimmen.png",
+        "img_name": "stuhlschwimmen.webp",
         "img_description": "Swimmer in upright position in water, arms slightly stretched sideways.",
         "title": "Chair Swimming - Sculling Exercise for Water Feel and Catch Phase",
         "description": [
@@ -727,7 +727,7 @@
             "Strengthening"
         ],
         "short_description": "Sculling exercise to improve body position and body tension.",
-        "img_name": "hundepaddeln.png",
+        "img_name": "hundepaddeln.webp",
         "img_description": "Swimmer in prone position, arms and legs slightly bent in water.",
         "title": "Dog Paddle - Sculling Exercise for Body Position and Body Tension",
         "description": [
@@ -756,7 +756,7 @@
             "Water Resistance"
         ],
         "short_description": "Breaststroke kick with board between thighs to learn correct leg work.",
-        "img_name": "brustbeine_mit_brett_zwischen_den_oberschenkeln.png",
+        "img_name": "brustbeine_mit_brett_zwischen_den_oberschenkeln.webp",
         "img_description": "Swimmer performs breaststroke kick with board between thighs.",
         "title": "Breaststroke Kick: Board between Thighs",
         "description": [
@@ -786,7 +786,7 @@
             "Explosiveness"
         ],
         "short_description": "Breaststroke kick against board, fellow swimmer or wall to strengthen leg muscles.",
-        "img_name": "schub_gegen_brett.png",
+        "img_name": "schub_gegen_brett.webp",
         "img_description": "Swimmer performs breaststroke kick against a board.",
         "title": "Breaststroke Kick: Push against Resistance",
         "description": [
@@ -817,7 +817,7 @@
             "Water Feel"
         ],
         "short_description": "Breaststroke swimming with stretched legs and arms in push phase.",
-        "img_name": "seestern_brust.png",
+        "img_name": "seestern_brust.webp",
         "img_description": "Swimmer performs breaststroke arm stroke with stretched legs and arms in push phase.",
         "title": "Starfish Breaststroke - Developing Feel for the Catch Phase",
         "description": [
@@ -846,7 +846,7 @@
             "Body Tension"
         ],
         "short_description": "Backstroke kick in stretched posture (Streamline).",
-        "img_name": "rueckenbeine_streamline.png",
+        "img_name": "rueckenbeine_streamline.webp",
         "img_description": "Swimmer in supine position, arms stretched behind head, hands on top of each other.",
         "title": "Backstroke Kick in Streamline Position",
         "description": [
@@ -875,7 +875,7 @@
             "Symmetry"
         ],
         "short_description": "Simultaneous arm stroke of both arms in backstroke.",
-        "img_name": "doppelarmruecken.png",
+        "img_name": "doppelarmruecken.webp",
         "img_description": "Swimmer performs a backstroke arm stroke with both arms simultaneously.",
         "title": "Double Arm Backstroke - Symmetry and Water Feel",
         "description": [
@@ -904,7 +904,7 @@
             "Calmness"
         ],
         "short_description": "Backstroke swimming with a filled cup on the forehead.",
-        "img_name": "ruecken_becher.png",
+        "img_name": "ruecken_becher.webp",
         "img_description": "Swimmer swims backstroke with a cup on the forehead.",
         "title": "Backstroke with Cup - Stabilizing Head Position",
         "description": [
@@ -934,7 +934,7 @@
             "Coordination"
         ],
         "short_description": "Backstroke swimming with only one arm, the other lies close.",
-        "img_name": "ruecken_einarmig.png",
+        "img_name": "ruecken_einarmig.webp",
         "img_description": "Swimmer uses only one arm for backstroke arm stroke.",
         "title": "Single Arm Backstroke",
         "description": [
@@ -965,7 +965,7 @@
             "Kick"
         ],
         "short_description": "Backstroke kick with emphasized rotation from side to side.",
-        "img_name": "ruecken_roll_drill.png",
+        "img_name": "ruecken_roll_drill.webp",
         "img_description": "Swimmer in supine position, rotates strongly from one side to the other.",
         "title": "Backstroke Roll Drill (Shoulder Rotation)",
         "description": [
@@ -996,7 +996,7 @@
             "Water Feel"
         ],
         "short_description": "Backstroke legs with one arm stretched vertically upwards. The upper body is turned to the side, the passive arm is straight upfront.",
-        "img_name": "l_drill.png",
+        "img_name": "l_drill.webp",
         "img_description": "Swimmer in side position, one arm points vertically upwards.",
         "title": "L-Drill (Arm Vertical)",
         "description": [
@@ -1026,7 +1026,7 @@
             "Coordination"
         ],
         "short_description": "Backstroke swimming with double arm stroke and breaststroke legs.",
-        "img_name": "ruecken_altdeutsch.png",
+        "img_name": "ruecken_altdeutsch.webp",
         "img_description": "Swimmer performs backstroke swimming with double arm stroke and breaststroke legs.",
         "title": "Old School Backstroke - Coordination and Body Position",
         "description": [
@@ -1055,7 +1055,7 @@
             "Coordination"
         ],
         "short_description": "Backstroke swimming with 3 touch points per side.",
-        "img_name": "3_punkt_ruecken.png",
+        "img_name": "3_punkt_ruecken.webp",
         "img_description": "Swimmer performs backstroke swimming with 3 touch points per side.",
         "title": "3-Point Backstroke - Improving Coordination and Body Position",
         "description": [
@@ -1084,7 +1084,7 @@
             "Body Tension"
         ],
         "short_description": "Dolphin kick in supine position to control knee movement.",
-        "img_name": "delfinbeine_ruecken.png",
+        "img_name": "delfinbeine_ruecken.webp",
         "img_description": "Swimmer in supine position, arms stretched or on body, performs dolphin kick.",
         "title": "Dolphin Kick on Back - Knee Control",
         "description": [
@@ -1114,7 +1114,7 @@
             "Water Feel"
         ],
         "short_description": "Dolphin kick in side position for symmetrical movement.",
-        "img_name": "delfinbeine_seite.png",
+        "img_name": "delfinbeine_seite.webp",
         "img_description": "Swimmer in side position, one arm stretched forward, performs wave movement.",
         "title": "Dolphin Kick on Side",
         "description": [
@@ -1143,7 +1143,7 @@
             "Rhythm"
         ],
         "short_description": "Butterfly swimming with only one active arm.",
-        "img_name": "delfin_einarmig.png",
+        "img_name": "delfin_einarmig.webp",
         "img_description": "Swimmer performs butterfly movement with one arm, the other lies forward.",
         "title": "Single Arm Butterfly - Rhythm and Breathing",
         "description": [
@@ -1174,7 +1174,7 @@
             "Technique Transfer"
         ],
         "short_description": "Combination of single-arm and full butterfly swimming.",
-        "img_name": "delfin_2_2_2.png",
+        "img_name": "delfin_2_2_2.webp",
         "img_description": "Swimmer switches between left arm, right arm and both arms.",
         "title": "2-2-2 Butterfly Drill",
         "description": [
@@ -1204,7 +1204,7 @@
             "Body Tension"
         ],
         "short_description": "Isolated dolphin kick with kickboard.",
-        "img_name": "delfinbeine_brett.png",
+        "img_name": "delfinbeine_brett.webp",
         "img_description": "Swimmer holds board in front and performs dolphin kick.",
         "title": "Dolphin Kick with Board",
         "description": [
@@ -1234,7 +1234,7 @@
             "Core Strength"
         ],
         "short_description": "Vertical dolphin kick in deep water.",
-        "img_name": "stehende_delfinwelle.png",
+        "img_name": "stehende_delfinwelle.webp",
         "img_description": "Swimmer stands vertically in the water and keeps himself up by dolphin kicks.",
         "title": "Vertical Dolphin Kick (Vertical Kicking)",
         "description": [
@@ -1262,7 +1262,7 @@
             "Arm Strength"
         ],
         "short_description": "Butterfly arm stroke combined with flutter kick.",
-        "img_name": "delfin_kraulbeine.png",
+        "img_name": "delfin_kraulbeine.webp",
         "img_description": "Swimmer performs butterfly arm strokes, legs do flutter kick.",
         "title": "Butterfly with Flutter Kick",
         "description": [
@@ -1293,7 +1293,7 @@
             "Lung Volume"
         ],
         "short_description": "Long dive phases with dolphin kicks in streamline position.",
-        "img_name": "unterwasser_delfin.png",
+        "img_name": "unterwasser_delfin.webp",
         "img_description": "Swimmer dives deep in stretched posture and does dolphin kicks.",
         "title": "Underwater Dolphin Kicks (The Fifth Stroke)",
         "description": [

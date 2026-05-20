@@ -43,9 +43,9 @@ describe('markdownParser', () => {
       expect(extractDrillIdFromUrl('123')).toBe('123')
     })
 
-    it('returns .png filename as drill ID', () => {
-      expect(extractDrillIdFromUrl('some_drill.png')).toBe('some_drill.png')
-      expect(extractDrillIdFromUrl('drill-image.png')).toBe('drill-image.png')
+    it('returns suffixless filename as drill ID, stripping .png and .webp extensions', () => {
+      expect(extractDrillIdFromUrl('some_drill.png')).toBe('some_drill')
+      expect(extractDrillIdFromUrl('drill-image.webp')).toBe('drill-image')
     })
 
     it('returns null for non-drill URLs', () => {
@@ -122,11 +122,11 @@ describe('markdownParser', () => {
       expect(result).toEqual([{ type: 'drill-link', drillId: '123', text: 'Drill Name' }])
     })
 
-    it('handles drill links with .png file as ID', () => {
+    it('handles drill links with .png file as ID by stripping suffix', () => {
       const content = '[Drill Image](some_drill.png)'
       const result = parseContentForDrillLinks(content)
       expect(result).toEqual([
-        { type: 'drill-link', drillId: 'some_drill.png', text: 'Drill Image' },
+        { type: 'drill-link', drillId: 'some_drill', text: 'Drill Image' },
       ])
     })
 

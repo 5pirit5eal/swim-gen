@@ -44,7 +44,8 @@ async function handleMouseEnter(event: MouseEvent) {
 
     if (!preview.value) {
       isLoading.value = true
-      const result = await drillsStore.fetchDrillPreview(props.drillId, locale.value)
+      const cleanId = props.drillId.replace(/\.(png|webp)$/i, '')
+      const result = await drillsStore.fetchDrillPreview(cleanId, locale.value)
       // Only update state if still hovering (prevents race condition)
       if (isHovering.value) {
         if (result) {
@@ -78,7 +79,8 @@ function calculatePosition(event: MouseEvent) {
 }
 
 function navigateToDrill() {
-  router.push({ name: 'drill', params: { id: props.drillId } })
+  const cleanId = props.drillId.replace(/\.(png|webp)$/i, '')
+  router.push({ name: 'drill', params: { id: cleanId } })
 }
 
 onMounted(() => {
@@ -102,7 +104,8 @@ onMounted(() => {
 async function prefetchDrill() {
   if (preview.value) return
 
-  const result = await drillsStore.fetchDrillPreview(props.drillId, locale.value)
+  const cleanId = props.drillId.replace(/\.(png|webp)$/i, '')
+  const result = await drillsStore.fetchDrillPreview(cleanId, locale.value)
   if (result) {
     preview.value = result
     // Prefetch image

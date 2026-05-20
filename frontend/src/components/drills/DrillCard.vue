@@ -27,10 +27,8 @@ function getDifficultyLevel(difficulty: string): number {
 }
 
 function navigateToDrill() {
-  router.push({ name: 'drill', params: { id: props.drill.img_name } }) // Using img_name as ID because that's what backend expects currently in search response but usually ID is what we want.
-  // Wait, backend `SearchDrills` returns `models.Drill`. The frontend `Drill` interface has `img_name` but also `slug`?
-  // `GetDrillHandler` takes `id` which corresponds to `img_name` in DB.
-  // So `img_name` is effectively the ID.
+  const cleanId = props.drill.img_name.replace(/\.(png|webp)$/i, '')
+  router.push({ name: 'drill', params: { id: cleanId } })
 }
 </script>
 

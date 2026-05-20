@@ -29,7 +29,7 @@ vi.mock('vue-router', async (importOriginal) => {
     ...actual,
     useRoute: vi.fn(() => ({
       params: {
-        id: 'seestern.png',
+        id: 'seestern',
       },
     })),
     useRouter: vi.fn(() => ({
@@ -42,7 +42,7 @@ const mockDrill: Drill = {
   slug: 'Starfish',
   targets: ['Gliding', 'Water Resistance', 'Water Feel'],
   short_description: 'Exercise to experience water resistance and gliding ability.',
-  img_name: 'seestern.png',
+  img_name: 'seestern.webp',
   img_description:
     'The swimmer pushes off the pool wall and stretches arms and legs far away from the body.',
   title: 'The Starfish - A simple exercise for water feel while gliding',
@@ -77,7 +77,7 @@ describe('DrillView.vue', () => {
     })
 
     const drillsStore = useDrillsStore()
-    expect(drillsStore.fetchDrill).toHaveBeenCalledWith('seestern.png', 'en')
+    expect(drillsStore.fetchDrill).toHaveBeenCalledWith('seestern', 'en')
   })
 
   it('displays loading state', async () => {
@@ -390,7 +390,7 @@ describe('DrillView.vue', () => {
     const img = wrapper.find('.drill-image')
     expect(img.exists()).toBe(true)
     expect(img.attributes('src')).toBe(
-      'https://storage.googleapis.com/swim-gen-public/seestern.png',
+      'https://storage.googleapis.com/swim-gen-public/seestern.webp',
     )
     expect(img.attributes('alt')).toBe(mockDrill.img_description)
   })

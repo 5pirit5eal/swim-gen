@@ -7,7 +7,7 @@
             "Wassergefühl"
         ],
         "short_description": "Übung zur Erfahrung des Wasserwiderstands und der Gleitfähigkeit.",
-        "img_name": "seestern.png",
+        "img_name": "seestern.webp",
         "img_description": "Der Schwimmer stößt sich vom Beckenrand ab und streckt Arme und Beine weit vom Körper weg.",
         "title": "Der Seestern - Eine einfache Übung für Wassergefühl beim Gleiten",
         "description": [
@@ -35,7 +35,7 @@
             "Wassergefühl"
         ],
         "short_description": "Optimierung der Gleitlage durch eine gestreckte Körperhaltung.",
-        "img_name": "ohren_klemmen.png",
+        "img_name": "ohren_klemmen.webp",
         "img_description": "Der Schwimmer gleitet mit gestreckten Armen, die Hände liegen flach übereinander und die Ohren sind zwischen den Schultern eingeklemmt.",
         "title": "Ohren klemmen - Grundlagen des Gleitens",
         "description": [
@@ -63,7 +63,7 @@
             "Körperspannung"
         ],
         "short_description": "Kraulbeinschlag mit Schwimmbrett zur Fokussierung auf die Beinarbeit.",
-        "img_name": "kraulbeine_brett.png",
+        "img_name": "kraulbeine_brett.webp",
         "img_description": "Schwimmer mit Schwimmbrett, Arme und Schultern sind weit nach vorne gestreckt, das Gesicht liegt im Wasser.",
         "title": "Kraulbeinschlag: Schulterstreckung",
         "description": [
@@ -93,7 +93,7 @@
             "Gleiten"
         ],
         "short_description": "Wechselseitiger Armzug mit Pause in der Streckung.",
-        "img_name": "abschlagschwimmen.png",
+        "img_name": "abschlagschwimmen.webp",
         "img_description": "Schwimmer führt abwechselnd einen Armzug durch, während der andere Arm gestreckt vorne wartet.",
         "title": "Kraul-Abschlagschwimmen",
         "description": [
@@ -123,7 +123,7 @@
             "Sprint"
         ],
         "short_description": "Kurze Strecke Kraul ohne zu atmen mit Fokus auf Gesamtkoordination.",
-        "img_name": "kraul_ohne_atmung.png",
+        "img_name": "kraul_ohne_atmung.webp",
         "img_description": "Schwimmer in voller Kraulbewegung, Kopf bleibt unter Wasser.",
         "title": "Gesamtkoordination: Kraul ohne Atmung",
         "description": [
@@ -151,7 +151,7 @@
             "Kopfrotation"
         ],
         "short_description": "Übung der seitlichen Einatmung während des Gehens im Wasser.",
-        "img_name": "atmen_im_gehen.png",
+        "img_name": "atmen_im_gehen.webp",
         "img_description": "Übender geht durch das Wasser, dreht den Kopf zur Seite zum Atmen und bildet mit dem Arm ein 'Fenster'.",
         "title": "Atmung: Atmen im Gehen",
         "description": [
@@ -179,7 +179,7 @@
             "Wasserlage"
         ],
         "short_description": "Kraulschwimmen mit nur einem Arm mit betonter Rotation und Druck.",
-        "img_name": "kraul_einarmig.png",
+        "img_name": "kraul_einarmig.webp",
         "img_description": "Schwimmer schwimmt Kraul mit nur einem Arm, der andere Arm ist am Körper angelegt.",
         "title": "Kraul Einarmig - Fokus auf Armzug und Rumpfrotation",
         "description": [
@@ -210,7 +210,7 @@
             "Anzieh-Phase"
         ],
         "short_description": "Kraulskulling zur Verbesserung des Wassergefühls und der Handposition.",
-        "img_name": "kraul_skulling.png",
+        "img_name": "kraul_skulling.webp",
         "img_description": "Schwimmer führt Kraulskulling mit leicht gebeugten Armen durch, Hände bewegen sich seitlich im Wasser.",
         "title": "Kraulskulling - Verbesserung des Wassergefühls",
         "description": [
@@ -240,7 +240,7 @@
             "Körperspannung"
         ],
         "short_description": "Kraulschwimmen mit Pullbuoy zwischen den Füßen zur Fokussierung auf den Armzug.",
-        "img_name": "pullbuoy_zwischen_fuessen.png",
+        "img_name": "pullbuoy_zwischen_fuessen.webp",
         "img_description": "Schwimmer schwimmt Kraul mit Pullbuoy zwischen den Füßen, Arme in voller Kraulbewegung.",
         "title": "Pullbuoy zwischen den Füßen - Fokus auf Armzug",
         "description": [
@@ -269,7 +269,7 @@
             "Kraftausdauer"
         ],
         "short_description": "Kraulschwimmen wie beim Wasserball, Kopf bleibt über Wasser.",
-        "img_name": "wasserballkraul.png",
+        "img_name": "wasserballkraul.webp",
         "img_description": "Schwimmer mit Kopf über Wasser und spritzendem Wasser.",
         "title": "Wasserballkraul - Kraultechnik mit Kopf über Wasser",
         "description": [
@@ -300,7 +300,7 @@
             "Körperspannung"
         ],
         "short_description": "Kraulbeinschlag ohne Brett in Bauch- und Seitenlage.",
-        "img_name": "kraulbeine_ohne_brett.png",
+        "img_name": "kraulbeine_ohne_brett.webp",
         "img_description": "Schwimmer mit Armen und Schultern weit nach vorne gestreckt, das Gesicht liegt im Wasser.",
         "title": "Kraulbeinschlag: Schulterstreckung",
         "description": [
@@ -331,7 +331,7 @@
             "Anzieh-Phase"
         ],
         "short_description": "Kraulschwimmen mit geballten Fäusten zur Verbesserung des Wassergefühls.",
-        "img_name": "kraul_mit_fausten.png",
+        "img_name": "kraul_mit_fausten.webp",
         "img_description": "Schwimmer in voller Kraulbewegung mit geballten Fäusten.",
         "title": "Kraul mit Fäusten - Verbesserung des Wassergefühls",
         "description": [
@@ -361,7 +361,7 @@
             "Wasserlage"
         ],
         "short_description": "Kraulschwimmen mit 3 Berührungspunkten, hohem Ellbogen und engem Armzug.",
-        "img_name": "3_punkt_reissverschlusskraul.png",
+        "img_name": "3_punkt_reissverschlusskraul.webp",
         "img_description": "Schwimmer führt Kraularmzug mit hohem Ellenbogen und engem Armzug durch.",
         "title": "3-Punkt Reißverschlusskraul - Kraultechnik verfeinern",
         "description": [
@@ -392,7 +392,7 @@
             "Schulterbeweglichkeit"
         ],
         "short_description": "Kraul- oder Rückenschwimmen mit vollständig gestreckten Armen.",
-        "img_name": "windmuehlen.png",
+        "img_name": "windmuehlen.webp",
         "img_description": "Schwimmer führt den Armzug gestreckt durch.",
         "title": "Windmühlen - Kraultechnik mit gestreckten Armen",
         "description": [
@@ -423,7 +423,7 @@
             "Schulterrotation"
         ],
         "short_description": "Kraulschwimmen mit Fingern über die Wasseroberfläche \"schleifen\" beim Armzug.",
-        "img_name": "fingerschleifen.png",
+        "img_name": "fingerschleifen.webp",
         "img_description": "Schwimmer schleift Finger über die Wasseroberfläche während des Kraularmzugs.",
         "title": "Fingerschleifen - Kraultechnik verfeinern",
         "description": [
@@ -453,7 +453,7 @@
             "Beinschlag"
         ],
         "short_description": "3 Armzüge mit 6 Kicks und dann 6 Kicks in Seitenlage.",
-        "img_name": "3_zuege_12_kicks.png",
+        "img_name": "3_zuege_12_kicks.webp",
         "img_description": "Schwimmer führt 3 Kraularmzüge durch, gefolgt von 12 Kraulbeinschlägen in Seitenlage.",
         "title": "3 Züge, 12 Kicks - Kraulkoordination verbessern",
         "description": [
@@ -483,7 +483,7 @@
             "Kraultechnik"
         ],
         "short_description": "Kraulschwimmen mit minimalem Geräuscherzeugen und voller Achtsamkeit.",
-        "img_name": "stilles_kraul.png",
+        "img_name": "stilles_kraul.webp",
         "img_description": "Schwimmer in voller Kraulbewegung, konzentriert auf eine ruhige und leise Ausführung.",
         "title": "Stilles Kraul - Achtsamkeit im Wasser",
         "description": [
@@ -515,7 +515,7 @@
             "Kräftigung"
         ],
         "short_description": "Scullingübung für Körperspannung, Kräftigung und Wassergefühl.",
-        "img_name": "badewanne.png",
+        "img_name": "badewanne.webp",
         "img_description": "Schwimmer in Rückenlage, Arme leicht seitlich ausgestreckt im Wasser.",
         "title": "Badewanne - Scullingübung für Körperspannung und Wassergefühl",
         "description": [
@@ -547,7 +547,7 @@
             "Wassergefühl"
         ],
         "short_description": "Brustschwimmen mit maximalem Herauskommen aus dem Wasser beim Armzug.",
-        "img_name": "hohes_brust.png",
+        "img_name": "hohes_brust.webp",
         "img_description": "Schwimmer führt Brustarmzug mit hohem Herauskommen aus dem Wasser durch.",
         "title": "Hohes Brust - Entwicklung von Gefühl für die Anzieh-phase",
         "description": [
@@ -578,7 +578,7 @@
             "Wassergefühl"
         ],
         "short_description": "Brustschwimmen möglichst flach im Wasser, ohne Herauskommen.",
-        "img_name": "flaches_brust.png",
+        "img_name": "flaches_brust.webp",
         "img_description": "Schwimmer führt Brustarmzug flach im Wasser durch.",
         "title": "Flaches Brust - Entwicklung von Gefühl für die Anzieh-phase",
         "description": [
@@ -609,7 +609,7 @@
             "Armzug"
         ],
         "short_description": "Brustschwimmen mit Delfinbeinen.",
-        "img_name": "brustarme_delfinbeine.png",
+        "img_name": "brustarme_delfinbeine.webp",
         "img_description": "Schwimmer führt Brustarmzug mit Delfinbeinen durch.",
         "title": "Brustarme-Delfinbeine - Dynamischer Armzug mit Rumpftraining",
         "description": [
@@ -638,7 +638,7 @@
             "Körperspannung"
         ],
         "short_description": "Abwechselnd einseitiges Brustschwimmen - diagonal Arme zu Beine.",
-        "img_name": "diagonales_brust.png",
+        "img_name": "diagonales_brust.webp",
         "img_description": "Schwimmer führt diagonales Brustschwimmen durch, ein Arm und das gegenüberliegende Bein bewegen sich gleichzeitig.",
         "title": "Diagonales Brust - Koordination und Körperspannung verbessern",
         "description": [
@@ -668,7 +668,7 @@
             "Gleiten"
         ],
         "short_description": "Wechselseitiger Brustarmzug mit 2 Kicks und Pause in der Streckung.",
-        "img_name": "1_armzug_2_kicks_brust.png",
+        "img_name": "1_armzug_2_kicks_brust.webp",
         "img_description": "Schwimmer schwimmt Brust.",
         "title": "1-Armzug, 2-Kicks Brust - Koordination verbessern",
         "description": [
@@ -696,7 +696,7 @@
             "Kräftigung"
         ],
         "short_description": "Scullingübung zur Verbesserung des Wassergefühls und der Anzieh-Phase.",
-        "img_name": "stuhlschwimmen.png",
+        "img_name": "stuhlschwimmen.webp",
         "img_description": "Schwimmer in aufrechter Position im Wasser, Arme leicht seitlich ausgestreckt.",
         "title": "Stuhlschwimmen - Scullingübung für Wassergefühl und Anzieh-Phase",
         "description": [
@@ -727,7 +727,7 @@
             "Kräftigung"
         ],
         "short_description": "Scullingübung zur Verbesserung der Wasserlage und Körperspannung.",
-        "img_name": "hundepaddeln.png",
+        "img_name": "hundepaddeln.webp",
         "img_description": "Schwimmer in Bauchlage, Arme und Beine leicht angewinkelt im Wasser.",
         "title": "Hundepaddeln - Scullingübung für Wasserlage und Körperspannung",
         "description": [
@@ -756,7 +756,7 @@
             "Wasserwiderstand"
         ],
         "short_description": "Brustbeinschlag mit Brett zwischen den Oberschenkeln zum Erlernen der korrekten Beinarbeit.",
-        "img_name": "brustbeine_mit_brett_zwischen_den_oberschenkeln.png",
+        "img_name": "brustbeine_mit_brett_zwischen_den_oberschenkeln.webp",
         "img_description": "Schwimmer führt Brustbeinschlag mit Brett zwischen den Oberschenkeln durch.",
         "title": "Brustbeinschlag: Brett zwischen den Oberschenkeln",
         "description": [
@@ -786,7 +786,7 @@
             "Explosivität"
         ],
         "short_description": "Brustbeinschlag gegen Brett, Mitschwimmer oder Wand zur Kräftigung der Beinmuskulatur.",
-        "img_name": "schub_gegen_brett.png",
+        "img_name": "schub_gegen_brett.webp",
         "img_description": "Schwimmer führt Brustbeinschlag gegen ein Brett durch.",
         "title": "Brustbeinschlag: Schub gegen Widerstand",
         "description": [
@@ -817,7 +817,7 @@
             "Wassergefühl"
         ],
         "short_description": "Brustschwimmen mit gestreckten Beinen und Armen in Druckphase.",
-        "img_name": "seestern_brust.png",
+        "img_name": "seestern_brust.webp",
         "img_description": "Schwimmer führt Brustarmzug mit gestreckten Beinen und Armen in Druckphase durch.",
         "title": "Seestern Brust - Entwicklung von Gefühl für die Anzieh-phase",
         "description": [
@@ -846,7 +846,7 @@
             "Körperspannung"
         ],
         "short_description": "Rückenbeinschlag in gestreckter Haltung (Streamline).",
-        "img_name": "rueckenbeine_streamline.png",
+        "img_name": "rueckenbeine_streamline.webp",
         "img_description": "Schwimmer in Rückenlage, Arme gestreckt hinter dem Kopf, Hände übereinander.",
         "title": "Rückenbeine in Streamline-Position",
         "description": [
@@ -875,7 +875,7 @@
             "Symmetrie"
         ],
         "short_description": "Gleichzeitiger Armzug beider Arme in Rückenlage.",
-        "img_name": "doppelarmruecken.png",
+        "img_name": "doppelarmruecken.webp",
         "img_description": "Schwimmer führt mit beiden Armen gleichzeitig einen Rückenarmzug aus.",
         "title": "Doppelarmrücken - Symmetrie und Wassergefühl",
         "description": [
@@ -904,7 +904,7 @@
             "Ruhe"
         ],
         "short_description": "Rückenschwimmen mit einem gefüllten Becher auf der Stirn.",
-        "img_name": "ruecken_becher.png",
+        "img_name": "ruecken_becher.webp",
         "img_description": "Schwimmer schwimmt Rücken mit einem Becher auf der Stirn.",
         "title": "Rücken mit Becher - Kopfhaltung stabilisieren",
         "description": [
@@ -934,7 +934,7 @@
             "Koordination"
         ],
         "short_description": "Rückenschwimmen mit nur einem Arm, der andere liegt an.",
-        "img_name": "ruecken_einarmig.png",
+        "img_name": "ruecken_einarmig.webp",
         "img_description": "Schwimmer nutzt nur einen Arm für den Rückenarmzug.",
         "title": "Einarmiges Rückenschwimmen",
         "description": [
@@ -965,7 +965,7 @@
             "Beinschlag"
         ],
         "short_description": "Rückenbeinschlag mit betonter Rotation von Seite zu Seite.",
-        "img_name": "ruecken_roll_drill.png",
+        "img_name": "ruecken_roll_drill.webp",
         "img_description": "Schwimmer in Rückenlage, rotiert stark von einer Seite zur anderen.",
         "title": "Rücken-Roll-Drill (Schulterrotation)",
         "description": [
@@ -996,7 +996,7 @@
             "Wassergefühl"
         ],
         "short_description": "Rückenbeine mit einem Arm senkrecht nach oben gestreckt.",
-        "img_name": "l_drill.png",
+        "img_name": "l_drill.webp",
         "img_description": "Schwimmer in Seitenlage, ein Arm zeigt senkrecht nach oben.",
         "title": "L-Drill (Arm senkrecht)",
         "description": [
@@ -1026,7 +1026,7 @@
             "Koordination"
         ],
         "short_description": "Rückenschwimmen mit Doppelarmzug und Brustbeine.",
-        "img_name": "ruecken_altdeutsch.png",
+        "img_name": "ruecken_altdeutsch.webp",
         "img_description": "Schwimmer führt Rückenschwimmen mit Doppelarmzug und Brustbeinen durch.",
         "title": "Rücken altdeutsch - Koordination und Wasserlage",
         "description": [
@@ -1055,7 +1055,7 @@
             "Koordination"
         ],
         "short_description": "Rückenschwimmen mit 3 Berührungspunkten pro Seite.",
-        "img_name": "3_punkt_ruecken.png",
+        "img_name": "3_punkt_ruecken.webp",
         "img_description": "Schwimmer führt Rückenschwimmen mit 3 Berührungspunkten pro Seite durch.",
         "title": "3-Punkt Rücken - Koordination und Wasserlage verbessern",
         "description": [
@@ -1084,7 +1084,7 @@
             "Körperspannung"
         ],
         "short_description": "Delfinbeinschlag in Rückenlage zur Kontrolle der Kniebewegung.",
-        "img_name": "delfinbeine_ruecken.png",
+        "img_name": "delfinbeine_ruecken.webp",
         "img_description": "Schwimmer in Rückenlage, Arme gestreckt oder am Körper, führt Delfinbeinschlag aus.",
         "title": "Delfinbeine in Rückenlage - Kniekontrolle",
         "description": [
@@ -1114,7 +1114,7 @@
             "Wassergefühl"
         ],
         "short_description": "Delfinbeinschlag in Seitenlage für symmetrische Bewegung.",
-        "img_name": "delfinbeine_seite.png",
+        "img_name": "delfinbeine_seite.webp",
         "img_description": "Schwimmer in Seitenlage, ein Arm gestreckt vorne, führt Wellenbewegung aus.",
         "title": "Delfinbeine in Seitenlage",
         "description": [
@@ -1143,7 +1143,7 @@
             "Rhythmus"
         ],
         "short_description": "Delfinschwimmen mit nur einem aktiven Arm.",
-        "img_name": "delfin_einarmig.png",
+        "img_name": "delfin_einarmig.webp",
         "img_description": "Schwimmer führt Delfinbewegung mit einem Arm aus, der andere liegt vorne.",
         "title": "Einarmiges Delfin - Rhythmus und Atmung",
         "description": [
@@ -1174,7 +1174,7 @@
             "Techniktransfer"
         ],
         "short_description": "Kombination aus einarmigem und ganzem Delfinschwimmen.",
-        "img_name": "delfin_2_2_2.png",
+        "img_name": "delfin_2_2_2.webp",
         "img_description": "Schwimmer wechselt zwischen linkem Arm, rechtem Arm und beiden Armen.",
         "title": "2-2-2 Delfin Drill",
         "description": [
@@ -1204,7 +1204,7 @@
             "Körperspannung"
         ],
         "short_description": "Isolierter Delfinbeinschlag mit Schwimmbrett.",
-        "img_name": "delfinbeine_brett.png",
+        "img_name": "delfinbeine_brett.webp",
         "img_description": "Schwimmer hält Brett vorne und führt Delfinbeinschlag aus.",
         "title": "Delfinbeine mit Brett",
         "description": [
@@ -1234,7 +1234,7 @@
             "Rumpfkraft"
         ],
         "short_description": "Vertikaler Delfinbeinschlag im tiefen Wasser.",
-        "img_name": "stehende_delfinwelle.png",
+        "img_name": "stehende_delfinwelle.webp",
         "img_description": "Schwimmer steht senkrecht im Wasser und hält sich durch Delfinkicks oben.",
         "title": "Stehende Delfinwelle (Vertical Kicking)",
         "description": [
@@ -1262,7 +1262,7 @@
             "Armkraft"
         ],
         "short_description": "Delfinarmzug kombiniert mit Kraulbeinschlag.",
-        "img_name": "delfin_kraulbeine.png",
+        "img_name": "delfin_kraulbeine.webp",
         "img_description": "Schwimmer führt Delfinarmzüge aus, Beine machen Kraulschlag.",
         "title": "Delfin mit Kraulbeinen",
         "description": [
@@ -1293,7 +1293,7 @@
             "Lungenvolumen"
         ],
         "short_description": "Lange Tauchphasen mit Delfinkicks in Streamline-Position.",
-        "img_name": "unterwasser_delfin.png",
+        "img_name": "unterwasser_delfin.webp",
         "img_description": "Schwimmer taucht tief in gestreckter Haltung und macht Delfinkicks.",
         "title": "Unterwasser-Delfinkicks (The Fifth Stroke)",
         "description": [

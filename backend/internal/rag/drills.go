@@ -35,15 +35,19 @@ func (db *RAGDB) GetDrillByImgName(ctx context.Context, imgName, lang string) (*
 	logger := httplog.LogEntry(ctx)
 	logger.Debug("Getting drill by img_name", "img_name", imgName, "lang", lang)
 
+	baseName := imgName
+	baseName = strings.TrimSuffix(baseName, ".png")
+	baseName = strings.TrimSuffix(baseName, ".webp")
+
 	query := `
 		SELECT cmetadata FROM drill_embeddings
-		WHERE cmetadata->>'img_name' = $1
+		WHERE (cmetadata->>'img_name' = $1 OR cmetadata->>'img_name' = $1 || '.webp' OR cmetadata->>'img_name' = $1 || '.png')
 		  AND cmetadata->>'language' = $2
 		LIMIT 1
 	`
 
 	var metadataJSON []byte
-	err := db.Conn.QueryRow(ctx, query, imgName, lang).Scan(&metadataJSON)
+	err := db.Conn.QueryRow(ctx, query, baseName, lang).Scan(&metadataJSON)
 	if err != nil {
 		logger.Error("Failed to get drill", "error", err)
 		return nil, fmt.Errorf("drill not found: %w", err)

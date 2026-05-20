@@ -78,7 +78,12 @@ function getDifficultyLevel(difficulty: string): number {
 async function initializeView() {
   const drillId = route.params.id
   if (typeof drillId === 'string') {
-    const drill = await drillsStore.fetchDrill(drillId, locale.value)
+    const cleanId = drillId.replace(/\.(png|webp)$/i, '')
+    if (cleanId !== drillId) {
+      router.replace({ name: 'drill', params: { id: cleanId } })
+      return
+    }
+    const drill = await drillsStore.fetchDrill(cleanId, locale.value)
     if (!drill) {
       noDrillFound()
     }
@@ -110,7 +115,8 @@ watch(
 watch(locale, async () => {
   const drillId = route.params.id
   if (typeof drillId === 'string') {
-    await drillsStore.fetchDrill(drillId, locale.value)
+    const cleanId = drillId.replace(/\.(png|webp)$/i, '')
+    await drillsStore.fetchDrill(cleanId, locale.value)
   }
 })
 </script>

@@ -26,7 +26,10 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProf
 	}
 	var ddc []string
 	for _, doc := range drillDocs {
-		url := "/drill/" + doc.Metadata["img_name"].(string)
+		imgName := doc.Metadata["img_name"].(string)
+		imgName = strings.TrimSuffix(imgName, ".png")
+		imgName = strings.TrimSuffix(imgName, ".webp")
+		url := "/drill/" + imgName
 		ddc = append(ddc, doc.PageContent+fmt.Sprintf("\n\nReferenz: [%s](%s)", doc.Metadata["slug"].(string), url))
 	}
 
