@@ -1,3 +1,15 @@
+## [2.38.5](https://github.com/5pirit5eal/swim-gen/compare/v2.38.4...v2.38.5) (2026-05-20)
+
+### Bug Fixes
+
+* **infra:** update dev storage.tf to upload webp instead of png ([9ccc6a5](https://github.com/5pirit5eal/swim-gen/commit/9ccc6a56e77c97a3702a3204b50a30449e499de6))
+* **webp:** handle .webp in scraper, service mime type, and nginx.conf ([8c87ff4](https://github.com/5pirit5eal/swim-gen/commit/8c87ff4c44641a2a3b044c4cdafe6906b0ff4c75))
+
+### Performance Improvements
+
+* optimize drill images to webp and implement suffixless routing ([e0664b7](https://github.com/5pirit5eal/swim-gen/commit/e0664b7e06ccd64e71ca62e5a27c14cf17f847fc))
+* optimize drill images to webp and implement suffixless routing ([#240](https://github.com/5pirit5eal/swim-gen/issues/240)) ([e6603f1](https://github.com/5pirit5eal/swim-gen/commit/e6603f15627f1d448bda37d4ec5b78c055058ef2))
+
 ## [2.38.4](https://github.com/5pirit5eal/swim-gen/compare/v2.38.3...v2.38.4) (2026-05-19)
 
 ### Bug Fixes
