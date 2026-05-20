@@ -104,6 +104,7 @@ func (db *RAGDB) NewCollector(ctx context.Context, visitedURLs *URLMap, syncGrou
 		if strings.HasSuffix(e.Attr("href"), ".pdf") ||
 			strings.HasSuffix(e.Attr("href"), ".jpg") ||
 			strings.HasSuffix(e.Attr("href"), ".png") ||
+			strings.HasSuffix(e.Attr("href"), ".webp") ||
 			strings.HasSuffix(e.Attr("href"), ".gif") {
 			logger.Debug("Non-HTML resource link, skipping", "link", e.Attr("href"))
 			return
