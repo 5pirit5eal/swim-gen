@@ -44,9 +44,11 @@ resource "google_storage_bucket_iam_member" "public_images_iam" {
 
 # Upload images to the public bucket
 resource "google_storage_bucket_object" "public_images_objects" {
-  for_each = fileset("${path.module}/../../../data/images", "*.png")
+  for_each = fileset("${path.module}/../../../data/images", "*.webp")
 
-  name   = each.value
-  source = "${path.module}/../../../data/images/${each.value}"
-  bucket = google_storage_bucket.public_images.name
+  name          = each.value
+  source        = "${path.module}/../../../data/images/${each.value}"
+  bucket        = google_storage_bucket.public_images.name
+  content_type  = "image/webp"
+  cache_control = "public, max-age=31536000"
 }

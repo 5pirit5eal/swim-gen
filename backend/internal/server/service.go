@@ -79,12 +79,14 @@ func getMimeTypeFromFilename(filename string) (string, error) {
 	switch {
 	case strings.HasSuffix(filename, ".png"):
 		return "image/png", nil
+	case strings.HasSuffix(filename, ".webp"):
+		return "image/webp", nil
 	case strings.HasSuffix(filename, ".jpg"), strings.HasSuffix(filename, ".jpeg"):
 		return "image/jpeg", nil
 	case strings.HasSuffix(filename, ".pdf"):
 		return "application/pdf", nil
 	default:
-		return "", fmt.Errorf("unsupported file type: %s. Supported formats: PNG, JPEG, PDF", filename)
+		return "", fmt.Errorf("unsupported file type: %s. Supported formats: PNG, WEBP, JPEG, PDF", filename)
 	}
 }
 

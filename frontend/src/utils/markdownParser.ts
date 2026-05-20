@@ -20,14 +20,16 @@ export function extractDrillIdFromUrl(url: string): string | null {
   // Try to match drill/{id} or drills/{id} pattern (with or without leading slash)
   const drillPathMatch = url.match(/\/?drills?\/([^/?#]+)/)
   if (drillPathMatch && drillPathMatch[1]) {
-    console.debug('[markdownParser] Found drill ID in path:', drillPathMatch[1])
-    return drillPathMatch[1]
+    const cleanId = drillPathMatch[1].replace(/\.(png|webp)$/i, '')
+    console.debug('[markdownParser] Found drill ID in path:', cleanId)
+    return cleanId
   }
 
   // If URL is just the ID itself (e.g., from a simplified link)
   if (!url.includes('/') && !url.includes(':')) {
-    console.debug('[markdownParser] URL is just an ID:', url)
-    return url
+    const cleanId = url.replace(/\.(png|webp)$/i, '')
+    console.debug('[markdownParser] URL is just an ID:', cleanId)
+    return cleanId
   }
 
   console.debug('[markdownParser] No drill ID found')
