@@ -261,6 +261,11 @@ watch(
       <!-- Chat Tab -->
       <Transition name="fade">
         <div class="tab-content chat-container" v-show="activeTab === 'chat'">
+          <header class="chat-panel-header">
+            <h2>{{ t('interaction.editing_title') }}</h2>
+            <p>{{ t('interaction.editing_description') }}</p>
+          </header>
+
           <!-- Chat Messages Area -->
           <div class="chat-messages">
             <div
@@ -380,6 +385,12 @@ watch(
   flex-direction: column;
 }
 
+.tab-content :deep(.training-plan-display),
+.tab-content :deep(.plan-container),
+.tab-content :deep(.plan-header) {
+  border-top-left-radius: 0;
+}
+
 /* Chat Specific Styles */
 .chat-container {
   display: flex;
@@ -387,8 +398,28 @@ watch(
   height: 100%;
   min-height: 500px;
   background: var(--color-background-soft);
-  border-radius: 8px;
+  border-radius: 0 8px 8px 8px;
   border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.chat-panel-header {
+  padding: 0.75rem 1.5rem;
+  color: white;
+  background: var(--color-primary);
+}
+
+.chat-panel-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+.chat-panel-header p {
+  margin: 0.2rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  opacity: 0.9;
 }
 
 .chat-messages {
@@ -402,43 +433,49 @@ watch(
 
 .tab-header {
   display: flex;
+  align-items: flex-end;
   gap: 1rem;
-  margin: 1rem 0;
-  padding: 0.5rem 0;
+  margin: 1rem 0 0;
+  padding: 0.5rem 0 0;
   position: relative;
   z-index: 10;
 }
 
 .tab-switcher {
   display: flex;
-  gap: 1rem;
+  align-items: flex-end;
+  gap: 0.25rem;
 }
 
 .tab-button {
-  background: color-mix(in srgb, var(--color-background), transparent 40%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--color-background);
   border: 1px solid var(--color-border);
   padding: 0.75rem 1.75rem;
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-text);
   cursor: pointer;
-  border-radius: 24px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px var(--color-shadow);
+  border-radius: 10px 10px 0 0;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+  box-shadow: inset 0 -3px 5px var(--color-shadow);
 }
 
 .tab-button:hover {
-  background: color-mix(in srgb, var(--color-background), transparent 20%);
-  transform: translateY(-1px);
+  background: var(--color-background-soft);
 }
 
 .tab-button.active {
   background: var(--color-primary);
   color: white;
   border-color: var(--color-primary);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary), transparent 70%);
+  border-bottom-color: transparent;
+  margin-bottom: -1px;
+  position: relative;
+  z-index: 1;
+  box-shadow: none;
 }
 
 @media (max-width: 400px) {
@@ -470,6 +507,7 @@ watch(
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px var(--color-shadow);
   margin-left: auto;
+  margin-bottom: 0.5rem;
 }
 
 .rate-plan-button:hover {

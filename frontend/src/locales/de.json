@@ -492,8 +492,8 @@
     "generate_link": "Link generieren"
   },
   "interaction": {
-    "save_to_history": "In \"Deine Pläne\" speichern",
-    "snapshot_saved": "Snapshot in \"Deine Pläne\" gespeichert!",
+    "save_to_history": "Plan separat speichern",
+    "snapshot_saved": "Separat in \"Deine Pläne\" gespeichert!",
     "not_found": "Plan nicht gefunden.",
     "no_messages": "Noch keine Nachrichten in dieser Konversation.",
     "you": "Du",
@@ -509,7 +509,9 @@
     "updated_at": "Aktualisiert am",
     "exported_at": "Exportiert am",
     "chat_placeholder": "Nachricht eingeben...",
-    "describe_changes": "Beschreibe hier deine gewünschte Änderung"
+    "describe_changes": "Beschreibe hier deine gewünschte Änderung",
+    "editing_title": "Unterhaltung zur Planbearbeitung",
+    "editing_description": "Hier siehst du deine Nachrichten und die Änderungsvorschläge von Swim Gen. Sende eine neue Nachricht, um deinen Trainingsplan weiter anzupassen."
   },
   "shared": {
     "loading": "Lade geteilten Trainingsplan...",

@@ -37,12 +37,12 @@ const readonlyStore = {
   isLoading: false,
   keepForever: () => Promise.resolve(),
   upsertCurrentPlan: () => Promise.resolve(''),
-  updatePlanRow: () => {},
-  updatePlanRowEquipment: () => {},
-  addRow: () => {},
-  addSubRow: () => {},
-  removeRow: () => {},
-  moveRow: () => {},
+  updatePlanRow: () => { },
+  updatePlanRowEquipment: () => { },
+  addRow: () => { },
+  addSubRow: () => { },
+  removeRow: () => { },
+  moveRow: () => { },
 } as unknown as PlanStore
 
 function onSave() {
@@ -64,17 +64,9 @@ function onSave() {
 
     <!-- Exercise Cards -->
     <div class="plan-cards-list">
-      <PlanRowCard
-        v-for="(row, index) in exerciseRows"
-        :key="row._id || index"
-        :row="row"
-        :path="[index]"
-        :depth="0"
-        :is-editing="false"
-        :store="readonlyStore"
-        :is-first="index === 0"
-        :is-last="index === exerciseRows.length - 1"
-      />
+      <PlanRowCard v-for="(row, index) in exerciseRows" :key="row._id || index" :row="row" :path="[index]" :depth="0"
+        :is-editing="false" :store="readonlyStore" :is-first="index === 0"
+        :is-last="index === exerciseRows.length - 1" />
     </div>
 
     <!-- Summary and Actions -->
@@ -100,16 +92,16 @@ function onSave() {
 }
 
 .plan-header {
-  background: var(--color-background-soft);
-  padding: 1rem;
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-primary);
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--color-primary);
 }
 
 .plan-title {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-heading);
+  color: white;
 }
 
 .plan-cards-list {
@@ -139,7 +131,7 @@ function onSave() {
 
 .summary-item {
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-header);
 }
 
 .separator {
