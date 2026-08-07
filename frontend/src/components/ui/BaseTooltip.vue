@@ -1,20 +1,67 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { nextTick, onUnmounted, ref } from 'vue'
 import IconTooltip from '@/components/icons/IconTooltip.vue'
+import { calculateOverlayPosition, type OverlayPlacement } from '@/utils/overlayPosition'
 
 const showTooltip = ref(false)
+const containerRef = ref<HTMLElement | null>(null)
+const tooltipRef = ref<HTMLElement | null>(null)
+const tooltipPosition = ref({ left: 0, top: 0 })
+const placement = ref<OverlayPlacement>('top')
+
+async function updatePosition() {
+  await nextTick()
+  if (!containerRef.value || !tooltipRef.value) return
+
+  const anchor = containerRef.value.getBoundingClientRect()
+  const tooltip = tooltipRef.value.getBoundingClientRect()
+  const position = calculateOverlayPosition(
+    anchor,
+    tooltip.width,
+    tooltip.height,
+    window.innerWidth,
+    window.innerHeight,
+  )
+
+  tooltipPosition.value = { left: position.left, top: position.top }
+  placement.value = position.placement
+}
+
+function show() {
+  showTooltip.value = true
+  updatePosition()
+  window.addEventListener('resize', updatePosition)
+  window.addEventListener('scroll', updatePosition, true)
+}
+
+function hide() {
+  showTooltip.value = false
+  window.removeEventListener('resize', updatePosition)
+  window.removeEventListener('scroll', updatePosition, true)
+}
+
+onUnmounted(hide)
 </script>
 
 <template>
   <span
+    ref="containerRef"
     class="tooltip-container"
-    @mouseenter="showTooltip = true"
-    @mouseleave="showTooltip = false"
+    @mouseenter="show"
+    @mouseleave="hide"
   >
     <IconTooltip />
-    <div v-if="showTooltip" class="tooltip-text">
-      <slot name="tooltip"> A helpful tooltip with additional information. </slot>
-    </div>
+    <Teleport to="body">
+      <div
+        v-if="showTooltip"
+        ref="tooltipRef"
+        class="tooltip-text"
+        :class="`position-${placement}`"
+        :style="{ left: `${tooltipPosition.left}px`, top: `${tooltipPosition.top}px` }"
+      >
+        <slot name="tooltip"> A helpful tooltip with additional information. </slot>
+      </div>
+    </Teleport>
   </span>
 </template>
 
@@ -36,28 +83,25 @@ const showTooltip = ref(false)
 }
 
 .tooltip-text {
-  visibility: hidden;
   background-color: var(--color-background-mute);
   color: var(--color-text);
   text-align: start;
   text-transform: none;
   border-radius: 6px;
   padding: 0.5rem;
-  position: absolute;
+  position: fixed;
   z-index: 9999;
-  bottom: 125%;
-  /* Position the tooltip above the icon */
-  left: 50%;
-  transform: translateX(-50%);
-  /* Center the tooltip precisely */
-  opacity: 0;
-  transition: opacity 0.3s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   font-size: 0.875rem;
   line-height: 1.4;
   text-wrap: wrap;
   overflow: auto;
   min-width: 300px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  box-sizing: border-box;
+  pointer-events: none;
+  animation: tooltip-in 0.2s ease-out;
 }
 
 @media (max-width: 740px) {
@@ -70,8 +114,14 @@ const showTooltip = ref(false)
   }
 }
 
-.tooltip-container:hover .tooltip-text {
-  visibility: visible;
-  opacity: 1;
+@keyframes tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.tooltip-text.position-top {
+  transform-origin: bottom center;
 }
 </style>

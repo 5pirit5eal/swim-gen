@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDrillsStore } from '@/stores/drills'
 import type { DrillPreview } from '@/types'
+import { calculateOverlayPosition, type OverlayPlacement } from '@/utils/overlayPosition'
 
 const props = defineProps<{
   drillId: string
@@ -18,8 +19,10 @@ const isHovering = ref(false)
 const isLoading = ref(false)
 const preview = ref<DrillPreview | null>(null)
 const hoverTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
-const cardPosition = ref<{ top: boolean; left: boolean }>({ top: false, left: false })
+const cardPosition = ref({ left: 0, top: 0 })
+const placement = ref<OverlayPlacement>('bottom')
 const linkRef = ref<HTMLElement | null>(null)
+const cardRef = ref<HTMLElement | null>(null)
 const observer = ref<IntersectionObserver | null>(null)
 
 // Image URL
@@ -36,11 +39,11 @@ function getDifficultyLevel(difficulty: string): number {
   return 1
 }
 
-async function handleMouseEnter(event: MouseEvent) {
+async function handleMouseEnter() {
   // Delay before showing the card to avoid flickering
   hoverTimeout.value = setTimeout(async () => {
     isHovering.value = true
-    calculatePosition(event)
+    await updatePosition()
 
     if (!preview.value) {
       isLoading.value = true
@@ -52,6 +55,7 @@ async function handleMouseEnter(event: MouseEvent) {
           preview.value = result
         }
         isLoading.value = false
+        await updatePosition()
       }
     }
   }, 200)
@@ -65,17 +69,22 @@ function handleMouseLeave() {
   isHovering.value = false
 }
 
-function calculatePosition(event: MouseEvent) {
-  const element = event.target as HTMLElement
-  const rect = element.getBoundingClientRect()
-  const windowHeight = window.innerHeight
-  const windowWidth = window.innerWidth
+async function updatePosition() {
+  await nextTick()
+  if (!linkRef.value || !cardRef.value) return
 
-  // Check if card should appear above or below
-  cardPosition.value.top = rect.bottom + 300 > windowHeight
+  const anchor = linkRef.value.getBoundingClientRect()
+  const card = cardRef.value.getBoundingClientRect()
+  const position = calculateOverlayPosition(
+    anchor,
+    card.width,
+    card.height,
+    window.innerWidth,
+    window.innerHeight,
+  )
 
-  // Check if card should appear to the left or right
-  cardPosition.value.left = rect.left + 320 > windowWidth
+  cardPosition.value = { left: position.left, top: position.top }
+  placement.value = position.placement
 }
 
 function navigateToDrill() {
@@ -84,6 +93,8 @@ function navigateToDrill() {
 }
 
 onMounted(() => {
+  window.addEventListener('resize', updatePosition)
+  window.addEventListener('scroll', updatePosition, true)
   observer.value = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -117,6 +128,8 @@ async function prefetchDrill() {
 }
 
 onUnmounted(() => {
+  window.removeEventListener('resize', updatePosition)
+  window.removeEventListener('scroll', updatePosition, true)
   if (hoverTimeout.value) {
     clearTimeout(hoverTimeout.value)
   }
@@ -137,12 +150,15 @@ onUnmounted(() => {
       {{ text }}
     </a>
 
-    <Transition name="card">
-      <div
-        v-if="isHovering"
-        class="drill-preview-card"
-        :class="{ 'position-top': cardPosition.top, 'position-left': cardPosition.left }"
-      >
+    <Teleport to="body">
+      <Transition name="card">
+        <div
+          v-if="isHovering"
+          ref="cardRef"
+          class="drill-preview-card"
+          :class="`position-${placement}`"
+          :style="{ left: `${cardPosition.left}px`, top: `${cardPosition.top}px` }"
+        >
         <div v-if="isLoading" class="card-loading">
           <div class="loading-spinner-small"></div>
         </div>
@@ -180,8 +196,9 @@ onUnmounted(() => {
         <div v-else class="card-error">
           <p>Unable to load preview</p>
         </div>
-      </div>
-    </Transition>
+        </div>
+      </Transition>
+    </Teleport>
   </span>
 </template>
 
@@ -209,29 +226,20 @@ onUnmounted(() => {
 }
 
 .drill-preview-card {
-  position: absolute;
+  position: fixed;
   z-index: 1000;
-  top: calc(100% + 12px);
-  left: 0;
   width: 320px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  box-sizing: border-box;
   background: var(--color-background);
   border: 1px solid var(--color-border);
   border-radius: 12px;
   box-shadow:
     0 10px 25px -5px rgba(0, 0, 0, 0.2),
     0 0 0 1px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  overflow: auto;
   pointer-events: none;
-}
-
-.drill-preview-card.position-top {
-  top: auto;
-  bottom: calc(100% + 12px);
-}
-
-.drill-preview-card.position-left {
-  left: auto;
-  right: 0;
 }
 
 .card-loading,
@@ -354,11 +362,15 @@ onUnmounted(() => {
 
 /* Transitions */
 .card-enter-active {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-leave-active {
-  transition: all 0.15s ease-in;
+  transition:
+    opacity 0.15s ease-in,
+    transform 0.15s ease-in;
 }
 
 .card-enter-from,

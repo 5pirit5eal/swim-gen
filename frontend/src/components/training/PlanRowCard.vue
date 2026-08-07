@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ContentWithDrillLinks from '@/components/training/ContentWithDrillLinks.vue'
+import BaseTooltip from '@/components/ui/BaseTooltip.vue'
 import type { Row, PlanStore } from '@/types'
 import { EQUIPMENT_I18N_KEYS, EQUIPMENT_TYPES, MAX_NESTING_DEPTH } from '@/utils/rowHelpers'
 import { computed } from 'vue'
@@ -181,7 +182,63 @@ function subRowPath(subIndex: number): number[] {
 
         <!-- Intensity -->
         <div class="plan-row-card__metric">
-          <span class="plan-row-card__metric-label">{{ t('display.intensity') }}</span>
+          <span class="plan-row-card__metric-label">
+            {{ t('display.intensity') }}
+            <BaseTooltip class="plan-row-card__intensity-tooltip">
+              <template #tooltip>
+                <p>{{ t('display.intensity_tooltip.title') }}</p>
+                <ul>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.ga') }}</strong>
+                    <ul>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.ga1') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.ga1_2') }}</strong>
+                      </li>
+                      <li>
+                        <strong>{{ t('display.intensity_tooltip.ga2') }}</strong>
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.lza') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.hf') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.lt') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.sa') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.wa') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.wk') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.ta') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.tue') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.ts') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.sprint') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.recovery') }}</strong>
+                  </li>
+                </ul>
+              </template>
+            </BaseTooltip>
+          </span>
           <input
             v-if="isEditing"
             type="text"
@@ -417,6 +474,10 @@ export default {
   letter-spacing: 0.05em;
   color: var(--color-text);
   white-space: nowrap;
+}
+
+.plan-row-card__metric-label :deep(.plan-row-card__intensity-tooltip .tooltip-icon) {
+  font-size: 1em;
 }
 
 .plan-row-card__metric-value {
