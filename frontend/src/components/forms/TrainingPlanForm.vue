@@ -378,6 +378,7 @@ async function handlePromptGeneration() {
             >
               {{ t('form.clear_all_filters') }}
             </button>
+            <p class="ai-disclosure">{{ t('ai_disclosure') }}</p>
           </div>
         </div>
       </Transition>

@@ -23,6 +23,7 @@ go.work.sum
 
 # env file
 .env*
+!.env.example
 .terraform
 .terraform.lock.hcl
 

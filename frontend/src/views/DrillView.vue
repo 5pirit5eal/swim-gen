@@ -141,6 +141,7 @@ watch(locale, async () => {
             <div class="header-content">
               <div class="image-container">
                 <img :src="imageUrl" :alt="currentDrill.img_description" class="drill-image" />
+                <span class="ai-generated-label">{{ t('drill.ai_generated_image') }}</span>
               </div>
               <div class="header-details">
                 <div class="title-row">
@@ -308,6 +309,17 @@ watch(locale, async () => {
 
 .drill-image:hover {
   transform: scale(1.02);
+}
+
+.ai-generated-label {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  color: white;
+  background: rgb(0 0 0 / 70%);
+  border-radius: 4px;
+  font-size: 0.75rem;
 }
 
 .header-details {

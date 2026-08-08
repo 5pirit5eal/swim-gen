@@ -34,6 +34,8 @@ const responsiblePartyDetails = computed(() => {
 
         <section>
           <h3>{{ $t('privacy_policy.data_protection_at_a_glance_title') }}</h3>
+          <h4>{{ $t('privacy_policy.ai_processing_title') }}</h4>
+          <p>{{ $t('privacy_policy.ai_processing_text') }}</p>
           <h4>{{ $t('privacy_policy.general_notes_title') }}</h4>
           <p>{{ $t('privacy_policy.general_notes_text') }}</p>
 
