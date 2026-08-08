@@ -1,6 +1,7 @@
 # This file contains the variables for the Terraform configuration.
-project_id = "rubenschulze-sandbox"
-region     = "europe-west4"
+project_id   = "rubenschulze-sandbox"
+region       = "europe-west4"
+genai_region = "eu"
 apis = [
   "cloudresourcemanager.googleapis.com", # Terraform Backend
   "run.googleapis.com",                  # Cloud Run

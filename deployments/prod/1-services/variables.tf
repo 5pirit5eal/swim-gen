@@ -24,12 +24,19 @@ variable "supabase_access_token" {
 variable "model" {
   description = "The model name"
   type        = string
+  default     = "gemini-3.5-flash"
 }
 
 variable "small_model" {
   description = "The small model name"
   type        = string
-  default     = "gemini-2.5-flash-lite"
+  default     = "gemini-3.5-flash-lite"
+}
+
+variable "genai_region" {
+  description = "Vertex AI endpoint region for generative models"
+  type        = string
+  default     = "eu"
 }
 
 variable "embedding_name" {

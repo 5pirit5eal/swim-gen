@@ -1,6 +1,7 @@
 # This file contains the variables for the Terraform configuration.
-project_id = "swim-gen-prod"
-region     = "europe-west4"
+project_id   = "swim-gen-prod"
+region       = "europe-west4"
+genai_region = "eu"
 apis = [
   "cloudresourcemanager.googleapis.com",
   "run.googleapis.com",

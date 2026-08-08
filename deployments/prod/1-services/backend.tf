@@ -1,7 +1,7 @@
 locals {
   backend_env_variables = {
     PROJECT_ID                = var.project_id
-    REGION                    = var.region
+    REGION                    = var.genai_region
     DB_NAME                   = var.supabase.dbname
     DB_HOST                   = var.supabase.host
     DB_PORT                   = var.supabase.port
@@ -20,8 +20,8 @@ locals {
     SUPABASE_ANON_KEY         = data.supabase_apikeys.production_keys.anon_key
     SUPABASE_SERVICE_ROLE_KEY = data.supabase_apikeys.production_keys.service_role_key
     # OTel — backend uses the Cloud Trace exporter directly; no OTLP endpoint needed
-    OTEL_SERVICE_NAME        = "swim-gen-backend"
-    OTEL_TRACES_SAMPLER_ARG  = "0.1"
+    OTEL_SERVICE_NAME       = "swim-gen-backend"
+    OTEL_TRACES_SAMPLER_ARG = "0.1"
   }
 }
 
