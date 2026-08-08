@@ -168,9 +168,12 @@
     "phone": "Telefon",
     "email": "E-Mail"
   },
+  "ai_disclosure": "KI-generierte Inhalte: Bitte prüfen Sie diese vor der Verwendung.",
   "privacy_policy": {
     "title": "Datenschutzerklärung",
-    "last_updated": "Zuletzt aktualisiert: 13. Dezember 2025",
+    "last_updated": "Zuletzt aktualisiert: 8. August 2026",
+    "ai_processing_title": "KI-Verarbeitung und Transparenz",
+    "ai_processing_text": "Swim Gen nutzt generative KI von Google Cloud Vertex AI, um Trainingspläne zu erstellen und zu überarbeiten. Ihre Eingaben, Trainingspräferenzen, hochgeladenen Inhalte und Gesprächskontexte können zur Bereitstellung dieser Funktionen verarbeitet werden. KI-generierte Antworten können ungenau sein und sollten vor der Verwendung geprüft werden. Bei der Nutzung der KI-Funktionen werden Sie darüber informiert, dass Sie mit einer KI interagieren. Die Anwendung nutzt keine Emotionserkennung und keine biometrische Kategorisierung. Wir verwenden keine KI-generierten Bilder realer Personen und keine Deepfakes.",
     "data_protection_at_a_glance_title": "1. Datenschutz auf einen Blick",
     "general_notes_title": "Allgemeine Hinweise",
     "general_notes_text": "Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können. Ausführliche Informationen zum Thema Datenschutz entnehmen Sie unserer unter diesem Text aufgeführten Datenschutzerklärung.",
@@ -546,6 +549,7 @@
     "next": "Weiter"
   },
   "drill": {
+    "ai_generated_image": "KI-generiertes Bild",
     "loading": "Übung wird geladen...",
     "not_found": "Übung nicht gefunden. Weiterleitung zur Startseite.",
     "description": "Beschreibung",
