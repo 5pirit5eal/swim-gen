@@ -139,6 +139,7 @@
     "no_plan_placeholder": "No training plan generated yet. Use the form above to create one!",
     "done_editing": "Done Editing",
     "refine_plan": "Refine Plan",
+    "export": "Export",
     "export_pdf": "Export PDF",
     "exporting": "Exporting...",
     "open_pdf": "Open PDF",
@@ -491,6 +492,16 @@
     "create_error": "Failed to create share URL",
     "generate_prompt": "No share link yet.",
     "generate_link": "Generate Link"
+  },
+  "text_export": {
+    "title": "Text Export",
+    "export_text": "Export as Text",
+    "markdown": "Markdown",
+    "bullets": "Bullet Points",
+    "set": "Set",
+    "copy": "Copy Text",
+    "copied": "Copied to clipboard!",
+    "copy_error": "Failed to copy text to clipboard"
   },
   "interaction": {
     "save_to_history": "Save as Separate Plan",

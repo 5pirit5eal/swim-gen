@@ -141,6 +141,7 @@
     "no_plan_placeholder": "Noch kein Trainingsplan generiert. Verwende das obige Formular, um einen zu erstellen!",
     "done_editing": "Bearbeitung beenden",
     "refine_plan": "Plan bearbeiten",
+    "export": "Exportieren",
     "export_pdf": "PDF exportieren",
     "exporting": "Exportiert...",
     "open_pdf": "PDF öffnen",
@@ -493,6 +494,16 @@
     "create_error": "Fehler beim Erstellen des Freigabe-Links",
     "generate_prompt": "Noch kein Freigabe-Link.",
     "generate_link": "Link generieren"
+  },
+  "text_export": {
+    "title": "Textexport",
+    "export_text": "Als Text exportieren",
+    "markdown": "Markdown",
+    "bullets": "Stichpunkte",
+    "set": "Satz",
+    "copy": "Text kopieren",
+    "copied": "In die Zwischenablage kopiert!",
+    "copy_error": "Text konnte nicht kopiert werden"
   },
   "interaction": {
     "save_to_history": "Plan separat speichern",

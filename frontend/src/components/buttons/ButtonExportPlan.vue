@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 import { useExportStore } from '@/stores/export'
 import IconDownload from '@/components/icons/IconDownload.vue'
+import IconCopy from '@/components/icons/IconCopy.vue'
 import type { PlanToPDFRequest, PlanStore } from '@/types'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue3-toastify'
 import { stripRowIds } from '@/utils/rowHelpers'
+import TextExportModal from '@/components/training/TextExportModal.vue'
+import { isIOS } from '@/utils/platform'
 
 const props = defineProps<{
   store: PlanStore
@@ -19,15 +22,7 @@ const pdfUrl = ref<string | null>(null)
 const exportHorizontal = ref(false)
 const exportLargeFont = ref(false)
 const isExportMenuOpen = ref(false)
-
-const isIOS = computed(() => {
-  const userAgent = navigator.userAgent
-  return (
-    /iPhone|iPad|iPod/.test(userAgent) ||
-    // iPad on iOS 13+ detection (reports as Mac but has touch)
-    (userAgent.includes('Mac') && 'ontouchend' in document)
-  )
-})
+const isTextExportOpen = ref(false)
 
 // Reset export if plan changes (deep watch) or options change
 watch(
@@ -56,7 +51,7 @@ function openPDF() {
   }
 }
 
-async function handleExport() {
+async function handlePDFExport() {
   isExportMenuOpen.value = false // Close menu on export
   // Phase 2: user clicks "Open PDF" (mostly for iOS or if auto-open fails)
   if (exportPhase.value === 'done' && pdfUrl.value) {
@@ -92,7 +87,7 @@ async function handleExport() {
     exportPhase.value = 'done'
 
     // Auto-open for non-iOS
-    if (!isIOS.value) {
+    if (!isIOS()) {
       openPDF()
       exportPhase.value = 'idle' // On non-iOS, reset so user can re-export with different options; iOS keeps "done" so a second tap just re-opens the existing PDF
     }
@@ -102,46 +97,50 @@ async function handleExport() {
     exportPhase.value = 'idle'
   }
 }
+
+function toggleExportMenu() {
+  isExportMenuOpen.value = !isExportMenuOpen.value
+}
+
+function openTextExport() {
+  isExportMenuOpen.value = false
+  if (props.store.currentPlan) isTextExportOpen.value = true
+}
 </script>
 
 <template>
   <div class="export-actions">
-    <button
-      @click="handleExport"
-      class="export-btn main-action"
-      :disabled="exportPhase === 'exporting'"
-    >
-      <template v-if="exportPhase === 'exporting'">
-        {{ t('display.exporting') }}
-      </template>
-      <template v-else-if="exportPhase === 'done'">
-        <IconDownload class="icon" />
-        {{ t('display.open_pdf') }}
-      </template>
-      <template v-else>
-        <IconDownload class="icon" />
-        {{ t('display.export_pdf') }}
-      </template>
+    <button @click="toggleExportMenu" class="export-btn main-action" :disabled="exportPhase === 'exporting'">
+      <IconDownload class="icon" />
+      {{ t('display.export') }}
     </button>
     <div class="dropdown-container">
-      <button
-        @click="isExportMenuOpen = !isExportMenuOpen"
-        class="export-btn dropdown-toggle"
-        :disabled="exportPhase === 'exporting'"
-      ></button>
       <Transition name="dropdown-transform">
         <div v-if="isExportMenuOpen" class="dropdown-menu">
-          <label>
+          <button class="dropdown-item dropdown-item-action" @click="handlePDFExport">
+            <IconDownload class="menu-icon" />
+            <span>
+              {{ exportPhase === 'exporting' ? t('display.exporting') : exportPhase === 'done' ? t('display.open_pdf') :
+                t('display.export_pdf') }}
+            </span>
+          </button>
+          <label class="pdf-option">
             <input type="checkbox" v-model="exportHorizontal" />
             {{ t('display.export_horizontal') }}
           </label>
-          <label>
+          <label class="pdf-option">
             <input type="checkbox" v-model="exportLargeFont" />
             {{ t('display.export_large_font') }}
           </label>
+          <button class="dropdown-item dropdown-item-action" @click="openTextExport">
+            <IconCopy class="menu-icon" />
+            <span>{{ t('text_export.export_text') }}</span>
+          </button>
         </div>
       </Transition>
     </div>
+    <TextExportModal v-if="store.currentPlan" :show="isTextExportOpen" :plan="store.currentPlan"
+      @close="isTextExportOpen = false" />
   </div>
 </template>
 
@@ -155,20 +154,8 @@ async function handleExport() {
 }
 
 .export-actions .main-action {
-  flex: 3;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.export-actions .dropdown-toggle {
-  flex: 1;
   position: relative;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: 1px solid var(--color-primary-hover);
-  padding: 0.75rem 1rem;
-  min-width: 0;
-  max-width: 0;
+  padding-right: 2.5rem;
 }
 
 .export-btn {
@@ -214,11 +201,11 @@ async function handleExport() {
   position: static;
 }
 
-.dropdown-toggle::before {
+.main-action::after {
   content: '';
   position: absolute;
   top: 50%;
-  left: 50%;
+  right: 1rem;
   width: 0;
   height: 0;
   border-left: 0.375rem solid transparent;
@@ -250,8 +237,49 @@ async function handleExport() {
   text-align: left;
 }
 
+.dropdown-menu .pdf-option {
+  padding-left: 2.25rem;
+  position: relative;
+}
+
+.dropdown-menu .pdf-option::before {
+  content: '';
+  position: absolute;
+  left: 1rem;
+  top: 0;
+  bottom: 0;
+  border-left: 2px solid var(--color-border);
+}
+
 .dropdown-menu label:hover {
   background-color: var(--color-background-mute);
+}
+
+.dropdown-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  text-align: left;
+  font: inherit;
+}
+
+.dropdown-item-action {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.dropdown-item-action:hover {
+  background-color: var(--color-background-mute);
+}
+
+.menu-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
 }
 
 .dropdown-menu input {
