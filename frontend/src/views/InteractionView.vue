@@ -219,128 +219,121 @@ watch(
       </div>
 
       <!-- Plan Tab -->
-      <Transition name="fade">
-        <div class="tab-content" v-show="activeTab === 'plan'">
-          <!-- Current Plan Display -->
-          <section>
-            <div v-if="isLoading" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>{{ t('shared.loading') }}</p>
-            </div>
-            <TrainingPlanDisplay v-else :store="trainingStore" :show-share-button="true" />
-          </section>
+      <div class="tab-content" v-show="activeTab === 'plan'">
+        <!-- Current Plan Display -->
+        <section>
+          <div v-if="isLoading" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>{{ t('shared.loading') }}</p>
+          </div>
+          <TrainingPlanDisplay v-else :store="trainingStore" :show-share-button="true" />
+        </section>
 
-          <!-- Metadata Section -->
-          <section v-if="planMetadata" class="metadata-section">
-            <h3>{{ t('interaction.metadata') }}</h3>
-            <div class="metadata-grid">
-              <div class="metadata-item">
-                <span class="label">{{ t('interaction.created_at') }}</span>
-                <span class="value">{{ new Date(planMetadata.created_at).toLocaleString() }}</span>
-              </div>
-              <div class="metadata-item">
-                <span class="label">{{ t('interaction.updated_at') }}</span>
-                <span class="value">{{ new Date(planMetadata.updated_at).toLocaleString() }}</span>
-              </div>
-              <div class="metadata-item" v-if="planMetadata.exported_at">
-                <span class="label">{{ t('interaction.exported_at') }}</span>
-                <span class="value">{{ new Date(planMetadata.exported_at).toLocaleString() }}</span>
-              </div>
-              <div class="metadata-item" v-if="planMetadata.feedback_rating">
-                <span class="label">{{ t('feedback.rating_label') }}</span>
-                <div class="rating-value-container">
-                  <span class="value">{{ planMetadata.feedback_rating }}</span>
-                  <IconStar class="rating-icon" />
-                </div>
+        <!-- Metadata Section -->
+        <section v-if="planMetadata" class="metadata-section">
+          <h3>{{ t('interaction.metadata') }}</h3>
+          <div class="metadata-grid">
+            <div class="metadata-item">
+              <span class="label">{{ t('interaction.created_at') }}</span>
+              <span class="value">{{ new Date(planMetadata.created_at).toLocaleString() }}</span>
+            </div>
+            <div class="metadata-item">
+              <span class="label">{{ t('interaction.updated_at') }}</span>
+              <span class="value">{{ new Date(planMetadata.updated_at).toLocaleString() }}</span>
+            </div>
+            <div class="metadata-item" v-if="planMetadata.exported_at">
+              <span class="label">{{ t('interaction.exported_at') }}</span>
+              <span class="value">{{ new Date(planMetadata.exported_at).toLocaleString() }}</span>
+            </div>
+            <div class="metadata-item" v-if="planMetadata.feedback_rating">
+              <span class="label">{{ t('feedback.rating_label') }}</span>
+              <div class="rating-value-container">
+                <span class="value">{{ planMetadata.feedback_rating }}</span>
+                <IconStar class="rating-icon" />
               </div>
             </div>
-          </section>
-        </div>
-      </Transition>
+          </div>
+        </section>
+      </div>
 
       <!-- Chat Tab -->
-      <Transition name="fade">
-        <div class="tab-content chat-container" v-show="activeTab === 'chat'">
-          <!-- Chat Messages Area -->
-          <div class="chat-messages">
+      <div class="tab-content chat-container" v-show="activeTab === 'chat'">
+        <header class="chat-panel-header">
+          <h2>{{ t('interaction.editing_title') }}</h2>
+          <p>{{ t('interaction.editing_description') }}</p>
+        </header>
+
+        <!-- Chat Messages Area -->
+        <div class="chat-messages">
+          <div v-if="displayedMessages.length === 0 && !isFetchingConversation" class="empty-chat">
+            <p>{{ t('interaction.no_messages') }}</p>
+          </div>
+          <TransitionGroup name="message">
             <div
-              v-if="displayedMessages.length === 0 && !isFetchingConversation"
-              class="empty-chat"
+              v-for="message in displayedMessages"
+              :key="message.id"
+              :class="['message', `message-${message.role}`]"
             >
-              <p>{{ t('interaction.no_messages') }}</p>
-            </div>
-            <TransitionGroup name="message">
-              <div
-                v-for="message in displayedMessages"
-                :key="message.id"
-                :class="['message', `message-${message.role}`]"
-              >
-                <div class="message-header">
-                  <span class="message-role">{{
-                    message.role === 'user'
-                      ? authStore.user?.user_metadata?.username || t('interaction.you')
-                      : t('interaction.ai')
-                  }}</span>
-                  <span class="message-time">{{
-                    new Date(message.created_at).toLocaleString()
-                  }}</span>
-                </div>
+              <div class="message-header">
+                <span class="message-role">{{
+                  message.role === 'user'
+                    ? authStore.user?.user_metadata?.username || t('interaction.you')
+                    : t('interaction.ai')
+                }}</span>
+                <span class="message-time">{{
+                  new Date(message.created_at).toLocaleString()
+                }}</span>
+              </div>
 
-                <div class="message-content">
-                  {{ message.content }}
-                </div>
+              <div class="message-content">
+                {{ message.content }}
+              </div>
 
-                <!-- Plan Snapshot (for AI messages) -->
-                <div
-                  v-if="message.plan_snapshot && message.role === 'ai'"
-                  class="snapshot-container"
-                >
-                  <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
-                    <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
-                    {{
-                      isExpanded(message.id)
-                        ? t('interaction.hide_plan')
-                        : t('interaction.show_plan')
-                    }}
-                  </button>
+              <!-- Plan Snapshot (for AI messages) -->
+              <div v-if="message.plan_snapshot && message.role === 'ai'" class="snapshot-container">
+                <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
+                  <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
+                  {{
+                    isExpanded(message.id) ? t('interaction.hide_plan') : t('interaction.show_plan')
+                  }}
+                </button>
 
-                  <div v-if="isExpanded(message.id)" class="snapshot-content">
-                    <SimplePlanDisplay
-                      :title="message.plan_snapshot.title"
-                      :description="message.plan_snapshot.description"
-                      :table="message.plan_snapshot.table"
-                      :plan-id="message.plan_snapshot.plan_id"
-                      @save="handleSaveSnapshot"
-                    />
-                  </div>
+                <div v-if="isExpanded(message.id)" class="snapshot-content">
+                  <SimplePlanDisplay
+                    :title="message.plan_snapshot.title"
+                    :description="message.plan_snapshot.description"
+                    :table="message.plan_snapshot.table"
+                    :plan-id="message.plan_snapshot.plan_id"
+                    @save="handleSaveSnapshot"
+                  />
                 </div>
               </div>
-            </TransitionGroup>
-
-            <!-- Three-dot loader while waiting for AI response -->
-            <div v-if="isLoading" class="chat-loader">
-              <div class="loader"></div>
             </div>
-          </div>
+          </TransitionGroup>
 
-          <!-- Chat Input Area -->
-          <div class="chat-input-wrapper">
-            <label class="input-label">{{ t('interaction.describe_changes') }}</label>
-            <form @submit.prevent="handleSendMessage" class="chat-form">
-              <input
-                v-model="chatInput"
-                type="text"
-                :placeholder="t('interaction.chat_placeholder')"
-                class="chat-input"
-                :disabled="isLoading"
-              />
-              <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
-                <IconSend class="send-icon" />
-              </button>
-            </form>
+          <!-- Three-dot loader while waiting for AI response -->
+          <div v-if="isLoading" class="chat-loader">
+            <div class="loader"></div>
           </div>
         </div>
-      </Transition>
+
+        <!-- Chat Input Area -->
+        <div class="chat-input-wrapper">
+          <label class="input-label">{{ t('interaction.describe_changes') }}</label>
+          <form @submit.prevent="handleSendMessage" class="chat-form">
+            <input
+              v-model="chatInput"
+              type="text"
+              :placeholder="t('interaction.chat_placeholder')"
+              class="chat-input"
+              :disabled="isLoading"
+            />
+            <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
+              <IconSend class="send-icon" />
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
 
     <div v-else class="error-state">
@@ -380,6 +373,12 @@ watch(
   flex-direction: column;
 }
 
+.tab-content :deep(.training-plan-display),
+.tab-content :deep(.plan-container),
+.tab-content :deep(.plan-header) {
+  border-top-left-radius: 0;
+}
+
 /* Chat Specific Styles */
 .chat-container {
   display: flex;
@@ -387,8 +386,27 @@ watch(
   height: 100%;
   min-height: 500px;
   background: var(--color-background-soft);
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
+  border-radius: 0 8px 8px 8px;
+  overflow: hidden;
+}
+
+.chat-panel-header {
+  padding: 1.5rem;
+  color: white;
+  background: var(--color-primary);
+}
+
+.chat-panel-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+.chat-panel-header p {
+  margin: 0.2rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  opacity: 0.9;
 }
 
 .chat-messages {
@@ -402,43 +420,55 @@ watch(
 
 .tab-header {
   display: flex;
+  align-items: flex-end;
   gap: 1rem;
-  margin: 1rem 0;
-  padding: 0.5rem 0;
+  margin: 1rem 0 0;
+  padding: 0.5rem 0 0;
   position: relative;
   z-index: 10;
 }
 
 .tab-switcher {
   display: flex;
-  gap: 1rem;
+  align-items: stretch;
+  gap: 0.25rem;
 }
 
 .tab-button {
-  background: color-mix(in srgb, var(--color-background), transparent 40%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background);
   border: 1px solid var(--color-border);
   padding: 0.75rem 1.75rem;
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-text);
   cursor: pointer;
-  border-radius: 24px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px var(--color-shadow);
+  border-radius: 10px 10px 0 0;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.tab-button:not(.active) {
+  border-bottom-color: color-mix(in srgb, var(--color-text), transparent 70%);
+  box-shadow: inset 0 -6px 7px -6px color-mix(in srgb, var(--color-text), transparent 65%);
 }
 
 .tab-button:hover {
-  background: color-mix(in srgb, var(--color-background), transparent 20%);
-  transform: translateY(-1px);
+  background: var(--color-background-soft);
 }
 
 .tab-button.active {
   background: var(--color-primary);
   color: white;
   border-color: var(--color-primary);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary), transparent 70%);
+  border-bottom-color: transparent;
+  margin-bottom: -1px;
+  position: relative;
+  z-index: 1;
 }
 
 @media (max-width: 400px) {
@@ -470,6 +500,7 @@ watch(
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px var(--color-shadow);
   margin-left: auto;
+  margin-bottom: 0.5rem;
 }
 
 .rate-plan-button:hover {

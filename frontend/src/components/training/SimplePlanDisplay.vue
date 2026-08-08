@@ -100,16 +100,16 @@ function onSave() {
 }
 
 .plan-header {
-  background: var(--color-background-soft);
-  padding: 1rem;
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-primary);
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--color-primary);
 }
 
 .plan-title {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-heading);
+  color: white;
 }
 
 .plan-cards-list {
@@ -139,7 +139,7 @@ function onSave() {
 
 .summary-item {
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-header);
 }
 
 .separator {

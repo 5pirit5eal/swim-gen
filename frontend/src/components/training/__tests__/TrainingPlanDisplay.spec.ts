@@ -325,6 +325,32 @@ describe('TrainingPlanDisplay.vue', () => {
     expect(wrapper.text()).not.toContain(i18n.global.t('display.no_plan_placeholder'))
   })
 
+  it('renders the localized intensity tooltip on plan cards', async () => {
+    const wrapper = mount(TrainingPlanDisplay, {
+      global: {
+        plugins: [i18n, createTestingPinia({ createSpy: vi.fn })],
+      },
+      props: {
+        store: useTrainingPlanStore(),
+      },
+    })
+    const store = useTrainingPlanStore()
+    store.currentPlan = JSON.parse(JSON.stringify(createSimplePlan()))
+    await wrapper.vm.$nextTick()
+
+    const tooltip = wrapper.find('[data-testid="plan-card"] .tooltip-container')
+    expect(tooltip.exists()).toBe(true)
+
+    await tooltip.trigger('mouseenter')
+
+    const tooltipContent = document.body.querySelector('.tooltip-text')
+    expect(tooltipContent?.textContent).toContain(i18n.global.t('display.intensity_tooltip.title'))
+    expect(tooltipContent?.textContent).toContain(i18n.global.t('display.intensity_tooltip.ga1'))
+    expect(tooltipContent?.textContent).toContain(
+      i18n.global.t('display.intensity_tooltip.recovery'),
+    )
+  })
+
   describe('Editing Training Plan', () => {
     it('allows editing the Amount field with a valid number', async () => {
       const wrapper = mount(TrainingPlanDisplay, {

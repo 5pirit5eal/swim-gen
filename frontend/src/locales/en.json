@@ -490,8 +490,8 @@
     "generate_link": "Generate Link"
   },
   "interaction": {
-    "save_to_history": "Add to History",
-    "snapshot_saved": "Snapshot added to history!",
+    "save_to_history": "Save as Separate Plan",
+    "snapshot_saved": "Saved as a separate plan!",
     "not_found": "Plan not found.",
     "no_messages": "No messages in this conversation yet.",
     "you": "You",
@@ -507,7 +507,9 @@
     "updated_at": "Updated At",
     "exported_at": "Exported At",
     "chat_placeholder": "Type a message...",
-    "describe_changes": "Describe your desired changes"
+    "describe_changes": "Describe your desired changes",
+    "editing_title": "Plan editing conversation",
+    "editing_description": "Review your messages and Swim Gen's suggested plan changes below. Send a new message to continue refining your training plan."
   },
   "shared": {
     "loading": "Loading shared training plan...",

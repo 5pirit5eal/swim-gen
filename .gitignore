@@ -44,6 +44,9 @@ third-party/*
 .opencode
 tokens
 *TODO.md
+pr_body.md
+pr-body.md
+.playwright-cli
 
 # credentials
 gha-creds-*.json
