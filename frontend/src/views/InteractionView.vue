@@ -261,6 +261,7 @@ watch(
         <header class="chat-panel-header">
           <h2>{{ t('interaction.editing_title') }}</h2>
           <p>{{ t('interaction.editing_description') }}</p>
+          <p class="ai-disclosure">{{ t('ai_disclosure') }}</p>
         </header>
 
         <!-- Chat Messages Area -->
@@ -407,6 +408,12 @@ watch(
   font-size: 0.875rem;
   line-height: 1.4;
   opacity: 0.9;
+}
+
+.chat-panel-header .ai-disclosure {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  font-style: italic;
 }
 
 .chat-messages {
