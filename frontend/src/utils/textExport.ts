@@ -51,8 +51,22 @@ export function createMarkdownExport(
   equipment: (row: Row) => string,
 ): string {
   const { rows, total } = planRows(plan)
-  const headers = [labels.set, labels.exercise, labels.distance, labels.break, labels.intensity, labels.equipment]
-  const lines = [`# ${plan.title}`, '', plan.description, '', `| ${headers.join(' | ')} |`, `| ${headers.map(() => '---').join(' | ')} |`]
+  const headers = [
+    labels.set,
+    labels.exercise,
+    labels.distance,
+    labels.break,
+    labels.intensity,
+    labels.equipment,
+  ]
+  const lines = [
+    `# ${plan.title}`,
+    '',
+    plan.description,
+    '',
+    `| ${headers.join(' | ')} |`,
+    `| ${headers.map(() => '---').join(' | ')} |`,
+  ]
 
   for (const row of flattenRows(rows, equipment)) {
     lines.push(`| ${row.map(markdownCell).join(' | ')} |`)

@@ -66,12 +66,22 @@ function close() {
     <template #header>
       <div class="text-export-header">
         <div class="text-export-tabs" role="tablist">
-          <button class="text-export-tab" :class="{ active: activeTab === 'bullets' }" role="tab"
-            :aria-selected="activeTab === 'bullets'" @click="activeTab = 'bullets'">
+          <button
+            class="text-export-tab"
+            :class="{ active: activeTab === 'bullets' }"
+            role="tab"
+            :aria-selected="activeTab === 'bullets'"
+            @click="activeTab = 'bullets'"
+          >
             {{ t('text_export.bullets') }}
           </button>
-          <button class="text-export-tab" :class="{ active: activeTab === 'markdown' }" role="tab"
-            :aria-selected="activeTab === 'markdown'" @click="activeTab = 'markdown'">
+          <button
+            class="text-export-tab"
+            :class="{ active: activeTab === 'markdown' }"
+            role="tab"
+            :aria-selected="activeTab === 'markdown'"
+            @click="activeTab = 'markdown'"
+          >
             {{ t('text_export.markdown') }}
           </button>
         </div>
@@ -117,7 +127,11 @@ function close() {
   font-weight: 700;
   line-height: 1.2;
   white-space: nowrap;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
 }
 
 .text-export-tab:hover {
@@ -181,7 +195,11 @@ function close() {
   border-radius: 6px;
   background: var(--color-background-soft);
   color: var(--color-text);
-  font: 0.9rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    0.9rem/1.5 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
 }
 
 @media (max-width: 500px) {

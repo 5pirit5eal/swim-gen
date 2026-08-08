@@ -110,7 +110,11 @@ function openTextExport() {
 
 <template>
   <div class="export-actions">
-    <button @click="toggleExportMenu" class="export-btn main-action" :disabled="exportPhase === 'exporting'">
+    <button
+      @click="toggleExportMenu"
+      class="export-btn main-action"
+      :disabled="exportPhase === 'exporting'"
+    >
       <IconDownload class="icon" />
       {{ t('display.export') }}
     </button>
@@ -120,8 +124,13 @@ function openTextExport() {
           <button class="dropdown-item dropdown-item-action" @click="handlePDFExport">
             <IconDownload class="menu-icon" />
             <span>
-              {{ exportPhase === 'exporting' ? t('display.exporting') : exportPhase === 'done' ? t('display.open_pdf') :
-                t('display.export_pdf') }}
+              {{
+                exportPhase === 'exporting'
+                  ? t('display.exporting')
+                  : exportPhase === 'done'
+                    ? t('display.open_pdf')
+                    : t('display.export_pdf')
+              }}
             </span>
           </button>
           <label class="pdf-option">
@@ -139,8 +148,12 @@ function openTextExport() {
         </div>
       </Transition>
     </div>
-    <TextExportModal v-if="store.currentPlan" :show="isTextExportOpen" :plan="store.currentPlan"
-      @close="isTextExportOpen = false" />
+    <TextExportModal
+      v-if="store.currentPlan"
+      :show="isTextExportOpen"
+      :plan="store.currentPlan"
+      @close="isTextExportOpen = false"
+    />
   </div>
 </template>
 

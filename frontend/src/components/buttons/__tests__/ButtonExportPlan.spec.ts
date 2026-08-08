@@ -14,8 +14,24 @@ const plan = {
   title: 'Test plan',
   description: 'Notes',
   table: [
-    { Amount: 1, Multiplier: 'x', Distance: 100, Break: '20s', Content: 'Warmup', Intensity: 'GA1', Sum: 100 },
-    { Amount: 0, Multiplier: '', Distance: 0, Break: '', Content: 'Total', Intensity: '', Sum: 100 },
+    {
+      Amount: 1,
+      Multiplier: 'x',
+      Distance: 100,
+      Break: '20s',
+      Content: 'Warmup',
+      Intensity: 'GA1',
+      Sum: 100,
+    },
+    {
+      Amount: 0,
+      Multiplier: '',
+      Distance: 0,
+      Break: '',
+      Content: 'Total',
+      Intensity: '',
+      Sum: 100,
+    },
   ],
 }
 
@@ -56,6 +72,8 @@ describe('ButtonExportPlan.vue', () => {
     await flushPromises()
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('- '))
-    expect(document.body.querySelector('.copy-text-button')?.classList.contains('success')).toBe(true)
+    expect(document.body.querySelector('.copy-text-button')?.classList.contains('success')).toBe(
+      true,
+    )
   })
 })
