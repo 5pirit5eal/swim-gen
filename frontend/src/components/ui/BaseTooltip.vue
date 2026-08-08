@@ -44,12 +44,7 @@ onUnmounted(hide)
 </script>
 
 <template>
-  <span
-    ref="containerRef"
-    class="tooltip-container"
-    @mouseenter="show"
-    @mouseleave="hide"
-  >
+  <span ref="containerRef" class="tooltip-container" @mouseenter="show" @mouseleave="hide">
     <IconTooltip />
     <Teleport to="body">
       <div

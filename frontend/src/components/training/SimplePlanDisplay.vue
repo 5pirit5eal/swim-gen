@@ -37,12 +37,12 @@ const readonlyStore = {
   isLoading: false,
   keepForever: () => Promise.resolve(),
   upsertCurrentPlan: () => Promise.resolve(''),
-  updatePlanRow: () => { },
-  updatePlanRowEquipment: () => { },
-  addRow: () => { },
-  addSubRow: () => { },
-  removeRow: () => { },
-  moveRow: () => { },
+  updatePlanRow: () => {},
+  updatePlanRowEquipment: () => {},
+  addRow: () => {},
+  addSubRow: () => {},
+  removeRow: () => {},
+  moveRow: () => {},
 } as unknown as PlanStore
 
 function onSave() {
@@ -64,9 +64,17 @@ function onSave() {
 
     <!-- Exercise Cards -->
     <div class="plan-cards-list">
-      <PlanRowCard v-for="(row, index) in exerciseRows" :key="row._id || index" :row="row" :path="[index]" :depth="0"
-        :is-editing="false" :store="readonlyStore" :is-first="index === 0"
-        :is-last="index === exerciseRows.length - 1" />
+      <PlanRowCard
+        v-for="(row, index) in exerciseRows"
+        :key="row._id || index"
+        :row="row"
+        :path="[index]"
+        :depth="0"
+        :is-editing="false"
+        :store="readonlyStore"
+        :is-first="index === 0"
+        :is-last="index === exerciseRows.length - 1"
+      />
     </div>
 
     <!-- Summary and Actions -->

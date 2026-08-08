@@ -159,43 +159,43 @@ onUnmounted(() => {
           :class="`position-${placement}`"
           :style="{ left: `${cardPosition.left}px`, top: `${cardPosition.top}px` }"
         >
-        <div v-if="isLoading" class="card-loading">
-          <div class="loading-spinner-small"></div>
-        </div>
-        <template v-else-if="preview">
-          <div class="card-image-container">
-            <img
-              :src="imageUrl"
-              :alt="preview.title"
-              class="card-image"
-              @error="($event.target as HTMLImageElement).style.display = 'none'"
-            />
+          <div v-if="isLoading" class="card-loading">
+            <div class="loading-spinner-small"></div>
+          </div>
+          <template v-else-if="preview">
+            <div class="card-image-container">
+              <img
+                :src="imageUrl"
+                :alt="preview.title"
+                class="card-image"
+                @error="($event.target as HTMLImageElement).style.display = 'none'"
+              />
 
-            <!-- Top Left: Target -->
-            <span v-if="preview.target" class="image-overlay-badge">{{ preview.target }}</span>
+              <!-- Top Left: Target -->
+              <span v-if="preview.target" class="image-overlay-badge">{{ preview.target }}</span>
 
-            <!-- Bottom Right: Difficulty -->
-            <div class="image-overlay-difficulty">
-              <span class="difficulty-text">{{ preview.difficulty }}</span>
-              <div class="difficulty-dots">
-                <span
-                  v-for="i in 3"
-                  :key="i"
-                  class="difficulty-dot"
-                  :class="{ active: i <= getDifficultyLevel(preview.difficulty) }"
-                ></span>
+              <!-- Bottom Right: Difficulty -->
+              <div class="image-overlay-difficulty">
+                <span class="difficulty-text">{{ preview.difficulty }}</span>
+                <div class="difficulty-dots">
+                  <span
+                    v-for="i in 3"
+                    :key="i"
+                    class="difficulty-dot"
+                    :class="{ active: i <= getDifficultyLevel(preview.difficulty) }"
+                  ></span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="card-content">
-            <h4 class="card-title">{{ preview.title }}</h4>
-            <p class="card-description">{{ preview.short_description }}</p>
+            <div class="card-content">
+              <h4 class="card-title">{{ preview.title }}</h4>
+              <p class="card-description">{{ preview.short_description }}</p>
+            </div>
+          </template>
+          <div v-else class="card-error">
+            <p>Unable to load preview</p>
           </div>
-        </template>
-        <div v-else class="card-error">
-          <p>Unable to load preview</p>
-        </div>
         </div>
       </Transition>
     </Teleport>
