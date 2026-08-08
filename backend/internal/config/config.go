@@ -13,7 +13,7 @@ type Config struct {
 	ProjectID  string `env:"PROJECT_ID"`
 	Region     string `env:"REGION"`
 	Model      string `env:"MODEL"`
-	SmallModel string `env:"SMALL_MODEL" default:"gemini-2.5-flash-lite"`
+	SmallModel string `env:"SMALL_MODEL" default:"gemini-3.5-flash-lite"`
 	LogLevel   string `env:"LOG_LEVEL"`
 	Port       string `env:"PORT"`
 
