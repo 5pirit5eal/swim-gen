@@ -8,10 +8,11 @@ import (
 )
 
 type GoogleGenAIClient struct {
-	gc       *genai.Client
-	gcfg     *genai.GenerateContentConfig
-	embedCfg *genai.EmbedContentConfig
-	cfg      config.Config
+	gc        *genai.Client
+	gcfg      *genai.GenerateContentConfig
+	embedCfg  *genai.EmbedContentConfig
+	queryMode bool
+	cfg       config.Config
 }
 
 func NewGoogleGenAIClient(ctx context.Context, cfg config.Config) (*GoogleGenAIClient, error) {
@@ -38,14 +39,15 @@ func NewGoogleGenAIClient(ctx context.Context, cfg config.Config) (*GoogleGenAIC
 		},
 	}
 	embedCfg := &genai.EmbedContentConfig{
-		// Default embedding task type
-		TaskType:             "RETRIEVAL_DOCUMENT",
+		// Gemini Embedding 2 uses task instructions in the content instead of the
+		// task_type field used by earlier embedding models.
 		OutputDimensionality: genai.Ptr(int32(cfg.Embedding.Size)),
 	}
 	return &GoogleGenAIClient{
-		gc:       gc,
-		gcfg:     gcfg,
-		embedCfg: embedCfg,
-		cfg:      cfg,
+		gc:        gc,
+		gcfg:      gcfg,
+		embedCfg:  embedCfg,
+		queryMode: false,
+		cfg:       cfg,
 	}, nil
 }

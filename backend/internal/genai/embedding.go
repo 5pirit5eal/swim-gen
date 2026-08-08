@@ -9,40 +9,33 @@ import (
 
 // Creates Embeddings according to the Langchaingo interface with the Google GenAI package
 func (c *GoogleGenAIClient) CreateEmbedding(ctx context.Context, texts []string) ([][]float32, error) {
-	contents := make([]*genai.Content, len(texts))
-	for i, text := range texts {
-		contents[i] = genai.NewContentFromText(text, genai.RoleUser)
-	}
-
-	// Embed in batches to avoid exceeding the max tokens
-	batchSize := 10
 	embeddings := make([][]float32, len(texts))
-	for i := 0; i < (len(texts)+batchSize-1)/batchSize; i++ {
-		if i*batchSize >= len(texts) {
-			break
-		}
-		var batch []*genai.Content
-		if i*batchSize+batchSize > len(texts) {
-			batch = contents[i*batchSize:]
+	// Gemini Embedding 2's embedContent endpoint accepts one content per request.
+	for i, text := range texts {
+		var input string
+		if c.queryMode {
+			input = fmt.Sprintf("task: search result | query: %s", text)
 		} else {
-			batch = contents[i*batchSize : i*batchSize+batchSize]
+			input = text
 		}
-		resp, err := c.gc.Models.EmbedContent(ctx, c.cfg.Embedding.Model, batch, c.embedCfg)
+		content := genai.NewContentFromText(input, genai.RoleUser)
+		resp, err := c.gc.Models.EmbedContent(ctx, c.cfg.Embedding.Model, []*genai.Content{content}, c.embedCfg)
 		if err != nil {
 			return nil, fmt.Errorf("Models.EmbedContent: %w", err)
 		}
-		for j, embedding := range resp.Embeddings {
-			embeddings[i*batchSize+j] = embedding.Values
+		if len(resp.Embeddings) != 1 {
+			return nil, fmt.Errorf("Models.EmbedContent: expected one embedding, got %d", len(resp.Embeddings))
 		}
+		embeddings[i] = resp.Embeddings[0].Values
 	}
 
 	return embeddings, nil
 }
 
 func (c *GoogleGenAIClient) QueryMode() {
-	c.embedCfg.TaskType = "RETRIEVAL_QUERY"
+	c.queryMode = true
 }
 
 func (c *GoogleGenAIClient) DocumentMode() {
-	c.embedCfg.TaskType = "RETRIEVAL_DOCUMENT"
+	c.queryMode = false
 }

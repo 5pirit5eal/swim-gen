@@ -115,7 +115,7 @@ func main() {
 			}
 
 			doc := schema.Document{
-				PageContent: fmt.Sprintf("Title: %s\nDescription: %s\nShort Description: %s\nTargets: %s\nStyles: %s\nDifficulty: %s",
+				PageContent: fmt.Sprintf("title: %s | text: Description: %s\nShort Description: %s\nTargets: %s\nStyles: %s\nDifficulty: %s",
 					drill.Title,
 					strings.Join(drill.Description, " "),
 					drill.ShortDescription,
