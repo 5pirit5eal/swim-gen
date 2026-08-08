@@ -27,12 +27,12 @@ const { currentPlan, isLoading, isFetchingConversation, error, conversation, his
 
 const planMetadata = ref<
   | {
-      plan_id: string
-      created_at: string
-      updated_at: string
-      exported_at?: string
-      feedback_rating?: number
-    }
+    plan_id: string
+    created_at: string
+    updated_at: string
+    exported_at?: string
+    feedback_rating?: number
+  }
   | undefined
 >()
 
@@ -198,18 +198,10 @@ watch(
       <!-- Tab Switcher -->
       <div class="tab-header">
         <div class="tab-switcher" id="tutorial-tab-switcher">
-          <button
-            class="tab-button"
-            :class="{ active: activeTab === 'plan' }"
-            @click="activeTab = 'plan'"
-          >
+          <button class="tab-button" :class="{ active: activeTab === 'plan' }" @click="activeTab = 'plan'">
             {{ t('interaction.plan_tab') }}
           </button>
-          <button
-            class="tab-button"
-            :class="{ active: activeTab === 'chat' }"
-            @click="activeTab = 'chat'"
-          >
+          <button class="tab-button" :class="{ active: activeTab === 'chat' }" @click="activeTab = 'chat'">
             {{ t('interaction.conversation_tab') }}
           </button>
         </div>
@@ -219,145 +211,119 @@ watch(
       </div>
 
       <!-- Plan Tab -->
-      <Transition name="fade">
-        <div class="tab-content" v-show="activeTab === 'plan'">
-          <!-- Current Plan Display -->
-          <section>
-            <div v-if="isLoading" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>{{ t('shared.loading') }}</p>
-            </div>
-            <TrainingPlanDisplay v-else :store="trainingStore" :show-share-button="true" />
-          </section>
+      <div class="tab-content" v-show="activeTab === 'plan'">
+        <!-- Current Plan Display -->
+        <section>
+          <div v-if="isLoading" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>{{ t('shared.loading') }}</p>
+          </div>
+          <TrainingPlanDisplay v-else :store="trainingStore" :show-share-button="true" />
+        </section>
 
-          <!-- Metadata Section -->
-          <section v-if="planMetadata" class="metadata-section">
-            <h3>{{ t('interaction.metadata') }}</h3>
-            <div class="metadata-grid">
-              <div class="metadata-item">
-                <span class="label">{{ t('interaction.created_at') }}</span>
-                <span class="value">{{ new Date(planMetadata.created_at).toLocaleString() }}</span>
-              </div>
-              <div class="metadata-item">
-                <span class="label">{{ t('interaction.updated_at') }}</span>
-                <span class="value">{{ new Date(planMetadata.updated_at).toLocaleString() }}</span>
-              </div>
-              <div class="metadata-item" v-if="planMetadata.exported_at">
-                <span class="label">{{ t('interaction.exported_at') }}</span>
-                <span class="value">{{ new Date(planMetadata.exported_at).toLocaleString() }}</span>
-              </div>
-              <div class="metadata-item" v-if="planMetadata.feedback_rating">
-                <span class="label">{{ t('feedback.rating_label') }}</span>
-                <div class="rating-value-container">
-                  <span class="value">{{ planMetadata.feedback_rating }}</span>
-                  <IconStar class="rating-icon" />
-                </div>
+        <!-- Metadata Section -->
+        <section v-if="planMetadata" class="metadata-section">
+          <h3>{{ t('interaction.metadata') }}</h3>
+          <div class="metadata-grid">
+            <div class="metadata-item">
+              <span class="label">{{ t('interaction.created_at') }}</span>
+              <span class="value">{{ new Date(planMetadata.created_at).toLocaleString() }}</span>
+            </div>
+            <div class="metadata-item">
+              <span class="label">{{ t('interaction.updated_at') }}</span>
+              <span class="value">{{ new Date(planMetadata.updated_at).toLocaleString() }}</span>
+            </div>
+            <div class="metadata-item" v-if="planMetadata.exported_at">
+              <span class="label">{{ t('interaction.exported_at') }}</span>
+              <span class="value">{{ new Date(planMetadata.exported_at).toLocaleString() }}</span>
+            </div>
+            <div class="metadata-item" v-if="planMetadata.feedback_rating">
+              <span class="label">{{ t('feedback.rating_label') }}</span>
+              <div class="rating-value-container">
+                <span class="value">{{ planMetadata.feedback_rating }}</span>
+                <IconStar class="rating-icon" />
               </div>
             </div>
-          </section>
-        </div>
-      </Transition>
+          </div>
+        </section>
+      </div>
+
 
       <!-- Chat Tab -->
-      <Transition name="fade">
-        <div class="tab-content chat-container" v-show="activeTab === 'chat'">
-          <header class="chat-panel-header">
-            <h2>{{ t('interaction.editing_title') }}</h2>
-            <p>{{ t('interaction.editing_description') }}</p>
-          </header>
+      <div class="tab-content chat-container" v-show="activeTab === 'chat'">
+        <header class="chat-panel-header">
+          <h2>{{ t('interaction.editing_title') }}</h2>
+          <p>{{ t('interaction.editing_description') }}</p>
+        </header>
 
-          <!-- Chat Messages Area -->
-          <div class="chat-messages">
-            <div
-              v-if="displayedMessages.length === 0 && !isFetchingConversation"
-              class="empty-chat"
-            >
-              <p>{{ t('interaction.no_messages') }}</p>
-            </div>
-            <TransitionGroup name="message">
-              <div
-                v-for="message in displayedMessages"
-                :key="message.id"
-                :class="['message', `message-${message.role}`]"
-              >
-                <div class="message-header">
-                  <span class="message-role">{{
-                    message.role === 'user'
-                      ? authStore.user?.user_metadata?.username || t('interaction.you')
-                      : t('interaction.ai')
+        <!-- Chat Messages Area -->
+        <div class="chat-messages">
+          <div v-if="displayedMessages.length === 0 && !isFetchingConversation" class="empty-chat">
+            <p>{{ t('interaction.no_messages') }}</p>
+          </div>
+          <TransitionGroup name="message">
+            <div v-for="message in displayedMessages" :key="message.id" :class="['message', `message-${message.role}`]">
+              <div class="message-header">
+                <span class="message-role">{{
+                  message.role === 'user'
+                    ? authStore.user?.user_metadata?.username || t('interaction.you')
+                    : t('interaction.ai')
+                }}</span>
+                <span class="message-time">{{
+                  new Date(message.created_at).toLocaleString()
                   }}</span>
-                  <span class="message-time">{{
-                    new Date(message.created_at).toLocaleString()
-                  }}</span>
-                </div>
+              </div>
 
-                <div class="message-content">
-                  {{ message.content }}
-                </div>
+              <div class="message-content">
+                {{ message.content }}
+              </div>
 
-                <!-- Plan Snapshot (for AI messages) -->
-                <div
-                  v-if="message.plan_snapshot && message.role === 'ai'"
-                  class="snapshot-container"
-                >
-                  <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
-                    <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
-                    {{
-                      isExpanded(message.id)
-                        ? t('interaction.hide_plan')
-                        : t('interaction.show_plan')
-                    }}
-                  </button>
+              <!-- Plan Snapshot (for AI messages) -->
+              <div v-if="message.plan_snapshot && message.role === 'ai'" class="snapshot-container">
+                <button @click="toggleSnapshot(message.id)" class="snapshot-toggle">
+                  <span class="toggle-icon">{{ isExpanded(message.id) ? '▼' : '▶' }}</span>
+                  {{
+                    isExpanded(message.id)
+                      ? t('interaction.hide_plan')
+                      : t('interaction.show_plan')
+                  }}
+                </button>
 
-                  <div v-if="isExpanded(message.id)" class="snapshot-content">
-                    <SimplePlanDisplay
-                      :title="message.plan_snapshot.title"
-                      :description="message.plan_snapshot.description"
-                      :table="message.plan_snapshot.table"
-                      :plan-id="message.plan_snapshot.plan_id"
-                      @save="handleSaveSnapshot"
-                    />
-                  </div>
+                <div v-if="isExpanded(message.id)" class="snapshot-content">
+                  <SimplePlanDisplay :title="message.plan_snapshot.title"
+                    :description="message.plan_snapshot.description" :table="message.plan_snapshot.table"
+                    :plan-id="message.plan_snapshot.plan_id" @save="handleSaveSnapshot" />
                 </div>
               </div>
-            </TransitionGroup>
-
-            <!-- Three-dot loader while waiting for AI response -->
-            <div v-if="isLoading" class="chat-loader">
-              <div class="loader"></div>
             </div>
-          </div>
+          </TransitionGroup>
 
-          <!-- Chat Input Area -->
-          <div class="chat-input-wrapper">
-            <label class="input-label">{{ t('interaction.describe_changes') }}</label>
-            <form @submit.prevent="handleSendMessage" class="chat-form">
-              <input
-                v-model="chatInput"
-                type="text"
-                :placeholder="t('interaction.chat_placeholder')"
-                class="chat-input"
-                :disabled="isLoading"
-              />
-              <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
-                <IconSend class="send-icon" />
-              </button>
-            </form>
+          <!-- Three-dot loader while waiting for AI response -->
+          <div v-if="isLoading" class="chat-loader">
+            <div class="loader"></div>
           </div>
         </div>
-      </Transition>
+
+        <!-- Chat Input Area -->
+        <div class="chat-input-wrapper">
+          <label class="input-label">{{ t('interaction.describe_changes') }}</label>
+          <form @submit.prevent="handleSendMessage" class="chat-form">
+            <input v-model="chatInput" type="text" :placeholder="t('interaction.chat_placeholder')" class="chat-input"
+              :disabled="isLoading" />
+            <button type="submit" class="send-button" :disabled="isLoading || !chatInput.trim()">
+              <IconSend class="send-icon" />
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
 
     <div v-else class="error-state">
       <p>{{ error || t('interaction.not_found') }}</p>
     </div>
 
-    <FeedbackForm
-      :show="showFeedbackForm"
-      :plan-title="currentPlan?.title || ''"
-      @submit="handleFeedbackSubmit"
-      @close="showFeedbackForm = false"
-    />
+    <FeedbackForm :show="showFeedbackForm" :plan-title="currentPlan?.title || ''" @submit="handleFeedbackSubmit"
+      @close="showFeedbackForm = false" />
   </div>
 </template>
 
@@ -399,12 +365,11 @@ watch(
   min-height: 500px;
   background: var(--color-background-soft);
   border-radius: 0 8px 8px 8px;
-  border: 1px solid var(--color-border);
   overflow: hidden;
 }
 
 .chat-panel-header {
-  padding: 0.75rem 1.5rem;
+  padding: 1.5rem;
   color: white;
   background: var(--color-primary);
 }
@@ -443,11 +408,14 @@ watch(
 
 .tab-switcher {
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
   gap: 0.25rem;
 }
 
 .tab-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--color-background);
   border: 1px solid var(--color-border);
   padding: 0.75rem 1.75rem;
@@ -460,7 +428,11 @@ watch(
     background-color 0.2s ease,
     border-color 0.2s ease,
     color 0.2s ease;
-  box-shadow: inset 0 -3px 5px var(--color-shadow);
+}
+
+.tab-button:not(.active) {
+  border-bottom-color: color-mix(in srgb, var(--color-text), transparent 70%);
+  box-shadow: inset 0 -6px 7px -6px color-mix(in srgb, var(--color-text), transparent 65%);
 }
 
 .tab-button:hover {
@@ -475,7 +447,6 @@ watch(
   margin-bottom: -1px;
   position: relative;
   z-index: 1;
-  box-shadow: none;
 }
 
 @media (max-width: 400px) {
