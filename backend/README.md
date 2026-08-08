@@ -47,6 +47,17 @@ GCS_SERVICE_ACCOUNT_SECRET_ID=<your-gcs-sa-secret-id>
 LOG_LEVEL=<log-level, e.g., DEBUG, INFO>
 ```
 
+### Embedding model contract
+
+The backend supports the `gemini-embedding-2` embedding interface only. The configured `EMBEDDING_MODEL` must accept this interface; selecting another model is supported only when it has the same request and input contract:
+
+- Document inputs are preformatted as `title: {title} | text: {text}`.
+- Query inputs are formatted as `task: search result | query: {query}`.
+- The model accepts one content per `EmbedContent` request.
+- `output_dimensionality` must return the configured `EMBEDDING_SIZE` (currently 768).
+
+Models using the legacy `task_type` or separate title configuration are not compatible without changing the embedding implementation. Changing the model or input contract requires re-embedding all stored plans and drills; vectors from different embedding interfaces must not be mixed.
+
 ## Build, Test, and Run
 
 This project uses a `Taskfile.sh` script to manage common tasks.

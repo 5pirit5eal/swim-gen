@@ -115,7 +115,7 @@ func main() {
 			}
 
 			doc := schema.Document{
-				PageContent: fmt.Sprintf("Title: %s\nDescription: %s\nShort Description: %s\nTargets: %s\nStyles: %s\nDifficulty: %s",
+				PageContent: fmt.Sprintf("title: %s | text: Description: %s\nShort Description: %s\nTargets: %s\nStyles: %s\nDifficulty: %s",
 					drill.Title,
 					strings.Join(drill.Description, " "),
 					drill.ShortDescription,
@@ -143,6 +143,16 @@ func main() {
 
 		if len(documents) > 0 {
 			fmt.Printf("Uploading %d drills for language %s...\n", len(documents), l)
+			// AddDocuments creates a new UUID for every vector. Remove the old
+			// language set first so repeated embedding refreshes do not accumulate
+			// duplicate drill metadata rows.
+			if _, err := db.Conn.Exec(ctx, `
+				DELETE FROM drill_embeddings
+				WHERE cmetadata->>'language' = $1
+			`, l); err != nil {
+				log.Printf("Error removing existing drills for language %s: %v", l, err)
+				continue
+			}
 			if _, err := db.DrillStore.AddDocuments(ctx, documents); err != nil {
 				log.Printf("Error uploading documents for language %s: %v", l, err)
 			} else {

@@ -168,7 +168,7 @@ async function toggleEditing() {
   border-radius: 8px;
   border-top-right-radius: 11px;
   border-top-left-radius: 11px;
-  border: 1px solid var(--color-border);
+  overflow: hidden;
 }
 
 .plan-container {
@@ -211,10 +211,6 @@ async function toggleEditing() {
   background: var(--color-primary);
   color: white;
   padding: 1.25rem 2rem;
-  border-top-right-radius: 8px;
-  border-top-left-radius: 8px;
-  outline: 1px solid var(--color-primary);
-  border: 2px solid var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;

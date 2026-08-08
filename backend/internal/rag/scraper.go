@@ -351,6 +351,10 @@ Forloop:
 				doc.Metadata[k] = models.SanitizeString(s)
 			}
 		}
+		if title, ok := doc.Metadata["title"].(string); ok {
+			plan := documents[i].Plan.Plan()
+			doc.PageContent = fmt.Sprintf("title: %s | text: %s\n %s", title, plan.Description, plan.Table.String())
+		}
 
 		// Add the new document
 		_, err = db.PlanStore.AddDocuments(ctx, []schema.Document{doc})
