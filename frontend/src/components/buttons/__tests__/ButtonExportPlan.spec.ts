@@ -41,6 +41,7 @@ describe('ButtonExportPlan.vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockExportToPDF.mockResolvedValue('https://example.test/plan.pdf')
+    vi.spyOn(window, 'open').mockReturnValue(window)
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
       value: { writeText: vi.fn().mockResolvedValue(undefined) },
@@ -56,8 +57,30 @@ describe('ButtonExportPlan.vue', () => {
 
     expect(menu.exists()).toBe(true)
     expect(buttons[0]!.text()).toContain(i18n.global.t('display.export_pdf'))
-    expect(menu.findAll('input')).toHaveLength(2)
+    const options = menu.findAll<HTMLInputElement>('input')
+    expect(options).toHaveLength(3)
+    expect(options[2]!.element.checked).toBe(true)
     expect(buttons[1]!.text()).toContain(i18n.global.t('text_export.export_text'))
+  })
+
+  it('omits trainer notes by default and includes them when requested', async () => {
+    const wrapper = mount(ButtonExportPlan, { props: { store }, global: { plugins: [i18n] } })
+
+    await wrapper.find('.main-action').trigger('click')
+    await wrapper.find('.dropdown-item-action').trigger('click')
+    await flushPromises()
+
+    expect(mockExportToPDF).toHaveBeenLastCalledWith(expect.objectContaining({ description: '' }))
+
+    await wrapper.find('.main-action').trigger('click')
+    const omitNotes = wrapper.findAll<HTMLInputElement>('.pdf-option input')[2]!
+    await omitNotes.setValue(false)
+    await wrapper.find('.dropdown-item-action').trigger('click')
+    await flushPromises()
+
+    expect(mockExportToPDF).toHaveBeenLastCalledWith(
+      expect.objectContaining({ description: plan.description }),
+    )
   })
 
   it('opens text export and copies the active representation', async () => {

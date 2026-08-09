@@ -172,6 +172,113 @@ func TestUpdateSum_MixedRows(t *testing.T) {
 	assert.Equal(t, 200, table[2].Sum, "Cooldown sum should be 200")
 }
 
+func TestFlattenSingleParentRow(t *testing.T) {
+	tests := []struct {
+		name  string
+		table models.Table
+		want  models.Table
+	}{
+		{
+			name: "promotes several subrows",
+			table: models.Table{{
+				Amount:  1,
+				Content: "Training",
+				SubRows: []models.Row{
+					{Amount: 1, Distance: 200, Content: "Warmup"},
+					{Amount: 4, Distance: 100, Content: "Main set"},
+				},
+			}},
+			want: models.Table{
+				{Amount: 1, Distance: 200, Content: "Warmup"},
+				{Amount: 4, Distance: 100, Content: "Main set"},
+			},
+		},
+		{
+			name: "ignores existing total when counting exercise rows",
+			table: models.Table{
+				{
+					Amount:  1,
+					Content: "Training",
+					SubRows: []models.Row{
+						{Amount: 1, Distance: 200, Content: "Warmup"},
+						{Amount: 1, Distance: 100, Content: "Cooldown"},
+					},
+				},
+				{Content: "Total meters", Sum: 300},
+			},
+			want: models.Table{
+				{Amount: 1, Distance: 200, Content: "Warmup"},
+				{Amount: 1, Distance: 100, Content: "Cooldown"},
+				{Content: "Total meters", Sum: 300},
+			},
+		},
+		{
+			name: "keeps repeated parent",
+			table: models.Table{{
+				Amount:  2,
+				Content: "Repeated set",
+				SubRows: []models.Row{
+					{Amount: 1, Distance: 100, Content: "Fast"},
+					{Amount: 1, Distance: 100, Content: "Easy"},
+				},
+			}},
+			want: models.Table{{
+				Amount:  2,
+				Content: "Repeated set",
+				SubRows: []models.Row{
+					{Amount: 1, Distance: 100, Content: "Fast"},
+					{Amount: 1, Distance: 100, Content: "Easy"},
+				},
+			}},
+		},
+		{
+			name: "keeps parent when another exercise exists",
+			table: models.Table{
+				{
+					Amount:  1,
+					Content: "Main set",
+					SubRows: []models.Row{
+						{Amount: 1, Distance: 100, Content: "Fast"},
+						{Amount: 1, Distance: 100, Content: "Easy"},
+					},
+				},
+				{Amount: 1, Distance: 200, Content: "Cooldown"},
+			},
+			want: models.Table{
+				{
+					Amount:  1,
+					Content: "Main set",
+					SubRows: []models.Row{
+						{Amount: 1, Distance: 100, Content: "Fast"},
+						{Amount: 1, Distance: 100, Content: "Easy"},
+					},
+				},
+				{Amount: 1, Distance: 200, Content: "Cooldown"},
+			},
+		},
+		{
+			name: "keeps parent with one subrow",
+			table: models.Table{{
+				Amount:  1,
+				Content: "Training",
+				SubRows: []models.Row{{Amount: 1, Distance: 200, Content: "Warmup"}},
+			}},
+			want: models.Table{{
+				Amount:  1,
+				Content: "Training",
+				SubRows: []models.Row{{Amount: 1, Distance: 200, Content: "Warmup"}},
+			}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.table.FlattenSingleParentRow()
+			assert.Equal(t, tt.want, tt.table)
+		})
+	}
+}
+
 func TestValidate_ValidTable(t *testing.T) {
 	table := models.Table{
 		{Amount: 4, Distance: 100, Content: "Test", Intensity: "GA1"},

@@ -45,7 +45,7 @@ func parseMarkdownLinks(content, baseURL string, p props.Text) []core.Component 
 // Uses maroto to create a PDF document with the table data.
 // The PDF is returned as a string, which can be saved to a file or sent to cloud storage.
 func GenerateEasyReadablePDF(table *models.Table, ho bool, lang models.Language, baseURL string) ([]byte, error) {
-	m := getMaroto(ho)
+	m := getMaroto(ho, true)
 
 	m.AddRows(getRows(*table, true, lang, baseURL)...)
 
@@ -58,10 +58,20 @@ func GenerateEasyReadablePDF(table *models.Table, ho bool, lang models.Language,
 }
 
 func GenerateFullPDF(plan *models.Plan, ho bool, lang models.Language, baseURL string) ([]byte, error) {
-	m := getMaroto(ho)
-	m.AddAutoRow(col.New().Add(text.New(plan.Title, props.Text{Size: 18, Style: fontstyle.Bold, Align: align.Center, VerticalPadding: 2})))
-	m.AddAutoRow(col.New().Add(text.New(plan.Description, props.Text{Size: 10, Top: 10, Bottom: 10, VerticalPadding: 2})))
-	m.AddRows(getRows((*plan).Table, false, lang, baseURL)...)
+	return generatePlanPDF(plan, ho, false, lang, baseURL)
+}
+
+func generatePlanPDF(plan *models.Plan, ho, largeFont bool, lang models.Language, baseURL string) ([]byte, error) {
+	m := getMaroto(ho, largeFont)
+	titleProps := props.Text{Size: 18, Style: fontstyle.Bold, Align: align.Center, Bottom: 6, VerticalPadding: 2}
+	if largeFont {
+		titleProps.Size = 22
+		titleProps.Bottom = 8
+	}
+
+	m.AddAutoRow(col.New().Add(text.New(plan.Title, titleProps)))
+	m.AddRows(getRows(plan.Table, largeFont, lang, baseURL)...)
+	addPlanDescription(m, plan.Description, largeFont, lang)
 
 	document, err := m.Generate()
 	if err != nil {
@@ -76,11 +86,29 @@ func GenerateFullPDF(plan *models.Plan, ho bool, lang models.Language, baseURL s
 // Uses maroto to create a PDF document with the plan data.
 // The PDF is returned as a byte slice, which can be saved to a file or sent to cloud storage.
 func PlanToPDF(plan *models.Plan, ho, lf bool, lang models.Language, baseURL string) ([]byte, error) {
-	if !lf {
-		return GenerateFullPDF(plan, ho, lang, baseURL)
-	}
-	return GenerateEasyReadablePDF(&plan.Table, ho, lang, baseURL)
+	return generatePlanPDF(plan, ho, lf, lang, baseURL)
+}
 
+func addPlanDescription(m core.Maroto, description string, largeFont bool, lang models.Language) {
+	if strings.TrimSpace(description) == "" {
+		return
+	}
+
+	label := "Coach Notes"
+	if lang == models.LanguageDE {
+		label = "Trainernotizen"
+	}
+
+	labelProps := props.Text{Size: 10, Style: fontstyle.Bold, Top: 10, Bottom: 2, VerticalPadding: 1}
+	descriptionProps := props.Text{Size: 10, Style: fontstyle.Italic, Bottom: 4, VerticalPadding: 2}
+	if largeFont {
+		labelProps.Size = 14
+		labelProps.Top = 12
+		descriptionProps.Size = 14
+	}
+
+	m.AddAutoRow(col.New().Add(text.New(label, labelProps)))
+	m.AddAutoRow(col.New().Add(text.New(fmt.Sprintf("\"%s\"", description), descriptionProps)))
 }
 
 // Uploads the given pdf to cloud storage and returns the URI of the uploaded file.
@@ -183,9 +211,14 @@ func sanitizeFilename(name string) string {
 	return name
 }
 
-func getMaroto(ho bool) core.Maroto {
+func getMaroto(ho, largeFont bool) core.Maroto {
+	gridSize := 25
+	if largeFont {
+		gridSize = 100
+	}
+
 	cfg := config.NewBuilder().
-		WithMaxGridSize(25).
+		WithMaxGridSize(gridSize).
 		WithLeftMargin(10).
 		WithTopMargin(15).
 		WithBottomMargin(15).
@@ -206,6 +239,8 @@ func getRows(table models.Table, lf bool, lang models.Language, baseURL string) 
 	if len(table) < 2 {
 		return make([]core.Row, 0)
 	}
+	widths := getColumnWidths(lf)
+
 	// A row consists of 7 columns based on models.Row
 	headerRow := row.New()
 	headerProps := props.Text{Style: fontstyle.Bold, Align: align.Center, Top: 2, Bottom: 2, VerticalPadding: 1}
@@ -219,12 +254,20 @@ func getRows(table models.Table, lf bool, lang models.Language, baseURL string) 
 
 	for i, title := range table.Header(lang) {
 		switch i {
+		case 0:
+			headerRow.Add(text.NewCol(widths.amount, title, headerProps))
 		case 1:
-			headerRow.Add(text.NewCol(1, title, headerProps))
+			headerRow.Add(text.NewCol(widths.multiplier, title, headerProps))
+		case 2:
+			headerRow.Add(text.NewCol(widths.distance, title, headerProps))
+		case 3:
+			headerRow.Add(text.NewCol(widths.breakTime, title, headerProps))
 		case 4:
-			headerRow.Add(text.NewCol(9, title, headerProps))
-		default:
-			headerRow.Add(text.NewCol(3, title, headerProps))
+			headerRow.Add(text.NewCol(widths.description, title, headerProps))
+		case 5:
+			headerRow.Add(text.NewCol(widths.intensity, title, headerProps))
+		case 6:
+			headerRow.Add(text.NewCol(widths.volume, title, headerProps))
 		}
 	}
 	headerRow.WithStyle(&props.Cell{BackgroundColor: darkGray})
@@ -245,23 +288,23 @@ func getRows(table models.Table, lf bool, lang models.Language, baseURL string) 
 			footer := table.Footer(lang)
 			footerRow := row.New()
 			footerRow.Add(
-				text.NewCol(7, footer[0], sloganProps),
-				col.New(12),
-				text.NewCol(3, footer[4], headerProps),
-				text.NewCol(3, footer[6], headerProps),
+				text.NewCol(widths.amount+widths.multiplier+widths.distance, footer[0], sloganProps),
+				col.New(widths.breakTime+widths.description),
+				text.NewCol(widths.intensity, footer[4], headerProps),
+				text.NewCol(widths.volume, footer[6], headerProps),
 			).WithStyle(&props.Cell{BackgroundColor: darkGray})
 			rows = append(rows, footerRow)
 			break
 		}
 
 		// Add main row
-		mainRow := createRow(content, p, rowIndex%2 == 1)
+		mainRow := createRow(content, p, lang, widths, rowIndex%2 == 1)
 		rows = append(rows, mainRow)
 		rowIndex++
 
 		// Add subrows recursively
 		if len(content.SubRows) > 0 {
-			subRows := createSubRows(content.SubRows, p, lang, baseURL, rowIndex)
+			subRows := createSubRows(content.SubRows, p, lang, baseURL, widths, rowIndex)
 			rows = append(rows, subRows...)
 			// Update rowIndex based on number of subrows added
 			rowIndex += len(subRows)
@@ -271,22 +314,40 @@ func getRows(table models.Table, lf bool, lang models.Language, baseURL string) 
 }
 
 // createRow creates a standard row for the PDF
-func createRow(content models.Row, p props.Text, alternateStyle bool) core.Row {
+type columnWidths struct {
+	amount      int
+	multiplier  int
+	distance    int
+	breakTime   int
+	description int
+	intensity   int
+	volume      int
+}
+
+func getColumnWidths(largeFont bool) columnWidths {
+	if largeFont {
+		return columnWidths{amount: 9, multiplier: 3, distance: 9, breakTime: 12, description: 43, intensity: 12, volume: 12}
+	}
+
+	return columnWidths{amount: 3, multiplier: 1, distance: 3, breakTime: 3, description: 9, intensity: 3, volume: 3}
+}
+
+func createRow(content models.Row, p props.Text, lang models.Language, widths columnWidths, alternateStyle bool) core.Row {
 	lightGray := &props.Color{Red: 240, Green: 240, Blue: 240}
 	row := row.New()
-	row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Amount), p)))
-	row.Add(col.New(1).Add(text.New(content.Multiplier, p)))
-	row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Distance), p)))
-	row.Add(col.New(3).Add(text.New(content.Break, p)))
+	row.Add(col.New(widths.amount).Add(text.New(strconv.Itoa(content.Amount), p)))
+	row.Add(col.New(widths.multiplier).Add(text.New(content.Multiplier, p)))
+	row.Add(col.New(widths.distance).Add(text.New(strconv.Itoa(content.Distance), p)))
+	row.Add(col.New(widths.breakTime).Add(text.New(content.Break, p)))
 
 	// Parse markdown links in content and render as text/link components
-	contentCol := col.New(9)
-	segments := parseMarkdownLinks(content.Content, "", p)
+	contentCol := col.New(widths.description)
+	segments := parseMarkdownLinks(contentWithEquipment(content, lang), "", p)
 	contentCol.Add(segments...)
 	row.Add(contentCol)
 
-	row.Add(col.New(3).Add(text.New(content.Intensity, p)))
-	row.Add(col.New(3).Add(text.New(strconv.Itoa(content.Sum), p)))
+	row.Add(col.New(widths.intensity).Add(text.New(content.Intensity, p)))
+	row.Add(col.New(widths.volume).Add(text.New(strconv.Itoa(content.Sum), p)))
 
 	if alternateStyle {
 		row.WithStyle(&props.Cell{BackgroundColor: lightGray})
@@ -298,7 +359,7 @@ func createRow(content models.Row, p props.Text, alternateStyle bool) core.Row {
 // aggregateSubRowContent recursively aggregates nested subrow content into a string
 // Format: "content (distance1 Child1 + distance2 Child2)" or "(distance1 Child1 + distance2 Child2)" if no content
 // Omits break times and intensities for aggregated subrows
-func aggregateSubRowContent(subRows []models.Row, baseURL string, p props.Text) string {
+func aggregateSubRowContent(subRows []models.Row, lang models.Language, baseURL string, p props.Text) string {
 	if len(subRows) == 0 {
 		return ""
 	}
@@ -306,10 +367,10 @@ func aggregateSubRowContent(subRows []models.Row, baseURL string, p props.Text) 
 	parts := make([]string, len(subRows))
 	for i, subRow := range subRows {
 		// Build content for this subrow
-		content := subRow.Content
+		content := contentWithEquipment(subRow, lang)
 		if len(subRow.SubRows) > 0 {
 			// Recursively aggregate nested subrows
-			nestedContent := aggregateSubRowContent(subRow.SubRows, baseURL, p)
+			nestedContent := aggregateSubRowContent(subRow.SubRows, lang, baseURL, p)
 			if nestedContent != "" {
 				content = fmt.Sprintf("%s (%s)", content, nestedContent)
 			}
@@ -328,26 +389,26 @@ func aggregateSubRowContent(subRows []models.Row, baseURL string, p props.Text) 
 
 // createSubRows creates visual rows for subrows with indentation
 // Nested subrows are aggregated into the parent subrow's content instead of creating new rows
-func createSubRows(subRows []models.Row, p props.Text, lang models.Language, baseURL string, startRowIndex int) []core.Row {
+func createSubRows(subRows []models.Row, p props.Text, lang models.Language, baseURL string, widths columnWidths, startRowIndex int) []core.Row {
 	rows := make([]core.Row, 0)
 	veryLightGray := &props.Color{Red: 248, Green: 248, Blue: 248}
 
 	for i, subRow := range subRows {
 		row := row.New()
 		// Empty amount field for subrows
-		row.Add(col.New(3).Add(text.New("", p)))
+		row.Add(col.New(widths.amount).Add(text.New("", p)))
 		// Empty multiplier field for subrows
-		row.Add(col.New(1).Add(text.New("", p)))
+		row.Add(col.New(widths.multiplier).Add(text.New("", p)))
 		// Distance value in distance column
-		row.Add(col.New(3).Add(text.New(strconv.Itoa(subRow.Distance), p)))
+		row.Add(col.New(widths.distance).Add(text.New(strconv.Itoa(subRow.Distance), p)))
 		// Empty break field for aggregated subrows
-		row.Add(col.New(3).Add(text.New("", p)))
+		row.Add(col.New(widths.breakTime).Add(text.New("", p)))
 
 		// Content with indent indicator and aggregated nested subrow content
-		contentCol := col.New(9)
-		indentText := subRow.Content
+		contentCol := col.New(widths.description)
+		indentText := contentWithEquipment(subRow, lang)
 		if len(subRow.SubRows) > 0 {
-			aggregated := aggregateSubRowContent(subRow.SubRows, baseURL, p)
+			aggregated := aggregateSubRowContent(subRow.SubRows, lang, baseURL, p)
 			if aggregated != "" {
 				indentText = fmt.Sprintf("%s (%s)", indentText, aggregated)
 			}
@@ -357,9 +418,9 @@ func createSubRows(subRows []models.Row, p props.Text, lang models.Language, bas
 		row.Add(contentCol)
 
 		// Empty intensity field for aggregated subrows
-		row.Add(col.New(3).Add(text.New("", p)))
+		row.Add(col.New(widths.intensity).Add(text.New("", p)))
 		// Empty sum field for subrows
-		row.Add(col.New(3).Add(text.New("", p)))
+		row.Add(col.New(widths.volume).Add(text.New("", p)))
 
 		// Alternate background colors for subrows
 		if (startRowIndex+i)%2 == 1 {
@@ -370,4 +431,38 @@ func createSubRows(subRows []models.Row, p props.Text, lang models.Language, bas
 	}
 
 	return rows
+}
+
+func contentWithEquipment(row models.Row, lang models.Language) string {
+	if len(row.Equipment) == 0 {
+		return row.Content
+	}
+
+	equipment := make([]string, len(row.Equipment))
+	for i, item := range row.Equipment {
+		equipment[i] = equipmentName(item, lang)
+	}
+
+	if strings.TrimSpace(row.Content) == "" {
+		return strings.Join(equipment, ", ")
+	}
+
+	return fmt.Sprintf("%s | %s", row.Content, strings.Join(equipment, ", "))
+}
+
+func equipmentName(equipment models.EquipmentType, lang models.Language) string {
+	if lang != models.LanguageEN {
+		return string(equipment)
+	}
+
+	switch equipment {
+	case models.EquipmentFins:
+		return "Fins"
+	case models.EquipmentPaddles:
+		return "Hand paddles"
+	case models.EquipmentSnorkel:
+		return "Snorkel"
+	default:
+		return string(equipment)
+	}
 }

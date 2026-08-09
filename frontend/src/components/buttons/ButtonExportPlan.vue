@@ -21,6 +21,7 @@ const exportPhase = ref<'idle' | 'exporting' | 'done'>('idle')
 const pdfUrl = ref<string | null>(null)
 const exportHorizontal = ref(false)
 const exportLargeFont = ref(false)
+const omitTrainerNotes = ref(true)
 const isExportMenuOpen = ref(false)
 const isTextExportOpen = ref(false)
 
@@ -34,7 +35,7 @@ watch(
 )
 
 // Reset export if options change
-watch([exportHorizontal, exportLargeFont], () => {
+watch([exportHorizontal, exportLargeFont, omitTrainerNotes], () => {
   resetExportState()
 })
 
@@ -72,7 +73,7 @@ async function handlePDFExport() {
     const payload: PlanToPDFRequest = {
       plan_id: props.store.currentPlan.plan_id,
       title: props.store.currentPlan.title,
-      description: props.store.currentPlan.description,
+      description: omitTrainerNotes.value ? '' : props.store.currentPlan.description,
       table: tableWithoutIds,
       horizontal: exportHorizontal.value,
       large_font: exportLargeFont.value,
@@ -140,6 +141,10 @@ function openTextExport() {
           <label class="pdf-option">
             <input type="checkbox" v-model="exportLargeFont" />
             {{ t('display.export_large_font') }}
+          </label>
+          <label class="pdf-option">
+            <input type="checkbox" v-model="omitTrainerNotes" />
+            {{ t('display.export_omit_trainer_notes') }}
           </label>
           <button class="dropdown-item dropdown-item-action" @click="openTextExport">
             <IconCopy class="menu-icon" />
