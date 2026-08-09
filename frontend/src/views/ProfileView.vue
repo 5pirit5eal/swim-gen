@@ -11,13 +11,18 @@ import { apiClient } from '@/api/client'
 import { DIFFICULTY_OPTIONS } from '@/types'
 import { onMounted, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import {
+  calculateCssPace,
+  calculateCssZones,
+  formatPaceRange,
+  formatSwimTime,
+} from '@/utils/criticalSwimSpeed'
 
 const { t } = useI18n()
 const profileStore = useProfileStore()
 const authStore = useAuthStore()
 const router = useRouter()
-const isEditMode = ref(false)
 
 // Feature flag
 const showMonthlyQuota = ref(false)
@@ -31,18 +36,67 @@ const deleteError = ref('')
 const canDelete = computed(() => deleteConfirmationText.value === 'DELETE')
 const isEmailUser = computed(() => authStore.user?.app_metadata?.provider === 'email')
 
-const strokeOptions = ['Freestyle', 'Breaststroke', 'Backstroke', 'Butterfly', 'Individual Medley']
-const categoryOptions = ['Triathlete', 'Swimmer', 'Coach', 'Hobby']
+const strokeOptions = [
+  { value: 'Freistil', key: 'freestyle' },
+  { value: 'Brustschwimmen', key: 'breaststroke' },
+  { value: 'Rückenschwimmen', key: 'backstroke' },
+  { value: 'Schmetterling', key: 'butterfly' },
+  { value: 'Lagen', key: 'individual_medley' },
+]
+const categoryOptions = [
+  { value: 'Triathlet', key: 'category_triathlete' },
+  { value: 'Leistungsschwimmer', key: 'category_swimmer' },
+  { value: 'Trainer', key: 'category_coach' },
+  { value: 'Hobbyschwimmer', key: 'category_hobby' },
+]
+
+const legacyProfileValues: Record<string, string> = {
+  Freestyle: 'Freistil',
+  Kraul: 'Freistil',
+  Breaststroke: 'Brustschwimmen',
+  Brust: 'Brustschwimmen',
+  Backstroke: 'Rückenschwimmen',
+  Rücken: 'Rückenschwimmen',
+  Butterfly: 'Schmetterling',
+  'Individual Medley': 'Lagen',
+  Triathlete: 'Triathlet',
+  Swimmer: 'Leistungsschwimmer',
+  Schwimmer: 'Leistungsschwimmer',
+  Coach: 'Trainer',
+  Hobby: 'Hobbyschwimmer',
+  Beginner: 'Anfaenger',
+  Advanced: 'Fortgeschritten',
+  'Competitive Swimmer': 'Leistungsschwimmer',
+}
+
+function normalizeProfileValues(values: string[]): string[] {
+  return values.map((value) => legacyProfileValues[value] || value)
+}
 
 const editableProfile = ref({
   experience: '',
   preferred_strokes: [] as string[],
   categories: [] as string[],
   preferred_language: '',
+  css_200m_time: '',
+  css_400m_time: '',
 })
 const username = ref('')
 const isUsernameEditMode = ref(false)
 const usernameEditValue = ref('')
+const savedProfileSnapshot = ref('')
+const saveConfirmationVisible = ref(false)
+
+function profileSnapshot() {
+  return JSON.stringify({
+    ...editableProfile.value,
+    username: username.value,
+  })
+}
+
+const hasUnsavedChanges = computed(
+  () => Boolean(savedProfileSnapshot.value) && profileSnapshot() !== savedProfileSnapshot.value,
+)
 
 onMounted(() => {
   profileStore.fetchProfile()
@@ -53,13 +107,16 @@ watch(
   (newProfile) => {
     if (newProfile) {
       editableProfile.value = {
-        experience: newProfile.experience || '',
-        preferred_strokes: newProfile.preferred_strokes || [],
-        categories: newProfile.categories || [],
+        experience: legacyProfileValues[newProfile.experience || ''] || newProfile.experience || '',
+        preferred_strokes: normalizeProfileValues(newProfile.preferred_strokes || []),
+        categories: normalizeProfileValues(newProfile.categories || []),
         preferred_language: newProfile.preferred_language || '',
+        css_200m_time: formatSwimTime(newProfile.css_200m_seconds),
+        css_400m_time: formatSwimTime(newProfile.css_400m_seconds),
       }
       username.value = newProfile.username || ''
       usernameEditValue.value = newProfile.username || ''
+      savedProfileSnapshot.value = profileSnapshot()
     }
   },
   { immediate: true },
@@ -77,21 +134,55 @@ watch(
   { immediate: true },
 )
 
-function saveProfile() {
-  profileStore.updateProfile(editableProfile.value)
-  isEditMode.value = false
+async function saveProfile() {
+  const { css_200m_time, css_400m_time, ...profileFields } = editableProfile.value
+  await profileStore.updateProfile({
+    ...profileFields,
+    css_200m_seconds: parseProfileTime(css_200m_time),
+    css_400m_seconds: parseProfileTime(css_400m_time),
+  })
   if (profileStore.error) {
     toast.error(profileStore.error)
+    return
   }
+
+  savedProfileSnapshot.value = profileSnapshot()
+  saveConfirmationVisible.value = true
+  toast.success(t('profile.profile_saved'))
+  window.setTimeout(() => {
+    saveConfirmationVisible.value = false
+  }, 3000)
 }
 
-function toggleEditMode() {
-  isEditMode.value = !isEditMode.value
+onBeforeRouteLeave(() => {
+  if (hasUnsavedChanges.value) {
+    toast.warning(t('profile.unsaved_changes'))
+  }
+})
+
+function parseProfileTime(value: string): number | null {
+  const match = value.trim().match(/^(\d+):([0-5]\d)$/)
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null
 }
 
-function getExperienceLabel(value: string) {
-  const option = DIFFICULTY_OPTIONS.find((opt) => opt.value === value)
-  return option ? t(option.label) : ''
+const cssPaceSeconds = computed(() =>
+  calculateCssPace(editableProfile.value.css_200m_time, editableProfile.value.css_400m_time),
+)
+const cssZones = computed(() => calculateCssZones(cssPaceSeconds.value))
+const cssTimesAreInvalid = computed(() => {
+  const time200 = editableProfile.value.css_200m_time.trim()
+  const time400 = editableProfile.value.css_400m_time.trim()
+  const validFormat = (value: string) => !value || /^\d+:[0-5]\d$/.test(value)
+
+  return (
+    !validFormat(time200) ||
+    !validFormat(time400) ||
+    Boolean(time200 && time400 && !cssPaceSeconds.value)
+  )
+})
+
+function isInvalidCssTime(value: string): boolean {
+  return Boolean(value.trim() && !/^\d+:[0-5]\d$/.test(value.trim()))
 }
 
 function openDeleteModal() {
@@ -137,6 +228,7 @@ async function saveUsername() {
   } else {
     username.value = usernameEditValue.value
     isUsernameEditMode.value = false
+    savedProfileSnapshot.value = profileSnapshot()
   }
 }
 
@@ -175,113 +267,29 @@ async function handleResetPassword() {
         <p class="hero-description">{{ t('profile.description', { user: username }) }}</p>
       </section>
 
-      <section class="credentials-section">
-        <div class="profile-card">
-          <h3>{{ t('profile.user_credentials') }}</h3>
-          <div class="credentials-grid">
-            <div class="info-group">
-              <label>{{ t('profile.username') }}</label>
-              <div v-if="!isUsernameEditMode" class="value-display">
-                <p>{{ username }}</p>
-                <button @click="isUsernameEditMode = true" class="icon-btn">
-                  <IconEdit />
-                </button>
-              </div>
-              <div v-else class="edit-display">
-                <input
-                  v-model="usernameEditValue"
-                  type="text"
-                  class="select-input"
-                  @keyup.enter="saveUsername"
-                />
-                <div class="action-buttons">
-                  <button @click="saveUsername" class="icon-btn success">
-                    <IconCheck />
-                  </button>
-                  <button @click="cancelUsernameEdit" class="icon-btn">
-                    <IconCross />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="info-group">
-              <label>{{ t('profile.email') }}</label>
-              <p>{{ authStore.user?.email }}</p>
-            </div>
-
-            <div class="info-group">
-              <label>{{ t('profile.password') }}</label>
-              <div class="value-display">
-                <p>{{ t('profile.password_placeholder') }}</p>
-                <button
-                  v-if="isEmailUser"
-                  @click="handleResetPassword"
-                  class="icon-btn"
-                  :disabled="resetCooldown"
-                >
-                  <IconEdit />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section class="profile-content">
         <div class="profile-card">
-          <h3>{{ t('profile.your_information') }}</h3>
-          <p>{{ t('profile.info_description') }}</p>
-          <div v-if="!isEditMode" class="display-mode">
-            <div class="info-grid">
-              <div class="info-group">
-                <label>
-                  {{ t('profile.experience') }}
-                  <BaseTooltip>
-                    <template #tooltip>{{ t('profile.experience_explanation') }}</template>
-                  </BaseTooltip>
-                </label>
-                <p v-if="editableProfile.experience">
-                  {{ getExperienceLabel(editableProfile.experience) }}
-                </p>
-                <p v-else>{{ t('profile.no_selection_placeholder') }}</p>
-              </div>
-              <div class="info-group">
-                <label>
-                  {{ t('profile.preferred_strokes') }}
-                  <BaseTooltip>
-                    <template #tooltip>{{ t('profile.preferred_strokes_explanation') }}</template>
-                  </BaseTooltip>
-                </label>
-                <ul v-if="editableProfile.preferred_strokes.length > 0">
-                  <li v-for="stroke in editableProfile.preferred_strokes" :key="stroke">
-                    {{ t(`profile.${stroke.toLowerCase().replace(' ', '_')}`) }}
-                  </li>
-                </ul>
-                <p v-else>{{ t('profile.no_selection_placeholder') }}</p>
-              </div>
-              <div class="info-group">
-                <label>
-                  {{ t('profile.categories') }}
-                  <BaseTooltip>
-                    <template #tooltip>{{ t('profile.categories_explanation') }}</template>
-                  </BaseTooltip>
-                </label>
-                <ul v-if="editableProfile.categories.length > 0">
-                  <li v-for="category in editableProfile.categories" :key="category">
-                    {{ t(`profile.category_${category.toLowerCase()}`) }}
-                  </li>
-                </ul>
-                <p v-else>{{ t('profile.no_selection_placeholder') }}</p>
-              </div>
-            </div>
-            <button @click="toggleEditMode" class="edit-btn">
-              {{ t('profile.edit_profile') }}
+          <div class="card-header">
+            <h3 class="section-title">{{ t('profile.your_information') }}</h3>
+            <button
+              @click="saveProfile"
+              class="submit-btn"
+              :class="{ success: saveConfirmationVisible }"
+              :disabled="profileStore.loading || cssTimesAreInvalid"
+            >
+              <span v-if="profileStore.loading" class="loading-spinner"></span>
+              <template v-else>
+                <transition name="scale" mode="out-in">
+                  <IconCheck v-if="saveConfirmationVisible" class="icon" />
+                </transition>
+                <span>{{ saveConfirmationVisible ? t('profile.saved') : t('profile.save') }}</span>
+              </template>
             </button>
           </div>
-          <div v-else class="edit-mode">
+          <p>{{ t('profile.info_description') }}</p>
+          <div class="edit-mode">
             <div class="form-grid">
-              <div class="form-column">
+              <div class="form-column experience-column">
                 <div class="form-group">
                   <label class="form-label"
                     >{{ t('profile.experience') }}
@@ -306,6 +314,8 @@ async function handleResetPassword() {
                     </select>
                   </div>
                 </div>
+              </div>
+              <div class="form-column strokes-column">
                 <div class="form-group">
                   <label class="form-label"
                     >{{ t('profile.preferred_strokes') }}
@@ -314,19 +324,23 @@ async function handleResetPassword() {
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
-                    <label v-for="option in strokeOptions" :key="option" class="checkbox-option">
+                    <label
+                      v-for="option in strokeOptions"
+                      :key="option.value"
+                      class="checkbox-option"
+                    >
                       <input
                         type="checkbox"
-                        :value="option"
+                        :value="option.value"
                         v-model="editableProfile.preferred_strokes"
                         :disabled="profileStore.loading"
                       />
-                      {{ t(`profile.${option.toLowerCase().replace(' ', '_')}`) }}
+                      {{ t(`profile.${option.key}`) }}
                     </label>
                   </div>
                 </div>
               </div>
-              <div class="form-column">
+              <div class="form-column categories-column">
                 <div class="form-group">
                   <label class="form-label"
                     >{{ t('profile.categories') }}
@@ -335,22 +349,88 @@ async function handleResetPassword() {
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
-                    <label v-for="option in categoryOptions" :key="option" class="checkbox-option">
+                    <label
+                      v-for="option in categoryOptions"
+                      :key="option.value"
+                      class="checkbox-option"
+                    >
                       <input
                         type="checkbox"
-                        :value="option"
+                        :value="option.value"
                         v-model="editableProfile.categories"
                         :disabled="profileStore.loading"
                       />
-                      {{ t(`profile.category_${option.toLowerCase()}`) }}
+                      {{ t(`profile.${option.key}`) }}
                     </label>
                   </div>
                 </div>
               </div>
             </div>
-            <button @click="saveProfile" class="submit-btn" :disabled="profileStore.loading">
-              {{ profileStore.loading ? t('profile.saving') : t('profile.save') }}
-            </button>
+          </div>
+          <hr class="profile-section-divider" />
+          <div class="css-profile-section">
+            <h3 class="section-title">{{ t('profile.css_title') }}</h3>
+            <p class="setting-help">{{ t('profile.css_explanation') }}</p>
+            <div class="css-input-grid">
+              <div class="form-group">
+                <label class="form-label" for="css-200m">{{ t('profile.css_200m') }}</label>
+                <input
+                  id="css-200m"
+                  v-model="editableProfile.css_200m_time"
+                  class="select-input"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="3:20"
+                  :aria-invalid="isInvalidCssTime(editableProfile.css_200m_time)"
+                  :class="{ 'input-invalid': isInvalidCssTime(editableProfile.css_200m_time) }"
+                  :disabled="profileStore.loading"
+                />
+                <small v-if="isInvalidCssTime(editableProfile.css_200m_time)" class="field-error">
+                  {{ t('profile.css_format_hint') }}
+                </small>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="css-400m">{{ t('profile.css_400m') }}</label>
+                <input
+                  id="css-400m"
+                  v-model="editableProfile.css_400m_time"
+                  class="select-input"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="7:00"
+                  :aria-invalid="isInvalidCssTime(editableProfile.css_400m_time)"
+                  :class="{ 'input-invalid': isInvalidCssTime(editableProfile.css_400m_time) }"
+                  :disabled="profileStore.loading"
+                />
+                <small v-if="isInvalidCssTime(editableProfile.css_400m_time)" class="field-error">
+                  {{ t('profile.css_format_hint') }}
+                </small>
+              </div>
+              <div class="form-group">
+                <div v-if="cssPaceSeconds" class="css-pace-summary">
+                  <span class="css-pace-label">{{ t('profile.css_pace') }}</span>
+                  <strong class="css-pace-value"
+                    >{{ formatSwimTime(cssPaceSeconds) }} / 100 m</strong
+                  >
+                </div>
+              </div>
+            </div>
+            <p v-if="cssTimesAreInvalid" class="css-error">{{ t('profile.css_invalid') }}</p>
+            <div v-if="cssPaceSeconds" class="css-zones">
+              <div class="css-zone-bar" aria-label="CSS training zones">
+                <div
+                  v-for="zone in cssZones"
+                  :key="zone.key"
+                  class="css-zone-segment"
+                  :class="`css-zone-${zone.key}`"
+                >
+                  <strong>{{ t(`profile.css_${zone.key}`) }}</strong>
+                  <span>{{ t(`profile.css_${zone.key}_focus`) }}</span>
+                  <b>{{ formatPaceRange(zone) }}</b>
+                </div>
+              </div>
+            </div>
+            <p v-else class="setting-help">{{ t('profile.css_missing') }}</p>
           </div>
         </div>
 
@@ -413,6 +493,56 @@ async function handleResetPassword() {
             </button>
           </div>
         </div>
+        <section class="credentials-section">
+          <div class="profile-card">
+            <h3>{{ t('profile.user_credentials') }}</h3>
+            <div class="credentials-grid">
+              <div class="info-group">
+                <label>{{ t('profile.username') }}</label>
+                <div v-if="!isUsernameEditMode" class="value-display">
+                  <p>{{ username }}</p>
+                  <button @click="isUsernameEditMode = true" class="icon-btn">
+                    <IconEdit />
+                  </button>
+                </div>
+                <div v-else class="edit-display">
+                  <input
+                    v-model="usernameEditValue"
+                    type="text"
+                    class="select-input"
+                    @keyup.enter="saveUsername"
+                  />
+                  <div class="action-buttons">
+                    <button @click="saveUsername" class="icon-btn success">
+                      <IconCheck />
+                    </button>
+                    <button @click="cancelUsernameEdit" class="icon-btn">
+                      <IconCross />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="info-group">
+                <label>{{ t('profile.email') }}</label>
+                <p>{{ authStore.user?.email }}</p>
+              </div>
+              <div class="info-group">
+                <label>{{ t('profile.password') }}</label>
+                <div class="value-display">
+                  <p>{{ t('profile.password_placeholder') }}</p>
+                  <button
+                    v-if="isEmailUser"
+                    @click="handleResetPassword"
+                    class="icon-btn"
+                    :disabled="resetCooldown"
+                  >
+                    <IconEdit />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </section>
 
       <!-- Delete Account Confirmation Modal -->
@@ -494,14 +624,35 @@ async function handleResetPassword() {
 }
 
 .profile-content {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.5fr);
   gap: 2rem;
+}
+
+.profile-content > * {
+  min-width: 0;
 }
 
 @media (max-width: 1250px) {
   .profile-content {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  .profile-card,
+  .css-profile-section {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .credentials-section {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .statistics-and-delete {
+    grid-column: 1 / -1;
+    grid-row: 3;
   }
 }
 
@@ -510,12 +661,17 @@ async function handleResetPassword() {
   flex-direction: column;
   min-height: 100%;
   position: relative;
+  min-width: 0;
+  grid-column: 1 / -1;
+  grid-row: 1;
 }
 
 .statistics-and-delete {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  grid-column: 1 / -1;
+  grid-row: 3;
 }
 
 .profile-card,
@@ -527,10 +683,29 @@ async function handleResetPassword() {
   border: 1px solid var(--color-border);
 }
 
-.profile-card h3 {
+.profile-section-divider {
+  width: 100%;
+  margin: 1.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.section-title {
   margin-bottom: 0.5rem;
   color: var(--color-heading);
   font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.card-header h3 {
+  margin: 0;
 }
 
 .profile-card p {
@@ -600,16 +775,168 @@ async function handleResetPassword() {
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
   margin-bottom: 1.5rem;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.edit-mode,
+.css-profile-section,
+.css-result,
+.css-zone-bar {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 460px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
 }
 
 .form-column {
-  padding: 1rem 0rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .form-group {
   margin: 0.5rem 0;
+}
+
+.css-profile-section {
+  margin-top: 1rem;
+}
+
+.credentials-section {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin: 0;
+}
+
+.css-input-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(15rem, 1fr);
+  align-items: end;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.css-input-grid > * {
+  min-width: 0;
+}
+
+.css-pace-summary {
+  min-height: 2.25rem;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
+  color: var(--color-heading);
+}
+
+.css-pace-label {
+  color: var(--color-heading);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.css-pace-value {
+  color: var(--color-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.css-zone-bar {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  min-height: 10rem;
+}
+
+.css-zone-segment {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 0.75rem;
+  text-align: center;
+}
+
+.css-zone-segment strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.css-zone-segment span {
+  font-size: 0.78rem;
+  line-height: 1.3;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.css-zone-segment b {
+  font-size: 0.85rem;
+  font-weight: 800;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.css-zone-z1 {
+  background: #d1d5db;
+  color: #17202a;
+}
+
+.css-zone-z2 {
+  background: #3b82f6;
+  color: white;
+}
+
+.css-zone-z3 {
+  background: #16a34a;
+  color: white;
+}
+
+.css-zone-z4 {
+  background: #ea580c;
+  color: white;
+}
+
+.css-zone-z5 {
+  background: #dc2626;
+  color: white;
+}
+
+.css-zone-segment + .css-zone-segment {
+  border-left: 1px solid rgb(255 255 255 / 45%);
+}
+
+.css-zones {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.setting-help,
+.css-error {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.css-error {
+  color: var(--color-danger, #b42318);
 }
 
 .form-label {
@@ -637,6 +964,21 @@ async function handleResetPassword() {
   color: var(--color-text);
 }
 
+.css-input-grid .select-input {
+  background: #fff;
+}
+
+.select-input.input-invalid {
+  border-color: var(--color-danger, #b42318);
+}
+
+.field-error {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--color-danger, #b42318);
+  font-size: 0.8rem;
+}
+
 .select-input:focus {
   outline: none;
   border-color: var(--color-border-hover);
@@ -651,6 +993,25 @@ async function handleResetPassword() {
   font-size: 1rem;
 }
 
+@media (max-width: 460px) {
+  .css-input-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .css-zone-bar {
+    flex-direction: column;
+  }
+
+  .css-zone-segment {
+    min-height: 9rem;
+  }
+
+  .css-zone-segment + .css-zone-segment {
+    border-top: 1px solid rgb(255 255 255 / 45%);
+    border-left: 0;
+  }
+}
+
 .submit-btn {
   background: var(--color-primary);
   color: white;
@@ -661,9 +1022,10 @@ async function handleResetPassword() {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  position: absolute;
-  bottom: 2rem;
-  left: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -673,6 +1035,28 @@ async function handleResetPassword() {
 .submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.submit-btn.success {
+  background-color: var(--color-success);
+}
+
+.submit-btn.success:hover {
+  background-color: var(--color-success);
+}
+
+.submit-btn .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.loading-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgb(255 255 255 / 45%);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 .statistics-table {
@@ -865,6 +1249,60 @@ async function handleResetPassword() {
 @media (max-width: 460px) {
   .credentials-grid {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 700px) {
+  .profile-card,
+  .statistics-card,
+  .delete-card {
+    padding: 1.25rem;
+  }
+
+  .form-grid,
+  .css-input-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .form-grid {
+    gap: 0;
+  }
+
+  .credentials-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .css-zone-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    flex-direction: column;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .css-zone-segment {
+    flex: none;
+    width: auto;
+    min-width: 0;
+    min-height: 9rem;
+    overflow: hidden;
+  }
+
+  .css-zone-segment strong,
+  .css-zone-segment span,
+  .css-zone-segment b {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .css-zone-segment + .css-zone-segment {
+    border-top: 1px solid rgb(255 255 255 / 45%);
+    border-left: 0;
   }
 }
 

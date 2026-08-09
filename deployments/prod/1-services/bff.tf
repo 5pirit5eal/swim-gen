@@ -7,7 +7,7 @@ locals {
     FRONTEND_URL = var.domain_url
     # OTel — BFF uses the Cloud Trace exporter directly; no OTLP endpoint needed
     OTEL_SERVICE_NAME        = "swim-gen-bff"
-    OTEL_TRACES_SAMPLER_ARG  = "0.1"
+    OTEL_TRACES_SAMPLER_ARG  = "1.0"
   }
 }
 

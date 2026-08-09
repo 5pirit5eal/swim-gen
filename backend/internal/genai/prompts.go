@@ -16,6 +16,10 @@ Falls eine Einheit Untereinheiten hat, MUSS die Beschreibung der Obereinheit All
 Die Beschreibung der Obereinheit sollte NICHT die spezifischen Unterübungen enthalten!
 In den Untereinheiten sollten die spezifischen Übungen mit Distanz und Equipment beschrieben werden, z.B. "100m Kraul mit Paddles", "200m Brust mit Pull buoy", etc.
 
+Falls persönliche CSS-Tempozonen im Benutzerprofil angegeben sind, verwende sie als Intensitäts-Vorgabe für passende Schwimmübungen.
+Wähle die Zone passend zum Trainingsziel und skaliere die Pace auf die jeweilige Distanz. Setze das Intensity Feld mit der jeweiligen Pace im Format "mm:ss / 100m".Verwende keine erfundenen persönlichen Pace-Werte, wenn keine CSS-Zonen angegeben sind.
+Wenn Tempozonen angegeben sind, kann das Break-Feld für eine verbleibende Pause genutzt werden. Beschreibe sie eindeutig als "Restzeit bis 2:00". Verwende CSS nicht pauschal für Technik-, Erholungs- oder Sprintübungen, wenn die Zone nicht zum Trainingsziel passt.
+
 Die technischen Übungen dürfen nur als Referenzen eingefügt werden. Das Format ist ein Markdown URL Link.
 Dafür wird der slug als Linktext verwendet und die URL als Linkziel. Exemplarisch: [slug](URL).
 Erstelle nur Referenzen für technische Übungen, die mit /drill erreichbar sind. Andere sind nicht als Referenz geeignet.
@@ -32,6 +36,9 @@ Es ist nur relevant, dass der Plan am Ende gut auf die Bedürfnisse des Schwimme
 Die Antwort soll in %s (Sprache) sein.
 
 %s
+
+Anfänger können vermutlich nicht alle Übungen ausführen und Strecken länger als 100m am Stück sind für sie zu lang. Passe den Plan entsprechend an, wenn der Schwimmer ein Anfänger ist.
+Hobby-Schwimmer schwimmen üblicherweise in einer Trainingssession mehr als 500m am Stück, aber weniger als 2000m. Passe den Plan entsprechend an, wenn der Schwimmer ein Hobby-Schwimmer ist.
 
 Die Antwort soll keine Fragen enthalten und auch nicht die Anweisung wiederholen.
 
@@ -181,11 +188,26 @@ of the original text and abbreviate, where appropriate, using common swimming te
 
 If the training plan is already in the target language, apply only minor adjustments if necessary and where appropriate.
 Ensure that the structure of the training plan remains unchanged, including the table format.
+Preserve all numeric pace values, target times, interval durations, and the meaning that remaining send-off time is rest.
 
 Translate the following training plan into %s (language).
 
 These abbreviations are relevant for the translation:
 %v
+
+The intensity levels are to be translated into Zones (Z1-Z5) according to the following definition:
+Z1: Recovery
+Z2: Aerobic endurance
+Z3: Threshold / Competition endurance
+Z4: Anaerobic / VO2 Max
+Z5: Sprint
+Map common intensity abbreviations to these zones in the translated plan. Use this simplified mapping for internal users:
+ReKom: Z1
+LZA, GA, GA1: Z2
+WA, GA2, LT: Z3
+SA, WK: Z4
+S: Z5
+Keep technique abbreviations such as T, TÜ, TA and TS as technique descriptions rather than intensity zones.
 
 Training Plan to Translate:
 
@@ -213,6 +235,9 @@ Deine Aufgabe ist es:
 - Auf spezifische Fragen des Schwimmers zum Plan einzugehen
 
 Der Schwimmer möchte für eine Beckenlänge von %v trainieren.
+Falls persönliche Tempozonen im bisherigen Plan oder Benutzerkontext vorhanden sind,
+bewahre sie bei Änderungen und verwende sie für passende Pace- und Intervallvorgaben.
+Bei festen Intervallen ist die verbleibende Zeit nach dem Schwimmen die Pause.
 Die Antwort soll in %s (Sprache) sein.
 
 GESPRÄCHSVERLAUF:

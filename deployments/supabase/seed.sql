@@ -13,6 +13,49 @@ DECLARE
   v_embedding2_id uuid := gen_random_uuid();
   v_embedding3_id uuid := gen_random_uuid();
 BEGIN
+  -- Insert auth users first because profiles.user_id references auth.users.
+  -- The profile trigger creates the initial profile rows automatically.
+  INSERT INTO auth.users (
+    id,
+    instance_id,
+    aud,
+    role,
+    email,
+    encrypted_password,
+    email_confirmed_at,
+    raw_app_meta_data,
+    raw_user_meta_data,
+    created_at,
+    updated_at
+  ) VALUES
+    (
+      v_user1_id,
+      '00000000-0000-0000-0000-000000000000',
+      'authenticated',
+      'authenticated',
+      'css-test-swimmer@example.com',
+      crypt('password', gen_salt('bf')),
+      NOW(),
+      '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"username":"css_test_swimmer"}'::jsonb,
+      NOW(),
+      NOW()
+    ),
+    (
+      v_user2_id,
+      '00000000-0000-0000-0000-000000000000',
+      'authenticated',
+      'authenticated',
+      'feedback-test-swimmer@example.com',
+      crypt('password', gen_salt('bf')),
+      NOW(),
+      '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"username":"feedback_test_swimmer"}'::jsonb,
+      NOW(),
+      NOW()
+    )
+  ON CONFLICT (id) DO NOTHING;
+
   -- Insert embedders (collection)
   INSERT INTO embedders (name, cmetadata, uuid) VALUES
     ('gemini-embedding-001', '{"model": "gemini-embedding-001", "dimensions": 768}', v_collection_id)
@@ -129,6 +172,35 @@ BEGIN
       v_embedding3_id
     )
   ON CONFLICT (uuid) DO NOTHING;
+
+  -- Insert a test user profile, including CSS test results for local generation tests
+  INSERT INTO profiles (
+    user_id,
+    username,
+    experience,
+    preferred_language,
+    preferred_strokes,
+    categories,
+    css_200m_seconds,
+    css_400m_seconds
+  ) VALUES (
+    v_user1_id,
+    'css_test_swimmer',
+    'Advanced',
+    'de',
+    ARRAY['Freistil', 'Rückenschwimmen'],
+    ARRAY['Leistungsschwimmer'],
+    200,
+    420
+  )
+  ON CONFLICT (user_id) DO UPDATE SET
+    username = EXCLUDED.username,
+    experience = EXCLUDED.experience,
+    preferred_language = EXCLUDED.preferred_language,
+    preferred_strokes = EXCLUDED.preferred_strokes,
+    categories = EXCLUDED.categories,
+    css_200m_seconds = EXCLUDED.css_200m_seconds,
+    css_400m_seconds = EXCLUDED.css_400m_seconds;
 
   -- Insert test donations
   INSERT INTO donations (user_id, plan_id, created_at) VALUES

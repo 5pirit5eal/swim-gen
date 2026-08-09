@@ -98,10 +98,27 @@ func (db *RAGDB) FormatUserProfile(profile *models.UserProfile) string {
 		experience = *profile.Experience
 	}
 
-	return fmt.Sprintf(`
+	formatted := fmt.Sprintf(`
 Benutzerprofil Präferenzen:
 - Erfahrungslevel: %s
 - Bevorzugte Schwimmstile: %v
 - Interessenkategorien: %v
 `, experience, profile.PreferredStrokes, profile.Categories)
+
+	if cssPace, ok := models.CalculateCSSPace(profile.CSS200mSeconds, profile.CSS400mSeconds); ok {
+		formatted += "\nPersönliche CSS-Tempozonen (Pace pro 100 m):\n"
+		for _, zone := range models.CalculateCSSZones(cssPace) {
+			pace := fmt.Sprintf("%s-%s", models.FormatPace(zone.FasterPaceSeconds), models.FormatPace(zone.SlowerPaceSeconds))
+			if zone.MaxSpeedPercent == nil {
+				pace = fmt.Sprintf("schneller als %s", models.FormatPace(zone.FasterPaceSeconds))
+			}
+			formatted += fmt.Sprintf("- %s: %s (%d%%", zone.Name, zone.Focus, zone.MinSpeedPercent)
+			if zone.MaxSpeedPercent != nil {
+				formatted += fmt.Sprintf("-%d%%", *zone.MaxSpeedPercent)
+			}
+			formatted += fmt.Sprintf(" CSS): %s / 100 m\n", pace)
+		}
+	}
+
+	return formatted
 }

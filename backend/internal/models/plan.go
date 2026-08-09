@@ -202,7 +202,7 @@ type Row struct {
 	Distance   int             `json:"Distance" example:"100" jsonschema_description:"Distance in meters. For parent rows with SubRows, this is auto-calculated as sum of subRows distances"`
 	Break      string          `json:"Break" example:"20" jsonschema_description:"Break time typically in seconds. This needs to be a string, as other times are possible"`
 	Content    string          `json:"Content" example:"Freestyle swim" jsonschema_description:"Content or description of the row"`
-	Intensity  string          `json:"Intensity" example:"Easy" jsonschema_description:"Intensity level of the activity"`
+	Intensity  string          `json:"Intensity" example:"Z1" jsonschema_description:"Intensity level of the activity"`
 	Sum        int             `json:"Sum" example:"400" jsonschema_description:"Total volume or sum for the row"`
 	SubRows    []Row           `json:"SubRows,omitempty" jsonschema_description:"Nested exercise rows for compound sets (parent x (child1 + child2), e.g. 8 x (800 Free + 200 IM)). Parent Distance is auto-calculated from subRows"`
 	Equipment  []EquipmentType `json:"Equipment,omitempty" jsonschema:"description=Equipment needed for this row,enum=Flossen,enum=Kickboard,enum=Handpaddles,enum=Pull buoy,enum=Schnorchel" jsonschema_description:"Equipment needed for this specific row" example:"[\"Flossen\"]"`

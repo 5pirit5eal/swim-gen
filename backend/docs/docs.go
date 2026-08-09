@@ -1798,7 +1798,7 @@ const docTemplate = `{
                 },
                 "Intensity": {
                     "type": "string",
-                    "example": "Easy"
+                    "example": "Z1"
                 },
                 "Multiplier": {
                     "type": "string",

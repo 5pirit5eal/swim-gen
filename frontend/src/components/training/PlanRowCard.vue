@@ -17,7 +17,7 @@ const props = defineProps<{
   isLast: boolean
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 type EquipmentOption = {
   value: string
@@ -187,7 +187,7 @@ function subRowPath(subIndex: number): number[] {
             <BaseTooltip class="plan-row-card__intensity-tooltip">
               <template #tooltip>
                 <p>{{ t('display.intensity_tooltip.title') }}</p>
-                <ul>
+                <ul v-if="locale === 'de'">
                   <li>
                     <strong>{{ t('display.intensity_tooltip.ga') }}</strong>
                     <ul>
@@ -234,6 +234,41 @@ function subRowPath(subIndex: number): number[] {
                   </li>
                   <li>
                     <strong>{{ t('display.intensity_tooltip.recovery') }}</strong>
+                  </li>
+                </ul>
+                <ul v-else>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.z1') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.z2') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.z3') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.z4') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.z5') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.hf') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.lt') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.tue') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.ts') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.ta') }}</strong>
+                  </li>
+                  <li>
+                    <strong>{{ t('display.intensity_tooltip.wa') }}</strong>
                   </li>
                 </ul>
               </template>

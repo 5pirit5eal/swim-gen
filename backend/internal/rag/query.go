@@ -3,6 +3,7 @@ package rag
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/go-chi/httplog/v2"
@@ -26,17 +27,18 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	logger := httplog.LogEntry(ctx)
 	// Set the embedder to query mode
 	db.Client.QueryMode()
+	searchQuery := buildSearchQuery(query, userProfile)
 	var planDocs []schema.Document
 	var err error
 	switch {
-	case query == "" && filter == nil:
+	case searchQuery == "" && filter == nil:
 		return nil, fmt.Errorf("either a query or a filter must be provided")
-	case query == "" && filter != nil:
+	case searchQuery == "" && filter != nil:
 		planDocs, err = db.PlanStore.Search(ctx, 5, vectorstores.WithFilters(filter))
-	case query != "" && filter == nil:
-		planDocs, err = db.PlanStore.SimilaritySearch(ctx, query, 5)
-	case query != "" && filter != nil:
-		planDocs, err = db.PlanStore.SimilaritySearch(ctx, query, 5, vectorstores.WithFilters(filter))
+	case searchQuery != "" && filter == nil:
+		planDocs, err = db.PlanStore.SimilaritySearch(ctx, searchQuery, 5)
+	case searchQuery != "" && filter != nil:
+		planDocs, err = db.PlanStore.SimilaritySearch(ctx, searchQuery, 5, vectorstores.WithFilters(filter))
 	}
 	if err != nil {
 		logger.Error("Error searching for plan documents", httplog.ErrAttr(err))
@@ -49,7 +51,7 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	switch method {
 	case "generate":
 		var drillDocs []schema.Document
-		drillDocs, err = db.DrillStore.SimilaritySearch(ctx, query, 10, vectorstores.WithFilters(map[string]any{"language": string(lang)}))
+		drillDocs, err = db.DrillStore.SimilaritySearch(ctx, searchQuery, 10, vectorstores.WithFilters(map[string]any{"language": string(lang)}))
 		if err != nil {
 			logger.Error("Error searching for drill documents", httplog.ErrAttr(err))
 			return nil, fmt.Errorf("error searching for drill documents: %w", err)
@@ -95,4 +97,11 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	logger.Debug("Plan generated successfully", "plan", genericPlan)
 
 	return genericPlan, nil
+}
+
+func buildSearchQuery(query, userProfile string) string {
+	return strings.TrimSpace(strings.Join([]string{
+		strings.TrimSpace(query),
+		strings.TrimSpace(userProfile),
+	}, "\n\n"))
 }

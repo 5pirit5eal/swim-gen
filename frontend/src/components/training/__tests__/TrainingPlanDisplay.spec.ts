@@ -345,10 +345,8 @@ describe('TrainingPlanDisplay.vue', () => {
 
     const tooltipContent = document.body.querySelector('.tooltip-text')
     expect(tooltipContent?.textContent).toContain(i18n.global.t('display.intensity_tooltip.title'))
-    expect(tooltipContent?.textContent).toContain(i18n.global.t('display.intensity_tooltip.ga1'))
-    expect(tooltipContent?.textContent).toContain(
-      i18n.global.t('display.intensity_tooltip.recovery'),
-    )
+    expect(tooltipContent?.textContent).toContain(i18n.global.t('display.intensity_tooltip.z1'))
+    expect(tooltipContent?.textContent).toContain(i18n.global.t('display.intensity_tooltip.z5'))
   })
 
   describe('Editing Training Plan', () => {
