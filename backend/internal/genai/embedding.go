@@ -12,11 +12,9 @@ func (c *GoogleGenAIClient) CreateEmbedding(ctx context.Context, texts []string)
 	embeddings := make([][]float32, len(texts))
 	// Gemini Embedding 2's embedContent endpoint accepts one content per request.
 	for i, text := range texts {
-		var input string
+		input := text
 		if c.queryMode {
-			input = fmt.Sprintf("task: search result | query: %s", text)
-		} else {
-			input = text
+			input = formatQueryEmbeddingInput(text)
 		}
 		content := genai.NewContentFromText(input, genai.RoleUser)
 		resp, err := c.gc.Models.EmbedContent(ctx, c.cfg.Embedding.Model, []*genai.Content{content}, c.embedCfg)
@@ -30,6 +28,10 @@ func (c *GoogleGenAIClient) CreateEmbedding(ctx context.Context, texts []string)
 	}
 
 	return embeddings, nil
+}
+
+func formatQueryEmbeddingInput(content string) string {
+	return fmt.Sprintf("task: search result | query: %s", content)
 }
 
 func (c *GoogleGenAIClient) QueryMode() {
