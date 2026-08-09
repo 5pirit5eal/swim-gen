@@ -236,20 +236,20 @@ async function handleResetPassword() {
       <section class="profile-content">
         <div class="profile-card">
           <div class="card-header">
-            <h3>{{ t('profile.your_information') }}</h3>
+            <h3 class="section-title">{{ t('profile.your_information') }}</h3>
             <button
               @click="saveProfile"
               class="submit-btn"
+              :class="{ success: saveConfirmationVisible }"
               :disabled="profileStore.loading || cssTimesAreInvalid"
             >
-              <IconCheck v-if="saveConfirmationVisible && !profileStore.loading" />
-              {{
-                profileStore.loading
-                  ? t('profile.saving')
-                  : saveConfirmationVisible
-                    ? t('profile.saved')
-                    : t('profile.save')
-              }}
+              <span v-if="profileStore.loading" class="loading-spinner"></span>
+              <template v-else>
+                <transition name="scale" mode="out-in">
+                  <IconCheck v-if="saveConfirmationVisible" class="icon" />
+                </transition>
+                <span>{{ saveConfirmationVisible ? t('profile.saved') : t('profile.save') }}</span>
+              </template>
             </button>
           </div>
           <p>{{ t('profile.info_description') }}</p>
@@ -325,6 +325,71 @@ async function handleResetPassword() {
               </div>
             </div>
           </div>
+          <hr class="profile-section-divider" />
+          <div class="css-profile-section">
+            <h3 class="section-title">{{ t('profile.css_title') }}</h3>
+            <p class="setting-help">{{ t('profile.css_explanation') }}</p>
+            <div class="css-input-grid">
+              <div class="form-group">
+                <label class="form-label" for="css-200m">{{ t('profile.css_200m') }}</label>
+                <input
+                  id="css-200m"
+                  v-model="editableProfile.css_200m_time"
+                  class="select-input"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="3:20"
+                  :aria-invalid="isInvalidCssTime(editableProfile.css_200m_time)"
+                  :class="{ 'input-invalid': isInvalidCssTime(editableProfile.css_200m_time) }"
+                  :disabled="profileStore.loading"
+                />
+                <small v-if="isInvalidCssTime(editableProfile.css_200m_time)" class="field-error">
+                  {{ t('profile.css_format_hint') }}
+                </small>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="css-400m">{{ t('profile.css_400m') }}</label>
+                <input
+                  id="css-400m"
+                  v-model="editableProfile.css_400m_time"
+                  class="select-input"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="7:00"
+                  :aria-invalid="isInvalidCssTime(editableProfile.css_400m_time)"
+                  :class="{ 'input-invalid': isInvalidCssTime(editableProfile.css_400m_time) }"
+                  :disabled="profileStore.loading"
+                />
+                <small v-if="isInvalidCssTime(editableProfile.css_400m_time)" class="field-error">
+                  {{ t('profile.css_format_hint') }}
+                </small>
+              </div>
+              <div class="form-group">
+                <div v-if="cssPaceSeconds" class="css-pace-summary">
+                  <span class="css-pace-label">{{ t('profile.css_pace') }}</span>
+                  <strong class="css-pace-value"
+                    >{{ formatSwimTime(cssPaceSeconds) }} / 100 m</strong
+                  >
+                </div>
+              </div>
+            </div>
+            <p v-if="cssTimesAreInvalid" class="css-error">{{ t('profile.css_invalid') }}</p>
+            <div v-if="cssPaceSeconds" class="css-zones">
+              <div class="css-zone-bar" aria-label="CSS training zones">
+                <div
+                  v-for="zone in cssZones"
+                  :key="zone.key"
+                  class="css-zone-segment"
+                  :class="`css-zone-${zone.key}`"
+                >
+                  <strong>{{ t(`profile.css_${zone.key}`) }}</strong>
+                  <span>{{ t(`profile.css_${zone.key}_focus`) }}</span>
+                  <b>{{ formatPaceRange(zone) }}</b>
+                </div>
+              </div>
+            </div>
+            <p v-else class="setting-help">{{ t('profile.css_missing') }}</p>
+          </div>
         </div>
 
         <div class="statistics-and-delete">
@@ -385,66 +450,6 @@ async function handleResetPassword() {
               {{ t('profile.delete_account_button') }}
             </button>
           </div>
-        </div>
-        <div class="css-profile-section">
-          <h4>{{ t('profile.css_title') }}</h4>
-          <p class="setting-help">{{ t('profile.css_explanation') }}</p>
-          <div class="css-input-grid">
-            <div class="form-group">
-              <label class="form-label" for="css-200m">{{ t('profile.css_200m') }}</label>
-              <input
-                id="css-200m"
-                v-model="editableProfile.css_200m_time"
-                class="select-input"
-                type="text"
-                inputmode="numeric"
-                placeholder="3:20"
-                :aria-invalid="isInvalidCssTime(editableProfile.css_200m_time)"
-                :class="{ 'input-invalid': isInvalidCssTime(editableProfile.css_200m_time) }"
-                :disabled="profileStore.loading"
-              />
-              <small v-if="isInvalidCssTime(editableProfile.css_200m_time)" class="field-error">
-                {{ t('profile.css_format_hint') }}
-              </small>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="css-400m">{{ t('profile.css_400m') }}</label>
-              <input
-                id="css-400m"
-                v-model="editableProfile.css_400m_time"
-                class="select-input"
-                type="text"
-                inputmode="numeric"
-                placeholder="7:00"
-                :aria-invalid="isInvalidCssTime(editableProfile.css_400m_time)"
-                :class="{ 'input-invalid': isInvalidCssTime(editableProfile.css_400m_time) }"
-                :disabled="profileStore.loading"
-              />
-              <small v-if="isInvalidCssTime(editableProfile.css_400m_time)" class="field-error">
-                {{ t('profile.css_format_hint') }}
-              </small>
-            </div>
-            <div v-if="cssPaceSeconds" class="css-pace-summary">
-              <span class="css-result-label">{{ t('profile.css_pace') }}</span>
-              <strong class="css-result-value">{{ formatSwimTime(cssPaceSeconds) }} / 100 m</strong>
-            </div>
-          </div>
-          <p v-if="cssTimesAreInvalid" class="css-error">{{ t('profile.css_invalid') }}</p>
-          <div v-if="cssPaceSeconds" class="css-result">
-            <div class="css-zone-bar" aria-label="CSS training zones">
-              <div
-                v-for="zone in cssZones"
-                :key="zone.key"
-                class="css-zone-segment"
-                :class="`css-zone-${zone.key}`"
-              >
-                <strong>{{ t(`profile.css_${zone.key}`) }}</strong>
-                <span>{{ t(`profile.css_${zone.key}_focus`) }}</span>
-                <b>{{ formatPaceRange(zone) }}</b>
-              </div>
-            </div>
-          </div>
-          <p v-else class="setting-help">{{ t('profile.css_missing') }}</p>
         </div>
         <section class="credentials-section">
           <div class="profile-card">
@@ -582,6 +587,10 @@ async function handleResetPassword() {
   gap: 2rem;
 }
 
+.profile-content > * {
+  min-width: 0;
+}
+
 @media (max-width: 1250px) {
   .profile-content {
     grid-template-columns: 1fr;
@@ -589,10 +598,19 @@ async function handleResetPassword() {
   }
 
   .profile-card,
-  .css-profile-section,
-  .statistics-and-delete,
-  .credentials-section {
+  .css-profile-section {
     grid-column: auto;
+    grid-row: auto;
+  }
+
+  .credentials-section {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .statistics-and-delete {
+    grid-column: 1 / -1;
+    grid-row: 3;
   }
 }
 
@@ -601,6 +619,7 @@ async function handleResetPassword() {
   flex-direction: column;
   min-height: 100%;
   position: relative;
+  min-width: 0;
   grid-column: 1 / -1;
   grid-row: 1;
 }
@@ -610,7 +629,7 @@ async function handleResetPassword() {
   flex-direction: column;
   gap: 2rem;
   grid-column: 1 / -1;
-  grid-row: 4;
+  grid-row: 3;
 }
 
 .profile-card,
@@ -622,10 +641,18 @@ async function handleResetPassword() {
   border: 1px solid var(--color-border);
 }
 
-.profile-card h3 {
+.profile-section-divider {
+  width: 100%;
+  margin: 1.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.section-title {
   margin-bottom: 0.5rem;
   color: var(--color-heading);
   font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .card-header {
@@ -709,6 +736,19 @@ async function handleResetPassword() {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2rem;
   margin-bottom: 1.5rem;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.edit-mode,
+.css-profile-section,
+.css-result,
+.css-zone-bar {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 460px) {
@@ -720,6 +760,7 @@ async function handleResetPassword() {
 
 .form-column {
   min-width: 0;
+  width: 100%;
 }
 
 .form-group {
@@ -727,27 +768,13 @@ async function handleResetPassword() {
 }
 
 .css-profile-section {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  margin: 0;
-  padding: 2rem;
-  background: var(--color-background-soft);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding-top: 1rem;
+  margin-top: 1rem;
 }
 
 .credentials-section {
   grid-column: 1 / -1;
-  grid-row: 3;
+  grid-row: 2;
   margin: 0;
-}
-
-.css-profile-section h4 {
-  margin: 0 0 0.5rem;
-  color: var(--color-heading);
-  font-size: 1.5rem;
-  font-weight: 700;
 }
 
 .css-input-grid {
@@ -755,15 +782,34 @@ async function handleResetPassword() {
   gap: 0.75rem;
   grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(15rem, 1fr);
   align-items: end;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.css-input-grid > * {
+  min-width: 0;
 }
 
 .css-pace-summary {
   min-height: 2.25rem;
   display: flex;
+  justify-content: space-between;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
   color: var(--color-heading);
+}
+
+.css-pace-label {
+  color: var(--color-heading);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.css-pace-value {
+  color: var(--color-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .css-zone-bar {
@@ -776,13 +822,13 @@ async function handleResetPassword() {
 
 .css-zone-segment {
   display: flex;
-  flex: 1 1 0;
   min-width: 0;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
   gap: 0.6rem;
   padding: 0.9rem 0.75rem;
-  color: #17202a;
+  text-align: center;
 }
 
 .css-zone-segment strong {
@@ -793,30 +839,38 @@ async function handleResetPassword() {
 .css-zone-segment span {
   font-size: 0.78rem;
   line-height: 1.3;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .css-zone-segment b {
   font-size: 0.85rem;
   font-weight: 800;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 .css-zone-z1 {
   background: #d1d5db;
   color: #17202a;
 }
+
 .css-zone-z2 {
   background: #3b82f6;
   color: white;
 }
+
 .css-zone-z3 {
   background: #16a34a;
   color: white;
 }
+
 .css-zone-z4 {
   background: #ea580c;
   color: white;
 }
+
 .css-zone-z5 {
   background: #dc2626;
   color: white;
@@ -826,22 +880,10 @@ async function handleResetPassword() {
   border-left: 1px solid rgb(255 255 255 / 45%);
 }
 
-.css-result {
+.css-zones {
   display: grid;
   gap: 0.75rem;
   margin-top: 1rem;
-}
-
-.css-result-label {
-  color: var(--color-heading);
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.css-result-value {
-  color: var(--color-heading);
-  font-size: 1.75rem;
-  font-weight: 800;
 }
 
 .setting-help,
@@ -919,7 +961,7 @@ async function handleResetPassword() {
   }
 
   .css-zone-segment {
-    min-height: 7rem;
+    min-height: 9rem;
   }
 
   .css-zone-segment + .css-zone-segment {
@@ -938,6 +980,10 @@ async function handleResetPassword() {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -947,6 +993,28 @@ async function handleResetPassword() {
 .submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.submit-btn.success {
+  background-color: var(--color-success);
+}
+
+.submit-btn.success:hover {
+  background-color: var(--color-success);
+}
+
+.submit-btn .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.loading-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgb(255 255 255 / 45%);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 .statistics-table {
@@ -1139,6 +1207,60 @@ async function handleResetPassword() {
 @media (max-width: 460px) {
   .credentials-grid {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 700px) {
+  .profile-card,
+  .statistics-card,
+  .delete-card {
+    padding: 1.25rem;
+  }
+
+  .form-grid,
+  .css-input-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .form-grid {
+    gap: 0;
+  }
+
+  .credentials-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .css-zone-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    flex-direction: column;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .css-zone-segment {
+    flex: none;
+    width: auto;
+    min-width: 0;
+    min-height: 9rem;
+    overflow: hidden;
+  }
+
+  .css-zone-segment strong,
+  .css-zone-segment span,
+  .css-zone-segment b {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .css-zone-segment + .css-zone-segment {
+    border-top: 1px solid rgb(255 255 255 / 45%);
+    border-left: 0;
   }
 }
 
