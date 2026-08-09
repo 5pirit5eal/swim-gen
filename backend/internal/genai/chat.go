@@ -82,6 +82,7 @@ func (gc *GoogleGenAIClient) ChatRefine(
 
 	// If plan was generated, update sums
 	if chatResponse.Plan != nil && len(chatResponse.Plan.Table) > 0 {
+		chatResponse.Plan.Table.FlattenSingleParentRow()
 		// Ensure total row exists
 		if !containsTotal(chatResponse.Plan.Table) {
 			chatResponse.Plan.Table.AddSum()

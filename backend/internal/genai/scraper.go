@@ -85,6 +85,7 @@ func (gc *GoogleGenAIClient) RestructurePlan(ctx context.Context, plan *models.P
 	}
 	logger.Debug("Restructured plan", "plan", gp.Map())
 
+	gp.Table.FlattenSingleParentRow()
 	gp.Table.UpdateSum()
 	gp.Table.AddSum()
 	if err := gp.Table.Validate(); err != nil {

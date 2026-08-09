@@ -375,6 +375,39 @@ func (t *Table) UpdateSum() {
 	}
 }
 
+// FlattenSingleParentRow removes a redundant top-level wrapper produced by the LLM.
+// Total rows are ignored when determining whether the plan has a single exercise row.
+func (t *Table) FlattenSingleParentRow() {
+	if t == nil {
+		return
+	}
+
+	parentIndex := -1
+	for i, row := range *t {
+		if strings.Contains(row.Content, "Gesamt") || strings.Contains(row.Content, "Total") {
+			continue
+		}
+		if parentIndex != -1 {
+			return
+		}
+		parentIndex = i
+	}
+
+	if parentIndex == -1 {
+		return
+	}
+	parent := (*t)[parentIndex]
+	if parent.Amount != 1 || len(parent.SubRows) < 2 {
+		return
+	}
+
+	flattened := make(Table, 0, len(*t)-1+len(parent.SubRows))
+	flattened = append(flattened, (*t)[:parentIndex]...)
+	flattened = append(flattened, parent.SubRows...)
+	flattened = append(flattened, (*t)[parentIndex+1:]...)
+	*t = flattened
+}
+
 // Returns the Header of the table
 func (t *Table) Header(lang Language) []string {
 	switch lang {
