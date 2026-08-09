@@ -188,8 +188,8 @@ BEGIN
     'css_test_swimmer',
     'Advanced',
     'de',
-    ARRAY['Freestyle', 'Backstroke'],
-    ARRAY['Swimmer'],
+    ARRAY['Freistil', 'Rückenschwimmen'],
+    ARRAY['Leistungsschwimmer'],
     200,
     420
   )
