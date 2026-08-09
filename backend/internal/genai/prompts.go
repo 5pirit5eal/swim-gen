@@ -196,18 +196,17 @@ These abbreviations are relevant for the translation:
 %v
 
 The intensity levels are to be translated into Zones (Z1-Z5) according to the following definition:
-Z1: Recovery
+Z1: Recovery and Technical exercises
 Z2: Aerobic endurance
 Z3: Threshold / Competition endurance
 Z4: Anaerobic / VO2 Max
 Z5: Sprint
 Map common intensity abbreviations to these zones in the translated plan. Use this simplified mapping for internal users:
-ReKom: Z1
-LZA, GA, GA1: Z2
+T, TA, ReKom: Z1
+TS, LZA, GA, GA1: Z2
 WA, GA2, LT: Z3
 SA, WK: Z4
 S: Z5
-Keep technique abbreviations such as T, TÜ, TA and TS as technique descriptions rather than intensity zones.
 
 Training Plan to Translate:
 

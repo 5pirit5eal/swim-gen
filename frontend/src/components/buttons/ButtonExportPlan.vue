@@ -165,7 +165,6 @@ function openTextExport() {
 <style scoped>
 .export-actions {
   display: flex;
-  flex: 1;
   position: relative;
   width: fit-content;
   max-width: 200px;
