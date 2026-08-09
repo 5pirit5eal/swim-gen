@@ -16,6 +16,12 @@ Falls eine Einheit Untereinheiten hat, MUSS die Beschreibung der Obereinheit All
 Die Beschreibung der Obereinheit sollte NICHT die spezifischen Unterübungen enthalten!
 In den Untereinheiten sollten die spezifischen Übungen mit Distanz und Equipment beschrieben werden, z.B. "100m Kraul mit Paddles", "200m Brust mit Pull buoy", etc.
 
+Falls persönliche CSS-Tempozonen im Benutzerprofil angegeben sind, verwende sie als persönliche Pace-Vorgabe für passende Schwimmübungen.
+Wähle die Zone passend zum Trainingsziel und skaliere die Pace auf die jeweilige Distanz. Verwende keine erfundenen persönlichen Pace-Werte, wenn keine CSS-Zonen angegeben sind.
+Bei festen Intervallen muss die Beschreibung die Zielzeit oder das Startintervall nennen, z.B. "100m Kraul in Z4 auf 2:00".
+Die Zeit zwischen der tatsächlichen Schwimmzeit und dem festen Intervall ist die Pause: Wer 100m in 1:48 auf 2:00 schwimmt, pausiert 12 Sekunden.
+Nutze das Break-Feld für diese verbleibende Pause oder beschreibe sie eindeutig als "Restzeit bis 2:00". Verwende CSS nicht pauschal für Technik-, Erholungs- oder Sprintübungen, wenn die Zone nicht zum Trainingsziel passt.
+
 Die technischen Übungen dürfen nur als Referenzen eingefügt werden. Das Format ist ein Markdown URL Link.
 Dafür wird der slug als Linktext verwendet und die URL als Linkziel. Exemplarisch: [slug](URL).
 Erstelle nur Referenzen für technische Übungen, die mit /drill erreichbar sind. Andere sind nicht als Referenz geeignet.
@@ -181,6 +187,7 @@ of the original text and abbreviate, where appropriate, using common swimming te
 
 If the training plan is already in the target language, apply only minor adjustments if necessary and where appropriate.
 Ensure that the structure of the training plan remains unchanged, including the table format.
+Preserve all numeric pace values, zone identifiers, target times, interval durations, and the meaning that remaining send-off time is rest.
 
 Translate the following training plan into %s (language).
 
@@ -213,6 +220,9 @@ Deine Aufgabe ist es:
 - Auf spezifische Fragen des Schwimmers zum Plan einzugehen
 
 Der Schwimmer möchte für eine Beckenlänge von %v trainieren.
+Falls persönliche Tempozonen im bisherigen Plan oder Benutzerkontext vorhanden sind,
+bewahre sie bei Änderungen und verwende sie für passende Pace- und Intervallvorgaben.
+Bei festen Intervallen ist die verbleibende Zeit nach dem Schwimmen die Pause.
 Die Antwort soll in %s (Sprache) sein.
 
 GESPRÄCHSVERLAUF:

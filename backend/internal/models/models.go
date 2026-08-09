@@ -19,6 +19,8 @@ type UserProfile struct {
 	OverallGenerations int       `db:"overall_generations"`
 	MonthlyGenerations int       `db:"monthly_generations"`
 	Exports            int       `db:"exports"`
+	CSS200mSeconds     *int      `db:"css_200m_seconds"`
+	CSS400mSeconds     *int      `db:"css_400m_seconds"`
 }
 
 type Feedback struct {
