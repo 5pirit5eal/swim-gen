@@ -70,9 +70,7 @@ describe('ButtonExportPlan.vue', () => {
     await wrapper.find('.dropdown-item-action').trigger('click')
     await flushPromises()
 
-    expect(mockExportToPDF).toHaveBeenLastCalledWith(
-      expect.objectContaining({ description: '' }),
-    )
+    expect(mockExportToPDF).toHaveBeenLastCalledWith(expect.objectContaining({ description: '' }))
 
     await wrapper.find('.main-action').trigger('click')
     const omitNotes = wrapper.findAll<HTMLInputElement>('.pdf-option input')[2]!
