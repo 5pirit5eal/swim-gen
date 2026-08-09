@@ -11,13 +11,18 @@ import { apiClient } from '@/api/client'
 import { DIFFICULTY_OPTIONS } from '@/types'
 import { onMounted, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import {
+  calculateCssPace,
+  calculateCssZones,
+  formatPaceRange,
+  formatSwimTime,
+} from '@/utils/criticalSwimSpeed'
 
 const { t } = useI18n()
 const profileStore = useProfileStore()
 const authStore = useAuthStore()
 const router = useRouter()
-const isEditMode = ref(false)
 
 // Feature flag
 const showMonthlyQuota = ref(false)
@@ -39,10 +44,25 @@ const editableProfile = ref({
   preferred_strokes: [] as string[],
   categories: [] as string[],
   preferred_language: '',
+  css_200m_time: '',
+  css_400m_time: '',
 })
 const username = ref('')
 const isUsernameEditMode = ref(false)
 const usernameEditValue = ref('')
+const savedProfileSnapshot = ref('')
+const saveConfirmationVisible = ref(false)
+
+function profileSnapshot() {
+  return JSON.stringify({
+    ...editableProfile.value,
+    username: username.value,
+  })
+}
+
+const hasUnsavedChanges = computed(
+  () => Boolean(savedProfileSnapshot.value) && profileSnapshot() !== savedProfileSnapshot.value,
+)
 
 onMounted(() => {
   profileStore.fetchProfile()
@@ -57,9 +77,12 @@ watch(
         preferred_strokes: newProfile.preferred_strokes || [],
         categories: newProfile.categories || [],
         preferred_language: newProfile.preferred_language || '',
+        css_200m_time: formatSwimTime(newProfile.css_200m_seconds),
+        css_400m_time: formatSwimTime(newProfile.css_400m_seconds),
       }
       username.value = newProfile.username || ''
       usernameEditValue.value = newProfile.username || ''
+      savedProfileSnapshot.value = profileSnapshot()
     }
   },
   { immediate: true },
@@ -77,21 +100,55 @@ watch(
   { immediate: true },
 )
 
-function saveProfile() {
-  profileStore.updateProfile(editableProfile.value)
-  isEditMode.value = false
+async function saveProfile() {
+  const { css_200m_time, css_400m_time, ...profileFields } = editableProfile.value
+  await profileStore.updateProfile({
+    ...profileFields,
+    css_200m_seconds: parseProfileTime(css_200m_time),
+    css_400m_seconds: parseProfileTime(css_400m_time),
+  })
   if (profileStore.error) {
     toast.error(profileStore.error)
+    return
   }
+
+  savedProfileSnapshot.value = profileSnapshot()
+  saveConfirmationVisible.value = true
+  toast.success(t('profile.profile_saved'))
+  window.setTimeout(() => {
+    saveConfirmationVisible.value = false
+  }, 3000)
 }
 
-function toggleEditMode() {
-  isEditMode.value = !isEditMode.value
+onBeforeRouteLeave(() => {
+  if (hasUnsavedChanges.value) {
+    toast.warning(t('profile.unsaved_changes'))
+  }
+})
+
+function parseProfileTime(value: string): number | null {
+  const match = value.trim().match(/^(\d+):([0-5]\d)$/)
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null
 }
 
-function getExperienceLabel(value: string) {
-  const option = DIFFICULTY_OPTIONS.find((opt) => opt.value === value)
-  return option ? t(option.label) : ''
+const cssPaceSeconds = computed(() =>
+  calculateCssPace(editableProfile.value.css_200m_time, editableProfile.value.css_400m_time),
+)
+const cssZones = computed(() => calculateCssZones(cssPaceSeconds.value))
+const cssTimesAreInvalid = computed(() => {
+  const time200 = editableProfile.value.css_200m_time.trim()
+  const time400 = editableProfile.value.css_400m_time.trim()
+  const validFormat = (value: string) => !value || /^\d+:[0-5]\d$/.test(value)
+
+  return (
+    !validFormat(time200) ||
+    !validFormat(time400) ||
+    Boolean(time200 && time400 && !cssPaceSeconds.value)
+  )
+})
+
+function isInvalidCssTime(value: string): boolean {
+  return Boolean(value.trim() && !/^\d+:[0-5]\d$/.test(value.trim()))
 }
 
 function openDeleteModal() {
@@ -137,6 +194,7 @@ async function saveUsername() {
   } else {
     username.value = usernameEditValue.value
     isUsernameEditMode.value = false
+    savedProfileSnapshot.value = profileSnapshot()
   }
 }
 
@@ -175,113 +233,29 @@ async function handleResetPassword() {
         <p class="hero-description">{{ t('profile.description', { user: username }) }}</p>
       </section>
 
-      <section class="credentials-section">
-        <div class="profile-card">
-          <h3>{{ t('profile.user_credentials') }}</h3>
-          <div class="credentials-grid">
-            <div class="info-group">
-              <label>{{ t('profile.username') }}</label>
-              <div v-if="!isUsernameEditMode" class="value-display">
-                <p>{{ username }}</p>
-                <button @click="isUsernameEditMode = true" class="icon-btn">
-                  <IconEdit />
-                </button>
-              </div>
-              <div v-else class="edit-display">
-                <input
-                  v-model="usernameEditValue"
-                  type="text"
-                  class="select-input"
-                  @keyup.enter="saveUsername"
-                />
-                <div class="action-buttons">
-                  <button @click="saveUsername" class="icon-btn success">
-                    <IconCheck />
-                  </button>
-                  <button @click="cancelUsernameEdit" class="icon-btn">
-                    <IconCross />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="info-group">
-              <label>{{ t('profile.email') }}</label>
-              <p>{{ authStore.user?.email }}</p>
-            </div>
-
-            <div class="info-group">
-              <label>{{ t('profile.password') }}</label>
-              <div class="value-display">
-                <p>{{ t('profile.password_placeholder') }}</p>
-                <button
-                  v-if="isEmailUser"
-                  @click="handleResetPassword"
-                  class="icon-btn"
-                  :disabled="resetCooldown"
-                >
-                  <IconEdit />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section class="profile-content">
         <div class="profile-card">
-          <h3>{{ t('profile.your_information') }}</h3>
-          <p>{{ t('profile.info_description') }}</p>
-          <div v-if="!isEditMode" class="display-mode">
-            <div class="info-grid">
-              <div class="info-group">
-                <label>
-                  {{ t('profile.experience') }}
-                  <BaseTooltip>
-                    <template #tooltip>{{ t('profile.experience_explanation') }}</template>
-                  </BaseTooltip>
-                </label>
-                <p v-if="editableProfile.experience">
-                  {{ getExperienceLabel(editableProfile.experience) }}
-                </p>
-                <p v-else>{{ t('profile.no_selection_placeholder') }}</p>
-              </div>
-              <div class="info-group">
-                <label>
-                  {{ t('profile.preferred_strokes') }}
-                  <BaseTooltip>
-                    <template #tooltip>{{ t('profile.preferred_strokes_explanation') }}</template>
-                  </BaseTooltip>
-                </label>
-                <ul v-if="editableProfile.preferred_strokes.length > 0">
-                  <li v-for="stroke in editableProfile.preferred_strokes" :key="stroke">
-                    {{ t(`profile.${stroke.toLowerCase().replace(' ', '_')}`) }}
-                  </li>
-                </ul>
-                <p v-else>{{ t('profile.no_selection_placeholder') }}</p>
-              </div>
-              <div class="info-group">
-                <label>
-                  {{ t('profile.categories') }}
-                  <BaseTooltip>
-                    <template #tooltip>{{ t('profile.categories_explanation') }}</template>
-                  </BaseTooltip>
-                </label>
-                <ul v-if="editableProfile.categories.length > 0">
-                  <li v-for="category in editableProfile.categories" :key="category">
-                    {{ t(`profile.category_${category.toLowerCase()}`) }}
-                  </li>
-                </ul>
-                <p v-else>{{ t('profile.no_selection_placeholder') }}</p>
-              </div>
-            </div>
-            <button @click="toggleEditMode" class="edit-btn">
-              {{ t('profile.edit_profile') }}
+          <div class="card-header">
+            <h3>{{ t('profile.your_information') }}</h3>
+            <button
+              @click="saveProfile"
+              class="submit-btn"
+              :disabled="profileStore.loading || cssTimesAreInvalid"
+            >
+              <IconCheck v-if="saveConfirmationVisible && !profileStore.loading" />
+              {{
+                profileStore.loading
+                  ? t('profile.saving')
+                  : saveConfirmationVisible
+                    ? t('profile.saved')
+                    : t('profile.save')
+              }}
             </button>
           </div>
-          <div v-else class="edit-mode">
+          <p>{{ t('profile.info_description') }}</p>
+          <div class="edit-mode">
             <div class="form-grid">
-              <div class="form-column">
+              <div class="form-column experience-column">
                 <div class="form-group">
                   <label class="form-label"
                     >{{ t('profile.experience') }}
@@ -306,6 +280,8 @@ async function handleResetPassword() {
                     </select>
                   </div>
                 </div>
+              </div>
+              <div class="form-column strokes-column">
                 <div class="form-group">
                   <label class="form-label"
                     >{{ t('profile.preferred_strokes') }}
@@ -326,7 +302,7 @@ async function handleResetPassword() {
                   </div>
                 </div>
               </div>
-              <div class="form-column">
+              <div class="form-column categories-column">
                 <div class="form-group">
                   <label class="form-label"
                     >{{ t('profile.categories') }}
@@ -348,9 +324,6 @@ async function handleResetPassword() {
                 </div>
               </div>
             </div>
-            <button @click="saveProfile" class="submit-btn" :disabled="profileStore.loading">
-              {{ profileStore.loading ? t('profile.saving') : t('profile.save') }}
-            </button>
           </div>
         </div>
 
@@ -413,6 +386,116 @@ async function handleResetPassword() {
             </button>
           </div>
         </div>
+        <div class="css-profile-section">
+          <h4>{{ t('profile.css_title') }}</h4>
+          <p class="setting-help">{{ t('profile.css_explanation') }}</p>
+          <div class="css-input-grid">
+            <div class="form-group">
+              <label class="form-label" for="css-200m">{{ t('profile.css_200m') }}</label>
+              <input
+                id="css-200m"
+                v-model="editableProfile.css_200m_time"
+                class="select-input"
+                type="text"
+                inputmode="numeric"
+                placeholder="3:20"
+                :aria-invalid="isInvalidCssTime(editableProfile.css_200m_time)"
+                :class="{ 'input-invalid': isInvalidCssTime(editableProfile.css_200m_time) }"
+                :disabled="profileStore.loading"
+              />
+              <small v-if="isInvalidCssTime(editableProfile.css_200m_time)" class="field-error">
+                {{ t('profile.css_format_hint') }}
+              </small>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="css-400m">{{ t('profile.css_400m') }}</label>
+              <input
+                id="css-400m"
+                v-model="editableProfile.css_400m_time"
+                class="select-input"
+                type="text"
+                inputmode="numeric"
+                placeholder="7:00"
+                :aria-invalid="isInvalidCssTime(editableProfile.css_400m_time)"
+                :class="{ 'input-invalid': isInvalidCssTime(editableProfile.css_400m_time) }"
+                :disabled="profileStore.loading"
+              />
+              <small v-if="isInvalidCssTime(editableProfile.css_400m_time)" class="field-error">
+                {{ t('profile.css_format_hint') }}
+              </small>
+            </div>
+            <div v-if="cssPaceSeconds" class="css-pace-summary">
+              <span class="css-result-label">{{ t('profile.css_pace') }}</span>
+              <strong class="css-result-value">{{ formatSwimTime(cssPaceSeconds) }} / 100 m</strong>
+            </div>
+          </div>
+          <p v-if="cssTimesAreInvalid" class="css-error">{{ t('profile.css_invalid') }}</p>
+          <div v-if="cssPaceSeconds" class="css-result">
+            <div class="css-zone-bar" aria-label="CSS training zones">
+              <div
+                v-for="zone in cssZones"
+                :key="zone.key"
+                class="css-zone-segment"
+                :class="`css-zone-${zone.key}`"
+              >
+                <strong>{{ t(`profile.css_${zone.key}`) }}</strong>
+                <span>{{ t(`profile.css_${zone.key}_focus`) }}</span>
+                <b>{{ formatPaceRange(zone) }}</b>
+              </div>
+            </div>
+          </div>
+          <p v-else class="setting-help">{{ t('profile.css_missing') }}</p>
+        </div>
+        <section class="credentials-section">
+          <div class="profile-card">
+            <h3>{{ t('profile.user_credentials') }}</h3>
+            <div class="credentials-grid">
+              <div class="info-group">
+                <label>{{ t('profile.username') }}</label>
+                <div v-if="!isUsernameEditMode" class="value-display">
+                  <p>{{ username }}</p>
+                  <button @click="isUsernameEditMode = true" class="icon-btn">
+                    <IconEdit />
+                  </button>
+                </div>
+                <div v-else class="edit-display">
+                  <input
+                    v-model="usernameEditValue"
+                    type="text"
+                    class="select-input"
+                    @keyup.enter="saveUsername"
+                  />
+                  <div class="action-buttons">
+                    <button @click="saveUsername" class="icon-btn success">
+                      <IconCheck />
+                    </button>
+                    <button @click="cancelUsernameEdit" class="icon-btn">
+                      <IconCross />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="info-group">
+                <label>{{ t('profile.email') }}</label>
+                <p>{{ authStore.user?.email }}</p>
+              </div>
+              <div class="info-group">
+                <label>{{ t('profile.password') }}</label>
+                <div class="value-display">
+                  <p>{{ t('profile.password_placeholder') }}</p>
+                  <button
+                    v-if="isEmailUser"
+                    @click="handleResetPassword"
+                    class="icon-btn"
+                    :disabled="resetCooldown"
+                  >
+                    <IconEdit />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </section>
 
       <!-- Delete Account Confirmation Modal -->
@@ -494,14 +577,22 @@ async function handleResetPassword() {
 }
 
 .profile-content {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.5fr);
   gap: 2rem;
 }
 
 @media (max-width: 1250px) {
   .profile-content {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  .profile-card,
+  .css-profile-section,
+  .statistics-and-delete,
+  .credentials-section {
+    grid-column: auto;
   }
 }
 
@@ -510,12 +601,16 @@ async function handleResetPassword() {
   flex-direction: column;
   min-height: 100%;
   position: relative;
+  grid-column: 1 / -1;
+  grid-row: 1;
 }
 
 .statistics-and-delete {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  grid-column: 1 / -1;
+  grid-row: 4;
 }
 
 .profile-card,
@@ -531,6 +626,17 @@ async function handleResetPassword() {
   margin-bottom: 0.5rem;
   color: var(--color-heading);
   font-size: 1.5rem;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.card-header h3 {
+  margin: 0;
 }
 
 .profile-card p {
@@ -600,16 +706,153 @@ async function handleResetPassword() {
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
   margin-bottom: 1.5rem;
 }
 
+@media (max-width: 460px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
 .form-column {
-  padding: 1rem 0rem;
+  min-width: 0;
 }
 
 .form-group {
   margin: 0.5rem 0;
+}
+
+.css-profile-section {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin: 0;
+  padding: 2rem;
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding-top: 1rem;
+}
+
+.credentials-section {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  margin: 0;
+}
+
+.css-profile-section h4 {
+  margin: 0 0 0.5rem;
+  color: var(--color-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.css-input-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(15rem, 1fr);
+  align-items: end;
+}
+
+.css-pace-summary {
+  min-height: 2.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  color: var(--color-heading);
+}
+
+.css-zone-bar {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  min-height: 10rem;
+}
+
+.css-zone-segment {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.9rem 0.75rem;
+  color: #17202a;
+}
+
+.css-zone-segment strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.css-zone-segment span {
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.css-zone-segment b {
+  font-size: 0.85rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.css-zone-z1 {
+  background: #d1d5db;
+  color: #17202a;
+}
+.css-zone-z2 {
+  background: #3b82f6;
+  color: white;
+}
+.css-zone-z3 {
+  background: #16a34a;
+  color: white;
+}
+.css-zone-z4 {
+  background: #ea580c;
+  color: white;
+}
+.css-zone-z5 {
+  background: #dc2626;
+  color: white;
+}
+
+.css-zone-segment + .css-zone-segment {
+  border-left: 1px solid rgb(255 255 255 / 45%);
+}
+
+.css-result {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.css-result-label {
+  color: var(--color-heading);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.css-result-value {
+  color: var(--color-heading);
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.setting-help,
+.css-error {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.css-error {
+  color: var(--color-danger, #b42318);
 }
 
 .form-label {
@@ -637,6 +880,21 @@ async function handleResetPassword() {
   color: var(--color-text);
 }
 
+.css-input-grid .select-input {
+  background: #fff;
+}
+
+.select-input.input-invalid {
+  border-color: var(--color-danger, #b42318);
+}
+
+.field-error {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--color-danger, #b42318);
+  font-size: 0.8rem;
+}
+
 .select-input:focus {
   outline: none;
   border-color: var(--color-border-hover);
@@ -651,6 +909,25 @@ async function handleResetPassword() {
   font-size: 1rem;
 }
 
+@media (max-width: 460px) {
+  .css-input-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .css-zone-bar {
+    flex-direction: column;
+  }
+
+  .css-zone-segment {
+    min-height: 7rem;
+  }
+
+  .css-zone-segment + .css-zone-segment {
+    border-top: 1px solid rgb(255 255 255 / 45%);
+    border-left: 0;
+  }
+}
+
 .submit-btn {
   background: var(--color-primary);
   color: white;
@@ -661,9 +938,6 @@ async function handleResetPassword() {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  position: absolute;
-  bottom: 2rem;
-  left: 2rem;
 }
 
 .submit-btn:hover:not(:disabled) {

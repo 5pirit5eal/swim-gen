@@ -9,4 +9,6 @@ export interface Profile {
   overall_generations: number
   monthly_generations: number
   exports: number
+  css_200m_seconds: number | null
+  css_400m_seconds: number | null
 }
