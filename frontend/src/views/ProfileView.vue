@@ -36,8 +36,42 @@ const deleteError = ref('')
 const canDelete = computed(() => deleteConfirmationText.value === 'DELETE')
 const isEmailUser = computed(() => authStore.user?.app_metadata?.provider === 'email')
 
-const strokeOptions = ['Freestyle', 'Breaststroke', 'Backstroke', 'Butterfly', 'Individual Medley']
-const categoryOptions = ['Triathlete', 'Swimmer', 'Coach', 'Hobby']
+const strokeOptions = [
+  { value: 'Freistil', key: 'freestyle' },
+  { value: 'Brustschwimmen', key: 'breaststroke' },
+  { value: 'Rückenschwimmen', key: 'backstroke' },
+  { value: 'Schmetterling', key: 'butterfly' },
+  { value: 'Lagen', key: 'individual_medley' },
+]
+const categoryOptions = [
+  { value: 'Triathlet', key: 'category_triathlete' },
+  { value: 'Leistungsschwimmer', key: 'category_swimmer' },
+  { value: 'Trainer', key: 'category_coach' },
+  { value: 'Hobbyschwimmer', key: 'category_hobby' },
+]
+
+const legacyProfileValues: Record<string, string> = {
+  Freestyle: 'Freistil',
+  Kraul: 'Freistil',
+  Breaststroke: 'Brustschwimmen',
+  Brust: 'Brustschwimmen',
+  Backstroke: 'Rückenschwimmen',
+  Rücken: 'Rückenschwimmen',
+  Butterfly: 'Schmetterling',
+  'Individual Medley': 'Lagen',
+  Triathlete: 'Triathlet',
+  Swimmer: 'Leistungsschwimmer',
+  Schwimmer: 'Leistungsschwimmer',
+  Coach: 'Trainer',
+  Hobby: 'Hobbyschwimmer',
+  Beginner: 'Anfaenger',
+  Advanced: 'Fortgeschritten',
+  'Competitive Swimmer': 'Leistungsschwimmer',
+}
+
+function normalizeProfileValues(values: string[]): string[] {
+  return values.map((value) => legacyProfileValues[value] || value)
+}
 
 const editableProfile = ref({
   experience: '',
@@ -73,9 +107,9 @@ watch(
   (newProfile) => {
     if (newProfile) {
       editableProfile.value = {
-        experience: newProfile.experience || '',
-        preferred_strokes: newProfile.preferred_strokes || [],
-        categories: newProfile.categories || [],
+        experience: legacyProfileValues[newProfile.experience || ''] || newProfile.experience || '',
+        preferred_strokes: normalizeProfileValues(newProfile.preferred_strokes || []),
+        categories: normalizeProfileValues(newProfile.categories || []),
         preferred_language: newProfile.preferred_language || '',
         css_200m_time: formatSwimTime(newProfile.css_200m_seconds),
         css_400m_time: formatSwimTime(newProfile.css_400m_seconds),
@@ -290,14 +324,18 @@ async function handleResetPassword() {
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
-                    <label v-for="option in strokeOptions" :key="option" class="checkbox-option">
+                    <label
+                      v-for="option in strokeOptions"
+                      :key="option.value"
+                      class="checkbox-option"
+                    >
                       <input
                         type="checkbox"
-                        :value="option"
+                        :value="option.value"
                         v-model="editableProfile.preferred_strokes"
                         :disabled="profileStore.loading"
                       />
-                      {{ t(`profile.${option.toLowerCase().replace(' ', '_')}`) }}
+                      {{ t(`profile.${option.key}`) }}
                     </label>
                   </div>
                 </div>
@@ -311,14 +349,18 @@ async function handleResetPassword() {
                     </BaseTooltip>
                   </label>
                   <div class="checkbox-group">
-                    <label v-for="option in categoryOptions" :key="option" class="checkbox-option">
+                    <label
+                      v-for="option in categoryOptions"
+                      :key="option.value"
+                      class="checkbox-option"
+                    >
                       <input
                         type="checkbox"
-                        :value="option"
+                        :value="option.value"
                         v-model="editableProfile.categories"
                         :disabled="profileStore.loading"
                       />
-                      {{ t(`profile.category_${option.toLowerCase()}`) }}
+                      {{ t(`profile.${option.key}`) }}
                     </label>
                   </div>
                 </div>
