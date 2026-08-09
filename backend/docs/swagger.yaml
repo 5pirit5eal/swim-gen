@@ -425,7 +425,7 @@ definitions:
           $ref: '#/definitions/models.EquipmentType'
         type: array
       Intensity:
-        example: Easy
+        example: Z1
         type: string
       Multiplier:
         example: x
