@@ -21,7 +21,7 @@ locals {
     SUPABASE_SERVICE_ROLE_KEY = data.supabase_apikeys.development_keys.service_role_key
     # OTel — backend uses the Cloud Trace exporter directly; no OTLP endpoint needed
     OTEL_SERVICE_NAME       = "swim-gen-backend"
-    OTEL_TRACES_SAMPLER_ARG = "0.1"
+    OTEL_TRACES_SAMPLER_ARG = "1.0"
   }
 }
 

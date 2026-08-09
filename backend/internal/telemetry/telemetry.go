@@ -20,7 +20,7 @@ import (
 // exporter and GCP resource detection. It returns a shutdown function that
 // should be deferred in main().
 //
-// The sampling ratio is configured via OTEL_TRACES_SAMPLER_ARG env var (default: 0.1).
+// The sampling ratio is configured via OTEL_TRACES_SAMPLER_ARG env var (default: 1.0).
 // No OTEL_EXPORTER_OTLP_ENDPOINT is needed — the exporter calls the Cloud Trace API directly.
 func Init(ctx context.Context) (func(context.Context) error, error) {
 	serviceName := os.Getenv("OTEL_SERVICE_NAME")
@@ -51,8 +51,8 @@ func Init(ctx context.Context) (func(context.Context) error, error) {
 		return nil, fmt.Errorf("creating resource: %w", err)
 	}
 
-	// Parse sampler arg (default 10% sampling)
-	samplerArg := 0.1
+	// Parse sampler arg (default 100% sampling)
+	samplerArg := 1.0
 	if s := os.Getenv("OTEL_TRACES_SAMPLER_ARG"); s != "" {
 		if _, err := fmt.Sscanf(s, "%f", &samplerArg); err != nil {
 			return nil, fmt.Errorf("parsing OTEL_TRACES_SAMPLER_ARG: %w", err)
