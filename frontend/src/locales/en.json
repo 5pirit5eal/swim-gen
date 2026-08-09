@@ -142,6 +142,7 @@
     "open_pdf": "Open PDF",
     "export_horizontal": "Horizontal",
     "export_large_font": "Large Font",
+    "export_omit_trainer_notes": "Omit Coach Notes",
     "add_row": "Add new row",
     "remove_row": "Remove this row",
     "move_row_up": "Move row up",

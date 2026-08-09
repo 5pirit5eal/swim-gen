@@ -147,6 +147,7 @@
     "open_pdf": "PDF öffnen",
     "export_horizontal": "Horizontal",
     "export_large_font": "Große Schrift",
+    "export_omit_trainer_notes": "Trainernotizen auslassen",
     "add_row": "Neue Zeile hinzufügen",
     "remove_row": "Diese Zeile entfernen",
     "move_row_up": "Zeile nach oben verschieben",
