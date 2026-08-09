@@ -300,6 +300,10 @@ um dich optimal auf die Sprints vorzubereiten.`,
 	assert.NoError(t, err, "PlanToPDF should not return an error")
 	assert.NotEmpty(t, planPDF, "PlanToPDF should return non-empty PDF bytes")
 
+	largeFontPDF, err := pdf.PlanToPDF(plan, false, true, models.LanguageDE, "")
+	assert.NoError(t, err, "PlanToPDF with large font should not return an error")
+	assert.NotEmpty(t, largeFontPDF, "PlanToPDF with large font should return non-empty PDF bytes")
+
 	// Test that the bytes are writable to pdf file
 	err = writePDF("plan.pdf", planPDF)
 
