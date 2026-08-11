@@ -144,7 +144,6 @@ type ChatResponsePayload struct {
 type MessagePayload struct {
 	ID                string       `json:"id" db:"id"`
 	PlanID            string       `json:"plan_id" db:"plan_id"`
-	UserID            string       `json:"user_id" db:"user_id"`
 	Role              Role         `json:"role" db:"role"`
 	Content           string       `json:"content" db:"content"`
 	PreviousMessageID *string      `json:"previous_message_id" db:"previous_message_id"`
@@ -180,20 +179,19 @@ type DeleteConversationRequest struct {
 // AddMessageRequest represents the request body for adding a message to the conversation history
 // @Description Request payload for adding a message to the conversation history
 type AddMessageRequest struct {
-	PlanID            string       `json:"plan_id" binding:"required"`
-	Role              Role         `json:"role" binding:"required"`
-	Content           string       `json:"content" binding:"required"`
-	PreviousMessageID string       `json:"previous_message_id,omitempty"`
-	PlanSnapshot      *RAGResponse `json:"plan_snapshot,omitempty"`
+	PlanID            string `json:"plan_id" binding:"required"`
+	Content           string `json:"content" binding:"required"`
+	PreviousMessageID string `json:"previous_message_id,omitempty"`
 }
 
 // AddPlanToHistoryRequest represents the request payload for adding a plan to history
 // @Description Request payload for adding a plan to the authenticated user's history
 type AddPlanToHistoryRequest struct {
-	PlanID      string `json:"plan_id" example:"plan_123" binding:"required"`                                                            // PlanID identifies the plan to add to history
-	Title       string `json:"title" example:"Advanced Freestyle Training" binding:"required"`                                           // Title of the plan
-	Description string `json:"description" example:"A comprehensive training plan for improving freestyle technique" binding:"required"` // Description of the plan
-	Table       Table  `json:"table" binding:"required"`                                                                                 // Table containing the plan details
+	PlanID         string `json:"plan_id" example:"plan_123" binding:"required"`                                                            // PlanID identifies the plan to add to history
+	Title          string `json:"title" example:"Advanced Freestyle Training" binding:"required"`                                           // Title of the plan
+	Description    string `json:"description" example:"A comprehensive training plan for improving freestyle technique" binding:"required"` // Description of the plan
+	Table          Table  `json:"table" binding:"required"`                                                                                 // Table containing the plan details
+	InitialMessage string `json:"initial_message,omitempty"`                                                                                // Initial user message to persist when linking an anonymous plan
 }
 
 func (a *AddPlanToHistoryRequest) Plan() *Plan {
