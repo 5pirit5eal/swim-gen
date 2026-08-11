@@ -1231,8 +1231,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "content",
-                "plan_id",
-                "role"
+                "plan_id"
             ],
             "properties": {
                 "content": {
@@ -1241,14 +1240,8 @@ const docTemplate = `{
                 "plan_id": {
                     "type": "string"
                 },
-                "plan_snapshot": {
-                    "$ref": "#/definitions/models.RAGResponse"
-                },
                 "previous_message_id": {
                     "type": "string"
-                },
-                "role": {
-                    "$ref": "#/definitions/models.Role"
                 }
             }
         },
@@ -1266,6 +1259,10 @@ const docTemplate = `{
                     "description": "Description of the plan",
                     "type": "string",
                     "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "initial_message": {
+                    "description": "Initial user message to persist when linking an anonymous plan",
+                    "type": "string"
                 },
                 "plan_id": {
                     "description": "PlanID identifies the plan to add to history",
@@ -1600,9 +1597,6 @@ const docTemplate = `{
                 },
                 "role": {
                     "$ref": "#/definitions/models.Role"
-                },
-                "user_id": {
-                    "type": "string"
                 }
             }
         },

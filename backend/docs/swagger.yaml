@@ -7,16 +7,11 @@ definitions:
         type: string
       plan_id:
         type: string
-      plan_snapshot:
-        $ref: '#/definitions/models.RAGResponse'
       previous_message_id:
         type: string
-      role:
-        $ref: '#/definitions/models.Role'
     required:
     - content
     - plan_id
-    - role
     type: object
   models.AddPlanToHistoryRequest:
     description: Request payload for adding a plan to the authenticated user's history
@@ -24,6 +19,9 @@ definitions:
       description:
         description: Description of the plan
         example: A comprehensive training plan for improving freestyle technique
+        type: string
+      initial_message:
+        description: Initial user message to persist when linking an anonymous plan
         type: string
       plan_id:
         description: PlanID identifies the plan to add to history
@@ -267,8 +265,6 @@ definitions:
         type: string
       role:
         $ref: '#/definitions/models.Role'
-      user_id:
-        type: string
     type: object
   models.PlanToPDFRequest:
     description: Request payload for exporting a training plan to PDF format
