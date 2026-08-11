@@ -694,10 +694,6 @@ describe('trainingPlan Store', () => {
         success: true,
         data: { plan_id: 'new-plan-id', message: 'Success' },
       })
-      mockedApiAddMessage.mockResolvedValue({
-        success: true,
-        data: { message_id: 'msg-1' },
-      })
       mockedApiGetConversation.mockResolvedValue({
         success: true,
         data: [],
@@ -720,20 +716,10 @@ describe('trainingPlan Store', () => {
           title: mockPlan.title,
           description: mockPlan.description,
         }),
+        'test query',
       )
       expect(store.currentPlan?.plan_id).toBe('new-plan-id')
-      expect(mockedApiAddMessage).toHaveBeenCalledTimes(2)
-      // First call: User message
-      expect(mockedApiAddMessage).toHaveBeenNthCalledWith(1, 'new-plan-id', 'user', 'test query')
-      // Second call: Assistant message
-      expect(mockedApiAddMessage).toHaveBeenNthCalledWith(
-        2,
-        'new-plan-id',
-        'ai',
-        mockPlan.description,
-        'msg-1',
-        expect.objectContaining({ plan_id: 'new-plan-id' }),
-      )
+      expect(mockedApiAddMessage).not.toHaveBeenCalled()
       expect(store.initialQuery).toBe('')
     })
   })
