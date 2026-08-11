@@ -13,6 +13,11 @@ import (
 
 const MemoryTableName = "memory"
 
+var (
+	ErrMemoryNotFound   = errors.New("memory resource not found")
+	ErrMemoryValidation = errors.New("invalid memory request")
+)
+
 type MemoryStore struct {
 	db *pgxpool.Pool
 }
@@ -24,22 +29,65 @@ func NewMemoryStore(db *pgxpool.Pool) *MemoryStore {
 	return &MemoryStore{db: db}
 }
 
+func (s *MemoryStore) userOwnsPlan(ctx context.Context, q pgxscan.Querier, planID, userID string) (bool, error) {
+	var ownsPlan bool
+	err := pgxscan.Get(ctx, q, &ownsPlan, fmt.Sprintf(`
+		SELECT EXISTS (
+			SELECT 1 FROM %s WHERE plan_id = $1 AND user_id = $2
+			UNION ALL
+			SELECT 1 FROM %s WHERE plan_id = $1 AND user_id = $2
+		)
+	`, HistoryTableName, DonatedPlanTable), planID, userID)
+	return ownsPlan, err
+}
+
 // AddMessage inserts a new message into the memory table and updates the linked list.
 func (s *MemoryStore) AddMessage(ctx context.Context, planID, userID string, role models.Role, content string, previousMessageID *string, planSnapshot *models.Plan) (*models.Message, error) {
+	if planSnapshot != nil && planSnapshot.PlanID != planID {
+		return nil, fmt.Errorf("%w: plan snapshot does not match plan", ErrMemoryValidation)
+	}
+	if role != models.RoleUser && role != models.RoleAI {
+		return nil, fmt.Errorf("%w: unsupported message role", ErrMemoryValidation)
+	}
+	if planID == "" || userID == "" || content == "" {
+		return nil, fmt.Errorf("%w: plan, user, and content are required", ErrMemoryValidation)
+	}
+
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to begin transaction: %w", err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
+	ownsPlan, err := s.userOwnsPlan(ctx, tx, planID, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to verify plan ownership: %w", err)
+	}
+	if !ownsPlan {
+		return nil, ErrMemoryNotFound
+	}
+
 	// If PreviousMessageID is not provided, try to find the last message in the conversation
 	if previousMessageID == nil {
-		lastMsg, err := s.GetLastMessage(ctx, tx, planID)
+		lastMsg, err := s.GetLastMessage(ctx, tx, planID, userID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get last message: %w", err)
 		}
 		if lastMsg != nil {
 			previousMessageID = &lastMsg.ID
+		}
+	} else {
+		var exists bool
+		if err := tx.QueryRow(ctx, fmt.Sprintf(`
+			SELECT EXISTS (
+				SELECT 1 FROM %s
+				WHERE id = $1 AND plan_id = $2 AND user_id = $3
+			)
+		`, MemoryTableName), *previousMessageID, planID, userID).Scan(&exists); err != nil {
+			return nil, fmt.Errorf("failed to verify previous message: %w", err)
+		}
+		if !exists {
+			return nil, ErrMemoryNotFound
 		}
 	}
 
@@ -68,11 +116,14 @@ func (s *MemoryStore) AddMessage(ctx context.Context, planID, userID string, rol
 		updateQuery := fmt.Sprintf(`
 			UPDATE %s
 			SET next_message_id = $1
-			WHERE id = $2
+			WHERE id = $2 AND plan_id = $3 AND user_id = $4
 		`, MemoryTableName)
-		_, err = tx.Exec(ctx, updateQuery, newMessageID, *previousMessageID)
+		result, err := tx.Exec(ctx, updateQuery, newMessageID, *previousMessageID, planID, userID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to update previous message: %w", err)
+		}
+		if result.RowsAffected() != 1 {
+			return nil, ErrMemoryNotFound
 		}
 	}
 
@@ -112,24 +163,37 @@ func (s *MemoryStore) AddMessage(ctx context.Context, planID, userID string, rol
 // Note: For large conversations, we might want to paginate or limit this.
 // For now, we fetch all and sort in Go or use a recursive CTE.
 // Recursive CTE is better for ordering linked lists in SQL.
-func (s *MemoryStore) GetConversation(ctx context.Context, planID string) ([]models.Message, error) {
+func (s *MemoryStore) GetConversation(ctx context.Context, planID, userID string) ([]models.Message, error) {
+	ownsPlan, err := s.userOwnsPlan(ctx, s.db, planID, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to verify plan ownership: %w", err)
+	}
+	if !ownsPlan {
+		return nil, ErrMemoryNotFound
+	}
+
 	query := `
 		WITH RECURSIVE conversation AS (
-			SELECT id, plan_id, user_id, role, content, previous_message_id, next_message_id, plan_snapshot, created_at
+			SELECT id, plan_id, user_id, role, content, previous_message_id, next_message_id, plan_snapshot, created_at, 0 AS depth, ARRAY[id] AS path
 			FROM memory
-			WHERE plan_id = $1 AND previous_message_id IS NULL
+			WHERE plan_id = $1 AND user_id = $2 AND previous_message_id IS NULL
 
 			UNION ALL
 
-			SELECT m.id, m.plan_id, m.user_id, m.role, m.content, m.previous_message_id, m.next_message_id, m.plan_snapshot, m.created_at
+			SELECT m.id, m.plan_id, m.user_id, m.role, m.content, m.previous_message_id, m.next_message_id, m.plan_snapshot, m.created_at, c.depth + 1, c.path || m.id
 			FROM memory m
 			INNER JOIN conversation c ON m.previous_message_id = c.id
+				AND m.plan_id = c.plan_id
+				AND m.user_id = c.user_id
+			WHERE m.plan_id = $1 AND m.user_id = $2 AND NOT m.id = ANY(c.path)
 		)
-		SELECT * FROM conversation;
+		SELECT id, plan_id, user_id, role, content, previous_message_id, next_message_id, plan_snapshot, created_at
+		FROM conversation
+		ORDER BY depth;
 	`
 
-	var messages []models.Message
-	if err := pgxscan.Select(ctx, s.db, &messages, query, planID); err != nil {
+	messages := make([]models.Message, 0)
+	if err := pgxscan.Select(ctx, s.db, &messages, query, planID, userID); err != nil {
 		return nil, fmt.Errorf("failed to get conversation: %w", err)
 	}
 
@@ -138,16 +202,16 @@ func (s *MemoryStore) GetConversation(ctx context.Context, planID string) ([]mod
 
 // GetLastMessage retrieves the last message in the conversation (where next_message_id is NULL).
 // It accepts a querier (tx or pool) to support transactions.
-func (s *MemoryStore) GetLastMessage(ctx context.Context, q pgxscan.Querier, planID string) (*models.Message, error) {
+func (s *MemoryStore) GetLastMessage(ctx context.Context, q pgxscan.Querier, planID, userID string) (*models.Message, error) {
 	query := `
 		SELECT id, plan_id, user_id, role, content, previous_message_id, next_message_id, plan_snapshot, created_at
 		FROM memory
-		WHERE plan_id = $1 AND next_message_id IS NULL
+		WHERE plan_id = $1 AND user_id = $2 AND next_message_id IS NULL
 		LIMIT 1
 	`
 
 	var message models.Message
-	if err := pgxscan.Get(ctx, q, &message, query, planID); err != nil {
+	if err := pgxscan.Get(ctx, q, &message, query, planID, userID); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
@@ -157,10 +221,18 @@ func (s *MemoryStore) GetLastMessage(ctx context.Context, q pgxscan.Querier, pla
 	return &message, nil
 }
 
-// DeleteConversation deletes all messages for a given plan.
-func (s *MemoryStore) DeleteConversation(ctx context.Context, planID string) error {
-	query := fmt.Sprintf(`DELETE FROM %s WHERE plan_id = $1`, MemoryTableName)
-	_, err := s.db.Exec(ctx, query, planID)
+// DeleteConversation deletes all messages for a plan owned by the user.
+func (s *MemoryStore) DeleteConversation(ctx context.Context, planID, userID string) error {
+	ownsPlan, err := s.userOwnsPlan(ctx, s.db, planID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to verify plan ownership: %w", err)
+	}
+	if !ownsPlan {
+		return ErrMemoryNotFound
+	}
+
+	query := fmt.Sprintf(`DELETE FROM %s WHERE plan_id = $1 AND user_id = $2`, MemoryTableName)
+	_, err = s.db.Exec(ctx, query, planID, userID)
 	if err != nil {
 		return fmt.Errorf("failed to delete conversation: %w", err)
 	}
@@ -168,7 +240,7 @@ func (s *MemoryStore) DeleteConversation(ctx context.Context, planID string) err
 }
 
 // DeleteMessage deletes a single message and repairs the linked list.
-func (s *MemoryStore) DeleteMessage(ctx context.Context, messageID string) error {
+func (s *MemoryStore) DeleteMessage(ctx context.Context, messageID, userID string) error {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
@@ -177,35 +249,50 @@ func (s *MemoryStore) DeleteMessage(ctx context.Context, messageID string) error
 
 	// Get the message to be deleted to find its neighbors
 	var msg models.Message
-	query := fmt.Sprintf(`SELECT previous_message_id, next_message_id FROM %s WHERE id = $1`, MemoryTableName)
-	err = tx.QueryRow(ctx, query, messageID).Scan(&msg.PreviousMessageID, &msg.NextMessageID)
+	query := fmt.Sprintf(`
+		SELECT plan_id, user_id, previous_message_id, next_message_id
+		FROM %s WHERE id = $1 AND user_id = $2
+	`, MemoryTableName)
+	err = tx.QueryRow(ctx, query, messageID, userID).Scan(&msg.PlanID, &msg.UserID, &msg.PreviousMessageID, &msg.NextMessageID)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrMemoryNotFound
+		}
 		return fmt.Errorf("failed to get message to delete: %w", err)
 	}
 
 	// Update previous message to point to next message
 	if msg.PreviousMessageID != nil {
-		updatePrev := fmt.Sprintf(`UPDATE %s SET next_message_id = $1 WHERE id = $2`, MemoryTableName)
-		_, err = tx.Exec(ctx, updatePrev, msg.NextMessageID, *msg.PreviousMessageID)
+		updatePrev := fmt.Sprintf(`UPDATE %s SET next_message_id = $1 WHERE id = $2 AND plan_id = $3 AND user_id = $4`, MemoryTableName)
+		result, err := tx.Exec(ctx, updatePrev, msg.NextMessageID, *msg.PreviousMessageID, msg.PlanID, userID)
 		if err != nil {
 			return fmt.Errorf("failed to update previous message: %w", err)
+		}
+		if result.RowsAffected() != 1 {
+			return fmt.Errorf("failed to update previous message: %w", ErrMemoryNotFound)
 		}
 	}
 
 	// Update next message to point to previous message
 	if msg.NextMessageID != nil {
-		updateNext := fmt.Sprintf(`UPDATE %s SET previous_message_id = $1 WHERE id = $2`, MemoryTableName)
-		_, err = tx.Exec(ctx, updateNext, msg.PreviousMessageID, *msg.NextMessageID)
+		updateNext := fmt.Sprintf(`UPDATE %s SET previous_message_id = $1 WHERE id = $2 AND plan_id = $3 AND user_id = $4`, MemoryTableName)
+		result, err := tx.Exec(ctx, updateNext, msg.PreviousMessageID, *msg.NextMessageID, msg.PlanID, userID)
 		if err != nil {
 			return fmt.Errorf("failed to update next message: %w", err)
+		}
+		if result.RowsAffected() != 1 {
+			return fmt.Errorf("failed to update next message: %w", ErrMemoryNotFound)
 		}
 	}
 
 	// Delete the message
-	deleteQuery := fmt.Sprintf(`DELETE FROM %s WHERE id = $1`, MemoryTableName)
-	_, err = tx.Exec(ctx, deleteQuery, messageID)
+	deleteQuery := fmt.Sprintf(`DELETE FROM %s WHERE id = $1 AND plan_id = $2 AND user_id = $3`, MemoryTableName)
+	result, err := tx.Exec(ctx, deleteQuery, messageID, msg.PlanID, userID)
 	if err != nil {
 		return fmt.Errorf("failed to delete message: %w", err)
+	}
+	if result.RowsAffected() != 1 {
+		return ErrMemoryNotFound
 	}
 
 	if err := tx.Commit(ctx); err != nil {
@@ -216,7 +303,7 @@ func (s *MemoryStore) DeleteMessage(ctx context.Context, messageID string) error
 }
 
 // DeleteMessagesAfter deletes the given message and all subsequent messages in the conversation.
-func (s *MemoryStore) DeleteMessagesAfter(ctx context.Context, messageID string) error {
+func (s *MemoryStore) DeleteMessagesAfter(ctx context.Context, messageID, userID string) error {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
@@ -225,60 +312,74 @@ func (s *MemoryStore) DeleteMessagesAfter(ctx context.Context, messageID string)
 
 	// Get the message to find its previous message
 	var msg models.Message
-	query := fmt.Sprintf(`SELECT previous_message_id FROM %s WHERE id = $1`, MemoryTableName)
-	err = tx.QueryRow(ctx, query, messageID).Scan(&msg.PreviousMessageID)
+	query := fmt.Sprintf(`
+		SELECT plan_id, user_id, previous_message_id
+		FROM %s WHERE id = $1 AND user_id = $2
+	`, MemoryTableName)
+	err = tx.QueryRow(ctx, query, messageID, userID).Scan(&msg.PlanID, &msg.UserID, &msg.PreviousMessageID)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrMemoryNotFound
+		}
 		return fmt.Errorf("failed to get message: %w", err)
 	}
+	if msg.PreviousMessageID != nil {
+		var predecessorExists bool
+		if err := tx.QueryRow(ctx, fmt.Sprintf(`
+			SELECT EXISTS (
+				SELECT 1 FROM %s
+				WHERE id = $1 AND plan_id = $2 AND user_id = $3
+			)
+		`, MemoryTableName), *msg.PreviousMessageID, msg.PlanID, userID).Scan(&predecessorExists); err != nil {
+			return fmt.Errorf("failed to verify previous message: %w", err)
+		}
+		if !predecessorExists {
+			return ErrMemoryNotFound
+		}
+	}
 
-	// Recursive query to find all subsequent messages (including the target message)
-	// We start with the target messageID
+	// Recursive query to find all subsequent messages (including the target message).
+	// The path prevents malformed cycles from causing an unbounded query.
 	deleteQuery := fmt.Sprintf(`
 		WITH RECURSIVE chain AS (
-			SELECT id, next_message_id
+			SELECT id, next_message_id, ARRAY[id] AS path
 			FROM %s
-			WHERE id = $1
+			WHERE id = $1 AND plan_id = $2 AND user_id = $3
 
 			UNION ALL
 
-			SELECT m.id, m.next_message_id
+			SELECT m.id, m.next_message_id, c.path || m.id
 			FROM %s m
 			INNER JOIN chain c ON m.previous_message_id = c.id
+			WHERE m.plan_id = $2 AND m.user_id = $3 AND NOT m.id = ANY(c.path)
 		)
-		DELETE FROM %s WHERE id IN (SELECT id FROM chain)
+
+		DELETE FROM %s
+		WHERE plan_id = $2 AND user_id = $3 AND id IN (SELECT id FROM chain)
 	`, MemoryTableName, MemoryTableName, MemoryTableName)
 
-	_, err = tx.Exec(ctx, deleteQuery, messageID)
-	if err != nil {
-		return fmt.Errorf("failed to delete messages chain: %w", err)
-	}
-
-	// Update the previous message's next_message_id to NULL (since it's now the last message)
 	if msg.PreviousMessageID != nil {
-		updatePrev := fmt.Sprintf(`UPDATE %s SET next_message_id = NULL WHERE id = $1`, MemoryTableName)
-		_, err = tx.Exec(ctx, updatePrev, *msg.PreviousMessageID)
+		updatePrev := fmt.Sprintf(`UPDATE %s SET next_message_id = NULL WHERE id = $1 AND plan_id = $2 AND user_id = $3`, MemoryTableName)
+		result, err := tx.Exec(ctx, updatePrev, *msg.PreviousMessageID, msg.PlanID, userID)
 		if err != nil {
 			return fmt.Errorf("failed to update previous message: %w", err)
 		}
+		if result.RowsAffected() != 1 {
+			return fmt.Errorf("failed to update previous message: %w", ErrMemoryNotFound)
+		}
+	}
+
+	result, err := tx.Exec(ctx, deleteQuery, messageID, msg.PlanID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete messages chain: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return ErrMemoryNotFound
 	}
 
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return nil
-}
-
-// UpdateMessage updates the content and/or plan snapshot of a message.
-func (s *MemoryStore) UpdateMessage(ctx context.Context, messageID, content string, planSnapshot *models.Plan) error {
-	query := fmt.Sprintf(`
-		UPDATE %s
-		SET content = $1, plan_snapshot = $2
-		WHERE id = $3
-	`, MemoryTableName)
-	_, err := s.db.Exec(ctx, query, content, planSnapshot, messageID)
-	if err != nil {
-		return fmt.Errorf("failed to update message: %w", err)
-	}
 	return nil
 }

@@ -27,8 +27,20 @@ func (db *RAGDB) ChatWithContext(
 		return nil, nil, fmt.Errorf("plan_id is required for chat interaction")
 	}
 
-	// 1. Retrieve conversation history (limited by config)
-	conversation, err := db.Memory.GetConversation(ctx, planID)
+	// 1. Verify ownership and load the current plan before reading conversation context.
+	var currentPlan *models.Plan
+	plan, err := db.GetPlanForUser(ctx, planID, userID)
+	if err == nil {
+		currentPlan = plan.Plan()
+		logger.Debug("Retrieved existing plan", "plan_id", planID, "title", currentPlan.Title)
+	} else {
+		// If plan doesn't exist, this is an invalid state or id
+		logger.Error("Plan not found despite existing conversation", "plan_id", planID, httplog.ErrAttr(err))
+		return nil, nil, fmt.Errorf("plan must exist for chat interaction: %w", err)
+	}
+
+	// 2. Retrieve conversation history (limited by config).
+	conversation, err := db.Memory.GetConversation(ctx, planID, userID)
 	if err != nil {
 		logger.Error("Failed to retrieve conversation history", httplog.ErrAttr(err))
 		return nil, nil, fmt.Errorf("failed to retrieve conversation: %w", err)
@@ -39,18 +51,6 @@ func (db *RAGDB) ChatWithContext(
 		// Keep only the most recent N messages
 		conversation = conversation[len(conversation)-db.cfg.Chat.HistoryLimit:]
 		logger.Debug("Applied history limit", "total_messages", len(conversation), "limit", db.cfg.Chat.HistoryLimit)
-	}
-
-	// 2. Get current plan state
-	var currentPlan *models.Plan
-	plan, err := db.GetPlan(ctx, planID, SourceOptionPlan)
-	if err == nil {
-		currentPlan = plan.Plan()
-		logger.Debug("Retrieved existing plan", "plan_id", planID, "title", currentPlan.Title)
-	} else {
-		// If plan doesn't exist, this is an invalid state or id
-		logger.Error("Plan not found despite existing conversation", "plan_id", planID, httplog.ErrAttr(err))
-		return nil, nil, fmt.Errorf("plan must exist for chat interaction: %w", err)
 	}
 
 	// 3. Build context

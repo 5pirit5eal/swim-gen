@@ -33,6 +33,24 @@ func (db *RAGDB) GetPlan(ctx context.Context, planID string, source SourceOption
 	return nil, fmt.Errorf("unsupported source option: %s", source)
 }
 
+func (db *RAGDB) GetPlanForUser(ctx context.Context, planID, userID string) (*models.Plan, error) {
+	var plan models.Plan
+	err := pgxscan.Get(ctx, db.Conn, &plan, fmt.Sprintf(`
+		SELECT p.plan_id, p.title, p.description, p.plan_table
+		FROM %s p
+		WHERE p.plan_id = $1
+		  AND EXISTS (
+			SELECT 1 FROM %s h WHERE h.plan_id = p.plan_id AND h.user_id = $2
+			UNION ALL
+			SELECT 1 FROM %s d WHERE d.plan_id = p.plan_id AND d.user_id = $2
+		  )
+	`, PlanTableName, HistoryTableName, DonatedPlanTable), planID, userID)
+	if err != nil {
+		return nil, err
+	}
+	return &plan, nil
+}
+
 func (db *RAGDB) UpsertPlan(ctx context.Context, plan models.Plan, userID string) (string, error) {
 	logger := httplog.LogEntry(ctx)
 
