@@ -1189,7 +1189,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Share a training plan via link or email. Email sharing is not implemented
+      description: Share an owned training plan via link. Email sharing is not implemented
         yet.
       parameters:
       - description: Request to share a training plan
@@ -1211,6 +1211,10 @@ paths:
             type: string
         "401":
           description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Plan not found
           schema:
             type: string
         "500":

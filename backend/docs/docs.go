@@ -985,7 +985,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Share a training plan via link or email. Email sharing is not implemented yet.",
+                "description": "Share an owned training plan via link. Email sharing is not implemented yet.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1022,6 +1022,12 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Plan not found",
                         "schema": {
                             "type": "string"
                         }
