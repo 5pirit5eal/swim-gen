@@ -546,9 +546,9 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 }
 
 // SharePlanHandler handles the request to share a training plan.
-// It generates a shareable url_hash or processes email sharing based on the method provided.
+// It generates a shareable url_hash for an owned plan.
 // @Summary Share a training plan
-// @Description Share a training plan via link or email. Email sharing is not implemented yet.
+// @Description Share an owned training plan via link. Email sharing is not implemented yet.
 // @Tags Training Plans
 // @Accept json
 // @Produce json
@@ -556,10 +556,19 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 // @Success 200 {object} models.SharePlanResponse "Share plan response with URI"
 // @Failure 400 {string} string "Bad request"
 // @Failure 401 {string} string "Unauthorized"
+// @Failure 404 {string} string "Plan not found"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /share-plan [post]
 func (rs *RAGService) SharePlanHandler(w http.ResponseWriter, req *http.Request) {
+	rs.sharePlan(w, req, rs.db.SharePlan)
+}
+
+func (rs *RAGService) sharePlan(
+	w http.ResponseWriter,
+	req *http.Request,
+	share func(context.Context, string, string, models.SharingMethod) (string, error),
+) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Sharing plan...")
 	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
@@ -570,25 +579,34 @@ func (rs *RAGService) SharePlanHandler(w http.ResponseWriter, req *http.Request)
 
 	spr := &models.SharePlanRequest{}
 
-	err := models.GetRequestJSON(req, spr)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := models.GetRequestJSON(req, spr); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
-	if spr.PlanID != "" {
-		httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(spr.PlanID))
+	if _, err := uuid.Parse(spr.PlanID); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
 	}
+	if spr.Method != models.SharingMethodLink {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(spr.PlanID))
 
-	url_hash, err := rs.db.SharePlan(req.Context(), spr.PlanID, userId, spr.Method)
+	urlHash, err := share(req.Context(), spr.PlanID, userId, spr.Method)
 	if err != nil {
+		if errors.Is(err, rag.ErrShareNotFound) || errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "Plan not found", http.StatusNotFound)
+			return
+		}
 		logger.Error("Failed to share plan", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	// Respond with the shareable URI
-	answer := &models.SharePlanResponse{URLHash: url_hash}
-	logger.Info("Plan shared successfully", "uri", url_hash)
+	answer := &models.SharePlanResponse{URLHash: urlHash}
+	logger.Info("Plan shared successfully", "uri", urlHash)
 	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
