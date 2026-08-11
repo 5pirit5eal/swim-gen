@@ -24,13 +24,13 @@ variable "supabase_access_token" {
 variable "model" {
   description = "The model name"
   type        = string
-  default     = "gemini-3.5-flash"
+  default     = "gemini-3.6-flash"
 }
 
 variable "small_model" {
   description = "The small model name"
   type        = string
-  default     = "gemini-3.5-flash-lite"
+  default     = "gemini-3.6-flash-lite"
 }
 
 variable "genai_region" {
