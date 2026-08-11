@@ -353,7 +353,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       title: currentPlan.value.title,
       description: currentPlan.value.description,
       table: tableWithoutIds,
-    })
+    }, initialQuery.value)
 
     if (!addPlanResult.success || !addPlanResult.data) {
       console.error('Failed to add plan to history:', addPlanResult.error)
@@ -363,28 +363,7 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     const newPlanId = addPlanResult.data.plan_id
     currentPlan.value.plan_id = newPlanId
 
-    // 2. Add User Message
-    const userMsgResult = await apiClient.addMessage(newPlanId, 'user', initialQuery.value)
-
-    if (!userMsgResult.success || !userMsgResult.data) {
-      console.error('Failed to add user message:', userMsgResult.error)
-      return
-    }
-
-    // 3. Add Assistant Message (with plan snapshot)
-    await apiClient.addMessage(
-      newPlanId,
-      'ai',
-      currentPlan.value.description,
-      userMsgResult.data.message_id,
-      {
-        ...currentPlan.value,
-        plan_id: newPlanId,
-        table: tableWithoutIds,
-      },
-    )
-
-    // Refresh history and conversation
+    // Refresh history and conversation after the trusted backend creates the initial messages.
     await fetchHistory()
     await fetchConversation(newPlanId)
 
@@ -491,7 +470,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
       content: message,
       created_at: new Date().toISOString(),
       plan_id: currentPlan.value.plan_id,
-      user_id: userStore.user.id,
       previous_message_id: null,
       next_message_id: null,
     }
@@ -513,7 +491,6 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
         content: result.data.response,
         created_at: new Date().toISOString(),
         plan_id: currentPlan.value.plan_id,
-        user_id: userStore.user.id,
         previous_message_id: null,
         next_message_id: null,
         plan_snapshot: result.data.table

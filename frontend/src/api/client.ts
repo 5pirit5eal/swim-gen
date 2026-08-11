@@ -236,13 +236,14 @@ class ApiClient {
    */
   async addPlanToHistory(
     plan: RAGResponse,
+    initialMessage?: string,
   ): Promise<ApiResult<{ message: string; plan_id: string }>> {
     return this._fetch(
       ApiEndpoints.ADD_PLAN_TO_HISTORY,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(plan),
+        body: JSON.stringify({ ...plan, initial_message: initialMessage }),
       },
       this.DEFAULT_TIMEOUT_MS,
       true,
@@ -352,10 +353,8 @@ class ApiClient {
    */
   async addMessage(
     planId: string,
-    role: 'user' | 'ai',
     content: string,
     previousMessageId?: string,
-    planSnapshot?: RAGResponse,
   ): Promise<ApiResult<{ message_id: string }>> {
     return this._fetch<{ message_id: string }>(
       ApiEndpoints.ADD_MESSAGE,
@@ -366,10 +365,8 @@ class ApiClient {
         },
         body: JSON.stringify({
           plan_id: planId,
-          role,
           content,
           previous_message_id: previousMessageId,
-          plan_snapshot: planSnapshot,
         }),
       },
       this.DEFAULT_TIMEOUT_MS,
