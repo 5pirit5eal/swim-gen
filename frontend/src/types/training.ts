@@ -169,10 +169,16 @@ export interface FeedbackRequest {
 
 // Backend API UploadedPlan structure
 export interface UploadedPlan {
-  user_id: string
   plan_id: string
   created_at: string
   title: string
   description: string
   table: Row[]
+}
+
+export type UploadedPlanResponse = Pick<
+  UploadedPlan,
+  'plan_id' | 'created_at' | 'title' | 'description' | 'table'
+> & {
+  allow_sharing: boolean
 }

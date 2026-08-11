@@ -20,6 +20,7 @@ import {
   type FeedbackRequest,
   type DonatePlanRequest,
   type UploadedPlan,
+  type UploadedPlanResponse,
   type Drill,
   type DrillFilterOptions,
   type DrillSearchParams,
@@ -313,7 +314,7 @@ class ApiClient {
   /**
    * Get a specific uploaded plan
    */
-  async getUploadedPlan(planId: string): Promise<ApiResult<UploadedPlan>> {
+  async getUploadedPlan(planId: string): Promise<ApiResult<UploadedPlanResponse>> {
     return this._fetch(
       `${ApiEndpoints.GET_UPLOADS}/${planId}`,
       {

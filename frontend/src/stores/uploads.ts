@@ -84,6 +84,7 @@ export const useUploadStore = defineStore('upload', () => {
     console.debug('[UploadStore] fetchUploadedPlan', { planId })
     isLoading.value = true
     error.value = null
+    currentPlan.value = null
     const result = await apiClient.getUploadedPlan(planId)
     if (result.success && result.data) {
       // Convert DonatedPlan to RAGResponse format for display
