@@ -29,8 +29,6 @@ func (db *RAGDB) GetPlan(ctx context.Context, planID string, source SourceOption
 		return &plan, nil
 	case SourceOptionScraped:
 		return db.GetScrapedPlan(ctx, planID)
-	case SourceOptionDonated:
-		return db.GetUploadedPlan(ctx, planID)
 	}
 	return nil, fmt.Errorf("unsupported source option: %s", source)
 }
