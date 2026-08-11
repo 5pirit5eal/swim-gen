@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -28,7 +27,7 @@ func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Get authenticated user ID
 	userID, ok := req.Context().Value(models.UserIdCtxKey).(string)
-	if !ok {
+	if !ok || userID == "" {
 		logger.Error("User ID not found in context")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -39,7 +38,7 @@ func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 	var chatReq models.ChatRequest
 	if err := json.NewDecoder(req.Body).Decode(&chatReq); err != nil {
 		logger.Error("Failed to decode request body", httplog.ErrAttr(err))
-		http.Error(w, fmt.Sprintf("invalid request body: %v", err), http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 	if chatReq.PlanID != "" {
@@ -72,7 +71,7 @@ func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 	)
 	if err != nil {
 		logger.Error("Failed to process chat interaction", httplog.ErrAttr(err))
-		http.Error(w, fmt.Sprintf("failed to process chat: %v", err), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 

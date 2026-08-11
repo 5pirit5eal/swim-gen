@@ -516,8 +516,22 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 	err = rs.db.AddPlanToHistory(req.Context(), plan.Plan(), userId)
 	if err != nil {
 		logger.Error("Failed to add plan to user history", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
+	}
+
+	if plan.InitialMessage != "" {
+		userMessage, err := rs.db.Memory.AddMessage(req.Context(), plan.PlanID, userId, models.RoleUser, plan.InitialMessage, nil, nil)
+		if err != nil {
+			logger.Error("Failed to add initial user message", httplog.ErrAttr(err))
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		if _, err := rs.db.Memory.AddMessage(req.Context(), plan.PlanID, userId, models.RoleAI, plan.Description, &userMessage.ID, plan.Plan()); err != nil {
+			logger.Error("Failed to add initial AI message", httplog.ErrAttr(err))
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// Respond with success and the new PlanID

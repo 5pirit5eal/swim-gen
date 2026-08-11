@@ -1,10 +1,12 @@
 package server
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/rag"
 	"github.com/go-chi/httplog/v2"
 )
 
@@ -36,7 +38,7 @@ func (rs *RAGService) DeleteMessageHandler(w http.ResponseWriter, req *http.Requ
 	dmr := &models.DeleteMessageRequest{}
 	err := models.GetRequestJSON(req, dmr)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -46,10 +48,14 @@ func (rs *RAGService) DeleteMessageHandler(w http.ResponseWriter, req *http.Requ
 	}
 	httplog.LogEntrySetField(req.Context(), "message_id", slog.StringValue(dmr.MessageID))
 
-	err = rs.db.Memory.DeleteMessage(req.Context(), dmr.MessageID)
+	err = rs.db.Memory.DeleteMessage(req.Context(), dmr.MessageID, userID)
 	if err != nil {
 		logger.Error("Failed to delete message", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if errors.Is(err, rag.ErrMemoryNotFound) {
+			http.Error(w, "Message not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -87,19 +93,29 @@ func (rs *RAGService) AddMessageHandler(w http.ResponseWriter, req *http.Request
 	amr := &models.AddMessageRequest{}
 	err := models.GetRequestJSON(req, amr)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
-
+	if amr.PlanID == "" || amr.Content == "" {
+		http.Error(w, "plan_id and content are required", http.StatusBadRequest)
+		return
+	}
 	var prevMsgID *string
 	if amr.PreviousMessageID != "" {
 		prevMsgID = &amr.PreviousMessageID
 	}
 
-	msg, err := rs.db.Memory.AddMessage(req.Context(), amr.PlanID, userID, amr.Role, amr.Content, prevMsgID, amr.PlanSnapshot.Plan())
+	msg, err := rs.db.Memory.AddMessage(req.Context(), amr.PlanID, userID, models.RoleUser, amr.Content, prevMsgID, nil)
 	if err != nil {
 		logger.Error("Failed to add message", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		switch {
+		case errors.Is(err, rag.ErrMemoryNotFound):
+			http.Error(w, "Plan or previous message not found", http.StatusNotFound)
+		case errors.Is(err, rag.ErrMemoryValidation):
+			http.Error(w, "Invalid message", http.StatusBadRequest)
+		default:
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -140,7 +156,7 @@ func (rs *RAGService) DeleteMessagesAfterHandler(w http.ResponseWriter, req *htt
 	dmar := &models.DeleteMessagesAfterRequest{}
 	err := models.GetRequestJSON(req, dmar)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -150,10 +166,14 @@ func (rs *RAGService) DeleteMessagesAfterHandler(w http.ResponseWriter, req *htt
 	}
 	httplog.LogEntrySetField(req.Context(), "message_id", slog.StringValue(dmar.MessageID))
 
-	err = rs.db.Memory.DeleteMessagesAfter(req.Context(), dmar.MessageID)
+	err = rs.db.Memory.DeleteMessagesAfter(req.Context(), dmar.MessageID, userID)
 	if err != nil {
 		logger.Error("Failed to delete messages after", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if errors.Is(err, rag.ErrMemoryNotFound) {
+			http.Error(w, "Message not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -192,7 +212,7 @@ func (rs *RAGService) DeleteConversationHandler(w http.ResponseWriter, req *http
 	dcr := &models.DeleteConversationRequest{}
 	err := models.GetRequestJSON(req, dcr)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -202,10 +222,14 @@ func (rs *RAGService) DeleteConversationHandler(w http.ResponseWriter, req *http
 	}
 	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(dcr.PlanID))
 
-	err = rs.db.Memory.DeleteConversation(req.Context(), dcr.PlanID)
+	err = rs.db.Memory.DeleteConversation(req.Context(), dcr.PlanID, userID)
 	if err != nil {
 		logger.Error("Failed to delete conversation", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if errors.Is(err, rag.ErrMemoryNotFound) {
+			http.Error(w, "Conversation not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -247,10 +271,14 @@ func (rs *RAGService) GetConversationHandler(w http.ResponseWriter, req *http.Re
 	}
 	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(planID))
 
-	messages, err := rs.db.Memory.GetConversation(req.Context(), planID)
+	messages, err := rs.db.Memory.GetConversation(req.Context(), planID, userID)
 	if err != nil {
 		logger.Error("Failed to get conversation", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if errors.Is(err, rag.ErrMemoryNotFound) {
+			http.Error(w, "Conversation not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -260,7 +288,6 @@ func (rs *RAGService) GetConversationHandler(w http.ResponseWriter, req *http.Re
 		msgPayload := models.MessagePayload{
 			ID:                msg.ID,
 			PlanID:            msg.PlanID,
-			UserID:            msg.UserID,
 			Role:              msg.Role,
 			Content:           msg.Content,
 			PreviousMessageID: msg.PreviousMessageID,
