@@ -47,6 +47,13 @@ jobs:
               with:
                   version: latest
 
+            - name: 🧪 Verify local migrations and RLS policies
+              run: |
+                  supabase start
+                  supabase db reset --yes
+                  supabase test db
+              working-directory: deployments/supabase
+
             - name: 🔗 Link Supabase Project
               env:
                   SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
