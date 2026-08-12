@@ -622,10 +622,19 @@ func (rs *RAGService) sharePlan(
 // @Success 200 {string} string "Feedback submitted successfully"
 // @Failure 400 {string} string "Bad request"
 // @Failure 401 {string} string "Unauthorized"
+// @Failure 404 {string} string "Plan not found"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /feedback [post]
 func (rs *RAGService) FeedbackHandler(w http.ResponseWriter, req *http.Request) {
+	rs.submitFeedback(w, req, rs.db.SubmitFeedback)
+}
+
+func (rs *RAGService) submitFeedback(
+	w http.ResponseWriter,
+	req *http.Request,
+	submit func(context.Context, *models.Feedback) error,
+) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Submitting feedback...")
 	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
@@ -636,9 +645,12 @@ func (rs *RAGService) FeedbackHandler(w http.ResponseWriter, req *http.Request) 
 
 	// Parse HTTP request from JSON.
 	fr := &models.FeedbackRequest{}
-	err := models.GetRequestJSON(req, fr)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := models.GetRequestJSON(req, fr); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	if _, err := uuid.Parse(fr.PlanID); err != nil || fr.Rating < 1 || fr.Rating > 5 || fr.DifficultyRating < 1 || fr.DifficultyRating > 10 {
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 	if fr.PlanID != "" {
@@ -646,33 +658,22 @@ func (rs *RAGService) FeedbackHandler(w http.ResponseWriter, req *http.Request) 
 	}
 
 	feedback := &models.Feedback{
-		UserID:           userId,
-		PlanID:           fr.PlanID,
-		Rating:           fr.Rating,
-		WasSwam:          fr.WasSwam,
-		DifficultyRating: fr.DifficultyRating,
-		Comment:          fr.Comment,
+		UserID:  userId,
+		PlanID:  fr.PlanID,
+		Rating:  fr.Rating,
+		WasSwam: fr.WasSwam,
+		Comment: fr.Comment,
 	}
+	difficultyRating := fr.DifficultyRating
+	feedback.DifficultyRating = &difficultyRating
 
-	// Check if feedback already exists
-	existingFeedback, err := rs.db.GetFeedback(req.Context(), userId, fr.PlanID)
-	if err != nil && !strings.Contains(err.Error(), "no rows in result set") {
-		logger.Error("Error checking for existing feedback", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if existingFeedback != nil {
-		// Update existing feedback
-		err = rs.db.UpdateFeedback(req.Context(), feedback)
-	} else {
-		// Add new feedback
-		err = rs.db.AddFeedback(req.Context(), feedback)
-	}
-
-	if err != nil {
+	if err := submit(req.Context(), feedback); err != nil {
+		if errors.Is(err, rag.ErrFeedbackPlanNotFound) || errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "Plan not found", http.StatusNotFound)
+			return
+		}
 		logger.Error("Failed to submit feedback", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
