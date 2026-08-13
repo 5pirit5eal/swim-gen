@@ -54,8 +54,8 @@ export interface AppState {
   theme: 'light' | 'dark' | 'auto'
 }
 
-// Export user profile type
-export type { Profile } from './profile'
+// Export user profile types
+export type { Profile, ProfileUpdate } from './profile'
 
 // Export miscellaneous types
 export type { HistoryMetadata } from './misc'
