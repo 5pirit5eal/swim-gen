@@ -214,7 +214,7 @@ func (db *RAGDB) SharePlan(ctx context.Context, planID, userID string, method mo
 			return "", fmt.Errorf("failed to share plan: %w", err)
 		}
 
-		logger.Debug("Plan shared successfully", "plan_id", planID, "user_id", userID, "url_hash", urlHash)
+		logger.Debug("Plan shared successfully", "plan_id", planID, "user_id", userID)
 		return urlHash, nil
 	case models.SharingMethodEmail:
 		// proceed

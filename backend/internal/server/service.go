@@ -38,7 +38,7 @@ type RAGService struct {
 // It returns a pointer to the RAGService and an error if any occurred during
 // initialization.
 func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) {
-	slog.Info("Initializing RAG server with config", "cfg", slog.AnyValue(cfg))
+	slog.Info("Initializing RAG server")
 	db, err := rag.NewGoogleAIStore(ctx, cfg)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) 
 	slog.Info("Created database connection successfully")
 	auth, err := supabase.NewClient(cfg.SB.ApiUrl, cfg.SB.AnonKey, nil)
 	if err != nil {
-		fmt.Println("Failed to initialize the client: ", err)
+		slog.Error("Failed to initialize Supabase client")
 	}
 
 	slog.Info("Initialized Supabase client successfully")
@@ -606,7 +606,7 @@ func (rs *RAGService) sharePlan(
 
 	// Respond with the shareable URI
 	answer := &models.SharePlanResponse{URLHash: urlHash}
-	logger.Info("Plan shared successfully", "uri", urlHash)
+	logger.Info("Plan shared successfully")
 	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}

@@ -28,7 +28,7 @@ type RAGDB struct {
 }
 
 func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
-	slog.Info("Initializing Google AI store with config", "cfg", slog.AnyValue(cfg))
+	slog.Info("Initializing Google AI store")
 	// Initialize the LLM client
 	client, err := genai.NewGoogleGenAIClient(ctx, cfg)
 	if err != nil {
@@ -38,12 +38,12 @@ func NewGoogleAIStore(ctx context.Context, cfg config.Config) (*RAGDB, error) {
 	if cfg.DB.Pass == "" {
 		pass, err := GetSecret(ctx, cfg.DB.PassLocation)
 		if err != nil {
-			slog.Error("Failed to get DB password from secret manager", "error", err)
+			slog.Error("Failed to retrieve database secret")
 			return nil, err
 		}
 		cfg.DB.Pass = pass
 	}
-	slog.Info("Got DB password successfully")
+	slog.Info("Database secret loaded successfully")
 
 	// Create an embedder
 	embedder, err := embeddings.NewEmbedder(client)
@@ -110,7 +110,7 @@ func (rag *RAGDB) Close() error {
 // The secret location should be in the format:
 // "projects/{project_id}/secrets/{secret_name}/versions/latest".
 func GetSecret(ctx context.Context, location string) (string, error) {
-	slog.Info("Getting secret from secret manager", "location", location)
+	slog.Debug("Retrieving database secret")
 	// Create a new Secret Manager client
 	// and access the secret version.
 	c, err := secretmanager.NewClient(ctx)
@@ -124,7 +124,7 @@ func GetSecret(ctx context.Context, location string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	slog.Info("Got DB password from secret manager successfully")
+	slog.Debug("Database secret retrieved successfully")
 	// The secret payload is a byte array, so convert it to a string.
 	return string(secret.Payload.Data), nil
 }

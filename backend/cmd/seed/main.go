@@ -6,11 +6,13 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/5pirit5eal/swim-gen/internal/config"
+	"github.com/5pirit5eal/swim-gen/internal/logging"
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/5pirit5eal/swim-gen/internal/rag"
 	"github.com/tmc/langchaingo/schema"
@@ -70,6 +72,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading configuration:", err)
 	}
+	slog.SetDefault(logging.NewTextLogger(os.Stdout, slog.LevelInfo, cfg.DB.Pass, cfg.SB.AnonKey, cfg.SB.ServiceRoleKey))
 
 	// Initialize context
 	ctx := context.Background()
