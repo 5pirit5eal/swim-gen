@@ -11,6 +11,9 @@ drop policy if exists "User can query Donations for Plans" on public.plans;
 drop policy if exists "User can query plans in any shared plans" on public.plans;
 drop policy if exists "Anyone can query plans in any shared plans" on public.plans;
 drop policy if exists "User can query plans in his shared history" on public.plans;
+drop policy if exists "Users can read plans in their history" on public.plans;
+drop policy if exists "Users can read donated plans" on public.plans;
+drop policy if exists "Recipients can read shared plans" on public.plans;
 
 -- Remove direct client writes that could manufacture ownership relationships.
 drop policy if exists "Users can insert their own plan history." on public.history;
@@ -345,8 +348,10 @@ begin
 end;
 $$;
 
-revoke execute on function public.check_request() from public, anon, authenticated;
-grant execute on function public.check_request() to authenticator;
+-- PostgREST invokes db_pre_request under the request role, so API roles need
+-- execute access even though the function itself runs as its definer.
+revoke execute on function public.check_request() from public;
+grant execute on function public.check_request() to anon, authenticated, service_role;
 
 -- Do not let the cleanup job delete plans that still have an active share.
 select cron.unschedule('clean-up-old-plans');

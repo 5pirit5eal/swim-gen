@@ -1,6 +1,6 @@
 begin;
 
-select plan(28);
+select plan(30);
 
 create temporary table test_profile_context (
   owner_id uuid not null,
@@ -30,6 +30,16 @@ from test_profile_context
 select ok(
   not has_table_privilege('anon', 'public.profiles', 'INSERT'),
   'anonymous clients cannot insert profiles'
+);
+
+select ok(
+  has_function_privilege('authenticated', 'public.check_request()', 'EXECUTE'),
+  'authenticated clients can invoke the PostgREST pre-request hook'
+);
+
+select ok(
+  has_function_privilege('service_role', 'public.check_request()', 'EXECUTE'),
+  'trusted backend clients can invoke the PostgREST pre-request hook'
 );
 
 select ok(
