@@ -36,7 +36,7 @@ func (rs *RAGService) SupabaseAuthMiddleware(next http.Handler) http.Handler {
 
 		user, err := rs.auth.Auth.WithToken(token).GetUser()
 		if err != nil {
-			logger.Error("Failed to verify token", httplog.ErrAttr(err), "token", token)
+			logger.Warn("Failed to verify bearer token")
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}

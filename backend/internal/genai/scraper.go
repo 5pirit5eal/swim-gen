@@ -80,7 +80,8 @@ func (gc *GoogleGenAIClient) RestructurePlan(ctx context.Context, plan *models.P
 	var gp models.GeneratedPlan
 	err = json.Unmarshal([]byte(answer.Text()), &gp)
 	if err != nil {
-		logger.Error("Error parsing restructured plan", httplog.ErrAttr(err), "raw_response", answer.Text())
+		logger.Debug("LLM response could not be parsed", "raw_response", answer.Text())
+		logger.Error("Error parsing restructured plan", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error parsing restructured plan: %w", err)
 	}
 	logger.Debug("Restructured plan", "plan", gp.Map())
@@ -147,8 +148,9 @@ func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan *models.
 	var metadata models.Metadata
 	err = json.Unmarshal([]byte(answer.Text()), &metadata)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer.Text())
-		return nil, fmt.Errorf("JSON unmarshal error: %w with raw response %s", err, answer.Text())
+		logger.Debug("LLM response could not be parsed", "raw_response", answer.Text())
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err))
+		return nil, fmt.Errorf("JSON unmarshal error: %w", err)
 	}
 
 	return &metadata, nil
