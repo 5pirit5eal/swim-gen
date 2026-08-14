@@ -2,11 +2,14 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
+	"github.com/5pirit5eal/swim-gen/internal/rag"
 	"github.com/go-chi/httplog/v2"
+	"github.com/google/uuid"
 )
 
 // ChatHandler handles chat-based training plan creation and refinement.
@@ -19,6 +22,8 @@ import (
 // @Param request body models.ChatRequest true "Chat request with message and optional plan ID"
 // @Success 200 {object} models.ChatResponsePayload "Successful chat response with updated plan"
 // @Failure 400 {string} string "Bad request"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 404 {string} string "Plan not found"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /chat [post]
@@ -42,6 +47,10 @@ func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if chatReq.PlanID != "" {
+		if _, err := uuid.Parse(chatReq.PlanID); err != nil {
+			http.Error(w, "Plan not found", http.StatusNotFound)
+			return
+		}
 		httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(chatReq.PlanID))
 	}
 
@@ -71,7 +80,14 @@ func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 	)
 	if err != nil {
 		logger.Error("Failed to process chat interaction", httplog.ErrAttr(err))
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		switch {
+		case errors.Is(err, rag.ErrChatPlanRequired):
+			http.Error(w, "plan_id is required", http.StatusBadRequest)
+		case errors.Is(err, rag.ErrChatPlanNotFound):
+			http.Error(w, "Plan not found", http.StatusNotFound)
+		default:
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
 		return
 	}
 
