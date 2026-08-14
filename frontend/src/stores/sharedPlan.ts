@@ -142,8 +142,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         }
       }
 
-      const sharerUsername =
-        sharedPlanRow.sharer_username || i18n.global.t('shared.unknown_user')
+      const sharerUsername = sharedPlanRow.sharer_username || i18n.global.t('shared.unknown_user')
 
       sharedPlan.value = {
         plan: {
@@ -296,11 +295,11 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
       if (!profileData) throw new Error('User not found')
       if (!item.plan) throw new Error('Plan details not found')
 
-        sharedPlan.value = {
-          plan: item.plan,
-          sharer_username: profileData.username || i18n.global.t('shared.unknown_user'),
-          sharer_id: item.shared_by,
-        }
+      sharedPlan.value = {
+        plan: item.plan,
+        sharer_username: profileData.username || i18n.global.t('shared.unknown_user'),
+        sharer_id: item.shared_by,
+      }
       if (sharedPlan.value?.plan) {
         recalculateAllSums(sharedPlan.value.plan.table)
         ensureRowIds(sharedPlan.value.plan.table)

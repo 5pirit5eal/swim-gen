@@ -349,11 +349,14 @@ export const useTrainingPlanStore = defineStore('trainingPlan', () => {
     // We need to strip _id from table rows
     const tableWithoutIds = stripRowIds(currentPlan.value.table)
 
-    const addPlanResult = await apiClient.addPlanToHistory({
-      title: currentPlan.value.title,
-      description: currentPlan.value.description,
-      table: tableWithoutIds,
-    }, initialQuery.value)
+    const addPlanResult = await apiClient.addPlanToHistory(
+      {
+        title: currentPlan.value.title,
+        description: currentPlan.value.description,
+        table: tableWithoutIds,
+      },
+      initialQuery.value,
+    )
 
     if (!addPlanResult.success || !addPlanResult.data) {
       console.error('Failed to add plan to history:', addPlanResult.error)
