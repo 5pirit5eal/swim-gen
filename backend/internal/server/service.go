@@ -715,13 +715,20 @@ func (rs *RAGService) submitFeedback(
 // @Produce json
 // @Param plan_id path string true "Plan ID to delete"
 // @Success 200 {string} string "Plan deleted successfully"
-// @Failure 400 {string} string "Bad request"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 404 {string} string "Plan not found"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /plan/{plan_id} [delete]
 func (rs *RAGService) DeletePlanHandler(w http.ResponseWriter, req *http.Request) {
+	rs.deletePlan(w, req, rs.db.DeletePlan)
+}
+
+func (rs *RAGService) deletePlan(
+	w http.ResponseWriter,
+	req *http.Request,
+	deleteFn func(context.Context, string, string) error,
+) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Deleting plan...")
 	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
@@ -732,19 +739,23 @@ func (rs *RAGService) DeletePlanHandler(w http.ResponseWriter, req *http.Request
 
 	planID := chi.URLParam(req, "plan_id")
 	if planID == "" {
-		http.Error(w, "Plan ID is required", http.StatusBadRequest)
+		http.Error(w, "Plan not found", http.StatusNotFound)
+		return
+	}
+	if _, err := uuid.Parse(planID); err != nil {
+		http.Error(w, "Plan not found", http.StatusNotFound)
 		return
 	}
 	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(planID))
 
-	err := rs.db.DeletePlan(req.Context(), planID, userId)
+	err := deleteFn(req.Context(), planID, userId)
 	if err != nil {
-		if err.Error() == "plan not found in user history or user does not own the plan" {
-			http.Error(w, err.Error(), http.StatusNotFound)
+		if errors.Is(err, rag.ErrPlanNotFound) || errors.Is(err, pgx.ErrNoRows) || err.Error() == "plan not found in user history or user does not own the plan" {
+			http.Error(w, "Plan not found", http.StatusNotFound)
 			return
 		}
 		logger.Error("Failed to delete plan", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
