@@ -7,16 +7,11 @@ definitions:
         type: string
       plan_id:
         type: string
-      plan_snapshot:
-        $ref: '#/definitions/models.RAGResponse'
       previous_message_id:
         type: string
-      role:
-        $ref: '#/definitions/models.Role'
     required:
     - content
     - plan_id
-    - role
     type: object
   models.AddPlanToHistoryRequest:
     description: Request payload for adding a plan to the authenticated user's history
@@ -24,6 +19,9 @@ definitions:
       description:
         description: Description of the plan
         example: A comprehensive training plan for improving freestyle technique
+        type: string
+      initial_message:
+        description: Initial user message to persist when linking an anonymous plan
         type: string
       plan_id:
         description: PlanID identifies the plan to add to history
@@ -130,28 +128,6 @@ definitions:
         type: string
     required:
     - message_id
-    type: object
-  models.DonatedPlan:
-    properties:
-      allow_sharing:
-        description: AllowSharing indicates if the plan can be used in the RAG system
-        type: boolean
-      created_at:
-        description: CreatedAt is the time the plan was donated as a datetime string
-        type: string
-      description:
-        type: string
-      plan_id:
-        type: string
-      table:
-        description: Table is the table associated with the plan
-        items:
-          $ref: '#/definitions/models.Row'
-        type: array
-      title:
-        type: string
-      user_id:
-        type: string
     type: object
   models.Drill:
     properties:
@@ -289,8 +265,6 @@ definitions:
         type: string
       role:
         $ref: '#/definitions/models.Role'
-      user_id:
-        type: string
     type: object
   models.PlanToPDFRequest:
     description: Request payload for exporting a training plan to PDF format
@@ -495,6 +469,24 @@ definitions:
     required:
     - table
     type: object
+  models.UploadedPlanResponse:
+    properties:
+      allow_sharing:
+        type: boolean
+      created_at:
+        type: string
+      description:
+        type: string
+      plan_id:
+        type: string
+      table:
+        description: A structured training plan table containing exercise rows
+        items:
+          $ref: '#/definitions/models.Row'
+        type: array
+      title:
+        type: string
+    type: object
   models.UpsertPlanRequest:
     description: Request payload for upserting a swim training plan to the system
     properties:
@@ -592,6 +584,10 @@ paths:
           description: Bad request
           schema:
             type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
         "500":
           description: Internal server error
           schema:
@@ -657,6 +653,14 @@ paths:
             $ref: '#/definitions/models.ChatResponsePayload'
         "400":
           description: Bad request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Plan not found
           schema:
             type: string
         "500":
@@ -846,6 +850,14 @@ paths:
             type: string
         "400":
           description: Bad request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Plan not found
           schema:
             type: string
         "500":
@@ -1189,7 +1201,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Share a training plan via link or email. Email sharing is not implemented
+      description: Share an owned training plan via link. Email sharing is not implemented
         yet.
       parameters:
       - description: Request to share a training plan
@@ -1207,6 +1219,14 @@ paths:
             $ref: '#/definitions/models.SharePlanResponse'
         "400":
           description: Bad request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Plan not found
           schema:
             type: string
         "500":
@@ -1230,7 +1250,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.DonatedPlan'
+              $ref: '#/definitions/models.UploadedPlanResponse'
             type: array
         "401":
           description: Unauthorized
@@ -1262,7 +1282,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.DonatedPlan'
+            $ref: '#/definitions/models.UploadedPlanResponse'
         "401":
           description: Unauthorized
           schema:
@@ -1277,7 +1297,7 @@ paths:
             type: string
       security:
       - BearerAuth: []
-      summary: Get a uploaded plan
+      summary: Get an uploaded plan
       tags:
       - Upload
   /upsert-plan:

@@ -28,10 +28,9 @@ type Message struct {
 
 type Memory interface {
 	AddMessage(ctx context.Context, planID, userID string, role Role, content string, previousMessageID *string, planSnapshot *Plan) (*Message, error)
-	GetConversation(ctx context.Context, planID string) ([]Message, error)
-	GetLastMessage(ctx context.Context, q pgxscan.Querier, planID string) (*Message, error)
-	DeleteConversation(ctx context.Context, planID string) error
-	DeleteMessage(ctx context.Context, messageID string) error
-	UpdateMessage(ctx context.Context, messageID, content string, planSnapshot *Plan) error
-	DeleteMessagesAfter(ctx context.Context, messageID string) error
+	GetConversation(ctx context.Context, planID, userID string) ([]Message, error)
+	GetLastMessage(ctx context.Context, q pgxscan.Querier, planID, userID string) (*Message, error)
+	DeleteConversation(ctx context.Context, planID, userID string) error
+	DeleteMessage(ctx context.Context, messageID, userID string) error
+	DeleteMessagesAfter(ctx context.Context, messageID, userID string) error
 }

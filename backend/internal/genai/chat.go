@@ -76,7 +76,8 @@ func (gc *GoogleGenAIClient) ChatRefine(
 	var chatResponse models.ChatResponse
 	err = json.Unmarshal([]byte(answer.Text()), &chatResponse)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer.Text())
+		logger.Debug("LLM response could not be parsed", "raw_response", answer.Text())
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 

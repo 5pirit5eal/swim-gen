@@ -6,7 +6,6 @@ export type Role = 'user' | 'ai'
 export interface Message {
   id: string
   plan_id: string
-  user_id: string
   role: Role
   content: string
   previous_message_id: string | null

@@ -9,6 +9,7 @@ import type { Mock } from 'vitest'
 const { mockSupabase } = vi.hoisted(() => {
   const mockSupabase = {
     from: vi.fn(),
+    rpc: vi.fn(),
     select: vi.fn(),
     order: vi.fn(),
     in: vi.fn(),
@@ -22,6 +23,7 @@ const { mockSupabase } = vi.hoisted(() => {
   }
 
   mockSupabase.from.mockReturnValue(mockSupabase)
+  mockSupabase.rpc.mockResolvedValue({ data: null, error: null })
   mockSupabase.select.mockReturnValue(mockSupabase)
   mockSupabase.order.mockReturnValue(mockSupabase)
   mockSupabase.in.mockReturnValue(mockSupabase)
@@ -74,6 +76,7 @@ vi.mock('@/stores/trainingPlan', () => ({
 const mockedApiUpsertPlan = apiClient.upsertPlan as Mock
 const mockedSupabase = supabase as unknown as {
   from: Mock
+  rpc: Mock
   select: Mock
   order: Mock
   in: Mock
@@ -97,6 +100,7 @@ describe('sharedPlan Store', () => {
 
     // Restore default chaining
     mockedSupabase.from.mockReturnValue(mockedSupabase)
+    mockedSupabase.rpc.mockResolvedValue({ data: null, error: null })
     mockedSupabase.select.mockReturnValue(mockedSupabase)
     mockedSupabase.order.mockReturnValue(mockedSupabase)
     mockedSupabase.in.mockReturnValue(mockedSupabase)
@@ -121,58 +125,61 @@ describe('sharedPlan Store', () => {
   describe('fetchSharedPlanByHash', () => {
     it('fetches a shared plan successfully', async () => {
       const store = useSharedPlanStore()
-      const mockSharedPlanData = { plan_id: 'test-plan-id', user_id: 'test-sharer-id' }
-      const mockPlanData = {
+      const mockSharedPlanData = {
         plan_id: 'test-plan-id',
+        sharer_id: 'test-sharer-id',
+        sharer_username: 'Test User',
         title: 'Test Plan',
         description: 'Desc',
         plan_table: [],
       }
-      const mockProfileData = { username: 'Test User' }
 
-      const createMockChain = (data: unknown = null, error: unknown = null) => {
-        const chain: Record<string, Mock> = {
-          select: vi.fn().mockReturnThis(),
-          eq: vi.fn().mockReturnThis(),
-          in: vi.fn().mockReturnThis(),
-          order: vi.fn().mockReturnThis(),
-          range: vi.fn().mockReturnThis(),
-          limit: vi.fn().mockReturnThis(),
-          update: vi.fn().mockReturnThis(),
-          insert: vi.fn().mockReturnThis(),
-          single: vi.fn().mockResolvedValue({ data, error }),
-          maybeSingle: vi.fn().mockResolvedValue({ data, error }),
+      mockedSupabase.rpc.mockImplementation((name: string) => {
+        if (name === 'get_shared_plan_by_hash') {
+          return Promise.resolve({ data: [mockSharedPlanData], error: null })
         }
-        return chain
-      }
-
+        return Promise.resolve({ data: null, error: null })
+      })
       mockedSupabase.from.mockImplementation((tableName: string) => {
-        if (tableName === 'shared_plans') {
-          return createMockChain(mockSharedPlanData)
+        if (tableName === 'shared_history') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            order: vi.fn().mockReturnThis(),
+            range: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
         }
         if (tableName === 'plans') {
-          return createMockChain(mockPlanData)
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }
         }
-        if (tableName === 'profiles') {
-          return createMockChain(mockProfileData)
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: null, error: null }),
         }
-        if (tableName === 'shared_history') {
-          return createMockChain(null)
-        }
-        return createMockChain()
       })
 
       await store.fetchSharedPlanByHash('test-hash')
 
       expect(store.sharedPlan).toEqual({
         plan: {
-          plan_id: mockPlanData.plan_id,
-          title: mockPlanData.title,
-          description: mockPlanData.description,
-          table: mockPlanData.plan_table,
+          plan_id: mockSharedPlanData.plan_id,
+          title: mockSharedPlanData.title,
+          description: mockSharedPlanData.description,
+          table: mockSharedPlanData.plan_table,
         },
-        sharer_username: mockProfileData.username,
-        sharer_id: mockSharedPlanData.user_id,
+        sharer_username: mockSharedPlanData.sharer_username,
+        sharer_id: mockSharedPlanData.sharer_id,
+      })
+      expect(mockedSupabase.rpc).toHaveBeenCalledWith('get_shared_plan_by_hash', {
+        p_url_hash: 'test-hash',
+      })
+      expect(mockedSupabase.rpc).toHaveBeenCalledWith('record_shared_plan', {
+        p_url_hash: 'test-hash',
+        p_share_method: 'link',
       })
       expect(store.error).toBeNull()
       expect(store.isLoading).toBe(false)
@@ -180,11 +187,7 @@ describe('sharedPlan Store', () => {
 
     it('handles plan not found error', async () => {
       const store = useSharedPlanStore()
-      mockedSupabase.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: null, error: new Error('Not found') }),
-      })
+      mockedSupabase.rpc.mockResolvedValue({ data: [], error: null })
 
       await store.fetchSharedPlanByHash('invalid-hash')
 
@@ -238,6 +241,32 @@ describe('sharedPlan Store', () => {
       expect(store.sharedHistory).toHaveLength(1)
       expect(store.sharedHistory[0]!.plan?.title).toBe('Plan 1')
       expect(store.isLoading).toBe(false)
+    })
+
+    it('records a shared plan through the hash-scoped RPC', async () => {
+      const store = useSharedPlanStore()
+      const sharedPlanData = {
+        plan_id: 'plan-1',
+        sharer_id: 'sharer-1',
+        sharer_username: 'Sharer',
+        title: 'Plan 1',
+        description: 'Desc 1',
+        plan_table: [],
+      }
+
+      mockedSupabase.rpc.mockImplementation((name: string) => {
+        if (name === 'get_shared_plan_by_hash') {
+          return Promise.resolve({ data: [sharedPlanData], error: null })
+        }
+        return Promise.resolve({ data: [], error: null })
+      })
+
+      await store.fetchSharedPlanByHash('share-hash')
+
+      expect(mockedSupabase.rpc).toHaveBeenCalledWith('record_shared_plan', {
+        p_url_hash: 'share-hash',
+        p_share_method: 'link',
+      })
     })
   })
 

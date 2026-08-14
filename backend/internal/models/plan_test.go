@@ -1,11 +1,43 @@
 package models_test
 
 import (
+	"encoding/json"
+	"reflect"
 	"testing"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestDonatedPlanJSONDoesNotExposeUserID(t *testing.T) {
+	encoded, err := json.Marshal(models.DonatedPlan{
+		UserID: "private-user-id",
+		PlanID: "plan-id",
+		Table:  models.Table{},
+	})
+	require.NoError(t, err)
+	assert.NotContains(t, string(encoded), "user_id")
+	assert.NotContains(t, string(encoded), "private-user-id")
+}
+
+func TestUploadedPlanResponseDatabaseColumns(t *testing.T) {
+	typeOfResponse := reflect.TypeOf(models.UploadedPlanResponse{})
+	expected := map[string]string{
+		"PlanID":       "plan_id",
+		"CreatedAt":    "created_at",
+		"Title":        "title",
+		"Description":  "description",
+		"Table":        "plan_table",
+		"AllowSharing": "allow_sharing",
+	}
+
+	for fieldName, columnName := range expected {
+		field, ok := typeOfResponse.FieldByName(fieldName)
+		require.True(t, ok, "missing field %s", fieldName)
+		assert.Equal(t, columnName, field.Tag.Get("db"), "unexpected database mapping for %s", fieldName)
+	}
+}
 
 func TestUpdateSum(t *testing.T) {
 	table := models.Table{

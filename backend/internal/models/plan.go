@@ -28,7 +28,7 @@ type Planable interface {
 }
 
 type DonatedPlan struct {
-	UserID string `db:"user_id" json:"user_id"`
+	UserID string `db:"user_id" json:"-"`
 	PlanID string `db:"plan_id" json:"plan_id"`
 	// CreatedAt is the time the plan was donated as a datetime string
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
@@ -38,6 +38,17 @@ type DonatedPlan struct {
 	Table Table `db:"plan_table" json:"table"`
 	// AllowSharing indicates if the plan can be used in the RAG system
 	AllowSharing bool `db:"allow_sharing" json:"allow_sharing"`
+}
+
+// UploadedPlanResponse is the public representation of an uploaded plan.
+// Ownership is enforced by the query and is not exposed to API clients.
+type UploadedPlanResponse struct {
+	PlanID       string    `db:"plan_id" json:"plan_id"`
+	CreatedAt    time.Time `db:"created_at" json:"created_at"`
+	Title        string    `db:"title" json:"title"`
+	Description  string    `db:"description" json:"description"`
+	Table        Table     `db:"plan_table" json:"table"`
+	AllowSharing bool      `db:"allow_sharing" json:"allow_sharing"`
 }
 
 func (d *DonatedPlan) Map() map[string]any {

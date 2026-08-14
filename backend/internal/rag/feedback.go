@@ -2,6 +2,7 @@ package rag
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
@@ -11,43 +12,32 @@ import (
 
 const FeedbackTable string = "feedback"
 
-// Add user feedback for an existing plan to the database
-func (db *RAGDB) AddFeedback(ctx context.Context, feedback *models.Feedback) error {
-	logger := httplog.LogEntry(ctx)
+var ErrFeedbackPlanNotFound = errors.New("feedback plan not found")
 
-	// Create a new feedback entry in the database using the struct fields
-	_, err := db.Conn.Exec(ctx,
-		fmt.Sprintf("INSERT INTO %s (user_id, plan_id, rating, was_swam, difficulty_rating, comment) VALUES ($1, $2, $3, $4, $5, $6)", FeedbackTable),
-		feedback.UserID, feedback.PlanID, feedback.Rating, feedback.WasSwam, feedback.DifficultyRating, feedback.Comment)
+const feedbackColumns = `user_id, plan_id, rating, comment, created_at, updated_at, was_swam, difficulty_rating, coalesce(removed_from_history, false) as removed_from_history`
+
+// SubmitFeedback atomically authorizes and upserts feedback for a plan.
+func (db *RAGDB) SubmitFeedback(ctx context.Context, feedback *models.Feedback) error {
+	logger := httplog.LogEntry(ctx)
+	var difficultyRating any
+	if feedback.DifficultyRating != nil {
+		difficultyRating = *feedback.DifficultyRating
+	}
+
+	var submitted bool
+	err := db.Conn.QueryRow(ctx, `
+		select public.submit_feedback($1, $2, $3, $4, $5, $6)
+	`, feedback.UserID, feedback.PlanID, feedback.Rating, feedback.WasSwam, difficultyRating, feedback.Comment).Scan(&submitted)
 	if err != nil {
-		logger.Error("Error creating feedback", httplog.ErrAttr(err))
+		logger.Error("Error submitting feedback", httplog.ErrAttr(err))
 		return err
 	}
-	logger.Debug("Feedback created successfully", "feedback", feedback)
-	return nil
-}
-
-// Get user feedback for a plan from the database
-func (db *RAGDB) GetFeedback(ctx context.Context, userID string, planID string) (*models.Feedback, error) {
-	logger := httplog.LogEntry(ctx)
-
-	// Query the database for the feedback with the given user ID and plan ID
-	var feedback models.Feedback
-	err := db.Conn.QueryRow(ctx, fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1 AND plan_id = $2", FeedbackTable), userID, planID).Scan(
-		&feedback.UserID,
-		&feedback.PlanID,
-		&feedback.Rating,
-		&feedback.Comment,
-		&feedback.CreatedAt,
-		&feedback.UpdatedAt,
-		&feedback.WasSwam,
-		&feedback.DifficultyRating,
-	)
-	if err != nil {
-		logger.Error("Error querying feedback", httplog.ErrAttr(err))
-		return nil, err
+	if !submitted {
+		return ErrFeedbackPlanNotFound
 	}
-	return &feedback, nil
+
+	logger.Debug("Feedback submitted successfully", "plan_id", feedback.PlanID)
+	return nil
 }
 
 // Get all feedback for a plan from the database
@@ -56,7 +46,7 @@ func (db *RAGDB) GetAllFeedbackForPlan(ctx context.Context, planID string) ([]*m
 
 	// Query the database for all feedback for the given plan ID
 	var feedbacks []*models.Feedback
-	err := pgxscan.Select(ctx, db.Conn, &feedbacks, fmt.Sprintf("SELECT * FROM %s WHERE plan_id = $1", FeedbackTable), planID)
+	err := pgxscan.Select(ctx, db.Conn, &feedbacks, fmt.Sprintf("SELECT %s FROM %s WHERE plan_id = $1", feedbackColumns, FeedbackTable), planID)
 	if err != nil {
 		logger.Error("Error querying feedback", httplog.ErrAttr(err))
 		return nil, err
@@ -70,27 +60,12 @@ func (db *RAGDB) GetAllFeedbackFromUser(ctx context.Context, userID string) ([]*
 
 	// Query the database for all feedback from the given user ID
 	var feedbacks []*models.Feedback
-	err := pgxscan.Select(ctx, db.Conn, &feedbacks, fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1", FeedbackTable), userID)
+	err := pgxscan.Select(ctx, db.Conn, &feedbacks, fmt.Sprintf("SELECT %s FROM %s WHERE user_id = $1", feedbackColumns, FeedbackTable), userID)
 	if err != nil {
 		logger.Error("Error querying feedback", httplog.ErrAttr(err))
 		return nil, err
 	}
 	return feedbacks, nil
-}
-
-// Update user feedback for a plan in the database
-func (db *RAGDB) UpdateFeedback(ctx context.Context, feedback *models.Feedback) error {
-	logger := httplog.LogEntry(ctx)
-
-	// Update the feedback entry in the database using the struct fields
-	_, err := db.Conn.Exec(ctx, fmt.Sprintf("UPDATE %s SET rating = $1, was_swam = $2, difficulty_rating = $3, comment = $4 WHERE user_id = $5 AND plan_id = $6", FeedbackTable),
-		feedback.Rating, feedback.WasSwam, feedback.DifficultyRating, feedback.Comment, feedback.UserID, feedback.PlanID)
-	if err != nil {
-		logger.Error("Error updating feedback", httplog.ErrAttr(err))
-		return err
-	}
-	logger.Debug("Feedback updated successfully", "feedback", feedback)
-	return nil
 }
 
 // Delete user feedback for a plan from the database

@@ -56,6 +56,12 @@ describe('uploads Store', () => {
 
   it('handles fetch error', async () => {
     const store = useUploadStore()
+    store.currentPlan = {
+      plan_id: 'previous',
+      title: 'Previous plan',
+      description: '',
+      table: [],
+    }
     ;(apiClient.getUploadedPlan as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       success: false,
       error: { message: 'Not found' },
@@ -65,5 +71,6 @@ describe('uploads Store', () => {
 
     expect(result).toBe(false)
     expect(store.error).toBe('Not found')
+    expect(store.currentPlan).toBeNull()
   })
 })

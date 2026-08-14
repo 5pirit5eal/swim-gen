@@ -18,8 +18,6 @@ const (
 	SourceOptionPlan SourceOption = "plan"
 	// SourceOptionScraped indicates that the source is a scraped plan.
 	SourceOptionScraped SourceOption = "scraped"
-	// SourceOptionDonated indicates that the source is a donated plan.
-	SourceOptionDonated SourceOption = "donated"
 )
 
 // Query searches for documents in the database based on the provided query and filter.

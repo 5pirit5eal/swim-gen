@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/5pirit5eal/swim-gen/internal/config"
+	"github.com/5pirit5eal/swim-gen/internal/logging"
 	"github.com/5pirit5eal/swim-gen/internal/rag"
 )
 
@@ -95,9 +96,5 @@ func setupLogger(cfg config.Config) (*slog.Logger, error) {
 		level = slog.LevelInfo
 	}
 
-	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level: level,
-	})
-
-	return slog.New(handler), nil
+	return logging.NewTextLogger(os.Stdout, level, cfg.DB.Pass, cfg.SB.AnonKey, cfg.SB.ServiceRoleKey), nil
 }

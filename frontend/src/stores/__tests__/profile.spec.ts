@@ -101,8 +101,9 @@ describe('Profile Store', () => {
       categories: ['Swimmer'],
     }
 
+    const update = vi.fn().mockReturnThis()
     mockedSupabase.from.mockReturnValue({
-      update: vi.fn().mockReturnThis(),
+      update,
       eq: vi.fn().mockReturnThis(),
       select: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({ data: mockUpdatedProfile, error: null }),
@@ -111,5 +112,6 @@ describe('Profile Store', () => {
     await profileStore.updateProfile(updatedProfileData)
 
     expect(profileStore.profile).toEqual(mockUpdatedProfile)
+    expect(update).toHaveBeenCalledWith(updatedProfileData)
   })
 })

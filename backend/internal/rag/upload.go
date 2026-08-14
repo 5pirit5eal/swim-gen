@@ -2,11 +2,13 @@ package rag
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
+	"github.com/jackc/pgx/v5"
 )
 
 const DonatedPlanTable string = "donations"
@@ -54,14 +56,14 @@ func (db *RAGDB) AddUploadedPlan(ctx context.Context, upload *models.DonatedPlan
 }
 
 // Get uploaded plans for a user
-func (db *RAGDB) GetUploadedPlans(ctx context.Context, userID string) ([]*models.DonatedPlan, error) {
+func (db *RAGDB) GetUploadedPlans(ctx context.Context, userID string) ([]*models.UploadedPlanResponse, error) {
 	logger := httplog.LogEntry(ctx)
 
 	// Query the database for the uploaded plans
-	var plans []*models.DonatedPlan
+	var plans []*models.UploadedPlanResponse
 	err := pgxscan.Select(ctx, db.Conn, &plans,
 		fmt.Sprintf(`
-			SELECT dp.user_id, dp.plan_id, dp.created_at, dp.allow_sharing, p.title, p.description, p.plan_table
+			SELECT dp.plan_id, dp.created_at, dp.allow_sharing, p.title, p.description, p.plan_table
 			FROM %s dp
 			JOIN %s p ON dp.plan_id = p.plan_id
 			WHERE dp.user_id = $1
@@ -72,30 +74,33 @@ func (db *RAGDB) GetUploadedPlans(ctx context.Context, userID string) ([]*models
 	}
 
 	if len(plans) == 0 {
-		plans = []*models.DonatedPlan{}
+		plans = []*models.UploadedPlanResponse{}
 	}
 
 	logger.Debug("Uploaded plans retrieved successfully", "count", len(plans))
 	return plans, nil
 }
 
-// Get a single uploaded plan by plan ID
-func (db *RAGDB) GetUploadedPlan(ctx context.Context, planID string) (*models.DonatedPlan, error) {
+// Get a single uploaded plan owned by a user.
+func (db *RAGDB) GetUploadedPlan(ctx context.Context, planID, userID string) (*models.UploadedPlanResponse, error) {
 	logger := httplog.LogEntry(ctx)
 
 	// Query the database for the uploaded plan
-	var plan models.DonatedPlan
+	var plan models.UploadedPlanResponse
 	err := pgxscan.Get(ctx, db.Conn, &plan,
 		fmt.Sprintf(`
-			SELECT dp.user_id, dp.plan_id, dp.created_at, dp.allow_sharing, p.title, p.description, p.plan_table
+			SELECT dp.plan_id, dp.created_at, dp.allow_sharing, p.title, p.description, p.plan_table
 			FROM %s dp
 			JOIN %s p ON dp.plan_id = p.plan_id
-			WHERE dp.plan_id = $1`, DonatedPlanTable, PlanTableName), planID)
+			WHERE dp.plan_id = $1
+			  AND dp.user_id = $2`, DonatedPlanTable, PlanTableName), planID, userID)
 	if err != nil {
-		logger.Error("Error querying uploaded plan", httplog.ErrAttr(err))
+		if !errors.Is(err, pgx.ErrNoRows) {
+			logger.Error("Error querying uploaded plan", httplog.ErrAttr(err))
+		}
 		return nil, err
 	}
 
-	logger.Debug("Uploaded plan retrieved successfully", "plan", plan)
+	logger.Debug("Uploaded plan retrieved successfully", "plan_id", plan.PlanID)
 	return &plan, nil
 }

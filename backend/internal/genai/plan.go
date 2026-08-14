@@ -57,7 +57,8 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProf
 	var p models.GeneratedPlan
 	err = json.Unmarshal([]byte(answer.Text()), &p)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer.Text())
+		logger.Debug("LLM response could not be parsed", "raw_response", answer.Text())
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 	p.Table.FlattenSingleParentRow()
@@ -96,7 +97,8 @@ func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q, lang string, poo
 	var cr models.ChoiceResult
 	err = json.Unmarshal([]byte(answer.Text()), &cr)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)
+		logger.Debug("LLM response could not be parsed", "raw_response", answer.Text())
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err))
 		return "", fmt.Errorf("error parsing LLM response: %w", err)
 	}
 	planID, ok := docs[cr.Idx].Metadata["plan_id"]
@@ -128,7 +130,8 @@ func (gc *GoogleGenAIClient) DescribeTable(ctx context.Context, table *models.Ta
 	var desc models.Description
 	err = json.Unmarshal([]byte(answer.Text()), &desc)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer.Text())
+		logger.Debug("LLM response could not be parsed", "raw_response", answer.Text())
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 	return &desc, nil
@@ -165,7 +168,8 @@ func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.Pla
 	var gp models.GeneratedPlan
 	err = json.Unmarshal([]byte(answer.Text()), &gp)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer.Text())
+		logger.Debug("LLM response could not be parsed", "raw_response", answer.Text())
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 	gp.Table.FlattenSingleParentRow()
@@ -214,7 +218,8 @@ func (gc *GoogleGenAIClient) FileToPlan(ctx context.Context, file []byte, filena
 	var p models.GeneratedPlan
 	err = json.Unmarshal([]byte(answer.Text()), &p)
 	if err != nil {
-		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer.Text())
+		logger.Debug("LLM response could not be parsed", "raw_response", answer.Text())
+		logger.Error("Error parsing LLM response", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error parsing LLM response: %w", err)
 	}
 	p.Table.FlattenSingleParentRow()

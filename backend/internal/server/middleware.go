@@ -28,16 +28,16 @@ func (rs *RAGService) SupabaseAuthMiddleware(next http.Handler) http.Handler {
 
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			logger.Debug("Invalid authorization header format", "header", authHeader)
-			http.Error(w, "Invalid authorization header", http.StatusUnauthorized)
+			logger.Debug("Invalid authorization header format")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 		token := parts[1]
 
 		user, err := rs.auth.Auth.WithToken(token).GetUser()
 		if err != nil {
-			logger.Error("Failed to verify token", httplog.ErrAttr(err), "token", token)
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			logger.Warn("Failed to verify bearer token")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 

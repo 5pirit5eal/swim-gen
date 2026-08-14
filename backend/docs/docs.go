@@ -61,6 +61,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -160,6 +166,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Plan not found",
                         "schema": {
                             "type": "string"
                         }
@@ -445,6 +463,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Plan not found",
                         "schema": {
                             "type": "string"
                         }
@@ -973,7 +1003,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Share a training plan via link or email. Email sharing is not implemented yet.",
+                "description": "Share an owned training plan via link. Email sharing is not implemented yet.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1004,6 +1034,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Plan not found",
                         "schema": {
                             "type": "string"
                         }
@@ -1041,7 +1083,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.DonatedPlan"
+                                "$ref": "#/definitions/models.UploadedPlanResponse"
                             }
                         }
                     },
@@ -1077,7 +1119,7 @@ const docTemplate = `{
                 "tags": [
                     "Upload"
                 ],
-                "summary": "Get a uploaded plan",
+                "summary": "Get an uploaded plan",
                 "parameters": [
                     {
                         "type": "string",
@@ -1091,7 +1133,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DonatedPlan"
+                            "$ref": "#/definitions/models.UploadedPlanResponse"
                         }
                     },
                     "401": {
@@ -1213,8 +1255,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "content",
-                "plan_id",
-                "role"
+                "plan_id"
             ],
             "properties": {
                 "content": {
@@ -1223,14 +1264,8 @@ const docTemplate = `{
                 "plan_id": {
                     "type": "string"
                 },
-                "plan_snapshot": {
-                    "$ref": "#/definitions/models.RAGResponse"
-                },
                 "previous_message_id": {
                     "type": "string"
-                },
-                "role": {
-                    "$ref": "#/definitions/models.Role"
                 }
             }
         },
@@ -1248,6 +1283,10 @@ const docTemplate = `{
                     "description": "Description of the plan",
                     "type": "string",
                     "example": "A comprehensive training plan for improving freestyle technique"
+                },
+                "initial_message": {
+                    "description": "Initial user message to persist when linking an anonymous plan",
+                    "type": "string"
                 },
                 "plan_id": {
                     "description": "PlanID identifies the plan to add to history",
@@ -1385,38 +1424,6 @@ const docTemplate = `{
                     "description": "MessageID identifies the message from which to delete (inclusive)",
                     "type": "string",
                     "example": "msg_123"
-                }
-            }
-        },
-        "models.DonatedPlan": {
-            "type": "object",
-            "properties": {
-                "allow_sharing": {
-                    "description": "AllowSharing indicates if the plan can be used in the RAG system",
-                    "type": "boolean"
-                },
-                "created_at": {
-                    "description": "CreatedAt is the time the plan was donated as a datetime string",
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "plan_id": {
-                    "type": "string"
-                },
-                "table": {
-                    "description": "Table is the table associated with the plan",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Row"
-                    }
-                },
-                "title": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
                 }
             }
         },
@@ -1614,9 +1621,6 @@ const docTemplate = `{
                 },
                 "role": {
                     "$ref": "#/definitions/models.Role"
-                },
-                "user_id": {
-                    "type": "string"
                 }
             }
         },
@@ -1896,6 +1900,33 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Advanced Freestyle Training"
+                }
+            }
+        },
+        "models.UploadedPlanResponse": {
+            "type": "object",
+            "properties": {
+                "allow_sharing": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "table": {
+                    "description": "A structured training plan table containing exercise rows",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Row"
+                    }
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },

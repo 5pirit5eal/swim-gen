@@ -2,18 +2,22 @@ package rag
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 const (
 	HistoryTableName string = "history"
 	PlanTableName    string = "plans"
 )
+
+var ErrShareNotFound = errors.New("shareable plan not found")
 
 func (db *RAGDB) GetPlan(ctx context.Context, planID string, source SourceOption) (models.Planable, error) {
 	logger := httplog.LogEntry(ctx)
@@ -29,10 +33,26 @@ func (db *RAGDB) GetPlan(ctx context.Context, planID string, source SourceOption
 		return &plan, nil
 	case SourceOptionScraped:
 		return db.GetScrapedPlan(ctx, planID)
-	case SourceOptionDonated:
-		return db.GetUploadedPlan(ctx, planID)
 	}
 	return nil, fmt.Errorf("unsupported source option: %s", source)
+}
+
+func (db *RAGDB) GetPlanForUser(ctx context.Context, planID, userID string) (*models.Plan, error) {
+	var plan models.Plan
+	err := pgxscan.Get(ctx, db.Conn, &plan, fmt.Sprintf(`
+		SELECT p.plan_id, p.title, p.description, p.plan_table
+		FROM %s p
+		WHERE p.plan_id = $1
+		  AND EXISTS (
+			SELECT 1 FROM %s h WHERE h.plan_id = p.plan_id AND h.user_id = $2
+			UNION ALL
+			SELECT 1 FROM %s d WHERE d.plan_id = p.plan_id AND d.user_id = $2
+		  )
+	`, PlanTableName, HistoryTableName, DonatedPlanTable), planID, userID)
+	if err != nil {
+		return nil, err
+	}
+	return &plan, nil
 }
 
 func (db *RAGDB) UpsertPlan(ctx context.Context, plan models.Plan, userID string) (string, error) {
@@ -164,29 +184,37 @@ func (db *RAGDB) AddPlanToHistory(ctx context.Context, plan *models.Plan, userID
 func (db *RAGDB) SharePlan(ctx context.Context, planID, userID string, method models.SharingMethod) (string, error) {
 	logger := httplog.LogEntry(ctx)
 
-	// Calculate a short uuid for the shared plan based on planID and userID
-	urlHash := uuid.NewSHA1(uuid.NameSpaceURL, []byte(planID+userID)).String()
-
 	switch method {
 	case models.SharingMethodLink:
-		// Insert the shared plan into the shared_plans table
+		// Authorize and create the share in one statement. A conflict only
+		// returns the existing link when it belongs to the same user.
+		urlHash := uuid.NewSHA1(uuid.NameSpaceURL, []byte(planID+userID)).String()
 		row := db.Conn.QueryRow(ctx,
-			fmt.Sprintf(`
-                INSERT INTO %s (user_id, plan_id, url_hash)
-                VALUES ($1, $2, $3)
-                ON CONFLICT (plan_id) DO UPDATE
-                SET url_hash = %s.url_hash
-                RETURNING url_hash
-            `, "shared_plans", "shared_plans"),
+			`INSERT INTO shared_plans (user_id, plan_id, url_hash)
+			 SELECT $1, $2, $3
+			 WHERE EXISTS (
+				 SELECT 1 FROM history
+				 WHERE history.plan_id = $2 AND history.user_id = $1
+				 UNION ALL
+				 SELECT 1 FROM donations
+				 WHERE donations.plan_id = $2 AND donations.user_id = $1
+			 )
+			 ON CONFLICT (plan_id) DO UPDATE
+			 SET url_hash = shared_plans.url_hash
+			 WHERE shared_plans.user_id = EXCLUDED.user_id
+			 RETURNING url_hash`,
 			userID, planID, urlHash,
 		)
 		err := row.Scan(&urlHash)
 		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return "", ErrShareNotFound
+			}
 			logger.Error("Error sharing plan", httplog.ErrAttr(err))
 			return "", fmt.Errorf("failed to share plan: %w", err)
 		}
 
-		logger.Debug("Plan shared successfully", "plan_id", planID, "user_id", userID, "url_hash", urlHash)
+		logger.Debug("Plan shared successfully", "plan_id", planID, "user_id", userID)
 		return urlHash, nil
 	case models.SharingMethodEmail:
 		// proceed

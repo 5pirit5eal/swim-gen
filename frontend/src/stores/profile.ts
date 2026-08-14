@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
-import type { Profile } from '@/types'
+import type { Profile, ProfileUpdate } from '@/types'
 import { getSupabase } from '@/plugins/supabase'
 import { useAuthStore } from '@/stores/auth'
 
@@ -49,7 +49,7 @@ export const useProfileStore = defineStore('profile', () => {
     loading.value = false
   }
 
-  async function updateProfile(updatedProfile: Partial<Profile>) {
+  async function updateProfile(updatedProfile: ProfileUpdate) {
     if (!userStore.user) {
       return
     }

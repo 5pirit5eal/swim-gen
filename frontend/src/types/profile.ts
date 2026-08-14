@@ -12,3 +12,16 @@ export interface Profile {
   css_200m_seconds: number | null
   css_400m_seconds: number | null
 }
+
+export type ProfileUpdate = Partial<
+  Pick<
+    Profile,
+    | 'username'
+    | 'experience'
+    | 'preferred_language'
+    | 'preferred_strokes'
+    | 'categories'
+    | 'css_200m_seconds'
+    | 'css_400m_seconds'
+  >
+>

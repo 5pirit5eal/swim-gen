@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/httplog/v2"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/supabase-community/gotrue-go/types"
 	"github.com/supabase-community/supabase-go"
 )
@@ -36,7 +38,7 @@ type RAGService struct {
 // It returns a pointer to the RAGService and an error if any occurred during
 // initialization.
 func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) {
-	slog.Info("Initializing RAG server with config", "cfg", slog.AnyValue(cfg))
+	slog.Info("Initializing RAG server")
 	db, err := rag.NewGoogleAIStore(ctx, cfg)
 	if err != nil {
 		return nil, err
@@ -45,7 +47,7 @@ func NewRAGService(ctx context.Context, cfg config.Config) (*RAGService, error) 
 	slog.Info("Created database connection successfully")
 	auth, err := supabase.NewClient(cfg.SB.ApiUrl, cfg.SB.AnonKey, nil)
 	if err != nil {
-		fmt.Println("Failed to initialize the client: ", err)
+		slog.Error("Failed to initialize Supabase client")
 	}
 
 	slog.Info("Initialized Supabase client successfully")
@@ -101,14 +103,20 @@ func getMimeTypeFromFilename(filename string) (string, error) {
 // @Param plan body models.UploadPlanRequest true "Training plan data"
 // @Success 200 {string} string "Plan added successfully"
 // @Failure 400 {string} string "Bad request"
+// @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /add [post]
 func (rs *RAGService) UploadPlanHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Adding uploaded plan to the users history...")
-	// Parse HTTP request from JSON.
+	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
+	if !ok || userId == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
 
+	// Parse HTTP request from JSON.
 	dpr := &models.UploadPlanRequest{}
 
 	err := models.GetRequestJSON(req, dpr)
@@ -148,7 +156,7 @@ func (rs *RAGService) UploadPlanHandler(w http.ResponseWriter, req *http.Request
 
 	// Create a donated plan
 	plan := &models.DonatedPlan{
-		UserID:       req.Context().Value(models.UserIdCtxKey).(string),
+		UserID:       userId,
 		PlanID:       uuid.NewString(),
 		Title:        desc.Title,
 		Description:  desc.Text,
@@ -252,7 +260,7 @@ func (rs *RAGService) FileToPlanHandler(w http.ResponseWriter, req *http.Request
 // @Tags Upload
 // @Accept json
 // @Produce json
-// @Success 200 {array} models.DonatedPlan
+// @Success 200 {array} models.UploadedPlanResponse
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
@@ -261,9 +269,9 @@ func (rs *RAGService) GetUploadedPlansHandler(w http.ResponseWriter, req *http.R
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Getting uploaded plans...")
 
-	userId := req.Context().Value(models.UserIdCtxKey).(string)
-	if userId == "" {
-		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
+	if !ok || userId == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 	httplog.LogEntrySetField(req.Context(), "user_id", slog.StringValue(userId))
@@ -282,33 +290,51 @@ func (rs *RAGService) GetUploadedPlansHandler(w http.ResponseWriter, req *http.R
 }
 
 // GetUploadedPlanHandler handles the request to get a specific uploaded plan.
-// @Summary Get a uploaded plan
+// @Summary Get an uploaded plan
 // @Description Get a specific plan uploaded by the authenticated user
 // @Tags Upload
 // @Accept json
 // @Produce json
 // @Param plan_id path string true "Plan ID"
-// @Success 200 {object} models.DonatedPlan
+// @Success 200 {object} models.UploadedPlanResponse
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 404 {string} string "Plan not found"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /uploads/{plan_id} [get]
 func (rs *RAGService) GetUploadedPlanHandler(w http.ResponseWriter, req *http.Request) {
+	rs.getUploadedPlan(w, req, rs.db.GetUploadedPlan)
+}
+
+func (rs *RAGService) getUploadedPlan(
+	w http.ResponseWriter,
+	req *http.Request,
+	lookup func(context.Context, string, string) (*models.UploadedPlanResponse, error),
+) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Getting uploaded plan...")
 
+	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
+	if !ok || userId == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	planID := chi.URLParam(req, "plan_id")
-	if planID == "" {
-		http.Error(w, "Plan ID is required", http.StatusBadRequest)
+	if _, err := uuid.Parse(planID); err != nil {
+		http.Error(w, "Plan not found", http.StatusNotFound)
 		return
 	}
 	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(planID))
 
-	plan, err := rs.db.GetUploadedPlan(req.Context(), planID)
+	plan, err := lookup(req.Context(), planID, userId)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "Plan not found", http.StatusNotFound)
+			return
+		}
 		logger.Error("Failed to get uploaded plan", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -416,6 +442,12 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Upserting plan into the database...")
+	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
+	if !ok || userId == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	upr := &models.UpsertPlanRequest{}
 
 	err := models.GetRequestJSON(req, upr)
@@ -424,11 +456,6 @@ func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request
 		return
 	}
 
-	userId := req.Context().Value(models.UserIdCtxKey).(string)
-	if userId == "" {
-		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
-		return
-	}
 	logger.Debug("Upserting plan into db")
 	resp, err := rs.db.UpsertPlan(req.Context(), models.Plan{
 		PlanID:      upr.PlanID,
@@ -465,20 +492,30 @@ func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request
 // @Failure 500 {string} string "Internal server error"
 // @Router /add-plan-to-history [post]
 func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.Request) {
+	rs.addPlanToHistory(w, req, rs.db.AddPlanToHistory, rs.db.DeletePlan, rs.db.Memory.AddMessage)
+}
+
+func (rs *RAGService) addPlanToHistory(
+	w http.ResponseWriter,
+	req *http.Request,
+	addPlanToHistory func(context.Context, *models.Plan, string) error,
+	deletePlan func(context.Context, string, string) error,
+	addMessage func(context.Context, string, string, models.Role, string, *string, *models.Plan) (*models.Message, error),
+) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Adding plan to user history...")
+	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
+	if !ok || userId == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
 
 	// Parse request body
 	var plan models.AddPlanToHistoryRequest
 	err := models.GetRequestJSON(req, &plan)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	userID := req.Context().Value(models.UserIdCtxKey).(string)
-	if userID == "" {
-		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+		logger.Error("Failed to decode add-plan-to-history request", httplog.ErrAttr(err))
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
@@ -487,11 +524,27 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(plan.PlanID))
 
 	// Add to user history
-	err = rs.db.AddPlanToHistory(req.Context(), plan.Plan(), userID)
+	err = addPlanToHistory(req.Context(), plan.Plan(), userId)
 	if err != nil {
 		logger.Error("Failed to add plan to user history", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
+	}
+
+	if plan.InitialMessage != "" {
+		userMessage, err := addMessage(req.Context(), plan.PlanID, userId, models.RoleUser, plan.InitialMessage, nil, nil)
+		if err != nil {
+			logger.Error("Failed to add initial user message", httplog.ErrAttr(err))
+			rs.cleanupAddedPlan(req, plan.PlanID, userId, deletePlan)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		if _, err := addMessage(req.Context(), plan.PlanID, userId, models.RoleAI, plan.Description, &userMessage.ID, plan.Plan()); err != nil {
+			logger.Error("Failed to add initial AI message", httplog.ErrAttr(err))
+			rs.cleanupAddedPlan(req, plan.PlanID, userId, deletePlan)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// Respond with success and the new PlanID
@@ -505,49 +558,78 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 	}
 }
 
+func (rs *RAGService) cleanupAddedPlan(
+	req *http.Request,
+	planID, userID string,
+	deletePlan func(context.Context, string, string) error,
+) {
+	if err := deletePlan(req.Context(), planID, userID); err != nil {
+		httplog.LogEntry(req.Context()).Error("Failed to clean up plan after initial message failure", httplog.ErrAttr(err))
+	}
+}
+
 // SharePlanHandler handles the request to share a training plan.
-// It generates a shareable url_hash or processes email sharing based on the method provided.
+// It generates a shareable url_hash for an owned plan.
 // @Summary Share a training plan
-// @Description Share a training plan via link or email. Email sharing is not implemented yet.
+// @Description Share an owned training plan via link. Email sharing is not implemented yet.
 // @Tags Training Plans
 // @Accept json
 // @Produce json
 // @Param request body models.SharePlanRequest true "Request to share a training plan"
 // @Success 200 {object} models.SharePlanResponse "Share plan response with URI"
 // @Failure 400 {string} string "Bad request"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 404 {string} string "Plan not found"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /share-plan [post]
 func (rs *RAGService) SharePlanHandler(w http.ResponseWriter, req *http.Request) {
+	rs.sharePlan(w, req, rs.db.SharePlan)
+}
+
+func (rs *RAGService) sharePlan(
+	w http.ResponseWriter,
+	req *http.Request,
+	share func(context.Context, string, string, models.SharingMethod) (string, error),
+) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Sharing plan...")
+	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
+	if !ok || userId == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	spr := &models.SharePlanRequest{}
 
-	err := models.GetRequestJSON(req, spr)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := models.GetRequestJSON(req, spr); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
-	if spr.PlanID != "" {
-		httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(spr.PlanID))
-	}
-
-	userId := req.Context().Value(models.UserIdCtxKey).(string)
-	if userId == "" {
-		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+	if _, err := uuid.Parse(spr.PlanID); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
+	if spr.Method != models.SharingMethodLink {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(spr.PlanID))
 
-	url_hash, err := rs.db.SharePlan(req.Context(), spr.PlanID, userId, spr.Method)
+	urlHash, err := share(req.Context(), spr.PlanID, userId, spr.Method)
 	if err != nil {
+		if errors.Is(err, rag.ErrShareNotFound) || errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "Plan not found", http.StatusNotFound)
+			return
+		}
 		logger.Error("Failed to share plan", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	// Respond with the shareable URI
-	answer := &models.SharePlanResponse{URLHash: url_hash}
-	logger.Info("Plan shared successfully", "uri", url_hash)
+	answer := &models.SharePlanResponse{URLHash: urlHash}
+	logger.Info("Plan shared successfully")
 	if err := models.WriteResponseJSON(w, http.StatusOK, answer); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
 	}
@@ -562,58 +644,59 @@ func (rs *RAGService) SharePlanHandler(w http.ResponseWriter, req *http.Request)
 // @Param request body models.FeedbackRequest true "Feedback data"
 // @Success 200 {string} string "Feedback submitted successfully"
 // @Failure 400 {string} string "Bad request"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 404 {string} string "Plan not found"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /feedback [post]
 func (rs *RAGService) FeedbackHandler(w http.ResponseWriter, req *http.Request) {
+	rs.submitFeedback(w, req, rs.db.SubmitFeedback)
+}
+
+func (rs *RAGService) submitFeedback(
+	w http.ResponseWriter,
+	req *http.Request,
+	submit func(context.Context, *models.Feedback) error,
+) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Submitting feedback...")
+	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
+	if !ok || userId == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
 
 	// Parse HTTP request from JSON.
 	fr := &models.FeedbackRequest{}
-	err := models.GetRequestJSON(req, fr)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := models.GetRequestJSON(req, fr); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	if _, err := uuid.Parse(fr.PlanID); err != nil || fr.Rating < 1 || fr.Rating > 5 || fr.DifficultyRating < 1 || fr.DifficultyRating > 10 {
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 	if fr.PlanID != "" {
 		httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(fr.PlanID))
 	}
 
-	userId := req.Context().Value(models.UserIdCtxKey).(string)
-	if userId == "" {
-		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
-		return
-	}
-
 	feedback := &models.Feedback{
-		UserID:           userId,
-		PlanID:           fr.PlanID,
-		Rating:           fr.Rating,
-		WasSwam:          fr.WasSwam,
-		DifficultyRating: fr.DifficultyRating,
-		Comment:          fr.Comment,
+		UserID:  userId,
+		PlanID:  fr.PlanID,
+		Rating:  fr.Rating,
+		WasSwam: fr.WasSwam,
+		Comment: fr.Comment,
 	}
+	difficultyRating := fr.DifficultyRating
+	feedback.DifficultyRating = &difficultyRating
 
-	// Check if feedback already exists
-	existingFeedback, err := rs.db.GetFeedback(req.Context(), userId, fr.PlanID)
-	if err != nil && !strings.Contains(err.Error(), "no rows in result set") {
-		logger.Error("Error checking for existing feedback", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if existingFeedback != nil {
-		// Update existing feedback
-		err = rs.db.UpdateFeedback(req.Context(), feedback)
-	} else {
-		// Add new feedback
-		err = rs.db.AddFeedback(req.Context(), feedback)
-	}
-
-	if err != nil {
+	if err := submit(req.Context(), feedback); err != nil {
+		if errors.Is(err, rag.ErrFeedbackPlanNotFound) || errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "Plan not found", http.StatusNotFound)
+			return
+		}
 		logger.Error("Failed to submit feedback", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -641,6 +724,11 @@ func (rs *RAGService) FeedbackHandler(w http.ResponseWriter, req *http.Request) 
 func (rs *RAGService) DeletePlanHandler(w http.ResponseWriter, req *http.Request) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Deleting plan...")
+	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
+	if !ok || userId == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
 
 	planID := chi.URLParam(req, "plan_id")
 	if planID == "" {
@@ -649,13 +737,7 @@ func (rs *RAGService) DeletePlanHandler(w http.ResponseWriter, req *http.Request
 	}
 	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(planID))
 
-	userID := req.Context().Value(models.UserIdCtxKey).(string)
-	if userID == "" {
-		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
-		return
-	}
-
-	err := rs.db.DeletePlan(req.Context(), planID, userID)
+	err := rs.db.DeletePlan(req.Context(), planID, userId)
 	if err != nil {
 		if err.Error() == "plan not found in user history or user does not own the plan" {
 			http.Error(w, err.Error(), http.StatusNotFound)
@@ -689,14 +771,14 @@ func (rs *RAGService) DeleteUserHandler(w http.ResponseWriter, req *http.Request
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Deleting user account...")
 
-	userID := req.Context().Value(models.UserIdCtxKey).(string)
-	if userID == "" {
-		http.Error(w, "Unauthorized: User ID missing", http.StatusUnauthorized)
+	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
+	if !ok || userId == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	// Parse UUID for the admin auth client
-	userUUID, err := uuid.Parse(userID)
+	userUUID, err := uuid.Parse(userId)
 	if err != nil {
 		logger.Error("Invalid user ID format", httplog.ErrAttr(err))
 		http.Error(w, "Invalid user ID format", http.StatusBadRequest)
@@ -714,7 +796,7 @@ func (rs *RAGService) DeleteUserHandler(w http.ResponseWriter, req *http.Request
 		return
 	}
 
-	logger.Info("User deleted successfully", "user_id", userID)
+	logger.Info("User deleted successfully", "user_id", userId)
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write([]byte("User deleted successfully")); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))

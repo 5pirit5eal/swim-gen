@@ -21,6 +21,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/5pirit5eal/swim-gen/internal/config"
+	"github.com/5pirit5eal/swim-gen/internal/logging"
 	"github.com/5pirit5eal/swim-gen/internal/server"
 	"github.com/5pirit5eal/swim-gen/internal/telemetry"
 )
@@ -120,14 +121,16 @@ func setupLogger(cfg config.Config) (*httplog.Logger, error) {
 		"ERROR": slog.LevelError,
 	}
 	logger := httplog.NewLogger("swim-gen", httplog.Options{
-		LogLevel: levelMap[cfg.LogLevel],
-		JSON:     j,
-		Concise:  true,
-		// RequestHeaders:   true,
-		// ResponseHeaders:  true,
-		MessageFieldName: "message",
-		LevelFieldName:   "severity",
-		TimeFieldFormat:  time.RFC3339,
+		LogLevel:             levelMap[cfg.LogLevel],
+		JSON:                 j,
+		Concise:              true,
+		RequestHeaders:       false,
+		ResponseHeaders:      false,
+		HideRequestHeaders:   []string{"Authorization", "Cookie", "Set-Cookie"},
+		ReplaceAttrsOverride: logging.NewRedactor(cfg.DB.Pass, cfg.SB.AnonKey, cfg.SB.ServiceRoleKey).ReplaceAttr,
+		MessageFieldName:     "message",
+		LevelFieldName:       "severity",
+		TimeFieldFormat:      time.RFC3339,
 		QuietDownRoutes: []string{
 			"/",
 			"/health",
@@ -138,6 +141,7 @@ func setupLogger(cfg config.Config) (*httplog.Logger, error) {
 	if logger == nil {
 		return nil, fmt.Errorf("failed to create logger")
 	}
+	slog.SetDefault(logger.Logger)
 
 	return logger, nil
 }

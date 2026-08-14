@@ -2,13 +2,30 @@ package rag
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/go-chi/httplog/v2"
+	"github.com/jackc/pgx/v5"
 	"github.com/tmc/langchaingo/schema"
 )
+
+var (
+	ErrChatPlanRequired = errors.New("chat plan is required")
+	ErrChatPlanNotFound = errors.New("chat plan not found")
+)
+
+type chatDependencies struct {
+	getPlanForUser  func(context.Context, string, string) (*models.Plan, error)
+	getConversation func(context.Context, string, string) ([]models.Message, error)
+	buildContext    func(context.Context, string, *models.Plan) ([]schema.Document, error)
+	queryMode       func()
+	chatRefine      func(context.Context, string, *models.Plan, string, string, any, []schema.Document) (*models.ChatResponse, error)
+	addMessage      func(context.Context, string, string, models.Role, string, *string, *models.Plan) (*models.Message, error)
+	upsertPlan      func(context.Context, models.Plan, string) (string, error)
+}
 
 // ChatWithContext is the main stateless chat method for plan refinement through conversation.
 // It retrieves conversation history from memory, builds context, calls the LLM, and stores the interaction.
@@ -18,17 +35,50 @@ func (db *RAGDB) ChatWithContext(
 	lang models.Language,
 	poolLength any,
 ) (*models.Plan, *models.Message, error) {
+	return db.chatWithContext(ctx, planID, userID, userMessage, lang, poolLength, chatDependencies{
+		getPlanForUser:  db.GetPlanForUser,
+		getConversation: db.Memory.GetConversation,
+		buildContext:    db.buildChatContext,
+		queryMode:       db.Client.QueryMode,
+		chatRefine:      db.Client.ChatRefine,
+		addMessage:      db.Memory.AddMessage,
+		upsertPlan:      db.UpsertPlan,
+	})
+}
+
+func (db *RAGDB) chatWithContext(
+	ctx context.Context,
+	planID, userID, userMessage string,
+	lang models.Language,
+	poolLength any,
+	deps chatDependencies,
+) (*models.Plan, *models.Message, error) {
 	logger := httplog.LogEntry(ctx)
 	logger.Debug("Starting chat interaction", "plan_id", planID, "user_id", userID)
 
 	// Require planID - application flow ensures plan exists before chat
 	if planID == "" {
 		logger.Error("Missing required plan_id for chat interaction")
-		return nil, nil, fmt.Errorf("plan_id is required for chat interaction")
+		return nil, nil, ErrChatPlanRequired
 	}
 
-	// 1. Retrieve conversation history (limited by config)
-	conversation, err := db.Memory.GetConversation(ctx, planID)
+	// 1. Verify ownership and load the current plan before reading conversation context.
+	var currentPlan *models.Plan
+	plan, err := deps.getPlanForUser(ctx, planID, userID)
+	if err == nil {
+		currentPlan = plan.Plan()
+		logger.Debug("Retrieved existing plan", "plan_id", planID, "title", currentPlan.Title)
+	} else {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil, ErrChatPlanNotFound
+		}
+		// If plan doesn't exist, this is an invalid state or id
+		logger.Error("Plan not found despite existing conversation", "plan_id", planID, httplog.ErrAttr(err))
+		return nil, nil, fmt.Errorf("plan must exist for chat interaction: %w", err)
+	}
+
+	// 2. Retrieve conversation history (limited by config).
+	conversation, err := deps.getConversation(ctx, planID, userID)
 	if err != nil {
 		logger.Error("Failed to retrieve conversation history", httplog.ErrAttr(err))
 		return nil, nil, fmt.Errorf("failed to retrieve conversation: %w", err)
@@ -41,29 +91,17 @@ func (db *RAGDB) ChatWithContext(
 		logger.Debug("Applied history limit", "total_messages", len(conversation), "limit", db.cfg.Chat.HistoryLimit)
 	}
 
-	// 2. Get current plan state
-	var currentPlan *models.Plan
-	plan, err := db.GetPlan(ctx, planID, SourceOptionPlan)
-	if err == nil {
-		currentPlan = plan.Plan()
-		logger.Debug("Retrieved existing plan", "plan_id", planID, "title", currentPlan.Title)
-	} else {
-		// If plan doesn't exist, this is an invalid state or id
-		logger.Error("Plan not found despite existing conversation", "plan_id", planID, httplog.ErrAttr(err))
-		return nil, nil, fmt.Errorf("plan must exist for chat interaction: %w", err)
-	}
-
 	// 3. Build context
 	conversationHistory := formatConversationHistory(conversation)
-	contextDocs, err := db.buildChatContext(ctx, userMessage, currentPlan)
+	contextDocs, err := deps.buildContext(ctx, userMessage, currentPlan)
 	if err != nil {
 		logger.Warn("Failed to build chat context, continuing without reference docs", httplog.ErrAttr(err))
 		contextDocs = []schema.Document{} // Continue without context if retrieval fails
 	}
 
 	// 4. Call GenAI ChatRefine
-	db.Client.QueryMode() // Set embedder to query mode for any similarity searches
-	chatResponse, err := db.Client.ChatRefine(
+	deps.queryMode() // Set embedder to query mode for any similarity searches
+	chatResponse, err := deps.chatRefine(
 		ctx,
 		conversationHistory,
 		currentPlan,
@@ -83,7 +121,7 @@ func (db *RAGDB) ChatWithContext(
 		lastMessageID = &conversation[len(conversation)-1].ID
 	}
 
-	userMsg, err := db.Memory.AddMessage(
+	userMsg, err := deps.addMessage(
 		ctx,
 		planID,
 		userID,
@@ -108,7 +146,7 @@ func (db *RAGDB) ChatWithContext(
 		}
 
 		// Upsert plan to plans table
-		_, err = db.UpsertPlan(ctx, *updatedPlan, userID)
+		_, err = deps.upsertPlan(ctx, *updatedPlan, userID)
 		if err != nil {
 			logger.Error("Failed to upsert plan", httplog.ErrAttr(err))
 			return nil, nil, fmt.Errorf("failed to upsert plan: %w", err)
@@ -119,7 +157,7 @@ func (db *RAGDB) ChatWithContext(
 	}
 
 	// Store AI response with plan snapshot
-	aiMsg, err := db.Memory.AddMessage(
+	aiMsg, err := deps.addMessage(
 		ctx,
 		planID,
 		userID,

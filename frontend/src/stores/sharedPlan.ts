@@ -79,28 +79,28 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     }
 
     try {
-      // 1. Get the plan ID and sharer ID from the shared_plans table using the hash
-      const { data: sharedPlanData, error: sharedPlanError } = await supabase
-        .from('shared_plans')
-        .select('plan_id, user_id')
-        .eq('url_hash', hash)
-        .single()
+      // Resolve the bearer hash and plan in one authorized database operation.
+      const { data: sharedPlanData, error: sharedPlanError } = await supabase.rpc(
+        'get_shared_plan_by_hash',
+        { p_url_hash: hash },
+      )
 
       if (sharedPlanError) throw sharedPlanError
-      if (!sharedPlanData) throw new Error('Plan not found')
+      const sharedPlanRow = Array.isArray(sharedPlanData) ? sharedPlanData[0] : sharedPlanData
+      if (!sharedPlanRow) throw new Error('Plan not found')
 
       // Check if the plan is already loaded
       if (
         sharedPlan.value &&
-        sharedPlan.value.plan.plan_id === sharedPlanData.plan_id &&
-        sharedPlan.value.sharer_id === sharedPlanData.user_id
+        sharedPlan.value.plan.plan_id === sharedPlanRow.plan_id &&
+        sharedPlan.value.sharer_id === sharedPlanRow.sharer_id
       ) {
         isLoading.value = false
         return null
       }
 
       // Check if the user is trying to load their own shared plan
-      if (authStore.user && sharedPlanData.user_id === authStore.user.id) {
+      if (authStore.user && sharedPlanRow.sharer_id === authStore.user.id) {
         const trainingPlanStore = useTrainingPlanStore()
         if (!trainingPlanStore.planHistory.length) {
           if (!trainingPlanStore.isFetchingHistory) {
@@ -112,7 +112,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
           }
         }
         const ownPlan = trainingPlanStore.planHistory.find(
-          (plan) => plan.plan_id === sharedPlanData.plan_id,
+          (plan) => plan.plan_id === sharedPlanRow.plan_id,
         )
         if (ownPlan) {
           trainingPlanStore.loadPlanFromHistory(ownPlan)
@@ -133,7 +133,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
           }
         }
         const ownUploadedPlan = uploadStore.uploadedPlans.find(
-          (plan) => plan.plan_id === sharedPlanData.plan_id,
+          (plan) => plan.plan_id === sharedPlanRow.plan_id,
         )
         if (ownUploadedPlan) {
           isLoading.value = false
@@ -142,39 +142,17 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
         }
       }
 
-      // 2. Fetch the plan details
-      const { data: planData, error: planError } = await supabase
-        .from('plans')
-        .select('plan_id, title, description, plan_table')
-        .eq('plan_id', sharedPlanData.plan_id)
-        .single()
-
-      if (planError) throw planError
-      if (!planData) throw new Error('Plan details not found')
-
-      // 3. Fetch the sharer's username (if available)
-      let sharerUsername = i18n.global.t('shared.unknown_user')
-      if (sharedPlanData.user_id) {
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('user_id', sharedPlanData.user_id)
-          .single()
-
-        if (!profileError && profileData) {
-          sharerUsername = profileData.username || i18n.global.t('shared.unknown_user')
-        }
-      }
+      const sharerUsername = sharedPlanRow.sharer_username || i18n.global.t('shared.unknown_user')
 
       sharedPlan.value = {
         plan: {
-          plan_id: planData.plan_id,
-          title: planData.title,
-          description: planData.description,
-          table: planData.plan_table,
+          plan_id: sharedPlanRow.plan_id,
+          title: sharedPlanRow.title,
+          description: sharedPlanRow.description,
+          table: sharedPlanRow.plan_table,
         },
         sharer_username: sharerUsername,
-        sharer_id: sharedPlanData.user_id,
+        sharer_id: sharedPlanRow.sharer_id,
       }
       if (sharedPlan.value?.plan) {
         ensureRowIds(sharedPlan.value.plan.table)
@@ -183,7 +161,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
 
       // Add to history if user is logged in and the plan is not their own
       if (authStore.user) {
-        await addPlanToHistory(sharedPlanData.plan_id, sharedPlanData.user_id)
+        await addPlanToHistory(hash)
         await fetchSharedHistory()
       }
     } catch (e) {
@@ -320,7 +298,7 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
       sharedPlan.value = {
         plan: item.plan,
         sharer_username: profileData.username || i18n.global.t('shared.unknown_user'),
-        sharer_id: item.user_id,
+        sharer_id: item.shared_by,
       }
       if (sharedPlan.value?.plan) {
         recalculateAllSums(sharedPlan.value.plan.table)
@@ -336,27 +314,16 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
   }
 
   // Adds a plan to the user's shared history
-  async function addPlanToHistory(planId: string, sharedBy: string) {
+  async function addPlanToHistory(hash: string) {
     if (!authStore.user) return
     const supabase = await getSupabase()
 
     try {
-      // Check if already exists to avoid duplicates (or could use upsert)
-      const { data: existing } = await supabase
-        .from('shared_history')
-        .select('plan_id')
-        .eq('user_id', authStore.user.id)
-        .eq('plan_id', planId)
-        .maybeSingle()
-
-      if (!existing) {
-        await supabase.from('shared_history').insert({
-          user_id: authStore.user.id,
-          plan_id: planId,
-          shared_by: sharedBy,
-          share_method: 'link', // Default for now
-        })
-      }
+      const { error: recordError } = await supabase.rpc('record_shared_plan', {
+        p_url_hash: hash,
+        p_share_method: 'link',
+      })
+      if (recordError) throw recordError
     } catch (e) {
       console.error('Failed to add to history', e)
     }
