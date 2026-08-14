@@ -41,7 +41,7 @@ func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 	logger.Info("Processing chat request...", "user_id", userID)
 	// Parse request
 	var chatReq models.ChatRequest
-	if err := json.NewDecoder(req.Body).Decode(&chatReq); err != nil {
+	if err := models.GetRequestJSON(req, &chatReq); err != nil {
 		logger.Error("Failed to decode request body", httplog.ErrAttr(err))
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return

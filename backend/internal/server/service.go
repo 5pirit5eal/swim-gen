@@ -492,6 +492,16 @@ func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request
 // @Failure 500 {string} string "Internal server error"
 // @Router /add-plan-to-history [post]
 func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.Request) {
+	rs.addPlanToHistory(w, req, rs.db.AddPlanToHistory, rs.db.DeletePlan, rs.db.Memory.AddMessage)
+}
+
+func (rs *RAGService) addPlanToHistory(
+	w http.ResponseWriter,
+	req *http.Request,
+	addPlanToHistory func(context.Context, *models.Plan, string) error,
+	deletePlan func(context.Context, string, string) error,
+	addMessage func(context.Context, string, string, models.Role, string, *string, *models.Plan) (*models.Message, error),
+) {
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Adding plan to user history...")
 	userId, ok := req.Context().Value(models.UserIdCtxKey).(string)
@@ -504,7 +514,8 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 	var plan models.AddPlanToHistoryRequest
 	err := models.GetRequestJSON(req, &plan)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		logger.Error("Failed to decode add-plan-to-history request", httplog.ErrAttr(err))
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
@@ -513,7 +524,7 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 	httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(plan.PlanID))
 
 	// Add to user history
-	err = rs.db.AddPlanToHistory(req.Context(), plan.Plan(), userId)
+	err = addPlanToHistory(req.Context(), plan.Plan(), userId)
 	if err != nil {
 		logger.Error("Failed to add plan to user history", httplog.ErrAttr(err))
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -521,14 +532,16 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 	}
 
 	if plan.InitialMessage != "" {
-		userMessage, err := rs.db.Memory.AddMessage(req.Context(), plan.PlanID, userId, models.RoleUser, plan.InitialMessage, nil, nil)
+		userMessage, err := addMessage(req.Context(), plan.PlanID, userId, models.RoleUser, plan.InitialMessage, nil, nil)
 		if err != nil {
 			logger.Error("Failed to add initial user message", httplog.ErrAttr(err))
+			rs.cleanupAddedPlan(req, plan.PlanID, userId, deletePlan)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
-		if _, err := rs.db.Memory.AddMessage(req.Context(), plan.PlanID, userId, models.RoleAI, plan.Description, &userMessage.ID, plan.Plan()); err != nil {
+		if _, err := addMessage(req.Context(), plan.PlanID, userId, models.RoleAI, plan.Description, &userMessage.ID, plan.Plan()); err != nil {
 			logger.Error("Failed to add initial AI message", httplog.ErrAttr(err))
+			rs.cleanupAddedPlan(req, plan.PlanID, userId, deletePlan)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -542,6 +555,16 @@ func (rs *RAGService) AddPlanToHistoryHandler(w http.ResponseWriter, req *http.R
 	logger.Info("Plan added to history successfully")
 	if err := models.WriteResponseJSON(w, http.StatusOK, response); err != nil {
 		logger.Error("Failed to write response", httplog.ErrAttr(err))
+	}
+}
+
+func (rs *RAGService) cleanupAddedPlan(
+	req *http.Request,
+	planID, userID string,
+	deletePlan func(context.Context, string, string) error,
+) {
+	if err := deletePlan(req.Context(), planID, userID); err != nil {
+		httplog.LogEntry(req.Context()).Error("Failed to clean up plan after initial message failure", httplog.ErrAttr(err))
 	}
 }
 
