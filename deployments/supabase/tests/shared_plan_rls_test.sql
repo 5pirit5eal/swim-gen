@@ -1,6 +1,6 @@
 begin;
 
-select plan(26);
+select plan(31);
 
 create temporary table test_shared_plan_context (
   owner_id uuid not null,
@@ -259,6 +259,67 @@ select is(
   (select count(*)::integer from get_shared_plan_by_hash(:'test_url_hash')),
   1,
   'anonymous users can resolve a valid bearer hash'
+);
+
+set local role postgres;
+
+select throws_ok(
+  format(
+    'insert into shared_history (user_id, plan_id, shared_by, share_method) values (%L, %L, %L, %L)',
+    :'test_recipient_id', :'test_plan_id', :'test_recipient_id', 'link'
+  ),
+  '23503',
+  null,
+  'foreign key rejects shared_history with non-matching shared_by'
+);
+
+select throws_ok(
+  format(
+    'insert into shared_history (user_id, plan_id, shared_by, share_method) values (%L, %L, %L, %L)',
+    :'test_recipient_id', gen_random_uuid(), :'test_owner_id', 'link'
+  ),
+  '23503',
+  null,
+  'foreign key rejects shared_history for non-existent shared_plans'
+);
+
+select throws_ok(
+  format(
+    'insert into shared_history (user_id, plan_id, shared_by, share_method) values (%L, %L, %L, %L)',
+    :'test_owner_id', :'test_plan_id', :'test_owner_id', 'link'
+  ),
+  '23514',
+  null,
+  'check constraint rejects self-shared history rows'
+);
+
+select throws_ok(
+  format(
+    'insert into shared_history (user_id, plan_id, shared_by, share_method) values (%L, %L, %L, %L)',
+    :'test_recipient_id', :'test_plan_id', :'test_owner_id', 'invalid_method'
+  ),
+  '23514',
+  null,
+  'check constraint rejects invalid share methods'
+);
+
+select set_config(
+  'request.jwt.claims',
+  json_build_object('sub', :'test_recipient_id', 'role', 'authenticated')::text,
+  true
+);
+set local role authenticated;
+
+select record_shared_plan(:'test_url_hash', 'link');
+
+set local role postgres;
+
+delete from shared_plans where plan_id = :'test_plan_id';
+
+select is(
+  (select count(*)::integer from shared_history where plan_id = :'test_plan_id'),
+  0,
+  'deleting shared_plans cascades to shared_history'
 );
 
 select * from finish();
