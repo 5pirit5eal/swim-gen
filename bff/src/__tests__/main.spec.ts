@@ -189,10 +189,7 @@ describe("BFF Server", () => {
 
       const clientIp = "192.0.2.99";
       for (let i = 0; i < 100; i++) {
-        await request(app)
-          .get("/api/some-endpoint")
-          .set("X-Forwarded-For", clientIp)
-          .expect(200);
+        await request(app).get("/api/some-endpoint").set("X-Forwarded-For", clientIp).expect(200);
       }
 
       // The 101st request should be rate limited
