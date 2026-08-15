@@ -4,7 +4,7 @@ locals {
     REGION       = var.region
     LOG_LEVEL    = var.log_level
     BACKEND_URL  = google_cloud_run_v2_service.backend.uri
-    FRONTEND_URL = var.domain_url
+    FRONTEND_URL = startswith(var.domain_url, "http://") || startswith(var.domain_url, "https://") ? var.domain_url : "https://${var.domain_url}"
     # OTel — BFF uses the Cloud Trace exporter directly; no OTLP endpoint needed
     OTEL_SERVICE_NAME        = "swim-gen-bff"
     OTEL_TRACES_SAMPLER_ARG  = "1.0"

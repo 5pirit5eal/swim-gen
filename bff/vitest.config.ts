@@ -1,14 +1,12 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-    test: {
-        globals: true,
-        environment: 'node',
-        setupFiles: ['./vitest.setup.ts'],
-        include: ['src/**/*.spec.ts'],
-        exclude: ['dist/**', 'node_modules/**'],
-        coverage: {
-            reporter: ['text', 'json', 'html'],
-        },
-    },
+  test: {
+    pool: "forks",
+    globals: true,
+    include: ["src/**/__tests__/**/*.spec.ts"],
+    exclude: ["dist/**", "node_modules/**"],
+  },
 });
+
+

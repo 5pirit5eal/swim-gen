@@ -9,8 +9,10 @@ vi.mock("axios");
 // Reset mocks between tests
 beforeEach(async () => {
   vi.clearAllMocks();
+  process.env.NODE_ENV = "development";
   process.env.BACKEND_URL = "http://backend.test";
   process.env.FRONTEND_URL = "http://frontend.test";
+  vi.spyOn(authModule, "getAuthHeaders").mockResolvedValue({});
   // Reset the rate limit for the test IP address
   await testingStore.resetAll();
 });
@@ -176,8 +178,8 @@ describe("BFF Server", () => {
       const response = await request(app)
         .get("/api/some-endpoint")
         .set("Origin", process.env.FRONTEND_URL as string);
-      // We expect a 500 error because the backend is mocked to fail, but a CORS error would be different.
-      expect(response.status).not.toBe(0);
+      expect(response.headers["access-control-allow-origin"]).toBe(process.env.FRONTEND_URL);
+      expect(response.headers["access-control-allow-credentials"]).toBeUndefined();
     });
 
     it("should rate limit requests", async () => {
@@ -206,14 +208,16 @@ describe("BFF Server", () => {
       });
 
       // 100 requests with multi-hop X-Forwarded-For from IP 198.51.100.1
-      await Promise.all(
-        Array.from({ length: 100 }, () =>
-          request(app)
-            .get("/api/test-hops")
-            .set("X-Forwarded-For", "198.51.100.1, 10.0.0.1, 10.0.0.2")
-            .expect(200),
-        ),
-      );
+      for (let i = 0; i < 10; i++) {
+        await Promise.all(
+          Array.from({ length: 10 }, () =>
+            request(app)
+              .get("/api/test-hops")
+              .set("X-Forwarded-For", "198.51.100.1, 10.0.0.1, 10.0.0.2")
+              .expect(200),
+          ),
+        );
+      }
 
       // 101st request from 198.51.100.1 is rate limited
       const blocked = await request(app)
@@ -243,15 +247,17 @@ describe("BFF Server", () => {
       const user2Token = makeJwt("user-222");
 
       // Exhaust limit for user 1
-      await Promise.all(
-        Array.from({ length: 100 }, () =>
-          request(app)
-            .get("/api/user-test")
-            .set("Authorization", user1Token)
-            .set("X-Forwarded-For", "203.0.113.50")
-            .expect(200),
-        ),
-      );
+      for (let i = 0; i < 10; i++) {
+        await Promise.all(
+          Array.from({ length: 10 }, () =>
+            request(app)
+              .get("/api/user-test")
+              .set("Authorization", user1Token)
+              .set("X-Forwarded-For", "203.0.113.50")
+              .expect(200),
+          ),
+        );
+      }
 
       // 101st request from user 1 should be blocked
       const user1Blocked = await request(app)
