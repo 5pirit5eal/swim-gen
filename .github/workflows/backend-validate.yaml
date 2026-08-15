@@ -96,7 +96,7 @@ jobs:
           file_pattern: backend/**
 
       - name: 🔎 Lint Code
-        uses: golangci/golangci-lint-action@2226f7cb06a077cd73e56ecd10b5238e06c5bc1e # v6.0.1
+        uses: golangci/golangci-lint-action@2226d7cb06a077cd73e56eedd38eecad18e5d837 # v6.5.0
         with:
           install-mode: goinstall
           working-directory: backend
