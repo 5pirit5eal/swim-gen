@@ -918,12 +918,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
