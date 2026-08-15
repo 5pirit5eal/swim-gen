@@ -43,6 +43,8 @@ jobs:
         with:
           dry_run: true
           extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
             conventional-changelog-conventionalcommits
             conventional-changelog-writer@^7.0.0
         env:
@@ -105,6 +107,8 @@ jobs:
         uses: cycjimmy/semantic-release-action@cb425203a562475bca039ba4dbf90c7f9ac790f4 # v4.1.0
         with:
           extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
             conventional-changelog-conventionalcommits
             conventional-changelog-writer@^7.0.0
         env:
