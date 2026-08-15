@@ -44,6 +44,7 @@ jobs:
           dry_run: true
           extra_plugins: |
             conventional-changelog-conventionalcommits
+            conventional-changelog-writer@^7.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -105,5 +106,6 @@ jobs:
         with:
           extra_plugins: |
             conventional-changelog-conventionalcommits
+            conventional-changelog-writer@^7.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
