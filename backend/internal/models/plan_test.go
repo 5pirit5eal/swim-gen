@@ -3,6 +3,7 @@ package models_test
 import (
 	"encoding/json"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
@@ -413,6 +414,91 @@ func TestValidate_ValidMaxDepth(t *testing.T) {
 	}
 	err := table.Validate()
 	assert.NoError(t, err, "Valid table at max depth (1) should pass validation")
+}
+
+func TestValidate_ExceedsMaxRows(t *testing.T) {
+	table := make(models.Table, 101)
+	for i := range table {
+		table[i] = models.Row{Amount: 1, Distance: 50, Content: "Lap"}
+	}
+	err := table.Validate()
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "exceeds maximum limit of 100")
+}
+
+func TestValidate_ExceedsFieldLengths(t *testing.T) {
+	t.Run("Content too long", func(t *testing.T) {
+		table := models.Table{
+			{Amount: 1, Distance: 50, Content: strings.Repeat("x", 501)},
+		}
+		err := table.Validate()
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "content exceeds maximum length")
+	})
+
+	t.Run("Multiplier too long", func(t *testing.T) {
+		table := models.Table{
+			{Amount: 1, Multiplier: strings.Repeat("x", 11), Distance: 50, Content: "Lap"},
+		}
+		err := table.Validate()
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "multiplier exceeds maximum length")
+	})
+
+	t.Run("Intensity too long", func(t *testing.T) {
+		table := models.Table{
+			{Amount: 1, Intensity: strings.Repeat("x", 51), Distance: 50, Content: "Lap"},
+		}
+		err := table.Validate()
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "intensity exceeds maximum length")
+	})
+
+	t.Run("Break too long", func(t *testing.T) {
+		table := models.Table{
+			{Amount: 1, Break: strings.Repeat("x", 51), Distance: 50, Content: "Lap"},
+		}
+		err := table.Validate()
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "break exceeds maximum length")
+	})
+}
+
+func TestPlanValidate(t *testing.T) {
+	validTable := models.Table{
+		{Amount: 1, Distance: 100, Content: "Warmup"},
+	}
+
+	t.Run("Valid plan", func(t *testing.T) {
+		p := &models.Plan{
+			Title:       "Valid Title",
+			Description: "Valid Description",
+			Table:       validTable,
+		}
+		assert.NoError(t, p.Validate())
+	})
+
+	t.Run("Title too long", func(t *testing.T) {
+		p := &models.Plan{
+			Title:       strings.Repeat("a", 201),
+			Description: "Valid Description",
+			Table:       validTable,
+		}
+		err := p.Validate()
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "plan title exceeds maximum length")
+	})
+
+	t.Run("Description too long", func(t *testing.T) {
+		p := &models.Plan{
+			Title:       "Valid Title",
+			Description: strings.Repeat("a", 2001),
+			Table:       validTable,
+		}
+		err := p.Validate()
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "plan description exceeds maximum length")
+	})
 }
 
 func TestFlattenTable(t *testing.T) {

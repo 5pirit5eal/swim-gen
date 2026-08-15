@@ -17,7 +17,10 @@ const (
 	PlanTableName    string = "plans"
 )
 
-var ErrShareNotFound = errors.New("shareable plan not found")
+var (
+	ErrShareNotFound = errors.New("shareable plan not found")
+	ErrPlanNotFound  = errors.New("plan not found in user history or user does not own the plan")
+)
 
 func (db *RAGDB) GetPlan(ctx context.Context, planID string, source SourceOption) (models.Planable, error) {
 	logger := httplog.LogEntry(ctx)
@@ -224,9 +227,16 @@ func (db *RAGDB) SharePlan(ctx context.Context, planID, userID string, method mo
 	}
 }
 
-// DeletePlan removes a plan from the user's history.
-// If the plan has feedback, it preserves the plan data and marks the feedback as removed_from_history.
-// If no feedback exists, it deletes the plan entirely (CASCADE removes related data).
+// DeletePlan removes a plan owned by the user.
+// Ownership is established exclusively through history (generated plans) or donations (uploaded plans).
+// A shared_plans or shared_history relationship does not grant deletion privileges.
+//
+// When an owner deletes a plan:
+//   - All recipient access is revoked: shared links (shared_plans) and recipients' history entries (shared_history) are removed.
+//   - Associated chat memory (memory) is removed.
+//   - If feedback exists on the plan, the underlying plan record is preserved to maintain feedback analytics integrity,
+//     and feedback is marked with removed_from_history = true.
+//   - If no feedback exists, the plan is permanently deleted from plans, cascading to all dependent records.
 func (db *RAGDB) DeletePlan(ctx context.Context, planID, userID string) error {
 	logger := httplog.LogEntry(ctx)
 
@@ -238,26 +248,25 @@ func (db *RAGDB) DeletePlan(ctx context.Context, planID, userID string) error {
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
-	// Check if the plan exists and user owns it (via history, donations, or shared_plans)
-	var exists bool
+	// Check if the plan exists and user owns it (via history or donations).
+	// Shared plans and received history do not establish ownership.
+	var isOwner bool
 	err = tx.QueryRow(ctx,
 		`SELECT EXISTS(
 			SELECT 1 FROM history WHERE plan_id = $1 AND user_id = $2
 			UNION
 			SELECT 1 FROM donations WHERE plan_id = $1 AND user_id = $2
-			UNION
-			SELECT 1 FROM shared_plans WHERE plan_id = $1 AND user_id = $2
 		)`,
 		planID, userID,
-	).Scan(&exists)
+	).Scan(&isOwner)
 
 	if err != nil {
-		logger.Error("Error checking plan existence", httplog.ErrAttr(err))
-		return fmt.Errorf("failed to check plan existence: %w", err)
+		logger.Error("Error checking plan ownership", httplog.ErrAttr(err))
+		return fmt.Errorf("failed to check plan ownership: %w", err)
 	}
 
-	if !exists {
-		return fmt.Errorf("plan not found in user history or user does not own the plan")
+	if !isOwner {
+		return ErrPlanNotFound
 	}
 
 	// Check if feedback exists for this plan
@@ -273,58 +282,50 @@ func (db *RAGDB) DeletePlan(ctx context.Context, planID, userID string) error {
 	}
 
 	if hasFeedback {
-		// Plan has feedback - preserve the plan, only remove from history and mark feedback
-		logger.Debug("Plan has feedback, preserving plan data", "plan_id", planID)
+		// Plan has feedback - preserve the plan data for analytics, revoke all access and purge user context.
+		logger.Debug("Plan has feedback, preserving plan entity and scrubbing owner/recipient access", "plan_id", planID)
 
-		// Remove from user's history only
-		_, err = tx.Exec(ctx,
-			`DELETE FROM history WHERE plan_id = $1 AND user_id = $2`,
-			planID, userID,
-		)
-		if err != nil {
+		// Remove from user's history
+		if _, err = tx.Exec(ctx, `DELETE FROM history WHERE plan_id = $1 AND user_id = $2`, planID, userID); err != nil {
 			logger.Error("Error removing plan from history", httplog.ErrAttr(err))
 			return fmt.Errorf("failed to remove plan from history: %w", err)
 		}
 
-		// Remove from shared_history of any other users who have this plan shared with them
-		_, err = tx.Exec(ctx,
-			`DELETE FROM shared_history WHERE plan_id = $1`,
-			planID,
-		)
-		if err != nil {
+		// Remove from user's donations (if uploaded)
+		if _, err = tx.Exec(ctx, `DELETE FROM donations WHERE plan_id = $1 AND user_id = $2`, planID, userID); err != nil {
+			logger.Error("Error removing plan from donations", httplog.ErrAttr(err))
+			return fmt.Errorf("failed to remove plan from donations: %w", err)
+		}
+
+		// Remove associated chat memory
+		if _, err = tx.Exec(ctx, `DELETE FROM memory WHERE plan_id = $1`, planID); err != nil {
+			logger.Error("Error removing plan chat memory", httplog.ErrAttr(err))
+			return fmt.Errorf("failed to remove plan memory: %w", err)
+		}
+
+		// Revoke all recipient access: remove from shared_history of all users
+		if _, err = tx.Exec(ctx, `DELETE FROM shared_history WHERE plan_id = $1`, planID); err != nil {
 			logger.Error("Error removing plan from shared_history", httplog.ErrAttr(err))
 			return fmt.Errorf("failed to remove plan from shared_history: %w", err)
 		}
 
-		// Remove from shared_plans table
-		_, err = tx.Exec(ctx,
-			`DELETE FROM shared_plans WHERE plan_id = $1`,
-			planID,
-		)
-		if err != nil {
+		// Remove sharing record from shared_plans
+		if _, err = tx.Exec(ctx, `DELETE FROM shared_plans WHERE plan_id = $1`, planID); err != nil {
 			logger.Error("Error removing plan from shared_plans", httplog.ErrAttr(err))
 			return fmt.Errorf("failed to remove plan from shared_plans: %w", err)
 		}
 
 		// Mark feedback as removed_from_history
-		_, err = tx.Exec(ctx,
-			`UPDATE feedback SET removed_from_history = true WHERE plan_id = $1`,
-			planID,
-		)
-		if err != nil {
+		if _, err = tx.Exec(ctx, `UPDATE feedback SET removed_from_history = true WHERE plan_id = $1`, planID); err != nil {
 			logger.Error("Error marking feedback as removed", httplog.ErrAttr(err))
 			return fmt.Errorf("failed to mark feedback as removed: %w", err)
 		}
 
-		logger.Debug("Plan removed from history, feedback preserved", "plan_id", planID, "user_id", userID)
+		logger.Debug("Plan removed from history and sharing revoked, feedback preserved", "plan_id", planID, "user_id", userID)
 	} else {
-		// No feedback - delete the plan entirely
-		// This will CASCADE to: history, conversation, shared_plans, shared_history
-		_, err = tx.Exec(ctx,
-			fmt.Sprintf(`DELETE FROM %s WHERE plan_id = $1`, PlanTableName),
-			planID,
-		)
-		if err != nil {
+		// No feedback - delete the plan entirely.
+		// CASCADE removes: history, donations, memory, shared_plans, shared_history
+		if _, err = tx.Exec(ctx, fmt.Sprintf(`DELETE FROM %s WHERE plan_id = $1`, PlanTableName), planID); err != nil {
 			logger.Error("Error deleting plan", httplog.ErrAttr(err))
 			return fmt.Errorf("failed to delete plan: %w", err)
 		}

@@ -7,6 +7,7 @@ import (
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-chi/httplog/v2"
+	"github.com/google/uuid"
 )
 
 const ProfilesTableName string = "profiles"
@@ -43,7 +44,17 @@ func (db *RAGDB) IncrementExportCount(ctx context.Context, userID, planID string
 	logger := httplog.LogEntry(ctx)
 
 	if planID == "" {
-		return fmt.Errorf("planID cannot be empty")
+		return nil
+	}
+
+	if _, err := uuid.Parse(planID); err != nil {
+		return fmt.Errorf("invalid plan UUID: %w", err)
+	}
+
+	if userID != "" {
+		if _, err := uuid.Parse(userID); err != nil {
+			return fmt.Errorf("invalid user UUID: %w", err)
+		}
 	}
 
 	// Create a transaction
@@ -63,7 +74,7 @@ func (db *RAGDB) IncrementExportCount(ctx context.Context, userID, planID string
 			return fmt.Errorf("error incrementing export count: %w", err)
 		}
 
-		// Update exported_at in history
+		// Update exported_at in history if the row exists
 		if _, err := tx.Exec(ctx,
 			fmt.Sprintf(`UPDATE %s SET exported_at = now() WHERE user_id = $1 AND plan_id = $2`, HistoryTableName),
 			userID, planID); err != nil {

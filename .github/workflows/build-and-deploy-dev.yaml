@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: Get deployment data
         id: get-data
-        uses: actions/github-script@v9
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
             if (context.eventName === 'workflow_dispatch') {
@@ -75,7 +75,7 @@ jobs:
       supabase: ${{ steps.filter.outputs.supabase }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: ${{ needs.get-deployment-data.outputs.head_repo_full_name }}
           ref: ${{ needs.get-deployment-data.outputs.head_sha }}
@@ -156,6 +156,7 @@ jobs:
       infra_outputs: ${{ needs.opentofu-infra.outputs.tf_outputs }}
       checkout_repo: ${{ needs.get-deployment-data.outputs.head_repo_full_name }}
       checkout_ref: ${{ needs.get-deployment-data.outputs.head_sha }}
+      version: ${{ needs.get-deployment-data.outputs.head_sha }}
     secrets: inherit
 
   react-to-comment:
@@ -164,7 +165,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Add reaction to comment
-        uses: actions/github-script@v9
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -175,7 +176,7 @@ jobs:
               content: '+1'
             });
       - name: Add comment with action link
-        uses: actions/github-script@v9
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -194,7 +195,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Comment on PR
-        uses: actions/github-script@v9
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -212,7 +213,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Comment on PR about failure
-        uses: actions/github-script@v9
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |

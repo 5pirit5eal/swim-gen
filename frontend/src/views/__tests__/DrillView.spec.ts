@@ -387,11 +387,10 @@ describe('DrillView.vue', () => {
       },
     })
 
+    const bucketName = import.meta.env.VITE_PUBLIC_BUCKET_NAME || 'swim-gen-public'
     const img = wrapper.find('.drill-image')
     expect(img.exists()).toBe(true)
-    expect(img.attributes('src')).toBe(
-      'https://storage.googleapis.com/swim-gen-public/seestern.webp',
-    )
+    expect(img.attributes('src')).toBe(`https://storage.googleapis.com/${bucketName}/seestern.webp`)
     expect(img.attributes('alt')).toBe(mockDrill.img_description)
   })
 

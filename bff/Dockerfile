@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:24-slim AS builder
+FROM node:24-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03 AS builder
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install all dependencies (including devDependencies)
-RUN npm install
+RUN npm ci
 
 # Copy the rest of the application code
 COPY . .
@@ -20,7 +20,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Stage 2: Create the production image
-FROM node:24-slim
+FROM node:24-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03
 
 # Set the working directory
 WORKDIR /usr/src/app

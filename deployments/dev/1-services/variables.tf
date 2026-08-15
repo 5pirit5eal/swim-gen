@@ -71,6 +71,12 @@ variable "outputs_location" {
   default     = "../0-config"
 }
 
+variable "version_tag" {
+  description = "The version tag for all images"
+  type        = string
+  default     = "latest"
+}
+
 variable "backend_image_tag" {
   type    = string
   default = "latest"

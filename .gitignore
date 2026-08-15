@@ -25,7 +25,6 @@ go.work.sum
 .env*
 !.env.example
 .terraform
-.terraform.lock.hcl
 
 # Data files and other artifacts
 cloud-sql-proxy

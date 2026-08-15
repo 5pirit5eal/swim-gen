@@ -63,6 +63,7 @@ func TestFeedbackHandlerValidatesRequest(t *testing.T) {
 		{name: "rating above range", body: `{"plan_id":"` + planID + `","rating":6,"difficulty_rating":7}`},
 		{name: "difficulty below range", body: `{"plan_id":"` + planID + `","rating":5,"difficulty_rating":0}`},
 		{name: "difficulty above range", body: `{"plan_id":"` + planID + `","rating":5,"difficulty_rating":11}`},
+		{name: "comment too long", body: `{"plan_id":"` + planID + `","rating":5,"difficulty_rating":5,"comment":"` + strings.Repeat("c", 1001) + `"}`},
 	}
 
 	for _, testCase := range tests {

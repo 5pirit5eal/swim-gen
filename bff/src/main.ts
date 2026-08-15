@@ -14,10 +14,56 @@ import { logger } from "./logger";
 dotenv.config();
 
 const app = express();
-app.set("trust proxy", 1);
+app.set("trust proxy", true);
 const port = process.env.PORT || 8080;
 
-// Middleware to handle JSON bodies
+export const MAX_JSON_BYTES = 2 * 1024 * 1024; // 2 MB
+export const MAX_MULTIPART_BYTES = 20 * 1024 * 1024; // 20 MB
+
+// Helper to extract authenticated user id from Supabase JWT without signature verification
+export function getUserIdFromRequest(req: express.Request): string | undefined {
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith("Bearer ")) {
+    try {
+      const payload = authHeader.split(".")[1];
+      if (payload) {
+        const decoded = JSON.parse(Buffer.from(payload, "base64url").toString());
+        if (typeof decoded.sub === "string" && decoded.sub.length > 0) {
+          return decoded.sub;
+        }
+      }
+    } catch {
+      // JWT decode failed — not critical
+    }
+  }
+  return undefined;
+}
+
+// Helper to determine the client IP across single-hop (direct) and multi-hop (frontend proxy) setups
+export function getClientIp(req: express.Request): string {
+  if (req.ip) {
+    return req.ip;
+  }
+  const xForwardedFor = req.headers["x-forwarded-for"];
+  if (typeof xForwardedFor === "string" && xForwardedFor.length > 0) {
+    const ips = xForwardedFor.split(",").map((ip) => ip.trim());
+    if (ips[0]) {
+      return ips[0];
+    }
+  }
+  return req.socket.remoteAddress || "unknown";
+}
+
+// Rate limiting key generator: keys by authenticated user if present, or client IP if anonymous
+export const rateLimitKeyGenerator = (req: express.Request): string => {
+  const userId = getUserIdFromRequest(req);
+  if (userId) {
+    return `user:${userId}`;
+  }
+  return `ip:${getClientIp(req)}`;
+};
+
+// Middleware to handle JSON bodies with an explicit limit
 // Note: This middleware only applies to non-multipart requests
 // Multipart requests are handled separately in the proxy handler
 app.use((req, res, next) => {
@@ -26,7 +72,7 @@ app.use((req, res, next) => {
     // Skip JSON parsing for multipart requests
     next();
   } else {
-    express.json()(req, res, next);
+    express.json({ limit: MAX_JSON_BYTES })(req, res, next);
   }
 });
 
@@ -44,9 +90,14 @@ app.use(cors(corsOptions));
 export const store = new MemoryStore();
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 100, // Limit each key (user or IP) to 100 requests per windowMs
   standardHeaders: true,
   legacyHeaders: true,
+  keyGenerator: rateLimitKeyGenerator,
+  validate: {
+    trustProxy: false,
+    xForwardedForHeader: false,
+  },
   store,
 });
 
@@ -70,18 +121,7 @@ app.use((req, res, next) => {
     // with requests that carry a spoofed or invalid token.
     let userId: string | undefined;
     if (res.statusCode < 400) {
-      const authHeader = req.headers.authorization;
-      if (authHeader?.startsWith("Bearer ")) {
-        try {
-          const payload = authHeader.split(".")[1];
-          if (payload) {
-            const decoded = JSON.parse(Buffer.from(payload, "base64url").toString());
-            userId = decoded.sub;
-          }
-        } catch {
-          // JWT decode failed — not critical for logging
-        }
-      }
+      userId = getUserIdFromRequest(req);
     }
 
     logger.structured({
@@ -142,8 +182,8 @@ async function proxyRequest(req: express.Request, res: express.Response) {
           "Content-Type": contentType, // Preserve original multipart Content-Type with boundary
           ...(req.headers["content-length"] && { "Content-Length": req.headers["content-length"] }),
         },
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity,
+        maxBodyLength: MAX_MULTIPART_BYTES,
+        maxContentLength: MAX_MULTIPART_BYTES,
       });
     } else {
       // For JSON requests, use the parsed body
@@ -155,6 +195,8 @@ async function proxyRequest(req: express.Request, res: express.Response) {
           ...authHeaders,
           "Content-Type": "application/json",
         },
+        maxBodyLength: MAX_JSON_BYTES,
+        maxContentLength: MAX_JSON_BYTES,
       });
     }
 

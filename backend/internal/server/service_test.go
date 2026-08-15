@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
@@ -26,6 +27,29 @@ func TestChatHandlerRejectsUnknownFields(t *testing.T) {
 func TestAddPlanToHistoryHidesRequestDecodeErrors(t *testing.T) {
 	service := &RAGService{}
 	request := memoryHandlerRequest(http.MethodPost, "/add-plan-to-history", `{"unknown":"value"}`, "user")
+	response := httptest.NewRecorder()
+
+	service.addPlanToHistory(
+		response,
+		request,
+		func(context.Context, *models.Plan, string) error {
+			t.Fatal("plan should not be persisted for an invalid request")
+			return nil
+		},
+		func(context.Context, string, string) error { return nil },
+		func(context.Context, string, string, models.Role, string, *string, *models.Plan) (*models.Message, error) {
+			return nil, nil
+		},
+	)
+
+	assert.Equal(t, http.StatusBadRequest, response.Code)
+	assert.Equal(t, "Bad request\n", response.Body.String())
+}
+
+func TestAddPlanToHistoryRejectsInvalidPayload(t *testing.T) {
+	service := &RAGService{}
+	oversizedTitle := strings.Repeat("t", 201)
+	request := memoryHandlerRequest(http.MethodPost, "/add-plan-to-history", `{"title":"`+oversizedTitle+`","description":"desc","table":[]}`, "user")
 	response := httptest.NewRecorder()
 
 	service.addPlanToHistory(

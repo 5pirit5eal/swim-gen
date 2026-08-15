@@ -8,8 +8,12 @@ import (
 	"reflect"
 )
 
+// MaxJSONBodyBytes defines the maximum allowed size for JSON request bodies (2 MB).
+const MaxJSONBodyBytes = 2 << 20
+
 // GetRequestJSON decodes a JSON request body into the provided struct.
-// It also checks the Content-Type header to ensure it is "application/json".
+// It also checks the Content-Type header to ensure it is "application/json"
+// and limits the request body to MaxJSONBodyBytes to guard against oversized payloads.
 // If the Content-Type is not "application/json", it returns an error.
 func GetRequestJSON(r *http.Request, v any) error {
 	contentType := r.Header.Get("Content-Type")
@@ -20,6 +24,7 @@ func GetRequestJSON(r *http.Request, v any) error {
 	if mediaType != "application/json" {
 		return fmt.Errorf("unsupported content type: %s", mediaType)
 	}
+	r.Body = http.MaxBytesReader(nil, r.Body, MaxJSONBodyBytes)
 	decoder := json.NewDecoder(r.Body)
 	defer func() { _ = r.Body.Close() }()
 	decoder.DisallowUnknownFields()

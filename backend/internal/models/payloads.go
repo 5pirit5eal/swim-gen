@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // UploadPlanRequest represents the request body for donating a training plan
 // @Description Request payload for donating a swim training plan to the system
@@ -12,6 +15,16 @@ type UploadPlanRequest struct {
 	AllowSharing bool     `json:"allow_sharing"`                   // AllowSharing indicates if the plan can be shared with others
 }
 
+func (r *UploadPlanRequest) Validate() error {
+	if len(r.Title) > MaxPlanTitleLength {
+		return fmt.Errorf("title exceeds maximum length of %d", MaxPlanTitleLength)
+	}
+	if len(r.Description) > MaxPlanDescriptionLength {
+		return fmt.Errorf("description exceeds maximum length of %d", MaxPlanDescriptionLength)
+	}
+	return r.Table.Validate()
+}
+
 // QueryRequest represents the request body for querying the RAG system
 // @Description Request payload for querying swim training plans from the RAG system
 type QueryRequest struct {
@@ -21,6 +34,13 @@ type QueryRequest struct {
 	Language    Language       `json:"language,omitempty" example:"en"`                                                                  // Language specifies the language for the response
 	PoolLength  any            `json:"pool_length,omitempty" validate:"oneof=25 50 Freiwasser"`                                          // PoolLength specifies the pool length for the training plan
 	Preferences *bool          `json:"preferences,omitempty"`                                                                            // Preferences indicates if the user profile should be used for generation
+}
+
+func (r *QueryRequest) Validate() error {
+	if len(r.Content) > MaxQueryContentLength {
+		return fmt.Errorf("query content exceeds maximum length of %d", MaxQueryContentLength)
+	}
+	return nil
 }
 
 // RAGResponse represents the response after a query to the RAG system
@@ -65,6 +85,16 @@ type PlanToPDFRequest struct {
 	FrontendBaseURL string   `json:"frontend_base_url,omitempty" example:"https://swim-gen.app"` // FrontendBaseURL is the base URL for drill links in the PDF
 }
 
+func (r *PlanToPDFRequest) Validate() error {
+	if len(r.Title) > MaxPlanTitleLength {
+		return fmt.Errorf("title exceeds maximum length of %d", MaxPlanTitleLength)
+	}
+	if len(r.Description) > MaxPlanDescriptionLength {
+		return fmt.Errorf("description exceeds maximum length of %d", MaxPlanDescriptionLength)
+	}
+	return r.Table.Validate()
+}
+
 // PlanToPDFResponse represents the response from PDF export
 // @Description Response containing the URI to the generated PDF file
 type PlanToPDFResponse struct {
@@ -101,6 +131,16 @@ type UpsertPlanRequest struct {
 	Table       Table  `json:"table" binding:"required"`
 }
 
+func (r *UpsertPlanRequest) Validate() error {
+	if len(r.Title) > MaxPlanTitleLength {
+		return fmt.Errorf("title exceeds maximum length of %d", MaxPlanTitleLength)
+	}
+	if len(r.Description) > MaxPlanDescriptionLength {
+		return fmt.Errorf("description exceeds maximum length of %d", MaxPlanDescriptionLength)
+	}
+	return r.Table.Validate()
+}
+
 // UpsertPlanResponse represents the response after upserting a training plan
 // @Description Response containing the upserted swim training plan
 type UpsertPlanResponse struct {
@@ -127,6 +167,13 @@ type ChatRequest struct {
 	Message    string   `json:"message" example:"Make it more challenging" binding:"required"` // Message is the user's input to the chat
 	Language   Language `json:"language,omitempty" example:"en"`                               // Language specifies the language for the response
 	PoolLength any      `json:"pool_length,omitempty" validate:"oneof=25 50 Freiwasser"`       // PoolLength specifies the pool length for the training plan
+}
+
+func (r *ChatRequest) Validate() error {
+	if len(r.Message) > MaxChatMessageLength {
+		return fmt.Errorf("chat message exceeds maximum length of %d", MaxChatMessageLength)
+	}
+	return nil
 }
 
 // ChatResponsePayload represents the response from a chat interaction
@@ -194,6 +241,19 @@ type AddPlanToHistoryRequest struct {
 	InitialMessage string `json:"initial_message,omitempty"`                                                                                // Initial user message to persist when linking an anonymous plan
 }
 
+func (a *AddPlanToHistoryRequest) Validate() error {
+	if len(a.Title) > MaxPlanTitleLength {
+		return fmt.Errorf("title exceeds maximum length of %d", MaxPlanTitleLength)
+	}
+	if len(a.Description) > MaxPlanDescriptionLength {
+		return fmt.Errorf("description exceeds maximum length of %d", MaxPlanDescriptionLength)
+	}
+	if len(a.InitialMessage) > MaxChatMessageLength {
+		return fmt.Errorf("initial message exceeds maximum length of %d", MaxChatMessageLength)
+	}
+	return a.Table.Validate()
+}
+
 func (a *AddPlanToHistoryRequest) Plan() *Plan {
 	return &Plan{
 		PlanID:      a.PlanID,
@@ -218,4 +278,17 @@ type FeedbackRequest struct {
 	WasSwam          bool   `json:"was_swam" example:"true"`
 	DifficultyRating int    `json:"difficulty_rating" example:"7" validate:"min=1,max=10"`
 	Comment          string `json:"comment,omitempty" example:"Great plan!"`
+}
+
+func (r *FeedbackRequest) Validate() error {
+	if r.Rating < 1 || r.Rating > 5 {
+		return fmt.Errorf("rating must be between 1 and 5")
+	}
+	if r.DifficultyRating < 1 || r.DifficultyRating > 10 {
+		return fmt.Errorf("difficulty rating must be between 1 and 10")
+	}
+	if len(r.Comment) > MaxFeedbackCommentLength {
+		return fmt.Errorf("feedback comment exceeds maximum length of %d", MaxFeedbackCommentLength)
+	}
+	return nil
 }

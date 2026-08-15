@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import axios from "axios";
-import { app, testingStore } from "../main";
+import { app, testingStore, MAX_JSON_BYTES, MAX_MULTIPART_BYTES } from "../main";
 import * as authModule from "../auth";
 
 vi.mock("axios");
@@ -58,6 +58,8 @@ describe("BFF Server", () => {
           "X-Serverless-Authorization": "Bearer google-identity-token",
           "Content-Type": "application/json",
         },
+        maxBodyLength: MAX_JSON_BYTES,
+        maxContentLength: MAX_JSON_BYTES,
       });
     });
 
@@ -83,6 +85,8 @@ describe("BFF Server", () => {
         headers: {
           "Content-Type": "application/json",
         },
+        maxBodyLength: MAX_JSON_BYTES,
+        maxContentLength: MAX_JSON_BYTES,
       });
     });
 
@@ -133,7 +137,37 @@ describe("BFF Server", () => {
           "X-Serverless-Authorization": "Bearer google-identity-token",
           "Content-Type": "application/json",
         },
+        maxBodyLength: MAX_JSON_BYTES,
+        maxContentLength: MAX_JSON_BYTES,
       });
+    });
+
+    it("should proxy multipart requests with MAX_MULTIPART_BYTES limits", async () => {
+      process.env.NODE_ENV = "test";
+      vi.spyOn(authModule, "getAuthHeaders").mockResolvedValue({
+        Authorization: "Bearer user-token",
+        "X-Serverless-Authorization": "Bearer google-token",
+      });
+
+      vi.mocked(axios).mockResolvedValue({
+        status: 200,
+        data: { success: true },
+      });
+
+      const response = await request(app)
+        .post("/api/file-to-plan")
+        .set("Authorization", "Bearer user-token")
+        .attach("file", Buffer.from("dummy-content"), "plan.png");
+
+      expect(response.status).toBe(200);
+      expect(axios).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: "POST",
+          url: `${process.env.BACKEND_URL}/file-to-plan`,
+          maxBodyLength: MAX_MULTIPART_BYTES,
+          maxContentLength: MAX_MULTIPART_BYTES,
+        }),
+      );
     });
   });
 
@@ -153,14 +187,85 @@ describe("BFF Server", () => {
         data: { success: true },
       });
 
-      const agent = request.agent(app);
+      const clientIp = "192.0.2.99";
       for (let i = 0; i < 100; i++) {
-        await agent.get("/api/some-endpoint").expect(200);
+        await request(app).get("/api/some-endpoint").set("X-Forwarded-For", clientIp).expect(200);
       }
 
       // The 101st request should be rate limited
-      const response = await agent.get("/api/some-endpoint");
+      const response = await request(app)
+        .get("/api/some-endpoint")
+        .set("X-Forwarded-For", clientIp);
       expect(response.status).toBe(429);
+    }, 15000);
+
+    it("should resolve client IP across multi-hop X-Forwarded-For headers", async () => {
+      vi.mocked(axios).mockResolvedValue({
+        status: 200,
+        data: { success: true },
+      });
+
+      // 100 requests with multi-hop X-Forwarded-For from IP 198.51.100.1
+      await Promise.all(
+        Array.from({ length: 100 }, () =>
+          request(app)
+            .get("/api/test-hops")
+            .set("X-Forwarded-For", "198.51.100.1, 10.0.0.1, 10.0.0.2")
+            .expect(200),
+        ),
+      );
+
+      // 101st request from 198.51.100.1 is rate limited
+      const blocked = await request(app)
+        .get("/api/test-hops")
+        .set("X-Forwarded-For", "198.51.100.1, 10.0.0.1, 10.0.0.2");
+      expect(blocked.status).toBe(429);
+
+      // A different client IP 198.51.100.2 through the same proxy chain is NOT rate limited
+      const allowed = await request(app)
+        .get("/api/test-hops")
+        .set("X-Forwarded-For", "198.51.100.2, 10.0.0.1, 10.0.0.2");
+      expect(allowed.status).toBe(200);
+    });
+
+    it("should isolate rate limits per authenticated user even on shared IP", async () => {
+      vi.mocked(axios).mockResolvedValue({
+        status: 200,
+        data: { success: true },
+      });
+
+      const makeJwt = (userId: string) => {
+        const payload = Buffer.from(JSON.stringify({ sub: userId })).toString("base64url");
+        return `Bearer header.${payload}.sig`;
+      };
+
+      const user1Token = makeJwt("user-111");
+      const user2Token = makeJwt("user-222");
+
+      // Exhaust limit for user 1
+      await Promise.all(
+        Array.from({ length: 100 }, () =>
+          request(app)
+            .get("/api/user-test")
+            .set("Authorization", user1Token)
+            .set("X-Forwarded-For", "203.0.113.50")
+            .expect(200),
+        ),
+      );
+
+      // 101st request from user 1 should be blocked
+      const user1Blocked = await request(app)
+        .get("/api/user-test")
+        .set("Authorization", user1Token)
+        .set("X-Forwarded-For", "203.0.113.50");
+      expect(user1Blocked.status).toBe(429);
+
+      // User 2 from the same IP should still be allowed
+      const user2Allowed = await request(app)
+        .get("/api/user-test")
+        .set("Authorization", user2Token)
+        .set("X-Forwarded-For", "203.0.113.50");
+      expect(user2Allowed.status).toBe(200);
     });
   });
 });

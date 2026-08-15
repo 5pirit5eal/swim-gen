@@ -14,7 +14,7 @@ locals {
 data "google_artifact_registry_docker_image" "bff_image" {
   location      = data.google_artifact_registry_repository.docker.location
   repository_id = data.google_artifact_registry_repository.docker.repository_id
-  image_name    = "swim-gen-bff:${var.bff_image_tag}"
+  image_name    = "swim-gen-bff:${var.version_tag != "latest" ? var.version_tag : var.bff_image_tag}"
 }
 
 resource "google_cloud_run_v2_service" "bff" {

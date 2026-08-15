@@ -1,5 +1,5 @@
 # Stage 1: Build the Vue.js application
-FROM node:24-alpine AS build-stage
+FROM node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43 AS build-stage
 
 WORKDIR /app
 
@@ -27,7 +27,7 @@ ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 ENV VITE_PUBLIC_BUCKET_NAME=$VITE_PUBLIC_BUCKET_NAME
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
@@ -37,7 +37,7 @@ RUN rm -f .env .env.*
 RUN npm run build
 
 # Stage 2: Serve the application with Nginx
-FROM nginx:stable-alpine AS production-stage
+FROM nginx:stable-alpine@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46 AS production-stage
 
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 

@@ -100,6 +100,10 @@ func (rs *RAGService) AddMessageHandler(w http.ResponseWriter, req *http.Request
 		http.Error(w, "plan_id and content are required", http.StatusBadRequest)
 		return
 	}
+	if len(amr.Content) > models.MaxChatMessageLength {
+		http.Error(w, "content exceeds maximum length", http.StatusBadRequest)
+		return
+	}
 	var prevMsgID *string
 	if amr.PreviousMessageID != "" {
 		prevMsgID = &amr.PreviousMessageID

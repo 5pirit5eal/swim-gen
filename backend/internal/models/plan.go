@@ -440,6 +440,36 @@ func (t *Table) Footer(lang Language) []string {
 	}
 }
 
+const (
+	MaxTableRows        = 100
+	MaxRowContentLength = 500
+	MaxRowMultiplierLen = 10
+	MaxRowIntensityLen  = 50
+	MaxRowBreakLen      = 50
+	MaxRowAmount        = 1000
+	MaxRowDistance      = 100000
+
+	MaxPlanTitleLength       = 200
+	MaxPlanDescriptionLength = 2000
+	MaxQueryContentLength    = 2000
+	MaxChatMessageLength     = 2000
+	MaxFeedbackCommentLength = 1000
+)
+
+// Validate validates the plan metadata and table structure.
+func (p *Plan) Validate() error {
+	if p == nil {
+		return fmt.Errorf("plan is nil")
+	}
+	if len(p.Title) > MaxPlanTitleLength {
+		return fmt.Errorf("plan title exceeds maximum length of %d", MaxPlanTitleLength)
+	}
+	if len(p.Description) > MaxPlanDescriptionLength {
+		return fmt.Errorf("plan description exceeds maximum length of %d", MaxPlanDescriptionLength)
+	}
+	return p.Table.Validate()
+}
+
 // Returns the json encoded table as a string
 func (t *Table) JSON() (string, error) {
 	bytes, err := json.Marshal(t)
@@ -449,22 +479,45 @@ func (t *Table) JSON() (string, error) {
 	return string(bytes), nil
 }
 
-// Validate recursively validates the table structure
+// Validate recursively validates the table structure, bounds, and field lengths
 func (t *Table) Validate() error {
-	return t.validateRowDepth(0)
+	totalRows := 0
+	if err := t.validateRows(0, &totalRows); err != nil {
+		return err
+	}
+	if totalRows > MaxTableRows {
+		return fmt.Errorf("total table row count exceeds maximum limit of %d (got %d)", MaxTableRows, totalRows)
+	}
+	return nil
 }
 
-func (t *Table) validateRowDepth(depth int) error {
+func (t *Table) validateRows(depth int, totalRows *int) error {
 	if depth > 1 {
 		return fmt.Errorf("maximum nesting depth (1) exceeded")
 	}
 
 	for i, row := range *t {
-		if row.Amount < 0 {
-			return fmt.Errorf("row %d has negative amount: %d", i, row.Amount)
+		*totalRows++
+		if *totalRows > MaxTableRows {
+			return fmt.Errorf("total table row count exceeds maximum limit of %d", MaxTableRows)
 		}
-		if row.Distance < 0 {
-			return fmt.Errorf("row %d has negative distance: %d", i, row.Distance)
+		if row.Amount < 0 || row.Amount > MaxRowAmount {
+			return fmt.Errorf("row %d has invalid amount: %d (must be between 0 and %d)", i, row.Amount, MaxRowAmount)
+		}
+		if row.Distance < 0 || row.Distance > MaxRowDistance {
+			return fmt.Errorf("row %d has invalid distance: %d (must be between 0 and %d)", i, row.Distance, MaxRowDistance)
+		}
+		if len(row.Content) > MaxRowContentLength {
+			return fmt.Errorf("row %d content exceeds maximum length of %d", i, MaxRowContentLength)
+		}
+		if len(row.Multiplier) > MaxRowMultiplierLen {
+			return fmt.Errorf("row %d multiplier exceeds maximum length of %d", i, MaxRowMultiplierLen)
+		}
+		if len(row.Intensity) > MaxRowIntensityLen {
+			return fmt.Errorf("row %d intensity exceeds maximum length of %d", i, MaxRowIntensityLen)
+		}
+		if len(row.Break) > MaxRowBreakLen {
+			return fmt.Errorf("row %d break exceeds maximum length of %d", i, MaxRowBreakLen)
 		}
 
 		if len(row.SubRows) > 0 {
@@ -472,7 +525,7 @@ func (t *Table) validateRowDepth(depth int) error {
 				return fmt.Errorf("row %d has subRows but Amount = 0", i)
 			}
 			subRowsTable := Table(row.SubRows)
-			if err := subRowsTable.validateRowDepth(depth + 1); err != nil {
+			if err := subRowsTable.validateRows(depth+1, totalRows); err != nil {
 				return fmt.Errorf("row %d subRows: %w", i, err)
 			}
 		}
