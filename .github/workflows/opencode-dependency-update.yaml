@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: ⬇️ Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
@@ -35,25 +35,25 @@ jobs:
 
       - name: 🔑 Create Application Default Credentials file
         id: auth
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: ${{ vars.WIF_PROVIDER }}
           service_account: ${{ vars.WIF_SA }}
           create_credentials_file: true
 
       - name: 🐹 Setup Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
 
       - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version: 24.x
 
       - name: Run OpenCode
-        uses: anomalyco/opencode/github@latest
+        uses: anomalyco/opencode/github@d60393835c5c40351d804f0e94013922c34b38bf # v1.0.224
         env:
           VERTEX_LOCATION: "global"
           GOOGLE_CLOUD_PROJECT: ${{ vars.GOOGLE_VERTEX_PROJECT_ID || steps.auth.outputs.project_id }}
@@ -61,10 +61,10 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
           OPENCODE_ENABLE_EXA: 1
         with:
-          model: google-vertex/gemini-3.1-pro-preview
+          model: google-vertex/gemini-3.7-flash
           use_github_token: true
           prompt: |
-            You are an automated dependency update agent for a monorepo with three services:
+            Update dependencies for a monorepo with three services:
             - **backend/**: Go service (go.mod / go.sum)
             - **bff/**: Node.js/TypeScript BFF (package.json / package-lock.json)
             - **frontend/**: Vue.js/TypeScript SPA (package.json / package-lock.json)
@@ -93,13 +93,13 @@ jobs:
             2. Run in `backend/`: `go test -v ./...`
 
             ### BFF validation
-            1. Run in `bff/`: `npm install`
+            1. Run in `bff/`: `npm ci`
             2. Run in `bff/`: `npm run type-check`
             3. Run in `bff/`: `npm run lint`
             4. Run in `bff/`: `npm run test`
 
             ### Frontend validation
-            1. Run in `frontend/`: `npm install`
+            1. Run in `frontend/`: `npm ci`
             2. Run in `frontend/`: `npm run type-check`
             3. Run in `frontend/`: `npm run lint`
             4. Run in `frontend/`: `npm run test:unit`

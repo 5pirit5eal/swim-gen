@@ -32,7 +32,7 @@ data "supabase_apikeys" "development_keys" {
 data "google_artifact_registry_docker_image" "backend_image" {
   location      = data.google_artifact_registry_repository.docker.location
   repository_id = data.google_artifact_registry_repository.docker.repository_id
-  image_name    = "swim-gen-backend:${var.backend_image_tag}"
+  image_name    = "swim-gen-backend:${var.version_tag != "latest" ? var.version_tag : var.backend_image_tag}"
 }
 
 resource "google_cloud_run_v2_service" "backend" {
