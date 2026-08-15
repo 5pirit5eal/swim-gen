@@ -1,7 +1,11 @@
 package pdf_test
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
 	"os"
+	"path"
 	"testing"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
@@ -315,53 +319,58 @@ um dich optimal auf die Sprints vorzubereiten.`,
 }
 
 func TestGenerateStoragePath(t *testing.T) {
+	hashPath := func(userID, planID, filename string) string {
+		hash := sha256.Sum256([]byte(fmt.Sprintf("%s:%s", userID, planID)))
+		return path.Join(hex.EncodeToString(hash[:]), filename)
+	}
+
 	tests := []struct {
-		name     string
-		username string
-		planID   string
-		title    string
-		want     string
+		name   string
+		userID string
+		planID string
+		title  string
+		want   string
 	}{
 		{
-			name:     "Authenticated user with title",
-			username: "johndoe",
-			planID:   "plan123",
-			title:    "My Training Plan",
-			want:     "johndoe/my_training_plan.pdf",
+			name:   "Authenticated user with title",
+			userID: "user-123",
+			planID: "plan-456",
+			title:  "My Training Plan",
+			want:   hashPath("user-123", "plan-456", "my_training_plan.pdf"),
 		},
 		{
-			name:     "Authenticated user with special chars in title",
-			username: "johndoe",
-			planID:   "plan123",
-			title:    "Technik-Tüftler & Ausdauer-As",
-			want:     "johndoe/technik-tueftler_ausdauer-as.pdf",
+			name:   "Authenticated user with special chars in title",
+			userID: "user-123",
+			planID: "plan-456",
+			title:  "Technik-Tüftler & Ausdauer-As",
+			want:   hashPath("user-123", "plan-456", "technik-tueftler_ausdauer-as.pdf"),
 		},
 		{
-			name:     "Authenticated user empty title",
-			username: "johndoe",
-			planID:   "plan123",
-			title:    "",
-			want:     "johndoe/training-plan.pdf",
+			name:   "Authenticated user empty title",
+			userID: "user-123",
+			planID: "plan-456",
+			title:  "",
+			want:   hashPath("user-123", "plan-456", "training-plan.pdf"),
 		},
 		{
-			name:     "Anonymous with PlanID",
-			username: "",
-			planID:   "plan123",
-			title:    "My Plan",
-			want:     "plan123/my_plan.pdf",
+			name:   "Anonymous with PlanID",
+			userID: "",
+			planID: "plan-456",
+			title:  "My Plan",
+			want:   hashPath("", "plan-456", "my_plan.pdf"),
 		},
 		{
-			name:     "Anonymous with PlanID empty title",
-			username: "",
-			planID:   "plan123",
-			title:    "",
-			want:     "plan123/training-plan.pdf",
+			name:   "Anonymous with PlanID empty title",
+			userID: "",
+			planID: "plan-456",
+			title:  "",
+			want:   hashPath("", "plan-456", "training-plan.pdf"),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := pdf.GenerateStoragePath(tt.username, tt.planID, tt.title)
+			got := pdf.GenerateStoragePath(tt.userID, tt.planID, tt.title)
 			assert.Equal(t, tt.want, got)
 		})
 	}

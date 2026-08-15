@@ -25,3 +25,15 @@ func TestChatHandlerRejectsInvalidPlanBeforeDatabaseAccess(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, response.Code)
 }
+
+func TestChatHandlerRejectsOversizedMessage(t *testing.T) {
+	service := &RAGService{}
+
+	oversizedMessage := string(make([]byte, 2001))
+	body := `{"plan_id":"00000000-0000-0000-0000-000000000001","message":"` + oversizedMessage + `"}`
+	response := httptest.NewRecorder()
+	service.ChatHandler(response, memoryHandlerRequest(http.MethodPost, "/chat", body, "user-a"))
+
+	assert.Equal(t, http.StatusBadRequest, response.Code)
+	assert.Equal(t, "invalid request body\n", response.Body.String())
+}

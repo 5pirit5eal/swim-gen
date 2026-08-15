@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import axios from "axios";
-import { app, testingStore } from "../main";
+import { app, testingStore, MAX_JSON_BYTES, MAX_MULTIPART_BYTES } from "../main";
 import * as authModule from "../auth";
 
 vi.mock("axios");
@@ -58,6 +58,8 @@ describe("BFF Server", () => {
           "X-Serverless-Authorization": "Bearer google-identity-token",
           "Content-Type": "application/json",
         },
+        maxBodyLength: MAX_JSON_BYTES,
+        maxContentLength: MAX_JSON_BYTES,
       });
     });
 
@@ -83,6 +85,8 @@ describe("BFF Server", () => {
         headers: {
           "Content-Type": "application/json",
         },
+        maxBodyLength: MAX_JSON_BYTES,
+        maxContentLength: MAX_JSON_BYTES,
       });
     });
 
@@ -133,7 +137,37 @@ describe("BFF Server", () => {
           "X-Serverless-Authorization": "Bearer google-identity-token",
           "Content-Type": "application/json",
         },
+        maxBodyLength: MAX_JSON_BYTES,
+        maxContentLength: MAX_JSON_BYTES,
       });
+    });
+
+    it("should proxy multipart requests with MAX_MULTIPART_BYTES limits", async () => {
+      process.env.NODE_ENV = "test";
+      vi.spyOn(authModule, "getAuthHeaders").mockResolvedValue({
+        Authorization: "Bearer user-token",
+        "X-Serverless-Authorization": "Bearer google-token",
+      });
+
+      vi.mocked(axios).mockResolvedValue({
+        status: 200,
+        data: { success: true },
+      });
+
+      const response = await request(app)
+        .post("/api/file-to-plan")
+        .set("Authorization", "Bearer user-token")
+        .attach("file", Buffer.from("dummy-content"), "plan.png");
+
+      expect(response.status).toBe(200);
+      expect(axios).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: "POST",
+          url: `${process.env.BACKEND_URL}/file-to-plan`,
+          maxBodyLength: MAX_MULTIPART_BYTES,
+          maxContentLength: MAX_MULTIPART_BYTES,
+        }),
+      );
     });
   });
 

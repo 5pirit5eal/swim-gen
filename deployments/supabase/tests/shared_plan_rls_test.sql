@@ -266,7 +266,7 @@ set local role postgres;
 select throws_ok(
   format(
     'insert into shared_history (user_id, plan_id, shared_by, share_method) values (%L, %L, %L, %L)',
-    :'test_recipient_id', :'test_plan_id', :'test_recipient_id', 'link'
+    :'test_recipient_id', :'test_plan_id', gen_random_uuid(), 'link'
   ),
   '23503',
   null,

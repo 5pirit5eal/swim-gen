@@ -88,11 +88,10 @@ select set_config(
   true
 );
 
-delete from plans where plan_id = :'test_shared_plan_id';
-
-select is(
-  (select count(*)::integer from plans where plan_id = :'test_shared_plan_id'),
-  1,
+select throws_ok(
+  format('delete from plans where plan_id = %L', :'test_shared_plan_id'),
+  '42501',
+  null,
   'recipient cannot delete owner shared plan directly'
 );
 
@@ -104,6 +103,8 @@ select is(
   0,
   'recipient can remove plan from their own shared_history'
 );
+
+set local role postgres;
 
 select is(
   (select count(*)::integer from shared_plans where plan_id = :'test_shared_plan_id'),

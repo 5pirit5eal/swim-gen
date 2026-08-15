@@ -107,3 +107,51 @@ func TestGetUploadedPlanHandlerHidesDatabaseErrors(t *testing.T) {
 	assert.Equal(t, "Internal server error\n", response.Body.String())
 	assert.False(t, strings.Contains(response.Body.String(), "database password"))
 }
+
+func TestValidateFileContent(t *testing.T) {
+	pngBytes := []byte("\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4")
+	jpegBytes := []byte("\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00`\x00`\x00\x00")
+	pdfBytes := []byte("%PDF-1.4\n%âãÏÓ\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF")
+	webpBytes := []byte("RIFF\x24\x00\x00\x00WEBPVP8 \x18\x00\x00\x00")
+	spoofedScriptBytes := []byte("#!/bin/bash\necho 'malicious'")
+
+	t.Run("Valid PNG", func(t *testing.T) {
+		mime, err := validateFileContent(pngBytes, "image/png")
+		require.NoError(t, err)
+		assert.Equal(t, "image/png", mime)
+	})
+
+	t.Run("Valid JPEG", func(t *testing.T) {
+		mime, err := validateFileContent(jpegBytes, "image/jpeg")
+		require.NoError(t, err)
+		assert.Equal(t, "image/jpeg", mime)
+	})
+
+	t.Run("Valid PDF", func(t *testing.T) {
+		mime, err := validateFileContent(pdfBytes, "application/pdf")
+		require.NoError(t, err)
+		assert.Equal(t, "application/pdf", mime)
+	})
+
+	t.Run("Valid WEBP", func(t *testing.T) {
+		mime, err := validateFileContent(webpBytes, "image/webp")
+		require.NoError(t, err)
+		assert.Equal(t, "image/webp", mime)
+	})
+
+	t.Run("Spoofed PNG with script content", func(t *testing.T) {
+		_, err := validateFileContent(spoofedScriptBytes, "image/png")
+		assert.Error(t, err)
+	})
+
+	t.Run("Mismatched JPEG content for PDF", func(t *testing.T) {
+		_, err := validateFileContent(jpegBytes, "application/pdf")
+		assert.Error(t, err)
+	})
+
+	t.Run("File too short", func(t *testing.T) {
+		_, err := validateFileContent([]byte("ab"), "image/png")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "too small")
+	})
+}

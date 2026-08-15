@@ -17,7 +17,10 @@ const app = express();
 app.set("trust proxy", 1);
 const port = process.env.PORT || 8080;
 
-// Middleware to handle JSON bodies
+export const MAX_JSON_BYTES = 2 * 1024 * 1024; // 2 MB
+export const MAX_MULTIPART_BYTES = 20 * 1024 * 1024; // 20 MB
+
+// Middleware to handle JSON bodies with an explicit limit
 // Note: This middleware only applies to non-multipart requests
 // Multipart requests are handled separately in the proxy handler
 app.use((req, res, next) => {
@@ -26,7 +29,7 @@ app.use((req, res, next) => {
     // Skip JSON parsing for multipart requests
     next();
   } else {
-    express.json()(req, res, next);
+    express.json({ limit: MAX_JSON_BYTES })(req, res, next);
   }
 });
 
@@ -142,8 +145,8 @@ async function proxyRequest(req: express.Request, res: express.Response) {
           "Content-Type": contentType, // Preserve original multipart Content-Type with boundary
           ...(req.headers["content-length"] && { "Content-Length": req.headers["content-length"] }),
         },
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity,
+        maxBodyLength: MAX_MULTIPART_BYTES,
+        maxContentLength: MAX_MULTIPART_BYTES,
       });
     } else {
       // For JSON requests, use the parsed body
@@ -155,6 +158,8 @@ async function proxyRequest(req: express.Request, res: express.Response) {
           ...authHeaders,
           "Content-Type": "application/json",
         },
+        maxBodyLength: MAX_JSON_BYTES,
+        maxContentLength: MAX_JSON_BYTES,
       });
     }
 

@@ -3,6 +3,8 @@ package pdf
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"path"
@@ -161,19 +163,17 @@ func GenerateFilename() string {
 	return path.Join("anonymous", uuid.NewString()+".pdf")
 }
 
-func GenerateStoragePath(username, planID, title string) string {
+func GenerateStoragePath(userID, planID, title string) string {
 	sanitizedTitle := sanitizeFilename(title)
 	if sanitizedTitle == "" {
 		sanitizedTitle = "training-plan"
 	}
 	filename := sanitizedTitle + ".pdf"
 
-	if username != "" {
-		return path.Join(username, filename)
-	}
-
-	if planID != "" {
-		return path.Join(planID, filename)
+	if userID != "" || planID != "" {
+		hash := sha256.Sum256([]byte(fmt.Sprintf("%s:%s", userID, planID)))
+		hashHex := hex.EncodeToString(hash[:])
+		return path.Join(hashHex, filename)
 	}
 
 	return GenerateFilename()

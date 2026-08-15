@@ -46,6 +46,11 @@ func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
+	if err := chatReq.Validate(); err != nil {
+		logger.Error("Chat request validation failed", httplog.ErrAttr(err))
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
 	if chatReq.PlanID != "" {
 		if _, err := uuid.Parse(chatReq.PlanID); err != nil {
 			http.Error(w, "Plan not found", http.StatusNotFound)

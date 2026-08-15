@@ -74,6 +74,30 @@ func (rs *RAGService) Close() {
 	slog.Info("RAG server closed successfully")
 }
 
+// MaxUploadBytes defines the maximum allowed size for uploaded files (20 MB).
+const MaxUploadBytes = 20 << 20
+
+// validateFileContent validates that the actual bytes of the file match the expected MIME type.
+func validateFileContent(fileBytes []byte, expectedMime string) (string, error) {
+	if len(fileBytes) < 4 {
+		return "", fmt.Errorf("file is too small to determine format")
+	}
+	detected := http.DetectContentType(fileBytes)
+	if expectedMime == "application/pdf" && (detected == "application/pdf" || strings.HasPrefix(string(fileBytes), "%PDF-")) {
+		return "application/pdf", nil
+	}
+	if expectedMime == "image/png" && detected == "image/png" {
+		return "image/png", nil
+	}
+	if expectedMime == "image/jpeg" && detected == "image/jpeg" {
+		return "image/jpeg", nil
+	}
+	if expectedMime == "image/webp" && (detected == "image/webp" || (len(fileBytes) >= 12 && string(fileBytes[0:4]) == "RIFF" && string(fileBytes[8:12]) == "WEBP")) {
+		return "image/webp", nil
+	}
+	return "", fmt.Errorf("file content (%s) does not match expected format (%s)", detected, expectedMime)
+}
+
 // getMimeTypeFromFilename returns the MIME type based on the file extension.
 // Returns an error if the file type is not supported.
 func getMimeTypeFromFilename(filename string) (string, error) {
@@ -121,6 +145,11 @@ func (rs *RAGService) UploadPlanHandler(w http.ResponseWriter, req *http.Request
 
 	err := models.GetRequestJSON(req, dpr)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := dpr.Validate(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -196,37 +225,51 @@ func (rs *RAGService) FileToPlanHandler(w http.ResponseWriter, req *http.Request
 	logger := httplog.LogEntry(req.Context())
 	logger.Info("Request for file to plan received...")
 
+	// Guard against oversized request bodies
+	req.Body = http.MaxBytesReader(w, req.Body, MaxUploadBytes)
+
 	// 1. tell Go to parse the incoming multipart stream
-	err := req.ParseMultipartForm(20 << 20) // 20 MB max memory
+	err := req.ParseMultipartForm(MaxUploadBytes)
 	if err != nil {
+		logger.Error("Failed to parse multipart form", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// 2. retrieve the file (form field name must match the client's key)
 	file, header, err := req.FormFile("file")
-	logger.Debug("Filename", "filename", header.Filename)
 	if err != nil {
+		logger.Error("Failed to read form file", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	logger.Debug("Filename", "filename", header.Filename)
 	defer func() { _ = file.Close() }()
 
-	// 3. Detect MIME type from filename
-	mimeType, err := getMimeTypeFromFilename(header.Filename)
+	// 3. Detect expected MIME type from filename
+	expectedMimeType, err := getMimeTypeFromFilename(header.Filename)
 	if err != nil {
 		logger.Error("Unsupported file type", "filename", header.Filename, httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	logger.Debug("Detected MIME type", "mimeType", mimeType)
 
 	// read the file
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
+		logger.Error("Failed to read file content", httplog.ErrAttr(err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// 4. Validate actual file content against magic bytes
+	mimeType, err := validateFileContent(fileBytes, expectedMimeType)
+	if err != nil {
+		logger.Error("File content validation failed", "filename", header.Filename, httplog.ErrAttr(err))
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	logger.Debug("Detected MIME type", "mimeType", mimeType)
 
 	logger.Debug("Converting file to plan")
 	// Get language from form data
@@ -368,10 +411,22 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	// Increment the export count for the user profile if UserID is provided
+	if err := qr.Validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Increment export counts
+	var userID string
+	if val := req.Context().Value(models.UserIdCtxKey); val != nil {
+		if uid, ok := val.(string); ok {
+			userID = uid
+		}
+	}
+
 	if qr.PlanID != "" {
 		httplog.LogEntrySetField(req.Context(), "plan_id", slog.StringValue(qr.PlanID))
-		err = rs.db.IncrementExportCount(req.Context(), req.Context().Value(models.UserIdCtxKey).(string), qr.PlanID)
+		err = rs.db.IncrementExportCount(req.Context(), userID, qr.PlanID)
 		if err != nil {
 			logger.Error("Failed to increment export count", httplog.ErrAttr(err))
 		}
@@ -395,19 +450,8 @@ func (rs *RAGService) PlanToPDFHandler(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	// Determine storage path
-	var username string
-	userID := req.Context().Value(models.UserIdCtxKey).(string)
-	if userID != "" {
-		profile, err := rs.db.GetUserProfile(req.Context(), userID)
-		if err != nil {
-			logger.Warn("Failed to get user profile for PDF path generation", httplog.ErrAttr(err))
-		} else if profile != nil {
-			username = profile.Username
-		}
-	}
-
-	storagePath := pdf.GenerateStoragePath(username, qr.PlanID, qr.Title)
+	// Determine storage path based on reproducible hash without exposing PII
+	storagePath := pdf.GenerateStoragePath(userID, qr.PlanID, qr.Title)
 
 	// Upload the PDF to cloud storage
 	uri, err := pdf.UploadPDF(req.Context(), rs.cfg.Bucket.ServiceAccount, rs.cfg.Bucket.Name, storagePath, planPDF)
@@ -452,6 +496,11 @@ func (rs *RAGService) UpsertPlanHandler(w http.ResponseWriter, req *http.Request
 
 	err := models.GetRequestJSON(req, upr)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := upr.Validate(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -515,6 +564,12 @@ func (rs *RAGService) addPlanToHistory(
 	err := models.GetRequestJSON(req, &plan)
 	if err != nil {
 		logger.Error("Failed to decode add-plan-to-history request", httplog.ErrAttr(err))
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	if err := plan.Validate(); err != nil {
+		logger.Error("Add-plan-to-history validation failed", httplog.ErrAttr(err))
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
@@ -672,7 +727,11 @@ func (rs *RAGService) submitFeedback(
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
-	if _, err := uuid.Parse(fr.PlanID); err != nil || fr.Rating < 1 || fr.Rating > 5 || fr.DifficultyRating < 1 || fr.DifficultyRating > 10 {
+	if err := fr.Validate(); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	if _, err := uuid.Parse(fr.PlanID); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}

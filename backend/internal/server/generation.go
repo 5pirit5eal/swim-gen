@@ -74,6 +74,11 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if err := qr.Validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	userId := req.Context().Value(models.UserIdCtxKey).(string)
 
 	var userProfileStr string
