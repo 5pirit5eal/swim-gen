@@ -2,7 +2,7 @@ import type { CorsOptions } from "cors";
 
 /**
  * Normalizes an origin string:
- * - Ensures scheme exists (defaults to https:// if omitted, unless localhost where http:// is common)
+ * - Ensures scheme exists (defaults to https:// if omitted)
  * - Strips trailing slashes
  * - Normalizes scheme + hostname to lowercase
  */
