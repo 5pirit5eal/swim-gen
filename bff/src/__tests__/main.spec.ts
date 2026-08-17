@@ -8,6 +8,7 @@ vi.mock("axios");
 
 // Reset mocks between tests
 beforeEach(async () => {
+  vi.restoreAllMocks();
   vi.clearAllMocks();
   process.env.NODE_ENV = "development";
   process.env.BACKEND_URL = "http://backend.test";
