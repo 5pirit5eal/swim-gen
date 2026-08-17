@@ -156,7 +156,6 @@ jobs:
       infra_outputs: ${{ needs.opentofu-infra.outputs.tf_outputs }}
       checkout_repo: ${{ needs.get-deployment-data.outputs.head_repo_full_name }}
       checkout_ref: ${{ needs.get-deployment-data.outputs.head_sha }}
-      version: ${{ needs.get-deployment-data.outputs.head_sha }}
     secrets: inherit
 
   react-to-comment:
