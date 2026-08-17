@@ -10,6 +10,7 @@ import { trace, context as otelContext } from "@opentelemetry/api";
 import { MemoryStore } from "./memory-store";
 import * as authModule from "./auth";
 import { logger } from "./logger";
+import { createCorsOptions } from "./cors";
 
 dotenv.config();
 
@@ -77,14 +78,7 @@ app.use((req, res, next) => {
 });
 
 // Enable CORS
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || false, // Disable CORS if FRONTEND_URL not set
-  credentials: true, // Allow cookies and authorization headers
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
-app.use(cors(corsOptions));
+app.use(cors(createCorsOptions()));
 
 // Rate limiting
 export const store = new MemoryStore();
