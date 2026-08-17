@@ -1,3 +1,5 @@
+## [2.46.2](https://github.com/5pirit5eal/swim-gen/compare/v2.46.1...v2.46.2) (2026-08-17)
+
 ## [2.46.1](https://github.com/5pirit5eal/swim-gen/compare/v2.46.0...v2.46.1) (2026-08-15)
 
 ## [2.46.0](https://github.com/5pirit5eal/swim-gen/compare/v2.45.0...v2.46.0) (2026-08-14)
