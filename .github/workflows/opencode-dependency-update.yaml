@@ -56,7 +56,7 @@ jobs:
         uses: anomalyco/opencode/github@d60393835c5c40351d804f0e94013922c34b38bf # v1.0.224
         env:
           VERTEX_LOCATION: "global"
-          GOOGLE_CLOUD_PROJECT: ${{ vars.GOOGLE_VERTEX_PROJECT_ID || steps.auth.outputs.project_id }}
+          GOOGLE_CLOUD_PROJECT: ${{ vars.PROJECT_ID || steps.auth.outputs.project_id }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
           OPENCODE_ENABLE_EXA: 1

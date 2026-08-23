@@ -90,3 +90,36 @@ jobs:
       - name: 🧪 Run Tests
         run: npm run test:unit
         working-directory: frontend
+
+      - name: 🏗️ Build static assets
+        run: npm run build
+        working-directory: frontend
+
+      - name: 🔎 Verify static security resources
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s frontend/dist/.well-known/security.txt
+          test -s frontend/dist/llms.txt
+          ! grep -Fq '<!doctype html>' frontend/dist/.well-known/security.txt
+          ! grep -Fq '<!doctype html>' frontend/dist/llms.txt
+
+      - name: 🔐 Validate security metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          security_file=frontend/public/.well-known/security.txt
+          grep -Eq '^Contact: mailto:[^ ]+$' "$security_file"
+          grep -Eq '^Canonical: https://[^ ]+$' "$security_file"
+          grep -Eq '^Policy: https://[^ ]+$' "$security_file"
+          expiry=$(awk -F': ' '$1 == "Expires" {print $2}' "$security_file")
+          test -n "$expiry"
+          ! grep -Fq '<' "$security_file"
+          expiry_epoch=$(date -u -j -f '%Y-%m-%dT%H:%M:%SZ' "$expiry" +%s 2>/dev/null || date -u -d "$expiry" +%s)
+          now_epoch=$(date -u +%s)
+          thirty_days=$((30 * 24 * 60 * 60))
+          test "$expiry_epoch" -gt "$now_epoch"
+          if [ $((expiry_epoch - now_epoch)) -lt "$thirty_days" ]; then
+            echo "security.txt expires in fewer than 30 days" >&2
+            exit 1
+          fi

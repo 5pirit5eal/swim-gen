@@ -10,12 +10,13 @@ import (
 )
 
 type Config struct {
-	ProjectID  string `env:"PROJECT_ID"`
-	Region     string `env:"REGION"`
-	Model      string `env:"MODEL"`
-	SmallModel string `env:"SMALL_MODEL" default:"gemini-3.5-flash-lite"`
-	LogLevel   string `env:"LOG_LEVEL"`
-	Port       string `env:"PORT"`
+	ProjectID      string `env:"PROJECT_ID"`
+	Region         string `env:"REGION"`
+	Model          string `env:"MODEL"`
+	SmallModel     string `env:"SMALL_MODEL" default:"gemini-3.5-flash-lite"`
+	LogLevel       string `env:"LOG_LEVEL"`
+	Port           string `env:"PORT"`
+	SwaggerEnabled bool   `env:"SWAGGER_ENABLED" default:"false"`
 
 	Embedding struct {
 		Name      string `env:"EMBEDDING_NAME"`
@@ -82,6 +83,10 @@ func setField(field reflect.Value, val string) error {
 	case reflect.Float64:
 		if val, err := strconv.ParseFloat(val, 64); err == nil {
 			field.Set(reflect.ValueOf(val).Convert(field.Type()))
+		}
+	case reflect.Bool:
+		if val, err := strconv.ParseBool(val); err == nil {
+			field.SetBool(val)
 		}
 	}
 
