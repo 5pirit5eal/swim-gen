@@ -24,6 +24,9 @@ describe("BFF Server", () => {
       const response = await request(app).get("/health");
       expect(response.status).toBe(200);
       expect(response.text).toBe("OK");
+      expect(response.headers["x-powered-by"]).toBeUndefined();
+      expect(response.headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+      expect(response.headers["permissions-policy"]).toContain("camera=()");
     });
   });
 
@@ -50,6 +53,8 @@ describe("BFF Server", () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ success: true, message: "Backend response" });
+      expect(response.headers["x-powered-by"]).toBeUndefined();
+      expect(response.headers["cache-control"]).toBe("no-store");
 
       expect(authModule.getAuthHeaders).toHaveBeenCalledWith("Bearer user-supabase-token");
       expect(axios).toHaveBeenCalledWith({

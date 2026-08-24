@@ -12,13 +12,29 @@ import (
 
 const ProfilesTableName string = "profiles"
 
+const profileSelectQuery = `
+SELECT user_id,
+       updated_at,
+       username,
+       experience,
+       preferred_language,
+       preferred_strokes,
+       categories,
+       overall_generations,
+       monthly_generations,
+       exports,
+       css_200m_seconds,
+       css_400m_seconds
+FROM public.profiles
+WHERE user_id = $1`
+
 // Retrieves a user from the database by their ID
 func (db *RAGDB) GetUserProfile(ctx context.Context, id string) (*models.UserProfile, error) {
 	logger := httplog.LogEntry(ctx)
 
 	// Query the database for the user with the given ID
 	var user models.UserProfile
-	err := pgxscan.Get(ctx, db.Conn, &user, fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1", ProfilesTableName), id)
+	err := pgxscan.Get(ctx, db.Conn, &user, profileSelectQuery, id)
 	if err != nil {
 		logger.Error("Error querying user", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("pgxscan.Select: %w", err)

@@ -28,3 +28,8 @@ func TestIncrementExportCountValidation(t *testing.T) {
 		assert.Contains(t, err.Error(), "invalid user UUID")
 	})
 }
+
+func TestGetUserProfileSelectsExplicitColumns(t *testing.T) {
+	assert.NotContains(t, profileSelectQuery, "SELECT *")
+	assert.Contains(t, profileSelectQuery, "FROM public.profiles")
+}

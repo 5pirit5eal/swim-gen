@@ -15,11 +15,28 @@ import { createCorsOptions } from "./cors";
 dotenv.config();
 
 const app = express();
+app.disable("x-powered-by");
 app.set("trust proxy", true);
 const port = process.env.PORT || 8080;
 
 export const MAX_JSON_BYTES = 2 * 1024 * 1024; // 2 MB
 export const MAX_MULTIPART_BYTES = 20 * 1024 * 1024; // 20 MB
+
+function securityHeaders(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const forwardedProto = req.get("x-forwarded-proto");
+  if (req.secure || forwardedProto === "https") {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  if (req.path.startsWith("/api")) {
+    res.setHeader("Cache-Control", "no-store");
+  }
+  next();
+}
 
 // Helper to extract authenticated user id from Supabase JWT without signature verification
 export function getUserIdFromRequest(req: express.Request): string | undefined {
@@ -67,6 +84,8 @@ export const rateLimitKeyGenerator = (req: express.Request): string => {
 // Middleware to handle JSON bodies with an explicit limit
 // Note: This middleware only applies to non-multipart requests
 // Multipart requests are handled separately in the proxy handler
+app.use(securityHeaders);
+
 app.use((req, res, next) => {
   const contentType = req.headers["content-type"] || "";
   if (contentType.startsWith("multipart/")) {
@@ -194,6 +213,14 @@ async function proxyRequest(req: express.Request, res: express.Response) {
       });
     }
 
+    const forwardedHeaders = ["content-type", "content-disposition", "etag", "vary"];
+    for (const header of forwardedHeaders) {
+      const value = response.headers?.[header];
+      if (typeof value === "string") {
+        res.setHeader(header, value);
+      }
+    }
+    res.setHeader("Cache-Control", "no-store");
     res.status(response.status).json(response.data);
   } catch (error) {
     logger.error(`Error proxying request to ${targetUrl}:`, error);
@@ -201,6 +228,7 @@ async function proxyRequest(req: express.Request, res: express.Response) {
       const axiosError = error as { response: { status: number; data: unknown } };
       res.status(axiosError.response.status).json(axiosError.response.data);
     } else {
+      logger.error("Unexpected error during proxying:", error);
       res.status(500).json({ message: "Error proxying request to backend" });
     }
   }

@@ -26,8 +26,11 @@ FROM node:24-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f935954
 WORKDIR /usr/src/app
 
 # Copy the pruned node_modules and the built code from the builder stage
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder --chown=node:node /usr/src/app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /usr/src/app/dist ./dist
+
+# Run the application as the built-in non-root Node user.
+USER node
 
 # Expose the port the app runs on
 EXPOSE 8080

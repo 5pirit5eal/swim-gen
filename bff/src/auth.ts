@@ -40,8 +40,8 @@ export async function getAuthHeaders(userAuthHeader?: string): Promise<Record<st
     // Add Google Identity token as X-Serverless-Authorization
     // This keeps it separate from the user's Supabase token
     headers["X-Serverless-Authorization"] = googleAuthHeader;
-  } catch (error) {
-    logger.error("Failed to get Google Identity token:", error);
+  } catch {
+    logger.error("Failed to get Google Identity token");
     throw new Error("Failed to authenticate with backend service.");
   }
 

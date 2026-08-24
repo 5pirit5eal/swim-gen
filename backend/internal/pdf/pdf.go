@@ -132,6 +132,7 @@ func UploadPDF(ctx context.Context, serviceAccount, bucketName, objectName strin
 	// Creates an object writer.
 	wc := bucket.Object(objectName).NewWriter(ctx)
 	wc.ContentType = "application/pdf"
+	wc.CacheControl = "private, no-store, max-age=0"
 
 	// Uploads the PDF data.
 	if _, err := io.Copy(wc, buf); err != nil {
