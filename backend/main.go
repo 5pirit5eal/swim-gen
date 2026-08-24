@@ -177,6 +177,21 @@ func traceIDMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func securityHeadersMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store")
+		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+			w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+		}
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()")
+		w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
+		next.ServeHTTP(w, r)
+	})
+}
+
 // Setup of routes for the RAG service
 func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Config, logger *httplog.Logger) chi.Router {
 
@@ -184,6 +199,7 @@ func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Confi
 	r := chi.NewRouter()
 	r.Use(httplog.RequestLogger(logger, []string{"/health"}))
 	r.Use(traceIDMiddleware) // inject traceId into structured logs
+	r.Use(securityHeadersMiddleware)
 	r.Use(middleware.Heartbeat("/health"))
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
@@ -215,10 +231,12 @@ func setupRouter(basePath string, ragServer *server.RAGService, cfg config.Confi
 		r.Get("/drill", ragServer.GetDrillHandler)
 		r.Get("/drills/search", ragServer.SearchDrillsHandler)
 		r.Get("/drills/options", ragServer.GetDrillOptionsHandler)
-		r.Get("/swagger/*", httpSwagger.Handler(
-			httpSwagger.URL("0.0.0.0:"+cmp.Or(cfg.Port, "8080")+basePath+"swagger/doc.json"),
-			httpSwagger.DeepLinking(true)),
-		)
+		if cfg.SwaggerEnabled {
+			r.Get("/swagger/*", httpSwagger.Handler(
+				httpSwagger.URL("doc.json"),
+				httpSwagger.DeepLinking(true)),
+			)
+		}
 	})
 
 	return r

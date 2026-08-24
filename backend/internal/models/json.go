@@ -43,6 +43,7 @@ func WriteResponseJSON(w http.ResponseWriter, statusCode int, v any) error {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
 	w.WriteHeader(statusCode)
 	_, err = w.Write(json)
 	if err != nil {

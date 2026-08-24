@@ -32,7 +32,10 @@ import type { Message } from '@/types'
 import { useAuthStore } from '@/stores/auth'
 
 export function formatError(error: { message?: string; details?: string }): string {
-  return `${error.message}: ${error.details ?? i18n.global.t('errors.unknown_error')}`
+  if (error.details && error.details !== error.message) {
+    return `${error.message}: ${error.details}`
+  }
+  return error.message ?? i18n.global.t('errors.unknown_error')
 }
 
 class ApiClient {
@@ -87,6 +90,7 @@ class ApiClient {
       const response = await fetch(`${this.baseUrl}/${endpoint}`, {
         ...options,
         headers,
+        cache: 'no-store',
         signal: controller.signal,
       })
 
@@ -115,15 +119,16 @@ class ApiClient {
         data,
       }
     } catch (error) {
+      const isAbort = error instanceof Error && error.name === 'AbortError'
       return {
         success: false,
         error: {
-          message: error instanceof Error ? error.message : i18n.global.t('errors.unknown_error'),
+          code: isAbort ? 'timeout' : 'network_error',
+          message: isAbort
+            ? i18n.global.t('errors.timeout', { time: timeout / 1000 })
+            : i18n.global.t('errors.connection_failed'),
           status: 0,
-          details:
-            error instanceof Error && error.name === 'AbortError'
-              ? i18n.global.t('errors.timeout', { time: timeout / 1000 })
-              : i18n.global.t('errors.connection_failed'),
+          details: error instanceof Error ? error.message : undefined,
         },
       }
     }

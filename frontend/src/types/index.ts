@@ -55,7 +55,7 @@ export interface AppState {
 }
 
 // Export user profile types
-export type { Profile, ProfileUpdate } from './profile'
+export type { Profile, ProfileUpdate, PublicProfile } from './profile'
 
 // Export miscellaneous types
 export type { HistoryMetadata } from './misc'

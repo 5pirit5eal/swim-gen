@@ -67,8 +67,9 @@ describe('Profile Store', () => {
       categories: ['Swimmer'],
     }
 
+    const select = vi.fn().mockReturnThis()
     mockedSupabase.from.mockReturnValue({
-      select: vi.fn().mockReturnThis(),
+      select,
       eq: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({ data: mockProfile, error: null }),
     })
@@ -76,6 +77,9 @@ describe('Profile Store', () => {
     await profileStore.fetchProfile()
 
     expect(profileStore.profile).toEqual(mockProfile)
+    expect(select).toHaveBeenCalledWith(
+      'user_id, updated_at, username, experience, preferred_language, preferred_strokes, categories, overall_generations, monthly_generations, exports, css_200m_seconds, css_400m_seconds',
+    )
   })
 
   it('should update a profile', async () => {
@@ -91,7 +95,9 @@ describe('Profile Store', () => {
 
     const updatedProfileData = {
       experience: 'Intermediate',
-    }
+      exports: 999999,
+      user_id: 'forged-user',
+    } as unknown as Parameters<typeof profileStore.updateProfile>[0]
 
     const mockUpdatedProfile = {
       user_id: '123',
@@ -102,16 +108,20 @@ describe('Profile Store', () => {
     }
 
     const update = vi.fn().mockReturnThis()
+    const select = vi.fn().mockReturnThis()
     mockedSupabase.from.mockReturnValue({
       update,
       eq: vi.fn().mockReturnThis(),
-      select: vi.fn().mockReturnThis(),
+      select,
       single: vi.fn().mockResolvedValue({ data: mockUpdatedProfile, error: null }),
     })
 
     await profileStore.updateProfile(updatedProfileData)
 
     expect(profileStore.profile).toEqual(mockUpdatedProfile)
-    expect(update).toHaveBeenCalledWith(updatedProfileData)
+    expect(update).toHaveBeenCalledWith({ experience: 'Intermediate' })
+    expect(select).toHaveBeenCalledWith(
+      'user_id, updated_at, username, experience, preferred_language, preferred_strokes, categories, overall_generations, monthly_generations, exports, css_200m_seconds, css_400m_seconds',
+    )
   })
 })

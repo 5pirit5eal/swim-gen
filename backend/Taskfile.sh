@@ -1,7 +1,8 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 if [ -f .env ]; then
+  # shellcheck source=/dev/null
   source .env
 fi
 
@@ -54,28 +55,42 @@ setup-gcloud() {
 }
 
 docker-run() {
-  local container_id=$1
-  local port=${2:-"8080"}
-  local env_file=${3:-".env"}
-  # local background=${3:-"-d"}
+  local container_id="${1:-}"
+  local port="${2:-8080}"
+  local env_file="${3:-.env}"
+
+  if [ -z "$container_id" ]; then
+    echo "Error: container image is required" >&2
+    return 1
+  fi
+  if [[ ! "$port" =~ ^[0-9]+$ ]] || ((port < 1 || port > 65535)); then
+    echo "Error: port must be between 1 and 65535" >&2
+    return 1
+  fi
+  if [ ! -f "$env_file" ] || [ ! -r "$env_file" ]; then
+    echo "Error: env file must be a readable file: $env_file" >&2
+    return 1
+  fi
+
   docker run \
     -v ~/.config/gcloud/application_default_credentials.json:/gcp/creds.json \
-    -p $port:8080 -e PORT=8080 \
-    -e GOOGLE_APPLICATION_CREDENTIALS=/gcp/creds.json \
-    -e GOOGLE_CLOUD_PROJECT="$PROJECT_ID" \
-    --env-file $env_file \
-    $background \
-    -i $container_id
+    --publish "${port}:8080" \
+    --env-file "$env_file" \
+    --env "PORT=8080" \
+    --env "GOOGLE_APPLICATION_CREDENTIALS=/gcp/creds.json" \
+    --env "GOOGLE_CLOUD_PROJECT=${PROJECT_ID:-}" \
+    --interactive \
+    "$container_id"
 }
 
 docker-build-and-run() {
-  local env_file=${1:-".env"}
+  local env_file="${1:-.env}"
   docker build --platform linux/arm64/v8 -t swim-gen-backend:latest .
-  docker-run swim-gen-backend:latest 8080 $env_file
+  docker-run swim-gen-backend:latest 8080 "$env_file"
 }
 
 scrape() {
-  local url=$1
+  local url="${1:-}"
   if [ -z "$url" ]; then
     echo "Error: URL parameter is required"
     echo "Usage: task scrape -- <url>"
@@ -87,7 +102,7 @@ scrape() {
 }
 
 # Check if the provided argument matches any of the functions
-if [ -n "$1" ] && ! declare -f "$1" >/dev/null; then
+if [ -n "${1:-}" ] && ! declare -f "$1" >/dev/null; then
   echo "Error: Unknown task '$1'"
   echo
   help # Show help if the task is not recognized

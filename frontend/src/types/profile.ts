@@ -2,8 +2,8 @@ export interface Profile {
   user_id: string
   updated_at: string
   username: string
-  experience: string
-  preferred_language: string
+  experience: string | null
+  preferred_language: string | null
   preferred_strokes: string[]
   categories: string[]
   overall_generations: number
@@ -11,6 +11,10 @@ export interface Profile {
   exports: number
   css_200m_seconds: number | null
   css_400m_seconds: number | null
+}
+
+export interface PublicProfile {
+  username: string
 }
 
 export type ProfileUpdate = Partial<

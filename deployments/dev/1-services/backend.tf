@@ -14,6 +14,7 @@ locals {
     MODEL                     = var.model
     SMALL_MODEL               = var.small_model # fixed key (was SMALl_MODEL)
     LOG_LEVEL                 = var.log_level
+    SWAGGER_ENABLED           = "true"
     BUCKET_NAME               = var.bucket_name
     SIGNING_SA                = var.iam.pdf_export.email
     SUPABASE_URL              = "https://${var.supabase.id}.supabase.co"

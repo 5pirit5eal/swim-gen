@@ -46,7 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
     const supabase = await getSupabase()
     // Check if the username is already taken
     const { data: existingUser, error: existingUserError } = await supabase
-      .from('profiles')
+      .from('public_profiles')
       .select('username')
       .eq('username', username)
       .maybeSingle()

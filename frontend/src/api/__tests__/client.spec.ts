@@ -62,9 +62,10 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: 'Network down',
+          code: 'network_error',
+          message: i18n.global.t('errors.connection_failed'),
           status: 0,
-          details: i18n.global.t('errors.connection_failed'),
+          details: 'Network down',
         },
       })
     })
@@ -80,9 +81,10 @@ describe('ApiClient', () => {
       await expect(promise).resolves.toEqual({
         success: false,
         error: {
-          message: 'The user aborted a request.',
+          code: 'timeout',
+          message: i18n.global.t('errors.timeout', { time: 5 }),
           status: 0,
-          details: i18n.global.t('errors.timeout', { time: 5 }),
+          details: 'The user aborted a request.',
         },
       })
     })
@@ -142,9 +144,10 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: 'Network error',
+          code: 'network_error',
+          message: i18n.global.t('errors.connection_failed'),
           status: 0,
-          details: i18n.global.t('errors.connection_failed'),
+          details: 'Network error',
         },
       })
     })
@@ -160,9 +163,10 @@ describe('ApiClient', () => {
       await expect(promise).resolves.toEqual({
         success: false,
         error: {
-          message: 'The user aborted a request.',
+          code: 'timeout',
+          message: i18n.global.t('errors.timeout', { time: 10 }),
           status: 0,
-          details: i18n.global.t('errors.timeout', { time: 10 }),
+          details: 'The user aborted a request.',
         },
       })
     })
@@ -229,9 +233,10 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: 'Network error',
+          code: 'network_error',
+          message: i18n.global.t('errors.connection_failed'),
           status: 0,
-          details: i18n.global.t('errors.connection_failed'),
+          details: 'Network error',
         },
       })
     })
@@ -247,9 +252,10 @@ describe('ApiClient', () => {
       await expect(promise).resolves.toEqual({
         success: false,
         error: {
-          message: 'The user aborted a request.',
+          code: 'timeout',
+          message: i18n.global.t('errors.timeout', { time: 60 }),
           status: 0,
-          details: i18n.global.t('errors.timeout', { time: 60 }),
+          details: 'The user aborted a request.',
         },
       })
     })
@@ -315,9 +321,10 @@ describe('ApiClient', () => {
       expect(result).toEqual({
         success: false,
         error: {
-          message: 'Network error',
+          code: 'network_error',
+          message: i18n.global.t('errors.connection_failed'),
           status: 0,
-          details: i18n.global.t('errors.connection_failed'),
+          details: 'Network error',
         },
       })
     })
