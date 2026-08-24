@@ -268,6 +268,38 @@ describe('sharedPlan Store', () => {
         p_share_method: 'link',
       })
     })
+
+    it('loads a history sharer username through the narrow RPC', async () => {
+      const store = useSharedPlanStore()
+      const historyItem = {
+        user_id: 'recipient-id',
+        plan_id: 'plan-1',
+        share_method: 'link',
+        shared_by: 'sharer-1',
+        created_at: '2023-01-01',
+        plan: {
+          plan_id: 'plan-1',
+          title: 'Plan 1',
+          description: 'Desc 1',
+          table: [],
+        },
+      }
+
+      mockedSupabase.rpc.mockImplementation((name: string) => {
+        if (name === 'get_public_profile_username') {
+          return Promise.resolve({ data: [{ username: 'Sharer' }], error: null })
+        }
+        return Promise.resolve({ data: null, error: null })
+      })
+
+      await store.loadPlanFromHistory(historyItem)
+
+      expect(mockedSupabase.rpc).toHaveBeenCalledWith('get_public_profile_username', {
+        p_user_id: 'sharer-1',
+      })
+      expect(mockedSupabase.from).not.toHaveBeenCalledWith('profiles')
+      expect(store.sharedPlan?.sharer_username).toBe('Sharer')
+    })
   })
 
   describe('upsertCurrentPlan', () => {

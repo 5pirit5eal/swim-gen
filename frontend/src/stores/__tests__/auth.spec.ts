@@ -88,6 +88,7 @@ describe('auth Store', () => {
     const result = await store.signUp('new@example.com', 'newpassword', 'newuser')
 
     expect(result).toEqual(mockData)
+    expect(mockedSupabaseClient.from).toHaveBeenCalledWith('public_profiles')
     expect(mockedSignUp).toHaveBeenCalledWith({
       email: 'new@example.com',
       password: 'newpassword',

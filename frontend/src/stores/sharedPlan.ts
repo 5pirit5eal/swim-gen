@@ -284,20 +284,19 @@ export const useSharedPlanStore = defineStore('sharedPlan', () => {
     const supabase = await getSupabase()
 
     try {
-      // 1. Get the username from the profiles table using the shared_by ID
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('user_id', item.shared_by)
-        .single()
+      // Resolve only the sharer's public username through the narrow RPC.
+      const { data: profileData, error: profileError } = await supabase.rpc(
+        'get_public_profile_username',
+        { p_user_id: item.shared_by },
+      )
 
       if (profileError) throw profileError
-      if (!profileData) throw new Error('User not found')
+      const profile = Array.isArray(profileData) ? profileData[0] : profileData
       if (!item.plan) throw new Error('Plan details not found')
 
       sharedPlan.value = {
         plan: item.plan,
-        sharer_username: profileData.username || i18n.global.t('shared.unknown_user'),
+        sharer_username: profile?.username || i18n.global.t('shared.unknown_user'),
         sharer_id: item.shared_by,
       }
       if (sharedPlan.value?.plan) {

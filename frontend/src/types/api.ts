@@ -8,14 +8,15 @@ export type HttpMethod = 'GET' | 'POST'
 
 // Base API response structure (for error cases)
 export interface ApiErrorResponse {
-  error: string
-  status: number
+  code: string
+  message: string
 }
 
 export interface ApiResult<T> {
   success: boolean
   data?: T
   error?: {
+    code?: string
     message: string
     status: number
     details?: string
