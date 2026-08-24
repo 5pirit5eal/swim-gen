@@ -48,10 +48,10 @@ func TestSecurityHeadersMiddleware(t *testing.T) {
 		t.Fatalf("expected API responses to be non-cacheable, got %q", response.Header().Get("Cache-Control"))
 	}
 	for name, expected := range map[string]string{
-		"X-Content-Type-Options": "nosniff",
-		"X-Frame-Options":        "SAMEORIGIN",
-		"Referrer-Policy":        "strict-origin-when-cross-origin",
-		"Permissions-Policy":     "camera=(), microphone=(), geolocation=(), payment=()",
+		"X-Content-Type-Options":     "nosniff",
+		"X-Frame-Options":            "SAMEORIGIN",
+		"Referrer-Policy":            "strict-origin-when-cross-origin",
+		"Permissions-Policy":         "camera=(), microphone=(), geolocation=(), payment=()",
 		"Cross-Origin-Opener-Policy": "same-origin",
 	} {
 		if actual := response.Header().Get(name); actual != expected {
