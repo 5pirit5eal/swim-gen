@@ -221,12 +221,26 @@ async function proxyRequest(req: express.Request, res: express.Response) {
       }
     }
     res.setHeader("Cache-Control", "no-store");
-    res.status(response.status).json(response.data);
+    res.status(response.status).send(response.data);
   } catch (error) {
     logger.error(`Error proxying request to ${targetUrl}:`, error);
     if (error && typeof error === "object" && "response" in error && error.response) {
-      const axiosError = error as { response: { status: number; data: unknown } };
-      res.status(axiosError.response.status).json(axiosError.response.data);
+      const axiosError = error as {
+        response: {
+          status: number;
+          data: unknown;
+          headers?: Record<string, unknown>;
+        };
+      };
+      const forwardedHeaders = ["content-type", "content-disposition", "etag", "vary"];
+      for (const header of forwardedHeaders) {
+        const value = axiosError.response.headers?.[header];
+        if (typeof value === "string") {
+          res.setHeader(header, value);
+        }
+      }
+      res.setHeader("Cache-Control", "no-store");
+      res.status(axiosError.response.status).send(axiosError.response.data);
     } else {
       logger.error("Unexpected error during proxying:", error);
       res.status(500).json({ message: "Error proxying request to backend" });

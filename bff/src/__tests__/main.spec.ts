@@ -121,6 +121,35 @@ describe("BFF Server", () => {
       expect(response.body).toEqual({ message: "Internal Server Error" });
     });
 
+    it("should forward text/plain response and error from backend properly", async () => {
+      process.env.NODE_ENV = "test";
+      vi.spyOn(authModule, "getAuthHeaders").mockResolvedValue({});
+
+      vi.mocked(axios).mockResolvedValueOnce({
+        status: 200,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+        data: "plain text payload",
+      });
+
+      const successResponse = await request(app).get("/api/text-endpoint");
+      expect(successResponse.status).toBe(200);
+      expect(successResponse.text).toBe("plain text payload");
+      expect(successResponse.headers["content-type"]).toContain("text/plain");
+
+      vi.mocked(axios).mockRejectedValueOnce({
+        response: {
+          status: 400,
+          headers: { "content-type": "text/plain; charset=utf-8" },
+          data: "bad request plain text",
+        },
+      });
+
+      const errorResponse = await request(app).get("/api/text-error");
+      expect(errorResponse.status).toBe(400);
+      expect(errorResponse.text).toBe("bad request plain text");
+      expect(errorResponse.headers["content-type"]).toContain("text/plain");
+    });
+
     it("should handle anonymous requests without user Authorization header", async () => {
       process.env.NODE_ENV = "test";
       // Mock getAuthHeaders to return only Google Identity token for anonymous requests
