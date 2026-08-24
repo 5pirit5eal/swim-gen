@@ -1,0 +1,24 @@
+# Swim Gen
+
+> Swim Gen is a web application for generating personalized swimming training plans for swimmers, triathletes, trainers, and coaches.
+
+## Public Pages
+
+- [Swim Gen](https://swim-gen.com/): Main application for generating swimming training plans.
+- [About Swim Gen](https://swim-gen.com/about): Project background and maintainer information.
+- [Privacy Policy](https://swim-gen.com/privacy): Privacy information.
+- [Terms of Service](https://swim-gen.com/terms): Application terms.
+- [Impressum](https://swim-gen.com/impressum): Legal and contact information.
+
+## Project
+
+- [GitHub repository](https://github.com/5pirit5eal/swim-gen): Source repository and project metadata.
+
+## Capabilities
+
+- Generate personalized training plans from user requirements.
+- Save plans for authenticated users.
+- Refine plans through chat interaction.
+- Share plans by URL.
+- Upload plans and export plans as PDF files.
+- Search swimming drills.

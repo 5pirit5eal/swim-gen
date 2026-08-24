@@ -1,0 +1,5 @@
+Contact: mailto:info.swim.gen@gmail.com
+Expires: 2027-02-18T00:00:00Z
+Preferred-Languages: en, de
+Canonical: https://swim-gen.com/.well-known/security.txt
+Policy: https://github.com/5pirit5eal/swim-gen/security/policy
