@@ -379,7 +379,6 @@ async function handleResetPassword() {
                   v-model="editableProfile.css_200m_time"
                   class="select-input"
                   type="text"
-                  inputmode="numeric"
                   placeholder="3:20"
                   :aria-invalid="isInvalidCssTime(editableProfile.css_200m_time)"
                   :class="{ 'input-invalid': isInvalidCssTime(editableProfile.css_200m_time) }"
@@ -396,7 +395,6 @@ async function handleResetPassword() {
                   v-model="editableProfile.css_400m_time"
                   class="select-input"
                   type="text"
-                  inputmode="numeric"
                   placeholder="7:00"
                   :aria-invalid="isInvalidCssTime(editableProfile.css_400m_time)"
                   :class="{ 'input-invalid': isInvalidCssTime(editableProfile.css_400m_time) }"
@@ -962,10 +960,6 @@ async function handleResetPassword() {
   font-size: 0.9rem;
   background: var(--color-background-soft);
   color: var(--color-text);
-}
-
-.css-input-grid .select-input {
-  background: #fff;
 }
 
 .select-input.input-invalid {
