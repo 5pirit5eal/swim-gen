@@ -54,7 +54,9 @@ describe("Auth Module", () => {
   });
 
   it("should log sanitized error message and throw when Google auth fails", async () => {
-    mockGetIdTokenClient.mockRejectedValueOnce(new Error("Network timeout connecting to metadata server"));
+    mockGetIdTokenClient.mockRejectedValueOnce(
+      new Error("Network timeout connecting to metadata server"),
+    );
     const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
 
     await expect(getAuthHeaders()).rejects.toThrow("Failed to authenticate with backend service.");
