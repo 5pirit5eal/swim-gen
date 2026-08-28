@@ -123,6 +123,11 @@ watch(
         <p class="hero-description">
           {{ t('app.hero_description') }}
         </p>
+        <div class="hero-badges">
+          <span class="hero-badge">{{ t('app.hero_badge_free') }}</span>
+          <span class="hero-badge">{{ t('app.hero_badge_no_signup') }}</span>
+          <span class="hero-badge">{{ t('app.hero_badge_audience') }}</span>
+        </div>
       </section>
 
       <!-- Main content -->
@@ -171,35 +176,74 @@ watch(
 .hero {
   text-align: center;
   background-color: var(--color-transparent);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border-radius: 8px;
-  padding: 1rem;
-  margin: 2rem auto;
+  padding: 1.5rem 1rem;
+  margin: 2rem auto 1.5rem auto;
 }
 
 .hero h1 {
   font-size: 2.5rem;
   font-weight: 700;
   color: var(--color-heading);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .hero-description {
   font-size: 1.25rem;
   color: var(--color-heading);
   font-weight: 500;
-  max-width: 600px;
+  max-width: 640px;
   margin: 0 auto;
   line-height: 1.6;
 }
 
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  background-color: var(--color-background-soft);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 2px var(--color-shadow);
+  cursor: default;
+  user-select: none;
+}
+
 @media (max-width: 740px) {
+  .hero {
+    padding: 1.25rem 0.75rem;
+    margin: 1.25rem auto 1rem auto;
+  }
+
+  .training-plan-form {
+    margin: 1.25rem auto;
+  }
+
   .hero h1 {
-    font-size: 2rem;
+    font-size: 1.85rem;
+    margin-bottom: 0.5rem;
   }
 
   .hero-description {
-    font-size: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .hero-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
   }
 }
 

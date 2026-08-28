@@ -1,10 +1,13 @@
 {
   "app": {
     "name": "Swim Gen",
-    "slogan": "Free, ad-free, and personalizable AI-powered training plan generator for swimmers, trainers and triathletes.",
+    "slogan": "Your next swim, planned in seconds. Free, ad-free, and personalized training plans for swimmers, triathletes, and coaches.",
     "note_meta": "NOTE: The above 'name' and 'slogan' are also used in index.html for OpenGraph/meta tags. Change them there too.",
-    "hero_title": "AI-Powered Swimming Training Plans",
-    "hero_description": "Generate personalized training plans for swimmers, triathletes, and coaches. Just describe what you're looking for, and our system will create a custom training for you. Free, ad-free, and tailored to you."
+    "hero_title": "Your next swim, planned in seconds",
+    "hero_description": "Create personalized swimming workouts tailored to your goal, available time, stroke, and pool length.",
+    "hero_badge_free": "Free & ad-free",
+    "hero_badge_no_signup": "No sign-up needed",
+    "hero_badge_audience": "For beginners, athletes & coaches"
   },
   "home": {
     "banner": {
