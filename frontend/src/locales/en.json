@@ -12,12 +12,15 @@
   "home": {
     "banner": {
       "not_logged_in": {
-        "text": "If you want to save this plan or use interactive editing create an account or log in.",
-        "button": "Login"
+        "title": "Keep this plan and reuse it anytime",
+        "text": "Save this workout to your history, refine it with interactive chat, or share it anytime. Your current plan will be transferred automatically when you create a free account or log in.",
+        "button": "Save my plan",
+        "secondary_login": "Already have an account? Log in"
       },
       "logged_in": {
-        "text": "To view this plan in your history and use interactive editing click here:",
-        "button": "Interactive Editing"
+        "title": "Refine this workout",
+        "text": "Open this plan in the interactive chat editor to tweak sets, adjust volume, or ask for variations.",
+        "button": "Interactive Chat Editor"
       }
     }
   },

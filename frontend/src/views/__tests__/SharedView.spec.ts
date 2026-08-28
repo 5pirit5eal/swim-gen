@@ -281,6 +281,9 @@ describe('SharedView.vue', () => {
       expect(wrapper.find('.chat-form').exists()).toBe(false)
 
       await wrapper.find('.cta-button').trigger('click')
+      expect(pushMock).toHaveBeenCalledWith({ name: 'login', query: { register: 'true' } })
+
+      await wrapper.find('.cta-secondary-link').trigger('click')
       expect(pushMock).toHaveBeenCalledWith({ name: 'login' })
     })
 

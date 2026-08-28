@@ -5,8 +5,9 @@ import HomeView from '../HomeView.vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 
 // Mocks
+const pushMock = vi.fn()
 vi.mock('vue-router', () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: pushMock }),
 }))
 // ...
 vi.mock('vue-i18n', () => ({
@@ -111,5 +112,68 @@ describe('HomeView.vue', () => {
     const store = useTrainingPlanStore()
     // The watcher should trigger immediately
     expect(store.linkAnonymousPlan).toHaveBeenCalled()
+  })
+
+  it('renders CTA banner for unauthenticated user with current plan and handles navigation', async () => {
+    const wrapper = mount(HomeView, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            initialState: {
+              auth: { user: null },
+              trainingPlan: {
+                currentPlan: { plan_id: undefined, title: 'My Workout', table: [] },
+                initialQuery: 'Swim 2000m',
+              },
+            },
+          }),
+        ],
+        stubs: {
+          TrainingPlanForm: true,
+          TrainingPlanDisplay: true,
+        },
+      },
+    })
+
+    expect(wrapper.find('.cta-banner').exists()).toBe(true)
+    expect(wrapper.find('.cta-title').text()).toBe('home.banner.not_logged_in.title')
+
+    // Click primary button (Save my plan -> register)
+    await wrapper.find('.cta-button').trigger('click')
+    expect(pushMock).toHaveBeenCalledWith({ name: 'login', query: { register: 'true' } })
+
+    // Click secondary link (Already registered -> login)
+    await wrapper.find('.cta-secondary-link').trigger('click')
+    expect(pushMock).toHaveBeenCalledWith({ name: 'login' })
+  })
+
+  it('renders CTA banner for authenticated user with current plan and navigates to interaction', async () => {
+    const wrapper = mount(HomeView, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            initialState: {
+              auth: { user: { id: 'user-123' } },
+              trainingPlan: {
+                currentPlan: { plan_id: 'plan-123', title: 'My Workout', table: [] },
+                initialQuery: 'Swim 2000m',
+              },
+            },
+          }),
+        ],
+        stubs: {
+          TrainingPlanForm: true,
+          TrainingPlanDisplay: true,
+        },
+      },
+    })
+
+    expect(wrapper.find('.cta-banner').exists()).toBe(true)
+    expect(wrapper.find('.cta-title').text()).toBe('home.banner.logged_in.title')
+
+    await wrapper.find('.cta-button').trigger('click')
+    expect(pushMock).toHaveBeenCalledWith({ name: 'plan', params: { id: 'plan-123' } })
   })
 })

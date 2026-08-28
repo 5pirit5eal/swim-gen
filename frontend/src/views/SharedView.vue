@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 import IconSend from '@/components/icons/IconSend.vue'
+import IconSave from '@/components/icons/IconSave.vue'
 import { useSharedPlanStore } from '@/stores/sharedPlan'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useAuthStore } from '@/stores/auth'
@@ -18,8 +19,12 @@ const authStore = useAuthStore()
 
 const { sharedPlan, isLoading, error } = storeToRefs(sharedPlanStore)
 
-function navigateToLogin() {
-  router.push({ name: 'login' })
+function navigateToLogin(register = false) {
+  if (register) {
+    router.push({ name: 'login', query: { register: 'true' } })
+  } else {
+    router.push({ name: 'login' })
+  }
 }
 
 const chatInput = ref('')
@@ -117,10 +122,23 @@ async function handleStartConversation() {
           <!-- Chat Transition Area -->
           <section class="chat-transition">
             <div v-if="!authStore.user" class="cta-content">
-              <p>{{ t('home.banner.not_logged_in.text') }}</p>
-              <button @click="navigateToLogin" class="cta-button">
-                {{ t('home.banner.not_logged_in.button') }}
-              </button>
+              <div class="cta-text-group">
+                <h3 class="cta-title">{{ t('home.banner.not_logged_in.title') }}</h3>
+                <p class="cta-description">{{ t('home.banner.not_logged_in.text') }}</p>
+              </div>
+              <div class="cta-actions">
+                <button @click="navigateToLogin(true)" class="cta-button btn-primary">
+                  <IconSave class="cta-button-icon" aria-hidden="true" />
+                  {{ t('home.banner.not_logged_in.button') }}
+                </button>
+                <button
+                  type="button"
+                  @click="navigateToLogin(false)"
+                  class="cta-secondary-link text-btn"
+                >
+                  {{ t('home.banner.not_logged_in.secondary_login') }}
+                </button>
+              </div>
             </div>
             <div v-else>
               <label class="input-label">{{ t('shared.start_conversation') }}</label>
@@ -354,15 +372,37 @@ async function handleStartConversation() {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5rem;
   text-align: left;
 }
 
-.cta-content p {
-  font-size: 1.1rem;
+.cta-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: 620px;
+}
+
+.cta-title {
+  font-size: 1.2rem;
+  font-weight: 700;
   color: var(--color-heading);
-  max-width: 600px;
   margin: 0;
+}
+
+.cta-description {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cta-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .cta-button {
@@ -375,9 +415,58 @@ async function handleStartConversation() {
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .cta-button:hover {
   background-color: var(--color-primary-hover);
+}
+
+.cta-button-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+
+.cta-secondary-link {
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: 0.82rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.2rem;
+  transition: color 0.2s;
+}
+
+.cta-secondary-link:hover {
+  color: var(--color-primary);
+}
+
+@media (max-width: 740px) {
+  .cta-content {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+    gap: 1rem;
+  }
+
+  .cta-actions {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .cta-button {
+    width: 100%;
+  }
+
+  .cta-secondary-link {
+    text-align: center;
+    margin-top: 0.25rem;
+  }
 }
 </style>

@@ -12,12 +12,15 @@
   "home": {
     "banner": {
       "not_logged_in": {
-        "text": "Wenn du diesen Plan speichern oder interaktive Bearbeitung nutzen möchtest, erstelle ein Konto oder melde dich an.",
-        "button": "Anmelden"
+        "title": "Diesen Plan im Konto behalten und jederzeit wiederverwenden",
+        "text": "Speichere dieses Training in deinem Verlauf, verfeinere es im interaktiven Chat oder teile es. Dein aktueller Plan wird beim kostenlosen Registrieren oder Anmelden automatisch übernommen.",
+        "button": "Plan speichern",
+        "secondary_login": "Bereits registriert? Anmelden"
       },
       "logged_in": {
-        "text": "Um diesen Plan in deinem Verlauf anzuzeigen und interaktive Bearbeitung zu nutzen, klicke hier:",
-        "button": "Interaktive Bearbeitung"
+        "title": "Trainingsplan verfeinern",
+        "text": "Öffne diesen Plan im interaktiven Chat-Editor, um Sets anzupassen, Distanzen zu ändern oder Variationen zu erstellen.",
+        "button": "Im Chat bearbeiten"
       }
     }
   },
