@@ -194,7 +194,7 @@ describe('TrainingPlanForm.vue', () => {
 
     // Initially, the button should be enabled
     expect(promptButton.attributes('disabled')).toBeFalsy()
-    expect(promptButton.text()).toContain(i18n.global.t('form.i_feel_lucky'))
+    expect(promptButton.text()).toContain(i18n.global.t('form.suggest_workout'))
 
     // Click the button to start generation
     await promptButton.trigger('click')
@@ -213,7 +213,7 @@ describe('TrainingPlanForm.vue', () => {
 
     // After generation, the button should be enabled again
     expect(promptButton.attributes('disabled')).toBeFalsy()
-    expect(promptButton.text()).toContain(i18n.global.t('form.i_feel_lucky'))
+    expect(promptButton.text()).toContain(i18n.global.t('form.suggest_workout'))
 
     // And the textarea should be updated with the new prompt
     expect(textarea.element.value).toBe(mockSuccessResponse.data?.prompt)
@@ -365,5 +365,46 @@ describe('TrainingPlanForm.vue', () => {
       language: navigator.language,
       audience: 'triathlete',
     })
+  })
+
+  it('shows tooltip when hovering over disabled submit button and hides when enabled', async () => {
+    vi.useFakeTimers()
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    const submitWrapper = wrapper.find('.submit-btn-wrapper')
+    const textarea = wrapper.find('textarea')
+
+    // Form is empty -> submit is disabled
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined()
+
+    // Hover submit wrapper
+    await submitWrapper.trigger('mouseenter')
+    vi.advanceTimersByTime(250)
+    await wrapper.vm.$nextTick()
+
+    // Tooltip should be visible
+    const tooltip = document.getElementById('submit-disabled-tooltip')
+    expect(tooltip).not.toBeNull()
+    expect(tooltip?.textContent).toContain(
+      i18n.global.t('form.generate_training_plan_disabled_tooltip'),
+    )
+
+    // Leave hover
+    await submitWrapper.trigger('mouseleave')
+    await wrapper.vm.$nextTick()
+    expect(document.getElementById('submit-disabled-tooltip')).toBeNull()
+
+    // When valid text is provided, entering hover should not show tooltip
+    await textarea.setValue('Valid training plan request')
+    await submitWrapper.trigger('mouseenter')
+    vi.advanceTimersByTime(250)
+    await wrapper.vm.$nextTick()
+    expect(document.getElementById('submit-disabled-tooltip')).toBeNull()
+
+    vi.useRealTimers()
   })
 })

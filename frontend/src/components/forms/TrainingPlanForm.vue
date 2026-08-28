@@ -49,6 +49,14 @@ const tooltipPlacement = ref<OverlayPlacement>('top')
 const audienceButtonRefs = ref<Record<string, HTMLElement | null>>({})
 let hoverTimer: ReturnType<typeof setTimeout> | null = null
 
+// Submit button tooltip state
+const submitWrapperRef = ref<HTMLElement | null>(null)
+const isSubmitHovered = ref(false)
+const showSubmitTooltip = ref(false)
+const submitTooltipPosition = ref({ left: 0, top: 0 })
+const submitTooltipPlacement = ref<OverlayPlacement>('top')
+let submitHoverTimer: ReturnType<typeof setTimeout> | null = null
+
 function setAudienceBtnRef(id: AudienceType, el: unknown) {
   if (el instanceof HTMLElement) {
     audienceButtonRefs.value[id] = el
@@ -107,12 +115,65 @@ function handleAudienceMouseLeave(id: AudienceType) {
   window.removeEventListener('scroll', updateTooltipPosition, true)
 }
 
+async function updateSubmitTooltipPosition() {
+  await nextTick()
+  if (!showSubmitTooltip.value || !submitWrapperRef.value) return
+  const anchorEl = submitWrapperRef.value
+  const tooltipEl = document.getElementById('submit-disabled-tooltip')
+  if (!anchorEl || !tooltipEl) return
+
+  const anchor = anchorEl.getBoundingClientRect()
+  const tooltip = tooltipEl.getBoundingClientRect()
+  const position = calculateOverlayPosition(
+    anchor,
+    tooltip.width,
+    tooltip.height,
+    window.innerWidth,
+    window.innerHeight,
+  )
+
+  submitTooltipPosition.value = { left: position.left, top: position.top }
+  submitTooltipPlacement.value = position.placement
+}
+
+function handleSubmitMouseEnter() {
+  if (canSubmit.value) return
+  isSubmitHovered.value = true
+  if (submitHoverTimer) {
+    clearTimeout(submitHoverTimer)
+  }
+  submitHoverTimer = setTimeout(async () => {
+    if (isSubmitHovered.value && !canSubmit.value) {
+      showSubmitTooltip.value = true
+      await updateSubmitTooltipPosition()
+      window.addEventListener('resize', updateSubmitTooltipPosition)
+      window.addEventListener('scroll', updateSubmitTooltipPosition, true)
+    }
+  }, 200)
+}
+
+function handleSubmitMouseLeave() {
+  isSubmitHovered.value = false
+  if (submitHoverTimer) {
+    clearTimeout(submitHoverTimer)
+    submitHoverTimer = null
+  }
+  showSubmitTooltip.value = false
+  window.removeEventListener('resize', updateSubmitTooltipPosition)
+  window.removeEventListener('scroll', updateSubmitTooltipPosition, true)
+}
+
 onUnmounted(() => {
   if (hoverTimer) {
     clearTimeout(hoverTimer)
   }
+  if (submitHoverTimer) {
+    clearTimeout(submitHoverTimer)
+  }
   window.removeEventListener('resize', updateTooltipPosition)
   window.removeEventListener('scroll', updateTooltipPosition, true)
+  window.removeEventListener('resize', updateSubmitTooltipPosition)
+  window.removeEventListener('scroll', updateSubmitTooltipPosition, true)
 })
 
 // Dynamic placeholder based on selected audience
@@ -365,7 +426,7 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
           :class="{ 'btn-highlight-pulse': highlightPromptBtn }"
           :disabled="trainingStore.isLoading || generatingPrompt"
         >
-          <div v-if="!generatingPrompt">{{ t('form.i_feel_lucky') }}</div>
+          <div v-if="!generatingPrompt">{{ t('form.suggest_workout') }}</div>
           <div v-else>{{ t('form.generating') }}</div>
         </button>
       </div>
@@ -630,16 +691,39 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
 
       <!-- Submit button and status -->
       <div class="form-actions">
-        <button
-          type="submit"
-          class="submit-btn"
-          :disabled="!canSubmit"
-          :class="{ loading: trainingStore.isLoading }"
+        <div
+          ref="submitWrapperRef"
+          class="submit-btn-wrapper"
+          @mouseenter="handleSubmitMouseEnter"
+          @mouseleave="handleSubmitMouseLeave"
         >
-          {{
-            trainingStore.isLoading ? t('form.generating_plan') : t('form.generate_training_plan')
-          }}
-        </button>
+          <button
+            type="submit"
+            class="submit-btn"
+            :disabled="!canSubmit"
+            :class="{ loading: trainingStore.isLoading }"
+          >
+            {{
+              trainingStore.isLoading ? t('form.generating_plan') : t('form.generate_training_plan')
+            }}
+          </button>
+        </div>
+
+        <Teleport to="body">
+          <div
+            v-if="showSubmitTooltip && !canSubmit"
+            id="submit-disabled-tooltip"
+            class="submit-tooltip"
+            :class="`position-${submitTooltipPlacement}`"
+            :style="{
+              left: `${submitTooltipPosition.left}px`,
+              top: `${submitTooltipPosition.top}px`,
+            }"
+            role="tooltip"
+          >
+            {{ t('form.generate_training_plan_disabled_tooltip') }}
+          </div>
+        </Teleport>
 
         <!-- Too much text error -->
         <div v-if="tooMuchText" class="form-hint text-warning">
@@ -838,7 +922,13 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
   gap: 1rem;
 }
 
+.submit-btn-wrapper {
+  display: flex;
+  width: 100%;
+}
+
 .submit-btn {
+  width: 100%;
   background: var(--color-primary);
   color: white;
   border: none;
@@ -858,6 +948,25 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
 .submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.submit-tooltip {
+  background-color: var(--color-background-mute);
+  color: var(--color-heading);
+  border: 1px solid var(--color-border);
+  text-align: center;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  position: fixed;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.4;
+  max-width: 320px;
+  box-sizing: border-box;
+  pointer-events: none;
+  animation: tooltip-fade 0.2s ease-out;
 }
 
 .error-message {
