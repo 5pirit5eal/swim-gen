@@ -104,7 +104,8 @@ type PlanToPDFResponse struct {
 // GeneratePromptRequest represents the request for prompt generation
 // @Description Request payload for generating a prompt for swim training plan creation
 type GeneratePromptRequest struct {
-	Language Language `json:"language" example:"en" binding:"required"`
+	Language Language  `json:"language" example:"en" binding:"required"`
+	Audience *Audience `json:"audience,omitempty" example:"beginner"`
 }
 
 // GeneratedPromptResponse represents the response containing the generated prompt

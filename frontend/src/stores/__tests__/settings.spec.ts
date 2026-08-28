@@ -9,6 +9,7 @@ describe('settings Store', () => {
     store.dataDonationOptOut = true
     store.poolLength = 25
     store.preferredMethod = 'generate'
+    store.selectedAudience = null
     store.filters = {
       freistil: undefined,
       brust: undefined,
@@ -26,6 +27,7 @@ describe('settings Store', () => {
     expect(store.dataDonationOptOut).toBe(true)
     expect(store.poolLength).toBe(25)
     expect(store.preferredMethod).toBe('generate')
+    expect(store.selectedAudience).toBeNull()
     expect(store.filters).toEqual({
       freistil: undefined,
       brust: undefined,
@@ -77,5 +79,18 @@ describe('settings Store', () => {
     expect(store.filters.lagen).toBeUndefined()
     expect(store.filters.schwierigkeitsgrad).toBeUndefined()
     expect(store.filters.trainingstyp).toBeUndefined()
+  })
+
+  it('sets and toggles audience correctly', () => {
+    const store = useSettingsStore()
+
+    store.setAudience('beginner')
+    expect(store.selectedAudience).toBe('beginner')
+
+    store.toggleAudience('beginner')
+    expect(store.selectedAudience).toBeNull()
+
+    store.toggleAudience('triathlete')
+    expect(store.selectedAudience).toBe('triathlete')
   })
 })

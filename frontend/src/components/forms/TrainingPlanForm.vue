@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick, onUnmounted } from 'vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useSettingsStore } from '@/stores/settings'
+import { useProfileStore } from '@/stores/profile'
 import { apiClient, formatError } from '@/api/client'
-import type { QueryRequest, PromptGenerationRequest } from '@/types'
+import type { QueryRequest, PromptGenerationRequest, AudienceType } from '@/types'
 import { DIFFICULTY_OPTIONS, TRAINING_TYPE_OPTIONS } from '@/types'
 import BaseTooltip from '@/components/ui/BaseTooltip.vue'
+import { calculateOverlayPosition, type OverlayPlacement } from '@/utils/overlayPosition'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 
 // Store access
 const authStore = useAuthStore()
+const profileStore = useProfileStore()
 const trainingStore = useTrainingPlanStore()
 const settingsStore = useSettingsStore()
 
@@ -23,6 +26,110 @@ const showAdvancedSettings = ref(false)
 
 // Loading state for prompt generation
 const generatingPrompt = ref(false)
+const highlightPromptBtn = ref(false)
+let highlightTimer: ReturnType<typeof setTimeout> | null = null
+
+// Audience options configuration: Anfänger, Triathlet, Leistungsschwimmer, Hobbyschwimmer
+const audienceOptions: { id: AudienceType; labelKey: string; hintKey: string }[] = [
+  { id: 'beginner', labelKey: 'form.audience_beginner', hintKey: 'form.audience_hint_beginner' },
+  { id: 'triathlete', labelKey: 'form.audience_triathlete', hintKey: 'form.audience_hint_triathlete' },
+  {
+    id: 'competitive_swimmer',
+    labelKey: 'form.audience_competitive_swimmer',
+    hintKey: 'form.audience_hint_competitive_swimmer',
+  },
+  { id: 'hobby', labelKey: 'form.audience_hobby', hintKey: 'form.audience_hint_hobby' },
+]
+
+// Hover tooltip state for audience buttons (longer hover)
+const hoveredAudience = ref<AudienceType | null>(null)
+const activeTooltipId = ref<AudienceType | null>(null)
+const tooltipPosition = ref({ left: 0, top: 0 })
+const tooltipPlacement = ref<OverlayPlacement>('top')
+const audienceButtonRefs = ref<Record<string, HTMLElement | null>>({})
+let hoverTimer: ReturnType<typeof setTimeout> | null = null
+
+function setAudienceBtnRef(id: AudienceType, el: unknown) {
+  if (el instanceof HTMLElement) {
+    audienceButtonRefs.value[id] = el
+  } else {
+    delete audienceButtonRefs.value[id]
+  }
+}
+
+async function updateTooltipPosition() {
+  await nextTick()
+  if (!activeTooltipId.value) return
+  const anchorEl = audienceButtonRefs.value[activeTooltipId.value]
+  const tooltipEl = document.getElementById('audience-hover-tooltip')
+  if (!anchorEl || !tooltipEl) return
+
+  const anchor = anchorEl.getBoundingClientRect()
+  const tooltip = tooltipEl.getBoundingClientRect()
+  const position = calculateOverlayPosition(
+    anchor,
+    tooltip.width,
+    tooltip.height,
+    window.innerWidth,
+    window.innerHeight,
+  )
+
+  tooltipPosition.value = { left: position.left, top: position.top }
+  tooltipPlacement.value = position.placement
+}
+
+function handleAudienceMouseEnter(id: AudienceType) {
+  hoveredAudience.value = id
+  if (hoverTimer) {
+    clearTimeout(hoverTimer)
+  }
+  // Show tooltip only on a longer hover (500ms)
+  hoverTimer = setTimeout(async () => {
+    if (hoveredAudience.value === id) {
+      activeTooltipId.value = id
+      await updateTooltipPosition()
+      window.addEventListener('resize', updateTooltipPosition)
+      window.addEventListener('scroll', updateTooltipPosition, true)
+    }
+  }, 500)
+}
+
+function handleAudienceMouseLeave(id: AudienceType) {
+  if (hoveredAudience.value === id) {
+    hoveredAudience.value = null
+  }
+  if (hoverTimer) {
+    clearTimeout(hoverTimer)
+    hoverTimer = null
+  }
+  activeTooltipId.value = null
+  window.removeEventListener('resize', updateTooltipPosition)
+  window.removeEventListener('scroll', updateTooltipPosition, true)
+}
+
+onUnmounted(() => {
+  if (hoverTimer) {
+    clearTimeout(hoverTimer)
+  }
+  window.removeEventListener('resize', updateTooltipPosition)
+  window.removeEventListener('scroll', updateTooltipPosition, true)
+})
+
+// Dynamic placeholder based on selected audience
+const currentPlaceholder = computed(() => {
+  switch (settingsStore.selectedAudience) {
+    case 'beginner':
+      return t('form.example_placeholder_beginner')
+    case 'triathlete':
+      return t('form.example_placeholder_triathlete')
+    case 'competitive_swimmer':
+      return t('form.example_placeholder_competitive_swimmer')
+    case 'hobby':
+      return t('form.example_placeholder_hobby')
+    default:
+      return t('form.example_placeholder')
+  }
+})
 
 // Computed
 const isFormValid = computed(() => {
@@ -33,6 +140,16 @@ const tooMuchText = computed(() => requestText.value.trim().length > 3000)
 const canSubmit = computed(
   () => isFormValid.value && !trainingStore.isLoading && !generatingPrompt.value,
 )
+
+function clearPromptHighlight() {
+  if (highlightPromptBtn.value) {
+    if (highlightTimer) {
+      clearTimeout(highlightTimer)
+      highlightTimer = null
+    }
+    highlightPromptBtn.value = false
+  }
+}
 
 // Actions
 async function handleSubmit() {
@@ -57,11 +174,87 @@ function toggleAdvancedSettings() {
   showAdvancedSettings.value = !showAdvancedSettings.value
 }
 
-async function handlePromptGeneration() {
+function applyAudienceConfiguration(audience: AudienceType) {
+  settingsStore.setAudience(audience)
+
+  if (audience === 'beginner') {
+    settingsStore.filters.schwierigkeitsgrad = 'Anfaenger'
+    settingsStore.filters.trainingstyp = 'Techniktraining'
+  } else if (audience === 'triathlete') {
+    settingsStore.filters.schwierigkeitsgrad = 'Fortgeschritten'
+    settingsStore.filters.trainingstyp = 'Grundlagenausdauer'
+  } else if (audience === 'competitive_swimmer') {
+    settingsStore.filters.schwierigkeitsgrad = 'Leistungsschwimmer'
+    settingsStore.filters.trainingstyp = 'Wettkampfvorbereitung'
+  } else if (audience === 'hobby') {
+    settingsStore.filters.schwierigkeitsgrad = undefined
+    settingsStore.filters.trainingstyp = undefined
+  }
+}
+
+function handleAudienceClick(audience: AudienceType) {
+  applyAudienceConfiguration(audience)
+
+  // Trigger visual highlight on the prompt generation button instead of immediate API generation
+  if (highlightTimer) {
+    clearTimeout(highlightTimer)
+  }
+  highlightPromptBtn.value = false
+  // Short delay to reset transition if repeatedly clicked
+  setTimeout(() => {
+    highlightPromptBtn.value = true
+    highlightTimer = setTimeout(() => {
+      highlightPromptBtn.value = false
+    }, 3500)
+  }, 50)
+}
+
+function mapCategoryToAudience(category?: string): AudienceType | undefined {
+  if (!category) return undefined
+  switch (category) {
+    case 'Triathlet':
+    case 'Triathlete':
+    case 'triathlete':
+      return 'triathlete'
+    case 'Leistungsschwimmer':
+    case 'Swimmer':
+    case 'Competitive Swimmer':
+    case 'competitive_swimmer':
+    case 'Trainer':
+    case 'Coach':
+      return 'competitive_swimmer'
+    case 'Hobbyschwimmer':
+    case 'Hobby':
+    case 'hobby':
+      return 'hobby'
+    case 'Anfaenger':
+    case 'Beginner':
+    case 'beginner':
+      return 'beginner'
+    default:
+      return undefined
+  }
+}
+
+async function handlePromptGeneration(audienceOverride?: AudienceType) {
   generatingPrompt.value = true
+
+  let targetAudience: AudienceType | undefined = audienceOverride
+
+  if (!targetAudience) {
+    if (authStore.user) {
+      const userCategory = profileStore.profile?.categories?.[0]
+      targetAudience = mapCategoryToAudience(userCategory)
+    } else if (settingsStore.selectedAudience) {
+      targetAudience = settingsStore.selectedAudience
+    }
+  }
+
   const promptRequest: PromptGenerationRequest = {
     language: navigator.language, // Use current locale
+    audience: targetAudience || undefined,
   }
+
   const response = await apiClient.generatePrompt(promptRequest)
   if (response.success) {
     requestText.value = response.data?.prompt || ''
@@ -78,6 +271,56 @@ async function handlePromptGeneration() {
 <template>
   <div class="training-plan-form">
     <form @submit.prevent="handleSubmit" class="form-container">
+      <!-- Audience selector (only for non-logged-in visitors) -->
+      <div v-if="!authStore.user" class="audience-section">
+        <label class="audience-label" id="audience-selector-label">
+          {{ t('form.audience_label') }}
+        </label>
+        <div
+          class="audience-selector"
+          role="radiogroup"
+          aria-labelledby="audience-selector-label"
+        >
+          <button
+            v-for="option in audienceOptions"
+            :key="option.id"
+            :ref="(el) => setAudienceBtnRef(option.id, el)"
+            type="button"
+            class="audience-btn"
+            :class="{ active: settingsStore.selectedAudience === option.id }"
+            :aria-checked="settingsStore.selectedAudience === option.id"
+            role="radio"
+            :disabled="trainingStore.isLoading || generatingPrompt"
+            @click="handleAudienceClick(option.id)"
+            @mouseenter="handleAudienceMouseEnter(option.id)"
+            @mouseleave="handleAudienceMouseLeave(option.id)"
+            @focus="handleAudienceMouseEnter(option.id)"
+            @blur="handleAudienceMouseLeave(option.id)"
+          >
+            {{ t(option.labelKey) }}
+          </button>
+        </div>
+
+        <!-- Teleported hover tooltip for audience buttons (shown on longer hover) -->
+        <Teleport to="body">
+          <div
+            v-if="activeTooltipId"
+            id="audience-hover-tooltip"
+            class="audience-tooltip"
+            :class="`position-${tooltipPlacement}`"
+            :style="{ left: `${tooltipPosition.left}px`, top: `${tooltipPosition.top}px` }"
+            role="tooltip"
+          >
+            {{
+              t(
+                audienceOptions.find((opt) => opt.id === activeTooltipId)?.hintKey ||
+                  'form.audience_hint_all',
+              )
+            }}
+          </div>
+        </Teleport>
+      </div>
+
       <!-- Main text input -->
       <div class="form-group">
         <label for="request-text" class="form-label">
@@ -92,9 +335,10 @@ async function handlePromptGeneration() {
           id="request-text"
           v-model="requestText"
           class="form-textarea"
-          :placeholder="t('form.example_placeholder')"
+          :placeholder="currentPlaceholder"
           rows="4"
           :disabled="trainingStore.isLoading"
+          @input="clearPromptHighlight"
         />
       </div>
 
@@ -116,8 +360,9 @@ async function handlePromptGeneration() {
         <!-- Prompt generation button -->
         <button
           type="button"
-          @click="handlePromptGeneration"
+          @click="handlePromptGeneration()"
           class="toggle-settings-btn"
+          :class="{ 'btn-highlight-pulse': highlightPromptBtn }"
           :disabled="trainingStore.isLoading || generatingPrompt"
         >
           <div v-if="!generatingPrompt">{{ t('form.i_feel_lucky') }}</div>
@@ -335,12 +580,12 @@ async function handlePromptGeneration() {
             </div>
 
             <!-- Profile Preferences -->
-            <div class="setting-group">
+            <div v-if="authStore.user" class="setting-group">
               <label class="setting-label">
                 <input
                   type="checkbox"
                   v-model="settingsStore.useProfilePreferences"
-                  :disabled="trainingStore.isLoading || !authStore.user"
+                  :disabled="trainingStore.isLoading"
                 />
                 {{ t('form.use_profile_preferences') }}
                 <BaseTooltip>
@@ -427,6 +672,108 @@ async function handlePromptGeneration() {
   }
 }
 
+.audience-section {
+  margin-bottom: 1.25rem;
+}
+
+.audience-label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  color: var(--color-heading);
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.audience-selector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.audience-btn {
+  background-color: var(--color-background);
+  color: var(--color-heading);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.2s;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex: 1 1 calc(25% - 0.6rem);
+  max-width: 220px;
+  min-width: 140px;
+}
+
+.audience-btn:hover:not(:disabled):not(.active) {
+  background-color: var(--color-background-mute);
+  border-color: var(--color-border-hover);
+  color: var(--color-primary);
+}
+
+.audience-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-shadow);
+}
+
+.audience-btn.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+  font-weight: 600;
+}
+
+.audience-btn.active:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.audience-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.audience-tooltip {
+  background-color: var(--color-background-mute);
+  color: var(--color-heading);
+  border: 1px solid var(--color-border);
+  text-align: center;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  position: fixed;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.4;
+  max-width: 260px;
+  box-sizing: border-box;
+  pointer-events: none;
+  animation: tooltip-fade 0.2s ease-out;
+}
+
+@keyframes tooltip-fade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .form-group {
   margin-bottom: 1rem;
 }
@@ -481,6 +828,8 @@ async function handlePromptGeneration() {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .form-actions {
@@ -539,6 +888,7 @@ async function handlePromptGeneration() {
   cursor: pointer;
   margin-bottom: 1rem;
   color: var(--color-heading);
+  transition: all 0.25s ease;
 }
 
 .toggle-settings-btn:hover {
@@ -548,6 +898,35 @@ async function handlePromptGeneration() {
 .toggle-settings-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.toggle-settings-btn.btn-highlight-pulse {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 0 0 4px var(--color-shadow), 0 4px 12px var(--color-shadow);
+  animation: prompt-pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes prompt-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 3px var(--color-shadow), 0 2px 6px var(--color-shadow);
+  }
+  100% {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 7px var(--color-shadow), 0 6px 18px var(--color-shadow);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle-settings-btn.btn-highlight-pulse {
+    animation: none;
+    transform: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px var(--color-shadow);
+  }
 }
 
 .advanced-settings {

@@ -3,6 +3,10 @@ import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import TrainingPlanForm from '../TrainingPlanForm.vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan.ts'
+import { useSettingsStore } from '@/stores/settings.ts'
+import { useAuthStore } from '@/stores/auth.ts'
+import { useProfileStore } from '@/stores/profile.ts'
+import type { User } from '@supabase/supabase-js'
 import i18n from '@/plugins/i18n' // Import the i18n instance
 import { apiClient } from '@/api/client'
 import type { ApiResult, PromptGenerationResponse } from '@/types'
@@ -13,6 +17,36 @@ vi.mock('@/api/client', () => ({
     generatePrompt: vi.fn(),
     formatError: vi.fn((err) => err.message),
   },
+}))
+
+// Mock supabase
+vi.mock('@/plugins/supabase', () => ({
+  supabase: {
+    auth: {
+      onAuthStateChange: vi.fn(),
+    },
+    from: vi.fn().mockReturnThis(),
+    select: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    range: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    single: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockReturnThis(),
+  },
+  getSupabase: vi.fn(async () => ({
+    auth: {
+      onAuthStateChange: vi.fn(),
+    },
+    from: vi.fn().mockReturnThis(),
+    select: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    range: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    single: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockReturnThis(),
+  })),
 }))
 
 describe('TrainingPlanForm.vue', () => {
@@ -27,6 +61,16 @@ describe('TrainingPlanForm.vue', () => {
     store.currentPlan = null
     store.isLoading = false
     store.error = null
+
+    const authStore = useAuthStore()
+    authStore.user = null
+
+    const profileStore = useProfileStore()
+    profileStore.profile = null
+
+    const settingsStore = useSettingsStore()
+    settingsStore.selectedAudience = null
+    settingsStore.clearFilters()
   })
 
   it('renders correctly without errors', () => {
@@ -173,5 +217,153 @@ describe('TrainingPlanForm.vue', () => {
 
     // And the textarea should be updated with the new prompt
     expect(textarea.element.value).toBe(mockSuccessResponse.data?.prompt)
+  })
+
+  it('renders audience selector and adapts placeholder and settings when audience changes', async () => {
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+    })
+    const settingsStore = useSettingsStore()
+
+    const audienceButtons = wrapper.findAll('.audience-btn')
+    expect(audienceButtons.length).toBe(4)
+
+    // Button labels should match Beginner, Triathlete, Competitive Swimmer, Hobby
+    expect(audienceButtons[0]!.text()).toBe(i18n.global.t('form.audience_beginner'))
+    expect(audienceButtons[1]!.text()).toBe(i18n.global.t('form.audience_triathlete'))
+    expect(audienceButtons[2]!.text()).toBe(i18n.global.t('form.audience_competitive_swimmer'))
+    expect(audienceButtons[3]!.text()).toBe(i18n.global.t('form.audience_hobby'))
+
+    let textarea = wrapper.find('textarea')
+    expect(textarea.attributes('placeholder')).toBe(i18n.global.t('form.example_placeholder'))
+
+    // Click 'beginner' button (index 0)
+    await audienceButtons[0]!.trigger('click')
+    expect(settingsStore.selectedAudience).toBe('beginner')
+    expect(settingsStore.filters.schwierigkeitsgrad).toBe('Anfaenger')
+    expect(settingsStore.filters.trainingstyp).toBe('Techniktraining')
+    await wrapper.vm.$nextTick()
+
+    textarea = wrapper.find('textarea')
+    expect(textarea.attributes('placeholder')).toBe(
+      i18n.global.t('form.example_placeholder_beginner'),
+    )
+
+    // Click 'triathlete' button (index 1)
+    await audienceButtons[1]!.trigger('click')
+    expect(settingsStore.selectedAudience).toBe('triathlete')
+    expect(settingsStore.filters.schwierigkeitsgrad).toBe('Fortgeschritten')
+    expect(settingsStore.filters.trainingstyp).toBe('Grundlagenausdauer')
+    await wrapper.vm.$nextTick()
+
+    textarea = wrapper.find('textarea')
+    expect(textarea.attributes('placeholder')).toBe(
+      i18n.global.t('form.example_placeholder_triathlete'),
+    )
+
+    // Click 'competitive_swimmer' button (index 2)
+    await audienceButtons[2]!.trigger('click')
+    expect(settingsStore.selectedAudience).toBe('competitive_swimmer')
+    expect(settingsStore.filters.schwierigkeitsgrad).toBe('Leistungsschwimmer')
+    expect(settingsStore.filters.trainingstyp).toBe('Wettkampfvorbereitung')
+    await wrapper.vm.$nextTick()
+
+    textarea = wrapper.find('textarea')
+    expect(textarea.attributes('placeholder')).toBe(
+      i18n.global.t('form.example_placeholder_competitive_swimmer'),
+    )
+
+    // Click 'hobby' button (index 3)
+    await audienceButtons[3]!.trigger('click')
+    expect(settingsStore.selectedAudience).toBe('hobby')
+    expect(settingsStore.filters.schwierigkeitsgrad).toBeUndefined()
+    expect(settingsStore.filters.trainingstyp).toBeUndefined()
+    await wrapper.vm.$nextTick()
+
+    textarea = wrapper.find('textarea')
+    expect(textarea.attributes('placeholder')).toBe(
+      i18n.global.t('form.example_placeholder_hobby'),
+    )
+  })
+
+  it('shows tooltip on audience button hover after delay', async () => {
+    vi.useFakeTimers()
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+      attachTo: document.body,
+    })
+
+    const beginnerBtn = wrapper.findAll('.audience-btn')[0]!
+    await beginnerBtn.trigger('mouseenter')
+
+    // Tooltip should not be displayed immediately
+    expect(document.getElementById('audience-hover-tooltip')).toBeNull()
+
+    // Fast forward timer past 500ms
+    vi.advanceTimersByTime(550)
+    await wrapper.vm.$nextTick()
+
+    // Tooltip should now be visible in DOM
+    const tooltip = document.getElementById('audience-hover-tooltip')
+    expect(tooltip).not.toBeNull()
+    expect(tooltip?.textContent).toContain(i18n.global.t('form.audience_hint_beginner'))
+
+    // Mouse leave should hide tooltip
+    await beginnerBtn.trigger('mouseleave')
+    await wrapper.vm.$nextTick()
+    expect(document.getElementById('audience-hover-tooltip')).toBeNull()
+
+    vi.useRealTimers()
+    wrapper.unmount()
+  })
+
+  it('hides audience selector when user is logged in and uses profile category for prompt generation', async () => {
+    const authStore = useAuthStore()
+    // Mock logged in user
+    authStore.user = { id: 'test-user', email: 'test@example.com' } as unknown as User
+
+    const profileStore = useProfileStore()
+    profileStore.profile = {
+      user_id: 'test-user',
+      updated_at: '',
+      username: 'test',
+      experience: null,
+      preferred_language: null,
+      preferred_strokes: [],
+      categories: ['Triathlet'],
+      overall_generations: 0,
+      monthly_generations: 0,
+      exports: 0,
+      css_200m_seconds: null,
+      css_400m_seconds: null,
+    }
+
+    const mockSuccessResponse: ApiResult<PromptGenerationResponse> = {
+      success: true,
+      data: { prompt: 'Triathlete prompt' },
+    }
+    vi.mocked(apiClient.generatePrompt).mockResolvedValue(mockSuccessResponse)
+
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    // Audience section should be hidden
+    expect(wrapper.find('.audience-section').exists()).toBe(false)
+
+    // Click the feel lucky / prompt generation button
+    const promptButton = wrapper.findAll('.toggle-settings-btn')[1]!
+    await promptButton.trigger('click')
+
+    expect(apiClient.generatePrompt).toHaveBeenCalledWith({
+      language: navigator.language,
+      audience: 'triathlete',
+    })
   })
 })

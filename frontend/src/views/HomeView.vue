@@ -2,6 +2,7 @@
 import TrainingPlanForm from '@/components/forms/TrainingPlanForm.vue'
 import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 import DrillList from '@/components/drills/DrillList.vue'
+import IconCheck from '@/components/icons/IconCheck.vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
@@ -123,10 +124,19 @@ watch(
         <p class="hero-description">
           {{ t('app.hero_description') }}
         </p>
-        <div class="hero-badges">
-          <span class="hero-badge">{{ t('app.hero_badge_free') }}</span>
-          <span class="hero-badge">{{ t('app.hero_badge_no_signup') }}</span>
-          <span class="hero-badge">{{ t('app.hero_badge_audience') }}</span>
+        <div class="hero-badges" role="list">
+          <span class="hero-badge" role="listitem">
+            <IconCheck class="hero-badge-icon" aria-hidden="true" />
+            {{ t('app.hero_badge_free') }}
+          </span>
+          <span class="hero-badge" role="listitem">
+            <IconCheck class="hero-badge-icon" aria-hidden="true" />
+            {{ t('app.hero_badge_no_signup') }}
+          </span>
+          <span class="hero-badge" role="listitem">
+            <IconCheck class="hero-badge-icon" aria-hidden="true" />
+            {{ t('app.hero_badge_audience') }}
+          </span>
         </div>
       </section>
 
@@ -203,23 +213,32 @@ watch(
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
 }
 
 .hero-badge {
   display: inline-flex;
   align-items: center;
-  font-size: 0.8rem;
+  gap: 0.35rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  padding: 0.3rem 0.75rem;
-  border-radius: 9999px;
-  background-color: var(--color-background-soft);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 1px 2px var(--color-shadow);
+  color: #ffffff;
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  box-shadow: 0 1px 3px var(--color-shadow);
   cursor: default;
   user-select: none;
+  letter-spacing: 0.02em;
+}
+
+.hero-badge-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
 }
 
 @media (max-width: 740px) {
@@ -241,9 +260,14 @@ watch(
     font-size: 0.95rem;
   }
 
+  .hero-badges {
+    gap: 0.4rem;
+    margin-top: 0.85rem;
+  }
+
   .hero-badge {
     font-size: 0.75rem;
-    padding: 0.25rem 0.6rem;
+    padding: 0.25rem 0.55rem;
   }
 }
 

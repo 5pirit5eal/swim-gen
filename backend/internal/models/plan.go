@@ -20,6 +20,16 @@ const (
 	LanguageDE Language = "de"
 )
 
+// Audience represents the audience type for prompt generation and workouts
+type Audience string
+
+const (
+	AudienceBeginner           Audience = "beginner"
+	AudienceTriathlete         Audience = "triathlete"
+	AudienceCompetitiveSwimmer Audience = "competitive_swimmer"
+	AudienceHobby              Audience = "hobby"
+)
+
 type Planable interface {
 	// Map represenation of the object with at least the plan_id without the table
 	Map() map[string]any

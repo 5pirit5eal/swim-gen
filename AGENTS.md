@@ -389,6 +389,14 @@ Always provide disabled, hover, and focus states. Keep touch targets $\ge 44\tex
 
 ---
 
+### 7. Icon Components & SVG Assets
+
+- **Dedicated Icon Files**: All SVG icons MUST be created as separate single-purpose Vue components inside `frontend/src/components/icons/` using the naming pattern `Icon<Name>.vue` (e.g., `IconCheck.vue`, `IconEdit.vue`, `IconDownload.vue`).
+- **No Inline SVG in Views/Forms**: Never embed raw `<svg>` markup directly in views or form components. Always import and reuse the corresponding component from `@/components/icons/`.
+- **Accessibility & Styling**: Icon components should inherit colors via `stroke="currentColor"` or `fill="currentColor"` and accept parent CSS classes for dimensions and positioning. Mark decorative icons with `aria-hidden="true"`.
+
+---
+
 ## 4. Responsive Breakpoints & Viewport Rules
 
 - **Desktop** (> 1124px): Multi-column layouts, 400px sidebars, standard font sizes.

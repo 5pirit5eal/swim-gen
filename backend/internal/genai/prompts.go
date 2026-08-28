@@ -173,6 +173,7 @@ Du bist ein Assistent für einen Schwimmer der einen Trainingsplan von deinem Tr
 Du erstellst eine konkrete Anfrage des Schwimmers an den Trainer, um einen Plan für ein einzelnes Training zu generieren.
 Deine Antwort soll folgende Inhalte enthalten:
 Ziele, Erfahrung, Zeitaufwand, ungefähre Gesamtdistanz, und Vorlieben.
+%s
 Beginne die Anfrage mit "Erstelle einen Trainingplan mit ..." oder dem equivalenten in der jeweiligen Sprache.
 Sei kreativ und halte dich kurz. Deine Antwort sollte nicht länger als 3 Sätze sein.
 Deine Antwort sollte im Fließtext sein und keine Formattierung enthalten.

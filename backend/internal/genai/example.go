@@ -13,7 +13,21 @@ func (c *GoogleGenAIClient) GeneratePrompt(ctx context.Context, req models.Gener
 	logger := httplog.LogEntry(ctx)
 	logger.Debug("Generating prompt example...")
 
-	prompt := fmt.Sprintf(generatePromptTemplateStr, req.Language)
+	audienceInstruction := ""
+	if req.Audience != nil {
+		switch *req.Audience {
+		case models.AudienceBeginner:
+			audienceInstruction = "Der Schwimmer ist ein Anfänger / lernt schwimmen. Die Anfrage soll sich auf einfache, machbare Einheiten, Wasserlage, Atmung, Technik und ausreichende Pausen konzentrieren."
+		case models.AudienceTriathlete:
+			audienceInstruction = "Der Schwimmer ist ein Triathlet. Die Anfrage soll sich auf Kraul-Ausdauer, Tempohärte, Freiwasser-Fokus oder aerobe Schwellenserien konzentrieren."
+		case models.AudienceCompetitiveSwimmer:
+			audienceInstruction = "Der Schwimmer ist ein ambitionierter Leistungsschwimmer. Die Anfrage soll sich auf anspruchsvolle Serien, Lagen-Sets, wettkampfspezifische Ausdauer und Renntempo konzentrieren."
+		case models.AudienceHobby:
+			audienceInstruction = "Der Schwimmer ist ein Hobbyschwimmer / Fitness-Schwimmer. Die Anfrage soll sich auf abwechslungsreiche, motivierende Trainingseinheiten für Fitness, Spaß und Technik konzentrieren."
+		}
+	}
+
+	prompt := fmt.Sprintf(generatePromptTemplateStr, audienceInstruction, req.Language)
 
 	gcfg := &genai.GenerateContentConfig{
 		CandidateCount: int32(1),
