@@ -1,20 +1,26 @@
 {
   "app": {
     "name": "Swim Gen",
-    "slogan": "Free, ad-free, and personalizable AI-powered training plan generator for swimmers, trainers and triathletes.",
+    "slogan": "Your next swim, planned in seconds. Free, ad-free, and personalized training plans for swimmers, triathletes, and coaches.",
     "note_meta": "NOTE: The above 'name' and 'slogan' are also used in index.html for OpenGraph/meta tags. Change them there too.",
-    "hero_title": "AI-Powered Swimming Training Plans",
-    "hero_description": "Generate personalized training plans for swimmers, triathletes, and coaches. Just describe what you're looking for, and our system will create a custom training for you. Free, ad-free, and tailored to you."
+    "hero_title": "Your next swim, planned in seconds",
+    "hero_description": "Create personalized swimming workouts tailored to your goal, available time, stroke, and pool length.",
+    "hero_badge_free": "Free & ad-free",
+    "hero_badge_no_signup": "No sign-up needed",
+    "hero_badge_audience": "For beginners, athletes & coaches"
   },
   "home": {
     "banner": {
       "not_logged_in": {
-        "text": "If you want to save this plan or use interactive editing create an account or log in.",
-        "button": "Login"
+        "title": "Keep this plan and reuse it anytime",
+        "text": "Save this workout to your history, refine it with interactive chat, or share it anytime. Your current plan will be transferred automatically when you create a free account or log in.",
+        "button": "Save my plan",
+        "secondary_login": "Already have an account? Log in"
       },
       "logged_in": {
-        "text": "To view this plan in your history and use interactive editing click here:",
-        "button": "Interactive Editing"
+        "title": "Refine this workout",
+        "text": "Open this plan in the interactive chat editor to tweak sets, adjust volume, or ask for variations.",
+        "button": "Interactive Chat Editor"
       }
     }
   },
@@ -45,12 +51,25 @@
     "copyright": "© 2026 Swim Gen. Built with Vue.js and TypeScript."
   },
   "form": {
+    "audience_label": "Who is this workout for?",
+    "audience_beginner": "Beginner",
+    "audience_triathlete": "Triathlete",
+    "audience_competitive_swimmer": "Competitive Swimmer",
+    "audience_hobby": "Hobby Swimmer",
+    "audience_hint_beginner": "Manageable sets, technique, breathing, and comfortable rest intervals.",
+    "audience_hint_triathlete": "Freestyle endurance, threshold pace, open-water prep, and aerobic intervals.",
+    "audience_hint_competitive_swimmer": "High-intensity intervals, IM sets, race pace, and structured training.",
+    "audience_hint_hobby": "Varied, fun fitness workouts for technique, health, and endurance.",
     "describe_training_needs": "Describe your training needs",
     "describe_training_needs_tooltip": "Write a request in your preferred language. Try to be specific about your goals, experience level, time constraints, and preferences.",
     "example_placeholder": "Example: I need a 45-minute freestyle endurance workout for an intermediate swimmer...",
+    "example_placeholder_beginner": "Example: 30-minute easy session focusing on freestyle breathing, relaxed body position, and rest intervals...",
+    "example_placeholder_triathlete": "Example: 2500m triathlon aerobic endurance set with 100m/200m freestyle intervals and tempo pacing...",
+    "example_placeholder_competitive_swimmer": "Example: 3500m competitive session with 10x100m threshold, 200m IM transitions, and sprint finishes...",
+    "example_placeholder_hobby": "Example: 45-minute fitness swim with mixed strokes, technique drills, and moderate intervals...",
     "show_advanced_settings": "Show Advanced Settings",
     "hide_advanced_settings": "Hide Advanced Settings",
-    "i_feel_lucky": "I feel lucky",
+    "suggest_workout": "Suggest a workout",
     "generating": "Generating...",
     "swimming_strokes": "Swimming Strokes",
     "swimming_strokes_tooltip": "Select specific swimming strokes to explicitly include.",
@@ -80,6 +99,7 @@
     "training_type_race_preparation": "Race Preparation",
     "clear_all_filters": "Clear All Filters",
     "generate_training_plan": "Generate Training Plan",
+    "generate_training_plan_disabled_tooltip": "Write your training plan wishes above or click 'Suggest a workout' first.",
     "generating_plan": "Generating...",
     "request_too_long": "Your request is too long! Please limit it to 3000 characters.",
     "pool_length": "Pool Length",
@@ -592,6 +612,10 @@
     "aria_styles": "Stroke/Style",
     "aria_target_groups": "Target Group",
     "explore_drills": "Explore Drills",
+    "featured_drills": "Featured Swimming Drills",
+    "featured_drills_subtitle": "Technique exercises and visual guides to improve your stroke efficiency.",
+    "find_suitable_drills": "Find suitable drills",
+    "browse_all_drills": "Explore all {count} drills",
     "no_results": "No drills found matching your criteria.",
     "difficulty": {
       "easy": "Easy",

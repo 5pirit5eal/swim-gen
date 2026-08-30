@@ -234,7 +234,7 @@ onUnmounted(() => {
   box-sizing: border-box;
   background: var(--color-background);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow:
     0 10px 25px -5px rgba(0, 0, 0, 0.2),
     0 0 0 1px rgba(0, 0, 0, 0.05);
@@ -288,8 +288,8 @@ onUnmounted(() => {
 /* Image Overlays */
 .image-overlay-badge {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 8px;
+  left: 8px;
   background-color: var(--color-primary);
   color: white;
   font-size: 0.75rem;
@@ -303,8 +303,8 @@ onUnmounted(() => {
 
 .image-overlay-difficulty {
   position: absolute;
-  bottom: 12px;
-  right: 12px;
+  bottom: 8px;
+  right: 8px;
   display: flex;
   align-items: center;
   gap: 8px;

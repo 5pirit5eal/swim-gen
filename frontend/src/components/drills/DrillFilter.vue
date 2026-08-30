@@ -177,7 +177,7 @@ const currentTargetGroup = computed({
 .drill-filter {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .search-bar {
@@ -198,10 +198,10 @@ const currentTargetGroup = computed({
 
 .search-input {
   width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
+  padding: 0.75rem 1rem 0.75rem 3rem;
   background: var(--color-background-soft);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 8px;
   color: var(--color-heading);
   font-size: 1rem;
   transition:
@@ -212,25 +212,29 @@ const currentTargetGroup = computed({
 .search-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-soft, rgba(0, 150, 255, 0.1));
+  box-shadow: 0 0 0 2px var(--color-shadow);
 }
 
 .filters-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.75rem;
+  align-items: center;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .filter-select {
-  padding: 0.5rem 2rem 0.5rem 1rem;
+  width: 100%;
+  padding: 0.6rem 2rem 0.6rem 1rem;
   background: var(--color-background-soft);
   border: 1px solid var(--color-border);
-  border-radius: 20px;
+  border-radius: 8px;
   color: var(--color-text);
   font-size: 0.9rem;
   font-weight: 500;
@@ -240,27 +244,59 @@ const currentTargetGroup = computed({
   background-repeat: no-repeat;
   background-position: right 0.7rem top 50%;
   background-size: 0.65rem auto;
-  min-width: 150px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .filter-select:focus {
   outline: none;
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-shadow);
 }
 
 .filter-select:hover {
   background-color: var(--color-background-mute);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 900px) {
   .drill-filter {
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    gap: 1.25rem;
   }
 
   .search-bar {
-    max-width: 400px;
+    flex: 1 1 320px;
+    max-width: 380px;
+  }
+
+  .filters-row {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+  }
+
+  .filter-group {
+    flex: 1 1 140px;
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-select {
+    min-height: 44px;
+    font-size: 0.95rem;
   }
 }
 </style>

@@ -1,3 +1,5 @@
+import type { AudienceType } from './index'
+
 /**
  * Training plan related TypeScript type definitions
  * Based on the backend API specification (swagger.yaml)
@@ -6,6 +8,7 @@
 // Prompt Generation API Request structure
 export interface PromptGenerationRequest {
   language: string
+  audience?: AudienceType
 }
 
 // PromptGeneration API Response structure

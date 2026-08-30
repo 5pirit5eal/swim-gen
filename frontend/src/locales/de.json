@@ -1,20 +1,26 @@
 {
   "app": {
     "name": "Swim Gen",
-    "slogan": "Kostenloser, werbefreier und personalisierbarer KI-Trainingsplangenerator für Schwimmer, Trainer und Triathleten.",
+    "slogan": "Dein nächstes Schwimmtraining, in Sekunden geplant. Kostenloser, werbefreier und personalisierter Trainingsplangenerator für Schwimmer, Triathleten und Trainer.",
     "note_meta": "HINWEIS: Der oben stehende 'name' und 'slogan' werden auch in index.html für OpenGraph/meta verwendet. Ändere diese Werte zusammen mit den Meta-Tags in index.html.",
-    "hero_title": "KI-Generierte Schwimmpläne",
-    "hero_description": "Generiere personalisierte Trainingspläne für Schwimmer, Triathleten und Trainer. Beschreibe einfach, was du suchst, und unserer System erstellt ein Training für dich. Kostenlos, werbefrei und auf dich zugeschnitten."
+    "hero_title": "Dein nächstes Schwimmtraining, in Sekunden geplant",
+    "hero_description": "Erstelle personalisierte Schwimm-Workouts, abgestimmt auf dein Ziel, deine Zeit, Schwimmstile und Bahnlänge.",
+    "hero_badge_free": "Kostenlos & werbefrei",
+    "hero_badge_no_signup": "Ohne Registrierung starten",
+    "hero_badge_audience": "Für Einsteiger, Athleten & Trainer"
   },
   "home": {
     "banner": {
       "not_logged_in": {
-        "text": "Wenn du diesen Plan speichern oder interaktive Bearbeitung nutzen möchtest, erstelle ein Konto oder melde dich an.",
-        "button": "Anmelden"
+        "title": "Diesen Plan im Konto behalten und jederzeit wiederverwenden",
+        "text": "Speichere dieses Training in deinem Verlauf, verfeinere es im interaktiven Chat oder teile es. Dein aktueller Plan wird beim kostenlosen Registrieren oder Anmelden automatisch übernommen.",
+        "button": "Plan speichern",
+        "secondary_login": "Bereits registriert? Anmelden"
       },
       "logged_in": {
-        "text": "Um diesen Plan in deinem Verlauf anzuzeigen und interaktive Bearbeitung zu nutzen, klicke hier:",
-        "button": "Interaktive Bearbeitung"
+        "title": "Trainingsplan verfeinern",
+        "text": "Öffne diesen Plan im interaktiven Chat-Editor, um Sets anzupassen, Distanzen zu ändern oder Variationen zu erstellen.",
+        "button": "Im Chat bearbeiten"
       }
     }
   },
@@ -47,12 +53,25 @@
     "copyright": "© 2026 Swim Gen. Erstellt mit Vue.js und TypeScript."
   },
   "form": {
+    "audience_label": "Für wen ist dieses Training?",
+    "audience_beginner": "Anfänger",
+    "audience_triathlete": "Triathlet",
+    "audience_competitive_swimmer": "Leistungsschwimmer",
+    "audience_hobby": "Hobbyschwimmer",
+    "audience_hint_beginner": "Überschaubare Abschnitte, Technik, Atmung und ausreichende Pausen.",
+    "audience_hint_triathlete": "Kraul-Ausdauer, Tempohärte, Freiwasser-Vorbereitung und aerobe Serien.",
+    "audience_hint_competitive_swimmer": "Intensive Intervalle, Lagensätze, Renntempo und strukturierte Serien.",
+    "audience_hint_hobby": "Abwechslungsreiche Trainingseinheiten für Fitness, Gesundheit und Schwimmspaß.",
     "describe_training_needs": "Beschreibe hier deine Trainingsbedürfnisse",
     "describe_training_needs_tooltip": "Sei spezifisch bezüglich deiner Ziele, deinem Erfahrungslevel, deiner Zeitvorgaben und deinen Präferenzen um einen passenden Trainingsplan für dein Schwimmtraining zu generieren.",
     "example_placeholder": "Beispiel: Ich benötige ein 45-minütiges Freistil-Ausdauertraining für einen fortgeschrittenen Schwimmer...",
+    "example_placeholder_beginner": "Beispiel: 30-minütiges lockeres Training mit Fokus auf Kraulatmung, Wasserlage und Pausen...",
+    "example_placeholder_triathlete": "Beispiel: 2500m Triathlon-Grundlagenausdauer mit 100m/200m Freistil-Intervallen und Tempo...",
+    "example_placeholder_competitive_swimmer": "Beispiel: 3500m Wettkampftraining mit 10x100m Schwellentraining, 200m Lagen und Sprints...",
+    "example_placeholder_hobby": "Beispiel: 45-minütiges Fitnessschwimmen mit gemischten Lagen, Technikübungen und moderaten Intervallen...",
     "show_advanced_settings": "Erweiterte Einstellungen",
     "hide_advanced_settings": "Einstellungen ausblenden",
-    "i_feel_lucky": "Überrasch mich",
+    "suggest_workout": "Training vorschlagen",
     "generating": "Generiere...",
     "swimming_strokes": "Schwimmstile",
     "swimming_strokes_tooltip": "Wähle spezifische Schwimmstile aus, die explizit enthalten sein müssen.",
@@ -82,6 +101,7 @@
     "training_type_race_preparation": "Wettkampfvorbereitung",
     "clear_all_filters": "Alle Filter löschen",
     "generate_training_plan": "Trainingsplan generieren",
+    "generate_training_plan_disabled_tooltip": "Beschreibe oben deine Trainingswünsche oder klicke zuerst auf 'Training vorschlagen'.",
     "generating_plan": "Generiere...",
     "request_too_long": "Die Anfrage ist zu lang! Bitte beschränke dich auf 3000 Zeichen.",
     "pool_length": "Beckenlänge",
@@ -597,6 +617,10 @@
     "aria_styles": "Stil",
     "aria_target_groups": "Zielgruppe",
     "explore_drills": "Trainingsübungen entdecken",
+    "featured_drills": "Empfohlene Schwimmübungen",
+    "featured_drills_subtitle": "Technikübungen und visuelle Anleitungen für eine saubere Wasserlage und besseren Vortrieb.",
+    "find_suitable_drills": "Finde passende Übungen",
+    "browse_all_drills": "Alle {count} Übungen ansehen",
     "no_results": "Keine Übungen gefunden, die deinen Kriterien entsprechen.",
     "difficulty": {
       "easy": "Leicht",

@@ -82,7 +82,7 @@ function navigateToDrill() {
 <style scoped>
 .drill-card {
   background: var(--color-background-soft);
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--color-border);
   transition:
@@ -121,8 +121,8 @@ function navigateToDrill() {
 
 .image-overlay-badge {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 8px;
+  left: 8px;
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;

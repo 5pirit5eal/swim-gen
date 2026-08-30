@@ -28,8 +28,8 @@
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 245, 250, 0.85);
 
-  --vt-c-background-light: rgba(237, 237, 237, 0.25);
-  --vt-c-background-dark: rgba(15, 34, 50, 0.75);
+  --vt-c-background-light: rgba(237, 237, 237, 0.62);
+  --vt-c-background-dark: rgba(15, 34, 50, 0.62);
 
   --color-success: #07bc0c;
   --color-error: #e74c3c;

@@ -54,6 +54,8 @@ export interface AppState {
   theme: 'light' | 'dark' | 'auto'
 }
 
+export type AudienceType = 'beginner' | 'triathlete' | 'competitive_swimmer' | 'hobby'
+
 // Export user profile types
 export type { Profile, ProfileUpdate, PublicProfile } from './profile'
 

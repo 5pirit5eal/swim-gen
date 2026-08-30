@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Filter } from '@/types'
+import type { Filter, AudienceType } from '@/types'
 
 export const useSettingsStore = defineStore('settings', () => {
   // Existing settings
@@ -8,6 +8,16 @@ export const useSettingsStore = defineStore('settings', () => {
   const poolLength = ref<25 | 50 | 'Freiwasser'>(25)
   const preferredMethod = ref<'choose' | 'generate'>('generate')
   const useProfilePreferences = ref(true)
+  const selectedAudience = ref<AudienceType | null>(null)
+
+  // Load audience from localStorage on init
+  const storedAudience = localStorage.getItem('swim-gen-audience')
+  if (
+    storedAudience &&
+    ['beginner', 'triathlete', 'competitive_swimmer', 'hobby'].includes(storedAudience)
+  ) {
+    selectedAudience.value = storedAudience as AudienceType
+  }
 
   // Tutorial settings
   const tutorials = ref({
@@ -67,17 +77,32 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
+  function setAudience(audience: AudienceType | null) {
+    selectedAudience.value = audience
+    try {
+      if (audience) {
+        localStorage.setItem('swim-gen-audience', audience)
+      } else {
+        localStorage.removeItem('swim-gen-audience')
+      }
+    } catch (e) {
+      console.error('Failed to persist audience to localStorage', e)
+    }
+  }
+
   return {
     // State
     dataDonationOptOut,
     poolLength,
     preferredMethod,
     useProfilePreferences,
+    selectedAudience,
     filters,
     tutorials,
     // Actions
     updateStrokeFilter,
     clearFilters,
     markTutorialSeen,
+    setAudience,
   }
 })

@@ -52,6 +52,18 @@ definitions:
         example: plan_123
         type: string
     type: object
+  models.Audience:
+    enum:
+    - beginner
+    - triathlete
+    - competitive_swimmer
+    - hobby
+    type: string
+    x-enum-varnames:
+    - AudienceBeginner
+    - AudienceTriathlete
+    - AudienceCompetitiveSwimmer
+    - AudienceHobby
   models.ChatRequest:
     description: Request payload for conversational training plan creation and refinement
     properties:
@@ -209,6 +221,10 @@ definitions:
   models.GeneratePromptRequest:
     description: Request payload for generating a prompt for swim training plan creation
     properties:
+      audience:
+        allOf:
+        - $ref: '#/definitions/models.Audience'
+        example: beginner
       language:
         allOf:
         - $ref: '#/definitions/models.Language'

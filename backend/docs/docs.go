@@ -1315,6 +1315,21 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Audience": {
+            "type": "string",
+            "enum": [
+                "beginner",
+                "triathlete",
+                "competitive_swimmer",
+                "hobby"
+            ],
+            "x-enum-varnames": [
+                "AudienceBeginner",
+                "AudienceTriathlete",
+                "AudienceCompetitiveSwimmer",
+                "AudienceHobby"
+            ]
+        },
         "models.ChatRequest": {
             "description": "Request payload for conversational training plan creation and refinement",
             "type": "object",
@@ -1535,6 +1550,14 @@ const docTemplate = `{
                 "language"
             ],
             "properties": {
+                "audience": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Audience"
+                        }
+                    ],
+                    "example": "beginner"
+                },
                 "language": {
                     "allOf": [
                         {
