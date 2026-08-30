@@ -204,6 +204,7 @@ Add one BigQuery data source per view. For each: **Add data → BigQuery → My 
 | `swim-gen: Request Volume` | `v_request_volume` | dev or prod |
 | `swim-gen: Request Latency` | `v_request_latency` | dev or prod |
 | `swim-gen: Error Rate` | `v_error_rate` | dev or prod |
+| `swim-gen: Generated Plans` | `v_generated_plans` | dev or prod |
 | `swim-gen: Costs` | `v_costs` | prod only |
 
 > All views return no rows until traffic has flowed through the services and logs have been ingested. This is expected behaviour.
@@ -222,12 +223,12 @@ For charts using `v_monthly_active_users`, set the date dimension to `month` wit
 | All-time unique users | Scorecard | Total Users | — | `unique_users` | Add filter: `period = all_time` |
 | Yearly unique users | Bar chart | Total Users | `year` | `unique_users` | Add filter: `period = yearly` |
 
-##### Page 2 — Performance
+##### Page 2 — Performance & Volume
 
 | Chart | Type | Data source | Dimension | Metric | Notes |
 |---|---|---|---|---|---|
-| Request Volume (total) | Time series | Request Volume | `day` | `request_count` | Add filter `route = _total`; use `service` as breakdown |
-| Request Volume by Route | Bar chart | Request Volume | `route` | `request_count` | Add filter `route != _total`; add `service` filter control |
+| Request Volume (total) | Time series | Request Volume | `day` | `request_count` | Add filter `route = _total`; use `service` or `method` as breakdown |
+| Request Volume by Route | Bar chart | Request Volume | `route` | `request_count` | Add filter `route != _total`; add `service` / `method` filter controls |
 | Latency p50/p95/p99 (total) | Time series | Request Latency | `day` | `p50_ms`, `p95_ms`, `p99_ms` | Add filter `route = _total`; add `service` filter control |
 | Latency by Route | Table | Request Latency | `route`, `service` | `p50_ms`, `p95_ms`, `p99_ms` | Add filter `route != _total` |
 | Error Rate (total) | Time series | Error Rate | `day` | `error_rate_pct` | Add filter `route = _total`; add `service` filter control |
@@ -235,7 +236,17 @@ For charts using `v_monthly_active_users`, set the date dimension to `month` wit
 
 > The `route` field uses the value `_total` as a sentinel for the rolled-up daily total across all routes. Filter on `route = _total` for aggregate charts and `route != _total` for per-route breakdowns.
 
-##### Page 3 — Costs (prod only)
+##### Page 3 — Generated Plans
+
+| Chart | Type | Data source | Dimension | Metric | Notes |
+|---|---|---|---|---|---|
+| Total Generated Plans | Scorecard | Generated Plans | — | `COUNT(time_of_request)` | Respects date range |
+| Successful Plans | Scorecard | Generated Plans | — | `COUNTIF(success)` | Count of successful plan generations |
+| Plan Generations Over Time | Time series | Generated Plans | `day` | `COUNT(time_of_request)` | Add `route` or `user` as breakdown |
+| Average Generation Time | Scorecard | Generated Plans | — | `AVG(time_taken_ms)` | Average latency in ms |
+| Recent Plan Generations | Table | Generated Plans | `time_of_request`, `user`, `route`, `status_code` | `time_taken_ms` | Sort descending by `time_of_request` |
+
+##### Page 4 — Costs (prod only)
 
 Connect these charts to the prod project's `swim_gen_prod_analytics` dataset.
 

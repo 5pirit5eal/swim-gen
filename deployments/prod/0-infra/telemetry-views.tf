@@ -120,10 +120,10 @@ resource "google_bigquery_table" "v_total_users" {
 }
 
 # -----------------------------------------------------------------------------
-# Request Volume by Day, Service, Route, and Status Class
+# Request Volume by Day, Service, Method, Route, and Status Class
 # -----------------------------------------------------------------------------
 # route = URL path without query string, extracted from http_request.request_url.
-# Also includes a rolled-up total row per day+service (route = '_total').
+# Also includes a rolled-up total row per day+service+method (route = '_total').
 
 resource "google_bigquery_table" "v_request_volume" {
   project    = var.project_id
@@ -139,6 +139,7 @@ resource "google_bigquery_table" "v_request_volume" {
         SELECT
           DATE(timestamp)                                AS day,
           JSON_VALUE(resource.labels, '$.service_name') AS service,
+          http_request.request_method                    AS method,
           -- Strip /api prefix for frontend + bff; backend routes are already clean.
           IFNULL(
             CASE
@@ -172,18 +173,18 @@ resource "google_bigquery_table" "v_request_volume" {
       )
 
       -- Per-route breakdown
-      SELECT day, service, route, status_code, status_class, COUNT(*) AS request_count
+      SELECT day, service, method, route, status_code, status_class, COUNT(*) AS request_count
       FROM base
-      GROUP BY day, service, route, status_code, status_class
+      GROUP BY day, service, method, route, status_code, status_class
 
       UNION ALL
 
       -- Daily total per service (all routes combined)
-      SELECT day, service, '_total' AS route, status_code, status_class, COUNT(*) AS request_count
+      SELECT day, service, method, '_total' AS route, status_code, status_class, COUNT(*) AS request_count
       FROM base
-      GROUP BY day, service, status_code, status_class
+      GROUP BY day, service, method, status_code, status_class
 
-      ORDER BY day DESC, service, route, status_code
+      ORDER BY day DESC, service, method, route, status_code
     SQL
   }
 
@@ -342,6 +343,88 @@ resource "google_bigquery_table" "v_error_rate" {
       GROUP BY day, service
 
       ORDER BY day DESC, service, route
+    SQL
+  }
+
+  depends_on = [google_bigquery_dataset.analytics, google_logging_linked_dataset.telemetry]
+}
+
+# -----------------------------------------------------------------------------
+# Generated Plan Events (user, success, duration, timestamp, route, plan_id)
+# -----------------------------------------------------------------------------
+
+resource "google_bigquery_table" "v_generated_plans" {
+  project    = var.project_id
+  dataset_id = google_bigquery_dataset.analytics.dataset_id
+  table_id   = "v_generated_plans"
+
+  deletion_protection = false
+
+  view {
+    use_legacy_sql = false
+    query          = <<-SQL
+      SELECT
+        timestamp                                              AS time_of_request,
+        DATE(timestamp)                                        AS day,
+        IFNULL(
+          NULLIF(JSON_VALUE(json_payload, '$.user_id'), ''),
+          'anonymous'
+        )                                                      AS user,
+        CAST(
+          COALESCE(
+            JSON_VALUE(json_payload, '$.httpResponse.status'),
+            JSON_VALUE(json_payload, '$.httpRequest.status')
+          ) AS INT64
+        ) < 400                                                AS success,
+        CAST(
+          COALESCE(
+            JSON_VALUE(json_payload, '$.httpResponse.status'),
+            JSON_VALUE(json_payload, '$.httpRequest.status')
+          ) AS INT64
+        )                                                      AS status_code,
+        CAST(
+          COALESCE(
+            JSON_VALUE(json_payload, '$.httpResponse.elapsed'),
+            JSON_VALUE(json_payload, '$.httpRequest.elapsedMs'),
+            JSON_VALUE(json_payload, '$.elapsedMs')
+          ) AS FLOAT64
+        )                                                      AS time_taken_ms,
+        REGEXP_REPLACE(
+          IFNULL(
+            COALESCE(
+              JSON_VALUE(json_payload, '$.httpRequest.path'),
+              JSON_VALUE(json_payload, '$.httpRequest.url'),
+              JSON_VALUE(json_payload, '$.httpRequest.route')
+            ),
+            '/query'
+          ),
+          r'^/api', ''
+        )                                                      AS route,
+        JSON_VALUE(json_payload, '$.plan_id')                  AS plan_id,
+        COALESCE(
+          JSON_VALUE(json_payload, '$.traceId'),
+          JSON_VALUE(json_payload, '$.trace_id')
+        )                                                      AS trace_id,
+        JSON_VALUE(resource.labels, '$.service_name')          AS service
+      FROM ${local.linked_logs}
+      WHERE
+        log_id = "run.googleapis.com/stdout"
+        AND JSON_VALUE(resource.labels, '$.service_name') = "swim-gen-backend"
+        AND (
+          JSON_VALUE(json_payload, '$.httpResponse.status') IS NOT NULL
+          OR JSON_VALUE(json_payload, '$.httpRequest.status') IS NOT NULL
+        )
+        AND REGEXP_CONTAINS(
+          COALESCE(
+            JSON_VALUE(json_payload, '$.httpRequest.path'),
+            JSON_VALUE(json_payload, '$.httpRequest.url'),
+            JSON_VALUE(json_payload, '$.httpRequest.route'),
+            JSON_VALUE(json_payload, '$.message')
+          ),
+          r'/(query|chat|file-to-plan)'
+        )
+        AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1825 DAY)
+      ORDER BY time_of_request DESC
     SQL
   }
 
