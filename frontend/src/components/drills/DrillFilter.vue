@@ -115,25 +115,16 @@ const currentTargetGroup = computed({
     <!-- Search Bar -->
     <div class="search-bar">
       <IconSearch class="search-icon" />
-      <input
-        v-model="searchQuery"
-        type="text"
-        :placeholder="t('drill.search_placeholder', 'Search drills...')"
-        class="search-input"
-        @input="handleSearchInput"
-      />
+      <input v-model="searchQuery" type="text" :placeholder="t('drill.search_placeholder', 'Search drills...')"
+        class="search-input" @input="handleSearchInput" />
     </div>
 
     <!-- Filters -->
     <div class="filters-row">
       <!-- Difficulty Filter -->
       <div class="filter-group">
-        <select
-          v-model="selectedDifficulty"
-          @change="handleFilterChange"
-          class="filter-select"
-          :aria-label="t('drill.aria_difficulty')"
-        >
+        <select v-model="selectedDifficulty" @change="handleFilterChange" class="filter-select"
+          :aria-label="t('drill.aria_difficulty')">
           <option v-for="opt in difficultyOptions" :key="opt.value" :value="opt.value">
             {{ opt.label }}
           </option>
@@ -142,12 +133,8 @@ const currentTargetGroup = computed({
 
       <!-- Style Filter -->
       <div class="filter-group">
-        <select
-          v-model="currentStyle"
-          @change="handleFilterChange"
-          class="filter-select"
-          :aria-label="t('drill.aria_styles')"
-        >
+        <select v-model="currentStyle" @change="handleFilterChange" class="filter-select"
+          :aria-label="t('drill.aria_styles')">
           <option value="">{{ t('drill.styles', 'Styles') }}</option>
           <option v-for="style in styleOptions" :key="style" :value="style">
             {{ style }}
@@ -157,12 +144,8 @@ const currentTargetGroup = computed({
 
       <!-- Target Group Filter -->
       <div class="filter-group">
-        <select
-          v-model="currentTargetGroup"
-          @change="handleFilterChange"
-          class="filter-select"
-          :aria-label="t('drill.aria_target_groups')"
-        >
+        <select v-model="currentTargetGroup" @change="handleFilterChange" class="filter-select"
+          :aria-label="t('drill.aria_target_groups')">
           <option value="">{{ t('drill.target_groups', 'Target Groups') }}</option>
           <option v-for="tg in targetGroupOptions" :key="tg" :value="tg">
             {{ tg }}
@@ -201,7 +184,7 @@ const currentTargetGroup = computed({
   padding: 1rem 1rem 1rem 3rem;
   background: var(--color-background-soft);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 8px;
   color: var(--color-heading);
   font-size: 1rem;
   transition:

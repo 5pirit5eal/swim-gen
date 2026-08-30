@@ -162,11 +162,7 @@ watch(
                   <IconSave class="cta-button-icon" aria-hidden="true" />
                   {{ t('home.banner.not_logged_in.button') }}
                 </button>
-                <button
-                  type="button"
-                  @click="navigateToLogin(false)"
-                  class="cta-secondary-link text-btn"
-                >
+                <button type="button" @click="navigateToLogin(false)" class="cta-secondary-link text-btn">
                   {{ t('home.banner.not_logged_in.secondary_login') }}
                 </button>
               </div>
@@ -213,8 +209,10 @@ watch(
   background-color: var(--color-transparent);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 12px var(--color-shadow);
   border-radius: 8px;
-  padding: 1.5rem 1rem;
+  padding: 1.75rem 1.25rem;
   margin: 2rem auto 1.5rem auto;
 }
 

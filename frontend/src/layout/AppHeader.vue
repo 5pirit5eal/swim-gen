@@ -33,12 +33,7 @@ async function handleLogout() {
   <header class="app-header">
     <div class="header-container">
       <div class="logo" :class="{ 'sidebar-open': sidebarStore.isOpen }">
-        <button
-          v-if="auth.user"
-          @click="sidebarStore.toggle"
-          class="sidebar-toggle-btn"
-          id="tutorial-sidebar-toggle"
-        >
+        <button v-if="auth.user" @click="sidebarStore.toggle" class="sidebar-toggle-btn" id="tutorial-sidebar-toggle">
           <IconMenu />
         </button>
         <router-link to="/" class="logo-link">
@@ -121,7 +116,7 @@ async function handleLogout() {
   align-items: center;
   gap: 0.5rem;
   background-color: var(--color-transparent);
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(6px);
   padding: 0.25rem 0.75rem;
   border-radius: 8px;
   transition:
@@ -166,19 +161,19 @@ async function handleLogout() {
 .auth-actions button {
   cursor: pointer;
   transition: all 0.2s;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 1rem;
-  background-color: var(--color-transparent);
-  backdrop-filter: blur(2px);
+  background-color: var(--color-background-soft);
   padding: 0.5rem 1rem;
   border-radius: 8px;
   margin-left: 0.5rem;
 }
 
 .auth-actions .btn-primary {
-  border: none;
+  border: 1px solid transparent;
   background-color: var(--color-primary);
   color: white;
+  box-shadow: 0 2px 6px var(--color-shadow);
 }
 
 .auth-actions .btn-primary:hover {
@@ -187,22 +182,26 @@ async function handleLogout() {
 
 .auth-actions .btn-secondary {
   color: var(--color-heading);
-  border: 1px solid var(--color-text);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-background);
 }
 
 .auth-actions .btn-secondary:hover {
-  border: 1px solid var(--color-primary-hover);
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-background-soft);
   color: var(--color-primary);
 }
 
 .auth-actions .logout-btn {
   color: var(--color-heading);
-  border: 1px solid var(--color-text);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-background);
 }
 
 .auth-actions .logout-btn:hover {
   color: var(--color-error);
-  border: 1px solid var(--color-error);
+  border-color: var(--color-error);
+  background-color: var(--color-background-soft);
 }
 
 @media (max-width: 740px) {

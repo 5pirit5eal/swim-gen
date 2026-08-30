@@ -82,23 +82,15 @@ const totalPages = computed(() => {
 
     <!-- Pagination -->
     <div v-if="totalPages > 1" class="pagination">
-      <button
-        class="page-btn"
-        :disabled="searchParams.page <= 1"
-        @click="handlePageChange(searchParams.page - 1)"
-        :aria-label="t('common.previous', 'Previous')"
-      >
+      <button class="page-btn" :disabled="searchParams.page <= 1" @click="handlePageChange(searchParams.page - 1)"
+        :aria-label="t('common.previous', 'Previous')">
         <IconArrowRight class="icon-arrow-prev" />
       </button>
 
       <span class="page-info"> {{ searchParams.page }} / {{ totalPages }} </span>
 
-      <button
-        class="page-btn"
-        :disabled="searchParams.page >= totalPages"
-        @click="handlePageChange(searchParams.page + 1)"
-        :aria-label="t('common.next', 'Next')"
-      >
+      <button class="page-btn" :disabled="searchParams.page >= totalPages"
+        @click="handlePageChange(searchParams.page + 1)" :aria-label="t('common.next', 'Next')">
         <IconArrowRight class="icon-arrow-next" />
       </button>
     </div>
@@ -140,7 +132,7 @@ const totalPages = computed(() => {
   color: white;
   font-size: 0.9rem;
   padding: 2px 8px;
-  border-radius: 12px;
+  border-radius: 8px;
   vertical-align: middle;
 }
 

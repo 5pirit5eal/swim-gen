@@ -283,9 +283,7 @@ describe('TrainingPlanForm.vue', () => {
     await wrapper.vm.$nextTick()
 
     textarea = wrapper.find('textarea')
-    expect(textarea.attributes('placeholder')).toBe(
-      i18n.global.t('form.example_placeholder_hobby'),
-    )
+    expect(textarea.attributes('placeholder')).toBe(i18n.global.t('form.example_placeholder_hobby'))
   })
 
   it('shows tooltip on audience button hover after delay', async () => {

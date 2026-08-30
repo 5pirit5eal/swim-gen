@@ -140,36 +140,22 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <span
-    class="drill-link-wrapper"
-    ref="linkRef"
-    @mouseenter="handleMouseEnter"
-    @mouseleave="handleMouseLeave"
-  >
+  <span class="drill-link-wrapper" ref="linkRef" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
     <a class="drill-link" @click.prevent="navigateToDrill" href="#">
       {{ text }}
     </a>
 
     <Teleport to="body">
       <Transition name="card">
-        <div
-          v-if="isHovering"
-          ref="cardRef"
-          class="drill-preview-card"
-          :class="`position-${placement}`"
-          :style="{ left: `${cardPosition.left}px`, top: `${cardPosition.top}px` }"
-        >
+        <div v-if="isHovering" ref="cardRef" class="drill-preview-card" :class="`position-${placement}`"
+          :style="{ left: `${cardPosition.left}px`, top: `${cardPosition.top}px` }">
           <div v-if="isLoading" class="card-loading">
             <div class="loading-spinner-small"></div>
           </div>
           <template v-else-if="preview">
             <div class="card-image-container">
-              <img
-                :src="imageUrl"
-                :alt="preview.title"
-                class="card-image"
-                @error="($event.target as HTMLImageElement).style.display = 'none'"
-              />
+              <img :src="imageUrl" :alt="preview.title" class="card-image"
+                @error="($event.target as HTMLImageElement).style.display = 'none'" />
 
               <!-- Top Left: Target -->
               <span v-if="preview.target" class="image-overlay-badge">{{ preview.target }}</span>
@@ -178,12 +164,8 @@ onUnmounted(() => {
               <div class="image-overlay-difficulty">
                 <span class="difficulty-text">{{ preview.difficulty }}</span>
                 <div class="difficulty-dots">
-                  <span
-                    v-for="i in 3"
-                    :key="i"
-                    class="difficulty-dot"
-                    :class="{ active: i <= getDifficultyLevel(preview.difficulty) }"
-                  ></span>
+                  <span v-for="i in 3" :key="i" class="difficulty-dot"
+                    :class="{ active: i <= getDifficultyLevel(preview.difficulty) }"></span>
                 </div>
               </div>
             </div>
@@ -234,7 +216,7 @@ onUnmounted(() => {
   box-sizing: border-box;
   background: var(--color-background);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow:
     0 10px 25px -5px rgba(0, 0, 0, 0.2),
     0 0 0 1px rgba(0, 0, 0, 0.05);
@@ -288,8 +270,8 @@ onUnmounted(() => {
 /* Image Overlays */
 .image-overlay-badge {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 8px;
+  left: 8px;
   background-color: var(--color-primary);
   color: white;
   font-size: 0.75rem;
@@ -303,8 +285,8 @@ onUnmounted(() => {
 
 .image-overlay-difficulty {
   position: absolute;
-  bottom: 12px;
-  right: 12px;
+  bottom: 8px;
+  right: 8px;
   display: flex;
   align-items: center;
   gap: 8px;
