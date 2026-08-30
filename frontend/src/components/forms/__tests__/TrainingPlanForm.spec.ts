@@ -360,7 +360,7 @@ describe('TrainingPlanForm.vue', () => {
     await promptButton.trigger('click')
 
     expect(apiClient.generatePrompt).toHaveBeenCalledWith({
-      language: navigator.language,
+      language: 'en',
       audience: 'triathlete',
     })
   })

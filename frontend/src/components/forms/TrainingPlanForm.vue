@@ -18,7 +18,7 @@ const trainingStore = useTrainingPlanStore()
 const settingsStore = useSettingsStore()
 
 // i18n
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 // Form data
 const requestText = ref('')
@@ -109,14 +109,14 @@ function handleAudienceMouseEnter(id: AudienceType) {
 function handleAudienceMouseLeave(id: AudienceType) {
   if (hoveredAudience.value === id) {
     hoveredAudience.value = null
+    if (hoverTimer) {
+      clearTimeout(hoverTimer)
+      hoverTimer = null
+    }
+    activeTooltipId.value = null
+    window.removeEventListener('resize', updateTooltipPosition)
+    window.removeEventListener('scroll', updateTooltipPosition, true)
   }
-  if (hoverTimer) {
-    clearTimeout(hoverTimer)
-    hoverTimer = null
-  }
-  activeTooltipId.value = null
-  window.removeEventListener('resize', updateTooltipPosition)
-  window.removeEventListener('scroll', updateTooltipPosition, true)
 }
 
 async function updateSubmitTooltipPosition() {
@@ -173,6 +173,9 @@ onUnmounted(() => {
   }
   if (submitHoverTimer) {
     clearTimeout(submitHoverTimer)
+  }
+  if (highlightTimer) {
+    clearTimeout(highlightTimer)
   }
   window.removeEventListener('resize', updateTooltipPosition)
   window.removeEventListener('scroll', updateTooltipPosition, true)
@@ -316,7 +319,7 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
   }
 
   const promptRequest: PromptGenerationRequest = {
-    language: navigator.language, // Use current locale
+    language: locale.value,
     audience: targetAudience || undefined,
   }
 

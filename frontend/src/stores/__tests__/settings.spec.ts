@@ -81,16 +81,16 @@ describe('settings Store', () => {
     expect(store.filters.trainingstyp).toBeUndefined()
   })
 
-  it('sets and toggles audience correctly', () => {
+  it('sets audience correctly', () => {
     const store = useSettingsStore()
 
     store.setAudience('beginner')
     expect(store.selectedAudience).toBe('beginner')
 
-    store.toggleAudience('beginner')
+    store.setAudience(null)
     expect(store.selectedAudience).toBeNull()
 
-    store.toggleAudience('triathlete')
+    store.setAudience('triathlete')
     expect(store.selectedAudience).toBe('triathlete')
   })
 })

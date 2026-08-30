@@ -39,6 +39,9 @@ describe('DrillList.vue', () => {
             createSpy: vi.fn,
             initialState: {
               drills: {
+                featuredDrills: mockDrills,
+                featuredTotal: 6,
+                isFeaturedLoading: false,
                 searchResults: mockDrills,
                 searchTotal: 6,
                 isLoading: false,

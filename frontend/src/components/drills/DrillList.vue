@@ -20,19 +20,30 @@ const props = withDefaults(
 )
 
 const drillsStore = useDrillsStore()
-const { searchResults, searchTotal, isLoading, searchParams, error } = storeToRefs(drillsStore)
+const {
+  searchResults,
+  searchTotal,
+  isLoading,
+  searchParams,
+  featuredDrills,
+  featuredTotal,
+  isFeaturedLoading,
+  error,
+} = storeToRefs(drillsStore)
 const { t, locale } = useI18n()
 
 // Initial fetch
 onMounted(async () => {
-  if (!props.featuredMode) {
+  if (props.featuredMode) {
+    if (featuredDrills.value.length === 0) {
+      drillsStore.fetchFeaturedDrills(locale.value, props.limit)
+    }
+  } else {
     // Fetch filter options first in full mode
     await drillsStore.fetchFilterOptions(locale.value)
-  }
-
-  // If we still don't have results (or we just applied filters), fetch
-  if (searchResults.value.length === 0) {
-    drillsStore.searchDrills({ page: 1 })
+    if (searchResults.value.length === 0) {
+      drillsStore.searchDrills({ page: 1 })
+    }
   }
 })
 
@@ -53,7 +64,7 @@ function handlePageChange(newPage: number) {
 // Computeds
 const displayedDrills = computed(() => {
   if (props.featuredMode) {
-    return searchResults.value.slice(0, props.limit)
+    return featuredDrills.value.slice(0, props.limit)
   }
   return searchResults.value
 })
@@ -94,12 +105,15 @@ const totalPages = computed(() => {
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading && searchResults.length === 0" class="loading-state">
+    <div
+      v-if="(featuredMode ? isFeaturedLoading : isLoading) && displayedDrills.length === 0"
+      class="loading-state"
+    >
       <div class="loading-spinner"></div>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="error-state">
+    <div v-else-if="!featuredMode && error" class="error-state">
       <p>{{ error }}</p>
       <button @click="drillsStore.searchDrills({ page: 1 })" class="retry-btn">
         {{ t('common.retry', 'Retry') }}
@@ -107,7 +121,10 @@ const totalPages = computed(() => {
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="!isLoading && searchResults.length === 0" class="empty-state">
+    <div
+      v-else-if="!(featuredMode ? isFeaturedLoading : isLoading) && displayedDrills.length === 0"
+      class="empty-state"
+    >
       <p>{{ t('drill.no_results', 'No drills found matching your criteria.') }}</p>
     </div>
 
@@ -117,9 +134,12 @@ const totalPages = computed(() => {
     </div>
 
     <!-- Featured Mode Bottom Action -->
-    <div v-if="featuredMode && searchTotal > 0" class="featured-footer-action">
+    <div
+      v-if="featuredMode && (featuredTotal > 0 || searchTotal > 0)"
+      class="featured-footer-action"
+    >
       <router-link to="/drills" class="browse-all-cta btn-primary">
-        {{ t('drill.browse_all_drills', { count: searchTotal }) }}
+        {{ t('drill.browse_all_drills', { count: featuredTotal || searchTotal }) }}
         <IconArrowRight class="icon-arrow-browse" aria-hidden="true" />
       </router-link>
     </div>

@@ -19,6 +19,11 @@ export const useDrillsStore = defineStore('drills', () => {
     limit: 12,
   })
 
+  // Featured Drills State
+  const featuredDrills = ref<Drill[]>([])
+  const featuredTotal = ref(0)
+  const isFeaturedLoading = ref(false)
+
   // Filter Options State
   const filterOptions = ref<DrillFilterOptions | null>(null)
   const filterOptionsLang = ref<string>('')
@@ -116,6 +121,30 @@ export const useDrillsStore = defineStore('drills', () => {
     }
   }
 
+  async function fetchFeaturedDrills(lang?: string, limit = 4): Promise<void> {
+    const drillLang = lang || (navigator.language.startsWith('de') ? 'de' : 'en')
+    isFeaturedLoading.value = true
+    try {
+      const result = await apiClient.searchDrills({
+        lang: drillLang,
+        page: 1,
+        limit,
+      })
+      if (result.success && result.data) {
+        featuredDrills.value = result.data.drills
+        featuredTotal.value = result.data.total
+        result.data.drills.forEach((drill) => {
+          const key = getCacheKey(drill.img_name, drillLang)
+          drillCache.value.set(key, drill)
+        })
+      }
+    } catch (e) {
+      console.error('Failed to fetch featured drills', e)
+    } finally {
+      isFeaturedLoading.value = false
+    }
+  }
+
   function clearCurrentDrill(): void {
     currentDrill.value = null
     error.value = null
@@ -132,6 +161,9 @@ export const useDrillsStore = defineStore('drills', () => {
     error.value = null
     searchResults.value = []
     searchTotal.value = 0
+    featuredDrills.value = []
+    featuredTotal.value = 0
+    isFeaturedLoading.value = false
     searchParams.value = {
       lang: navigator.language.startsWith('de') ? 'de' : 'en',
       page: 1,
@@ -167,6 +199,9 @@ export const useDrillsStore = defineStore('drills', () => {
     searchResults,
     searchTotal,
     searchParams,
+    featuredDrills,
+    featuredTotal,
+    isFeaturedLoading,
     filterOptions,
     filterOptionsLang,
     // Getters
@@ -175,6 +210,7 @@ export const useDrillsStore = defineStore('drills', () => {
     // Actions
     fetchDrill,
     searchDrills,
+    fetchFeaturedDrills,
     fetchDrillPreview,
     fetchFilterOptions,
     clearCurrentDrill,

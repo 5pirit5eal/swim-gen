@@ -90,14 +90,6 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  function toggleAudience(audience: AudienceType) {
-    if (selectedAudience.value === audience) {
-      setAudience(null)
-    } else {
-      setAudience(audience)
-    }
-  }
-
   return {
     // State
     dataDonationOptOut,
@@ -112,6 +104,5 @@ export const useSettingsStore = defineStore('settings', () => {
     clearFilters,
     markTutorialSeen,
     setAudience,
-    toggleAudience,
   }
 })
