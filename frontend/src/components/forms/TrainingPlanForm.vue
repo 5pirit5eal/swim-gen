@@ -342,25 +342,40 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
           {{ t('form.audience_label') }}
         </label>
         <div class="audience-selector" role="radiogroup" aria-labelledby="audience-selector-label">
-          <button v-for="option in audienceOptions" :key="option.id" :ref="(el) => setAudienceBtnRef(option.id, el)"
-            type="button" class="audience-btn" :class="{ active: settingsStore.selectedAudience === option.id }"
-            :aria-checked="settingsStore.selectedAudience === option.id" role="radio"
-            :disabled="trainingStore.isLoading || generatingPrompt" @click="handleAudienceClick(option.id)"
-            @mouseenter="handleAudienceMouseEnter(option.id)" @mouseleave="handleAudienceMouseLeave(option.id)"
-            @focus="handleAudienceMouseEnter(option.id)" @blur="handleAudienceMouseLeave(option.id)">
+          <button
+            v-for="option in audienceOptions"
+            :key="option.id"
+            :ref="(el) => setAudienceBtnRef(option.id, el)"
+            type="button"
+            class="audience-btn"
+            :class="{ active: settingsStore.selectedAudience === option.id }"
+            :aria-checked="settingsStore.selectedAudience === option.id"
+            role="radio"
+            :disabled="trainingStore.isLoading || generatingPrompt"
+            @click="handleAudienceClick(option.id)"
+            @mouseenter="handleAudienceMouseEnter(option.id)"
+            @mouseleave="handleAudienceMouseLeave(option.id)"
+            @focus="handleAudienceMouseEnter(option.id)"
+            @blur="handleAudienceMouseLeave(option.id)"
+          >
             {{ t(option.labelKey) }}
           </button>
         </div>
 
         <!-- Teleported hover tooltip for audience buttons (shown on longer hover) -->
         <Teleport to="body">
-          <div v-if="activeTooltipId" id="audience-hover-tooltip" class="audience-tooltip"
+          <div
+            v-if="activeTooltipId"
+            id="audience-hover-tooltip"
+            class="audience-tooltip"
             :class="`position-${tooltipPlacement}`"
-            :style="{ left: `${tooltipPosition.left}px`, top: `${tooltipPosition.top}px` }" role="tooltip">
+            :style="{ left: `${tooltipPosition.left}px`, top: `${tooltipPosition.top}px` }"
+            role="tooltip"
+          >
             {{
               t(
                 audienceOptions.find((opt) => opt.id === activeTooltipId)?.hintKey ||
-                'form.audience_hint_all',
+                  'form.audience_hint_all',
               )
             }}
           </div>
@@ -377,14 +392,25 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
             </template>
           </BaseTooltip>
         </label>
-        <textarea id="request-text" v-model="requestText" class="form-textarea" :placeholder="currentPlaceholder"
-          rows="4" :disabled="trainingStore.isLoading" @input="clearPromptHighlight" />
+        <textarea
+          id="request-text"
+          v-model="requestText"
+          class="form-textarea"
+          :placeholder="currentPlaceholder"
+          rows="4"
+          :disabled="trainingStore.isLoading"
+          @input="clearPromptHighlight"
+        />
       </div>
 
       <!-- Advanced settings toggle -->
       <div class="form-middle">
-        <button type="button" @click="toggleAdvancedSettings" class="toggle-settings-btn"
-          :disabled="trainingStore.isLoading">
+        <button
+          type="button"
+          @click="toggleAdvancedSettings"
+          class="toggle-settings-btn"
+          :disabled="trainingStore.isLoading"
+        >
           {{
             showAdvancedSettings
               ? t('form.hide_advanced_settings')
@@ -393,9 +419,13 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
         </button>
 
         <!-- Prompt generation button -->
-        <button type="button" @click="handlePromptGeneration()" class="toggle-settings-btn"
+        <button
+          type="button"
+          @click="handlePromptGeneration()"
+          class="toggle-settings-btn"
           :class="{ 'btn-highlight-pulse': highlightPromptBtn }"
-          :disabled="trainingStore.isLoading || generatingPrompt">
+          :disabled="trainingStore.isLoading || generatingPrompt"
+        >
           <div v-if="!generatingPrompt">{{ t('form.suggest_workout') }}</div>
           <div v-else>{{ t('form.generating') }}</div>
         </button>
@@ -445,18 +475,30 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
               </label>
               <div class="radio-group">
                 <label class="radio-option">
-                  <input type="radio" :value="25" v-model="settingsStore.poolLength"
-                    :disabled="trainingStore.isLoading" />
+                  <input
+                    type="radio"
+                    :value="25"
+                    v-model="settingsStore.poolLength"
+                    :disabled="trainingStore.isLoading"
+                  />
                   {{ t('form.pool_length_twenty_five_meters') }}
                 </label>
                 <label class="radio-option">
-                  <input type="radio" :value="50" v-model="settingsStore.poolLength"
-                    :disabled="trainingStore.isLoading" />
+                  <input
+                    type="radio"
+                    :value="50"
+                    v-model="settingsStore.poolLength"
+                    :disabled="trainingStore.isLoading"
+                  />
                   {{ t('form.pool_length_fifty_meters') }}
                 </label>
                 <label class="radio-option">
-                  <input type="radio" :value="'Freiwasser'" v-model="settingsStore.poolLength"
-                    :disabled="trainingStore.isLoading" />
+                  <input
+                    type="radio"
+                    :value="'Freiwasser'"
+                    v-model="settingsStore.poolLength"
+                    :disabled="trainingStore.isLoading"
+                  />
                   {{ t('form.pool_length_open_water') }}
                 </label>
               </div>
@@ -474,48 +516,73 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
               </label>
               <div class="checkbox-group">
                 <label class="checkbox-option">
-                  <input type="checkbox" :checked="settingsStore.filters.freistil === true" @change="
-                    settingsStore.updateStrokeFilter(
-                      'freistil',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                    " :disabled="trainingStore.isLoading" />
+                  <input
+                    type="checkbox"
+                    :checked="settingsStore.filters.freistil === true"
+                    @change="
+                      settingsStore.updateStrokeFilter(
+                        'freistil',
+                        ($event.target as HTMLInputElement).checked ? true : undefined,
+                      )
+                    "
+                    :disabled="trainingStore.isLoading"
+                  />
                   {{ t('form.freestyle') }}
                 </label>
                 <label class="checkbox-option">
-                  <input type="checkbox" :checked="settingsStore.filters.brust === true" @change="
-                    settingsStore.updateStrokeFilter(
-                      'brust',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                    " :disabled="trainingStore.isLoading" />
+                  <input
+                    type="checkbox"
+                    :checked="settingsStore.filters.brust === true"
+                    @change="
+                      settingsStore.updateStrokeFilter(
+                        'brust',
+                        ($event.target as HTMLInputElement).checked ? true : undefined,
+                      )
+                    "
+                    :disabled="trainingStore.isLoading"
+                  />
                   {{ t('form.breaststroke') }}
                 </label>
                 <label class="checkbox-option">
-                  <input type="checkbox" :checked="settingsStore.filters.ruecken === true" @change="
-                    settingsStore.updateStrokeFilter(
-                      'ruecken',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                    " :disabled="trainingStore.isLoading" />
+                  <input
+                    type="checkbox"
+                    :checked="settingsStore.filters.ruecken === true"
+                    @change="
+                      settingsStore.updateStrokeFilter(
+                        'ruecken',
+                        ($event.target as HTMLInputElement).checked ? true : undefined,
+                      )
+                    "
+                    :disabled="trainingStore.isLoading"
+                  />
                   {{ t('form.backstroke') }}
                 </label>
                 <label class="checkbox-option">
-                  <input type="checkbox" :checked="settingsStore.filters.delfin === true" @change="
-                    settingsStore.updateStrokeFilter(
-                      'delfin',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                    " :disabled="trainingStore.isLoading" />
+                  <input
+                    type="checkbox"
+                    :checked="settingsStore.filters.delfin === true"
+                    @change="
+                      settingsStore.updateStrokeFilter(
+                        'delfin',
+                        ($event.target as HTMLInputElement).checked ? true : undefined,
+                      )
+                    "
+                    :disabled="trainingStore.isLoading"
+                  />
                   {{ t('form.butterfly') }}
                 </label>
                 <label class="checkbox-option">
-                  <input type="checkbox" :checked="settingsStore.filters.lagen === true" @change="
-                    settingsStore.updateStrokeFilter(
-                      'lagen',
-                      ($event.target as HTMLInputElement).checked ? true : undefined,
-                    )
-                    " :disabled="trainingStore.isLoading" />
+                  <input
+                    type="checkbox"
+                    :checked="settingsStore.filters.lagen === true"
+                    @change="
+                      settingsStore.updateStrokeFilter(
+                        'lagen',
+                        ($event.target as HTMLInputElement).checked ? true : undefined,
+                      )
+                    "
+                    :disabled="trainingStore.isLoading"
+                  />
                   {{ t('form.individual_medley') }}
                 </label>
               </div>
@@ -531,10 +598,17 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
                   </template>
                 </BaseTooltip>
               </label>
-              <select v-model="settingsStore.filters.schwierigkeitsgrad" :disabled="trainingStore.isLoading"
-                class="select-input">
+              <select
+                v-model="settingsStore.filters.schwierigkeitsgrad"
+                :disabled="trainingStore.isLoading"
+                class="select-input"
+              >
                 <option :value="undefined">{{ t('form.any_difficulty') }}</option>
-                <option v-for="option in DIFFICULTY_OPTIONS" :key="option.value" :value="option.value">
+                <option
+                  v-for="option in DIFFICULTY_OPTIONS"
+                  :key="option.value"
+                  :value="option.value"
+                >
                   {{ t(option.label) }}
                 </option>
               </select>
@@ -550,10 +624,17 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
                   </template>
                 </BaseTooltip>
               </label>
-              <select v-model="settingsStore.filters.trainingstyp" :disabled="trainingStore.isLoading"
-                class="select-input">
+              <select
+                v-model="settingsStore.filters.trainingstyp"
+                :disabled="trainingStore.isLoading"
+                class="select-input"
+              >
                 <option :value="undefined">{{ t('form.any_training_type') }}</option>
-                <option v-for="option in TRAINING_TYPE_OPTIONS" :key="option.value" :value="option.value">
+                <option
+                  v-for="option in TRAINING_TYPE_OPTIONS"
+                  :key="option.value"
+                  :value="option.value"
+                >
                   {{ t(option.label) }}
                 </option>
               </select>
@@ -562,8 +643,11 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
             <!-- Profile Preferences -->
             <div v-if="authStore.user" class="setting-group">
               <label class="setting-label">
-                <input type="checkbox" v-model="settingsStore.useProfilePreferences"
-                  :disabled="trainingStore.isLoading" />
+                <input
+                  type="checkbox"
+                  v-model="settingsStore.useProfilePreferences"
+                  :disabled="trainingStore.isLoading"
+                />
                 {{ t('form.use_profile_preferences') }}
                 <BaseTooltip>
                   <template #tooltip>
@@ -592,8 +676,12 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
             <!-- Clear Filters -->
           </div>
           <div class="setting-group">
-            <button type="button" @click="settingsStore.clearFilters" :disabled="trainingStore.isLoading"
-              class="clear-filters-btn">
+            <button
+              type="button"
+              @click="settingsStore.clearFilters"
+              :disabled="trainingStore.isLoading"
+              class="clear-filters-btn"
+            >
               {{ t('form.clear_all_filters') }}
             </button>
             <p class="ai-disclosure">{{ t('ai_disclosure') }}</p>
@@ -603,9 +691,18 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
 
       <!-- Submit button and status -->
       <div class="form-actions">
-        <div ref="submitWrapperRef" class="submit-btn-wrapper" @mouseenter="handleSubmitMouseEnter"
-          @mouseleave="handleSubmitMouseLeave">
-          <button type="submit" class="submit-btn" :disabled="!canSubmit" :class="{ loading: trainingStore.isLoading }">
+        <div
+          ref="submitWrapperRef"
+          class="submit-btn-wrapper"
+          @mouseenter="handleSubmitMouseEnter"
+          @mouseleave="handleSubmitMouseLeave"
+        >
+          <button
+            type="submit"
+            class="submit-btn"
+            :disabled="!canSubmit"
+            :class="{ loading: trainingStore.isLoading }"
+          >
             {{
               trainingStore.isLoading ? t('form.generating_plan') : t('form.generate_training_plan')
             }}
@@ -613,11 +710,17 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
         </div>
 
         <Teleport to="body">
-          <div v-if="showSubmitTooltip && !canSubmit" id="submit-disabled-tooltip" class="submit-tooltip"
-            :class="`position-${submitTooltipPlacement}`" :style="{
+          <div
+            v-if="showSubmitTooltip && !canSubmit"
+            id="submit-disabled-tooltip"
+            class="submit-tooltip"
+            :class="`position-${submitTooltipPlacement}`"
+            :style="{
               left: `${submitTooltipPosition.left}px`,
               top: `${submitTooltipPosition.top}px`,
-            }" role="tooltip">
+            }"
+            role="tooltip"
+          >
             {{ t('form.generate_training_plan_disabled_tooltip') }}
           </div>
         </Teleport>
@@ -650,7 +753,18 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
 
 @media (max-width: 740px) {
   .form-container {
-    padding: 1.5rem;
+    padding: 1.25rem;
+  }
+
+  .audience-btn {
+    min-height: 44px;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .toggle-settings-btn {
+    min-height: 44px;
+    padding: 0.6rem 1rem;
   }
 }
 

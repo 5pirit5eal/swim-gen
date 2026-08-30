@@ -35,8 +35,13 @@ function navigateToDrill() {
 <template>
   <article class="drill-card" @click="navigateToDrill">
     <div class="card-image-container">
-      <img :src="imageUrl" :alt="drill.title" class="card-image" loading="lazy"
-        @error="($event.target as HTMLImageElement).style.display = 'none'" />
+      <img
+        :src="imageUrl"
+        :alt="drill.title"
+        class="card-image"
+        loading="lazy"
+        @error="($event.target as HTMLImageElement).style.display = 'none'"
+      />
 
       <!-- Top Left: Target or Style Badge -->
       <span v-if="drill.targets && drill.targets.length > 0" class="image-overlay-badge target">
@@ -57,8 +62,12 @@ function navigateToDrill() {
           <!-- We don't have duration in data yet, skipping -->
           <span class="difficulty-text">{{ drill.difficulty }}</span>
           <div class="difficulty-dots">
-            <span v-for="i in 3" :key="i" class="difficulty-dot"
-              :class="{ active: i <= getDifficultyLevel(drill.difficulty) }"></span>
+            <span
+              v-for="i in 3"
+              :key="i"
+              class="difficulty-dot"
+              :class="{ active: i <= getDifficultyLevel(drill.difficulty) }"
+            ></span>
           </div>
         </div>
 

@@ -617,6 +617,10 @@
     "aria_styles": "Stil",
     "aria_target_groups": "Zielgruppe",
     "explore_drills": "Trainingsübungen entdecken",
+    "featured_drills": "Empfohlene Schwimmübungen",
+    "featured_drills_subtitle": "Technikübungen und visuelle Anleitungen für eine saubere Wasserlage und besseren Vortrieb.",
+    "find_suitable_drills": "Finde passende Übungen",
+    "browse_all_drills": "Alle {count} Übungen ansehen",
     "no_results": "Keine Übungen gefunden, die deinen Kriterien entsprechen.",
     "difficulty": {
       "easy": "Leicht",

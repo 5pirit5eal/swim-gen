@@ -33,7 +33,12 @@ async function handleLogout() {
   <header class="app-header">
     <div class="header-container">
       <div class="logo" :class="{ 'sidebar-open': sidebarStore.isOpen }">
-        <button v-if="auth.user" @click="sidebarStore.toggle" class="sidebar-toggle-btn" id="tutorial-sidebar-toggle">
+        <button
+          v-if="auth.user"
+          @click="sidebarStore.toggle"
+          class="sidebar-toggle-btn"
+          id="tutorial-sidebar-toggle"
+        >
           <IconMenu />
         </button>
         <router-link to="/" class="logo-link">

@@ -162,7 +162,11 @@ watch(
                   <IconSave class="cta-button-icon" aria-hidden="true" />
                   {{ t('home.banner.not_logged_in.button') }}
                 </button>
-                <button type="button" @click="navigateToLogin(false)" class="cta-secondary-link text-btn">
+                <button
+                  type="button"
+                  @click="navigateToLogin(false)"
+                  class="cta-secondary-link text-btn"
+                >
                   {{ t('home.banner.not_logged_in.secondary_login') }}
                 </button>
               </div>
@@ -182,8 +186,8 @@ watch(
           </div>
         </div>
 
-        <!-- Drill List Section -->
-        <DrillList />
+        <!-- Featured Drill List Section -->
+        <DrillList :featured-mode="true" :limit="4" />
       </section>
     </div>
   </div>

@@ -612,6 +612,10 @@
     "aria_styles": "Stroke/Style",
     "aria_target_groups": "Target Group",
     "explore_drills": "Explore Drills",
+    "featured_drills": "Featured Swimming Drills",
+    "featured_drills_subtitle": "Technique exercises and visual guides to improve your stroke efficiency.",
+    "find_suitable_drills": "Find suitable drills",
+    "browse_all_drills": "Explore all {count} drills",
     "no_results": "No drills found matching your criteria.",
     "difficulty": {
       "easy": "Easy",
