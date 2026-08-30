@@ -135,11 +135,11 @@ const totalPages = computed(() => {
 
     <!-- Featured Mode Bottom Action -->
     <div
-      v-if="featuredMode && (featuredTotal > 0 || searchTotal > 0)"
+      v-if="featuredMode && featuredTotal > 0"
       class="featured-footer-action"
     >
       <router-link to="/drills" class="browse-all-cta btn-primary">
-        {{ t('drill.browse_all_drills', { count: featuredTotal || searchTotal }) }}
+        {{ t('drill.browse_all_drills', { count: featuredTotal }) }}
         <IconArrowRight class="icon-arrow-browse" aria-hidden="true" />
       </router-link>
     </div>

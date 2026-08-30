@@ -27,6 +27,7 @@ const showAdvancedSettings = ref(false)
 // Loading state for prompt generation
 const generatingPrompt = ref(false)
 const highlightPromptBtn = ref(false)
+let highlightTransitionTimer: ReturnType<typeof setTimeout> | null = null
 let highlightTimer: ReturnType<typeof setTimeout> | null = null
 
 // Audience options configuration: Anfänger, Triathlet, Leistungsschwimmer, Hobbyschwimmer
@@ -174,6 +175,9 @@ onUnmounted(() => {
   if (submitHoverTimer) {
     clearTimeout(submitHoverTimer)
   }
+  if (highlightTransitionTimer) {
+    clearTimeout(highlightTransitionTimer)
+  }
   if (highlightTimer) {
     clearTimeout(highlightTimer)
   }
@@ -210,13 +214,15 @@ const canSubmit = computed(
 )
 
 function clearPromptHighlight() {
-  if (highlightPromptBtn.value) {
-    if (highlightTimer) {
-      clearTimeout(highlightTimer)
-      highlightTimer = null
-    }
-    highlightPromptBtn.value = false
+  if (highlightTransitionTimer) {
+    clearTimeout(highlightTransitionTimer)
+    highlightTransitionTimer = null
   }
+  if (highlightTimer) {
+    clearTimeout(highlightTimer)
+    highlightTimer = null
+  }
+  highlightPromptBtn.value = false
 }
 
 // Actions
@@ -264,12 +270,17 @@ function handleAudienceClick(audience: AudienceType) {
   applyAudienceConfiguration(audience)
 
   // Trigger visual highlight on the prompt generation button instead of immediate API generation
+  if (highlightTransitionTimer) {
+    clearTimeout(highlightTransitionTimer)
+    highlightTransitionTimer = null
+  }
   if (highlightTimer) {
     clearTimeout(highlightTimer)
+    highlightTimer = null
   }
   highlightPromptBtn.value = false
   // Short delay to reset transition if repeatedly clicked
-  setTimeout(() => {
+  highlightTransitionTimer = setTimeout(() => {
     highlightPromptBtn.value = true
     highlightTimer = setTimeout(() => {
       highlightPromptBtn.value = false
