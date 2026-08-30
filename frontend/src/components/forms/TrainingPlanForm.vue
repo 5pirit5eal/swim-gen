@@ -30,9 +30,10 @@ const highlightPromptBtn = ref(false)
 let highlightTransitionTimer: ReturnType<typeof setTimeout> | null = null
 let highlightTimer: ReturnType<typeof setTimeout> | null = null
 
-// Audience options configuration: Anfänger, Triathlet, Leistungsschwimmer, Hobbyschwimmer
+// Audience options configuration sorted by experience: Anfänger, Hobbyschwimmer, Triathlet, Leistungsschwimmer
 const audienceOptions: { id: AudienceType; labelKey: string; hintKey: string }[] = [
   { id: 'beginner', labelKey: 'form.audience_beginner', hintKey: 'form.audience_hint_beginner' },
+  { id: 'hobby', labelKey: 'form.audience_hobby', hintKey: 'form.audience_hint_hobby' },
   {
     id: 'triathlete',
     labelKey: 'form.audience_triathlete',
@@ -43,7 +44,6 @@ const audienceOptions: { id: AudienceType; labelKey: string; hintKey: string }[]
     labelKey: 'form.audience_competitive_swimmer',
     hintKey: 'form.audience_hint_competitive_swimmer',
   },
-  { id: 'hobby', labelKey: 'form.audience_hobby', hintKey: 'form.audience_hint_hobby' },
 ]
 
 // Hover tooltip state for audience buttons (longer hover)

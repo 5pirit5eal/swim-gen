@@ -230,11 +230,11 @@ describe('TrainingPlanForm.vue', () => {
     const audienceButtons = wrapper.findAll('.audience-btn')
     expect(audienceButtons.length).toBe(4)
 
-    // Button labels should match Beginner, Triathlete, Competitive Swimmer, Hobby
+    // Button labels should match Beginner, Hobby, Triathlete, Competitive Swimmer
     expect(audienceButtons[0]!.text()).toBe(i18n.global.t('form.audience_beginner'))
-    expect(audienceButtons[1]!.text()).toBe(i18n.global.t('form.audience_triathlete'))
-    expect(audienceButtons[2]!.text()).toBe(i18n.global.t('form.audience_competitive_swimmer'))
-    expect(audienceButtons[3]!.text()).toBe(i18n.global.t('form.audience_hobby'))
+    expect(audienceButtons[1]!.text()).toBe(i18n.global.t('form.audience_hobby'))
+    expect(audienceButtons[2]!.text()).toBe(i18n.global.t('form.audience_triathlete'))
+    expect(audienceButtons[3]!.text()).toBe(i18n.global.t('form.audience_competitive_swimmer'))
 
     let textarea = wrapper.find('textarea')
     expect(textarea.attributes('placeholder')).toBe(i18n.global.t('form.example_placeholder'))
@@ -251,8 +251,18 @@ describe('TrainingPlanForm.vue', () => {
       i18n.global.t('form.example_placeholder_beginner'),
     )
 
-    // Click 'triathlete' button (index 1)
+    // Click 'hobby' button (index 1)
     await audienceButtons[1]!.trigger('click')
+    expect(settingsStore.selectedAudience).toBe('hobby')
+    expect(settingsStore.filters.schwierigkeitsgrad).toBeUndefined()
+    expect(settingsStore.filters.trainingstyp).toBeUndefined()
+    await wrapper.vm.$nextTick()
+
+    textarea = wrapper.find('textarea')
+    expect(textarea.attributes('placeholder')).toBe(i18n.global.t('form.example_placeholder_hobby'))
+
+    // Click 'triathlete' button (index 2)
+    await audienceButtons[2]!.trigger('click')
     expect(settingsStore.selectedAudience).toBe('triathlete')
     expect(settingsStore.filters.schwierigkeitsgrad).toBe('Fortgeschritten')
     expect(settingsStore.filters.trainingstyp).toBe('Grundlagenausdauer')
@@ -263,8 +273,8 @@ describe('TrainingPlanForm.vue', () => {
       i18n.global.t('form.example_placeholder_triathlete'),
     )
 
-    // Click 'competitive_swimmer' button (index 2)
-    await audienceButtons[2]!.trigger('click')
+    // Click 'competitive_swimmer' button (index 3)
+    await audienceButtons[3]!.trigger('click')
     expect(settingsStore.selectedAudience).toBe('competitive_swimmer')
     expect(settingsStore.filters.schwierigkeitsgrad).toBe('Leistungsschwimmer')
     expect(settingsStore.filters.trainingstyp).toBe('Wettkampfvorbereitung')
@@ -274,16 +284,6 @@ describe('TrainingPlanForm.vue', () => {
     expect(textarea.attributes('placeholder')).toBe(
       i18n.global.t('form.example_placeholder_competitive_swimmer'),
     )
-
-    // Click 'hobby' button (index 3)
-    await audienceButtons[3]!.trigger('click')
-    expect(settingsStore.selectedAudience).toBe('hobby')
-    expect(settingsStore.filters.schwierigkeitsgrad).toBeUndefined()
-    expect(settingsStore.filters.trainingstyp).toBeUndefined()
-    await wrapper.vm.$nextTick()
-
-    textarea = wrapper.find('textarea')
-    expect(textarea.attributes('placeholder')).toBe(i18n.global.t('form.example_placeholder_hobby'))
   })
 
   it('shows tooltip on audience button hover after delay', async () => {
