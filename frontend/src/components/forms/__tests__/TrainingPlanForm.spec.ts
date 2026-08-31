@@ -392,7 +392,7 @@ describe('TrainingPlanForm.vue', () => {
     vi.mocked(apiClient.generatePrompt).mockResolvedValue(mockSuccessResponse)
 
     // Mock Math.random to pick second category (index 1 -> 'Anfaenger' -> 'beginner')
-    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.99)
 
     const wrapper = mount(TrainingPlanForm, {
       global: {
@@ -408,7 +408,7 @@ describe('TrainingPlanForm.vue', () => {
       audience: 'beginner',
     })
 
-    vi.spyOn(Math, 'random').mockRestore()
+    randomSpy.mockRestore()
   })
 
   it('shows tooltip when hovering over disabled submit button and hides when enabled', async () => {
