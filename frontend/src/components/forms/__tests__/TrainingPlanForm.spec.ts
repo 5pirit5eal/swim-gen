@@ -365,6 +365,52 @@ describe('TrainingPlanForm.vue', () => {
     })
   })
 
+  it('selects a random profile category when multiple categories are chosen', async () => {
+    const authStore = useAuthStore()
+    authStore.user = { id: 'test-user', email: 'test@example.com' } as unknown as User
+
+    const profileStore = useProfileStore()
+    profileStore.profile = {
+      user_id: 'test-user',
+      updated_at: '',
+      username: 'test',
+      experience: null,
+      preferred_language: null,
+      preferred_strokes: [],
+      categories: ['Triathlet', 'Anfaenger'],
+      overall_generations: 0,
+      monthly_generations: 0,
+      exports: 0,
+      css_200m_seconds: null,
+      css_400m_seconds: null,
+    }
+
+    const mockSuccessResponse: ApiResult<PromptGenerationResponse> = {
+      success: true,
+      data: { prompt: 'Beginner prompt' },
+    }
+    vi.mocked(apiClient.generatePrompt).mockResolvedValue(mockSuccessResponse)
+
+    // Mock Math.random to pick second category (index 1 -> 'Anfaenger' -> 'beginner')
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+
+    const wrapper = mount(TrainingPlanForm, {
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    const promptButton = wrapper.findAll('.toggle-settings-btn')[1]!
+    await promptButton.trigger('click')
+
+    expect(apiClient.generatePrompt).toHaveBeenCalledWith({
+      language: 'en',
+      audience: 'beginner',
+    })
+
+    vi.spyOn(Math, 'random').mockRestore()
+  })
+
   it('shows tooltip when hovering over disabled submit button and hides when enabled', async () => {
     vi.useFakeTimers()
     const wrapper = mount(TrainingPlanForm, {

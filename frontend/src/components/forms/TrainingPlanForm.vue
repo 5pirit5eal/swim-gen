@@ -322,7 +322,11 @@ async function handlePromptGeneration(audienceOverride?: AudienceType) {
 
   if (!targetAudience) {
     if (authStore.user) {
-      const userCategory = profileStore.profile?.categories?.[0]
+      const categories = profileStore.profile?.categories
+      const userCategory =
+        categories && categories.length > 0
+          ? categories[Math.floor(Math.random() * categories.length)]
+          : undefined
       targetAudience = mapCategoryToAudience(userCategory)
     } else if (settingsStore.selectedAudience) {
       targetAudience = settingsStore.selectedAudience

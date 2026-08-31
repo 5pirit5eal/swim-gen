@@ -69,7 +69,7 @@ describe('ProfileView.vue', () => {
     const options = select.findAll('option')
     expect(options.length).toBe(4) // 3 options + 1 empty
     const checkboxInputs = wrapper.findAll('input[type="checkbox"]')
-    expect(checkboxInputs.length).toBe(9)
+    expect(checkboxInputs.length).toBe(10)
 
     await wrapper.find('#css-200m').setValue('3:20')
     await wrapper.find('#css-400m').setValue('7:00')

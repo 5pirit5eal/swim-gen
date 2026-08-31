@@ -44,6 +44,7 @@ const strokeOptions = [
   { value: 'Lagen', key: 'individual_medley' },
 ]
 const categoryOptions = [
+  { value: 'Anfaenger', key: 'category_beginner' },
   { value: 'Triathlet', key: 'category_triathlete' },
   { value: 'Leistungsschwimmer', key: 'category_swimmer' },
   { value: 'Trainer', key: 'category_coach' },
@@ -65,6 +66,7 @@ const legacyProfileValues: Record<string, string> = {
   Coach: 'Trainer',
   Hobby: 'Hobbyschwimmer',
   Beginner: 'Anfaenger',
+  Anfänger: 'Anfaenger',
   Advanced: 'Fortgeschritten',
   'Competitive Swimmer': 'Leistungsschwimmer',
 }
