@@ -21,7 +21,7 @@ func (c *GoogleGenAIClient) GeneratePrompt(ctx context.Context, req models.Gener
 		case models.AudienceTriathlete:
 			audienceInstruction = "Der Schwimmer ist ein Triathlet. Die Anfrage soll sich auf Kraul-Ausdauer, Tempohärte, Freiwasser-Fokus oder aerobe Schwellenserien konzentrieren."
 		case models.AudienceCompetitiveSwimmer:
-			audienceInstruction = "Der Schwimmer ist ein erfahrener Leistungsschwimmer. Die Anfrage soll für längere Trainingseinheiten gedacht sein, jedoch nicht immer auf maximale Intensität abzielen. Wähle für die Einheit einen spezifischen, komplexen Trainingsschwerpunkt aus: Grundlagenausdauer (Endurance), Regeneration/Kompensation, Schwellentraining (Threshold), wettkampfspezifische Schnelligkeitsausdauer (Speed) oder Sprintschnelligkeit (Sprint)."
+			audienceInstruction = "Der Schwimmer ist ein erfahrener Leistungsschwimmer. Die Anfrage soll für längere Trainingseinheiten gedacht sein. Wähle für die Einheit einen spezifischen, komplexen Trainingsschwerpunkt aus: Grundlagenausdauer (Endurance), Regeneration/Kompensation, Schwellentraining (Threshold), wettkampfspezifische Schnelligkeitsausdauer (Speed) oder Sprintschnelligkeit (Sprint)."
 		case models.AudienceHobby:
 			audienceInstruction = "Der Schwimmer ist ein Hobbyschwimmer / Fitness-Schwimmer. Die Anfrage soll sich auf abwechslungsreiche, motivierende Trainingseinheiten für Fitness, Spaß und Technik konzentrieren."
 		}
