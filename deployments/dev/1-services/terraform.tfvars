@@ -1,4 +1,4 @@
-model                = "gemini-3.7-flash"
+model                = "gemini-3.8-flash"
 small_model          = "gemini-3.5-flash-lite"
 embedding_name       = "embeddings"
 embedding_drill_name = "drill_embeddings"

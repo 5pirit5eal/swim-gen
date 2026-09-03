@@ -24,7 +24,7 @@ variable "supabase_access_token" {
 variable "model" {
   description = "The model name"
   type        = string
-  default     = "gemini-3.7-flash"
+  default     = "gemini-3.8-flash"
 }
 
 variable "small_model" {
