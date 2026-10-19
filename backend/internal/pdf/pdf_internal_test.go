@@ -94,34 +94,46 @@ func TestSubRowAmountAndIntensityRendering(t *testing.T) {
 			Sum:        800,
 		},
 		{
-			Amount:     2,
+			Amount:     4,
 			Multiplier: "x",
 			Distance:   150,
 			Break:      "20",
 			Content:    "Kraul mit Flossen",
 			Intensity:  "GA1", // Differs from parent -> should be "GA1"
-			Sum:        300,
+			Sum:        600,
 		},
 		{
-			Amount:     3,
+			Amount:     10,
 			Multiplier: "", // Empty multiplier -> should default to "x" when Amount > 1
 			Distance:   50,
 			Break:      "",
 			Content:    "Sprint Kraul",
+			Intensity:  "1:35/100m", // Tempo value differing from parent -> should be shown
+			Sum:        500,
+		},
+		{
+			Amount:     2,
+			Multiplier: "x",
+			Distance:   100,
+			Break:      "   ", // Whitespace break -> should be empty
+			Content:    "Technik",
 			Intensity:  "", // Empty intensity -> should be empty
-			Sum:        150,
+			Sum:        200,
 		},
 	}
 
 	rendered := createSubRows(subRows, "GA2", props.Text{}, models.LanguageDE, "", getColumnWidths(false), 1)
-	assert.Len(t, rendered, 3)
+	assert.Len(t, rendered, 4)
 
-	// Subrow 1: Amount == 1 (omitted), Intensity == parent "GA2" (omitted)
-	assert.Equal(t, []string{"", "", "800", "", "Kraul locker", "", ""}, extractRowColumnValues(rendered[0]))
+	// Subrow 1: Amount == 1 ("|   ", empty multiplier), Break "30" (shown), Intensity == parent "GA2" (omitted)
+	assert.Equal(t, []string{"|   ", "", "800", "30", "Kraul locker", "", ""}, extractRowColumnValues(rendered[0]))
 
-	// Subrow 2: Amount == 2 > 1 (shown with multiplier), Intensity "GA1" != parent "GA2" (shown)
-	assert.Equal(t, []string{"2", "x", "150", "", "Kraul mit Flossen", "GA1", ""}, extractRowColumnValues(rendered[1]))
+	// Subrow 2: Amount == 4 ("|  4", multiplier "x"), Break "20" (shown), Intensity "GA1" != parent "GA2" (shown)
+	assert.Equal(t, []string{"|  4", "x", "150", "20", "Kraul mit Flossen", "GA1", ""}, extractRowColumnValues(rendered[1]))
 
-	// Subrow 3: Amount == 3 > 1 with empty multiplier (defaults to "x"), empty intensity (omitted)
-	assert.Equal(t, []string{"3", "x", "50", "", "Sprint Kraul", "", ""}, extractRowColumnValues(rendered[2]))
+	// Subrow 3: Amount == 10 ("| 10", default multiplier "x"), empty Break, Tempo/Intensity "1:35/100m" != parent "GA2" (shown)
+	assert.Equal(t, []string{"| 10", "x", "50", "", "Sprint Kraul", "1:35/100m", ""}, extractRowColumnValues(rendered[2]))
+
+	// Subrow 4: Amount == 2 ("|  2", multiplier "x"), whitespace Break (omitted), empty Intensity (omitted)
+	assert.Equal(t, []string{"|  2", "x", "100", "", "Technik", "", ""}, extractRowColumnValues(rendered[3]))
 }

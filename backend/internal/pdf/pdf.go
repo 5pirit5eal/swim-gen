@@ -397,13 +397,13 @@ func createSubRows(subRows []models.Row, parentIntensity string, p props.Text, l
 	for i, subRow := range subRows {
 		row := row.New()
 		amount, multiplier := subRowAmountAndMultiplier(subRow)
-		// Repetition fields for subrows (only shown when Amount > 1)
+		// Subrow indicator and repetition fields (number only shown when Amount > 1)
 		row.Add(col.New(widths.amount).Add(text.New(amount, p)))
 		row.Add(col.New(widths.multiplier).Add(text.New(multiplier, p)))
 		// Distance value in distance column
 		row.Add(col.New(widths.distance).Add(text.New(strconv.Itoa(subRow.Distance), p)))
-		// Empty break field for aggregated subrows
-		row.Add(col.New(widths.breakTime).Add(text.New("", p)))
+		// Break field for subrows (shown when non-empty)
+		row.Add(col.New(widths.breakTime).Add(text.New(subRowBreak(subRow), p)))
 
 		// Content with indent indicator and aggregated nested subrow content
 		contentCol := col.New(widths.description)
@@ -436,7 +436,7 @@ func createSubRows(subRows []models.Row, parentIntensity string, p props.Text, l
 
 func subRowAmountAndMultiplier(subRow models.Row) (string, string) {
 	if subRow.Amount <= 1 {
-		return "", ""
+		return "|   ", ""
 	}
 
 	multiplier := subRow.Multiplier
@@ -444,7 +444,15 @@ func subRowAmountAndMultiplier(subRow models.Row) (string, string) {
 		multiplier = "x"
 	}
 
-	return strconv.Itoa(subRow.Amount), multiplier
+	return fmt.Sprintf("|%3d", subRow.Amount), multiplier
+}
+
+func subRowBreak(subRow models.Row) string {
+	if strings.TrimSpace(subRow.Break) == "" {
+		return ""
+	}
+
+	return subRow.Break
 }
 
 func subRowIntensity(subRow models.Row, parentIntensity string) string {
