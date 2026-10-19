@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
+	"github.com/johnfercher/maroto/v2/pkg/consts/border"
+	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
 	"github.com/johnfercher/maroto/v2/pkg/core"
 	"github.com/johnfercher/maroto/v2/pkg/props"
 	"github.com/stretchr/testify/assert"
@@ -106,7 +108,7 @@ func TestSubRowAmountAndIntensityRendering(t *testing.T) {
 			Amount:     10,
 			Multiplier: "", // Empty multiplier -> should default to "x" when Amount > 1
 			Distance:   50,
-			Break:      "",
+			Break:      "0", // Pause is "0" -> should be omitted
 			Content:    "Sprint Kraul",
 			Intensity:  "1:35/100m", // Tempo value differing from parent -> should be shown
 			Sum:        500,
@@ -125,15 +127,24 @@ func TestSubRowAmountAndIntensityRendering(t *testing.T) {
 	rendered := createSubRows(subRows, "GA2", props.Text{}, models.LanguageDE, "", getColumnWidths(false), 1)
 	assert.Len(t, rendered, 4)
 
-	// Subrow 1: Amount == 1 ("|   ", empty multiplier), Break "30" (shown), Intensity == parent "GA2" (omitted)
-	assert.Equal(t, []string{"|   ", "", "800", "30", "Kraul locker", "", ""}, extractRowColumnValues(rendered[0]))
+	// Subrow 1: Amount == 1 (omitted), Break "30" (shown), Intensity == parent "GA2" (omitted)
+	assert.Equal(t, []string{"", "", "800", "30", "Kraul locker", "", ""}, extractRowColumnValues(rendered[0]))
 
-	// Subrow 2: Amount == 4 ("|  4", multiplier "x"), Break "20" (shown), Intensity "GA1" != parent "GA2" (shown)
-	assert.Equal(t, []string{"|  4", "x", "150", "20", "Kraul mit Flossen", "GA1", ""}, extractRowColumnValues(rendered[1]))
+	// Subrow 2: Amount == 4 ("4", multiplier "x"), Break "20" (shown), Intensity "GA1" != parent "GA2" (shown)
+	assert.Equal(t, []string{"4", "x", "150", "20", "Kraul mit Flossen", "GA1", ""}, extractRowColumnValues(rendered[1]))
 
-	// Subrow 3: Amount == 10 ("| 10", default multiplier "x"), empty Break, Tempo/Intensity "1:35/100m" != parent "GA2" (shown)
-	assert.Equal(t, []string{"| 10", "x", "50", "", "Sprint Kraul", "1:35/100m", ""}, extractRowColumnValues(rendered[2]))
+	// Subrow 3: Amount == 10 ("10", default multiplier "x"), Break "0" (omitted), Tempo/Intensity "1:35/100m" != parent "GA2" (shown)
+	assert.Equal(t, []string{"10", "x", "50", "", "Sprint Kraul", "1:35/100m", ""}, extractRowColumnValues(rendered[2]))
 
-	// Subrow 4: Amount == 2 ("|  2", multiplier "x"), whitespace Break (omitted), empty Intensity (omitted)
-	assert.Equal(t, []string{"|  2", "x", "100", "", "Technik", "", ""}, extractRowColumnValues(rendered[3]))
+	// Subrow 4: Amount == 2 ("2", multiplier "x"), whitespace Break (omitted), empty Intensity (omitted)
+	assert.Equal(t, []string{"2", "x", "100", "", "Technik", "", ""}, extractRowColumnValues(rendered[3]))
+
+	// Verify visual cues: left accent border on subrow cells and italic muted text on subrow components
+	for _, r := range rendered {
+		rowDetails := r.GetStructure().GetData().Details
+		assert.Equal(t, border.Left, rowDetails["prop_border_type"])
+
+		textDetails := r.GetColumns()[2].GetStructure().GetNexts()[0].GetData().Details
+		assert.Equal(t, fontstyle.Italic, textDetails["prop_font_style"])
+	}
 }
