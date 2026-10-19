@@ -305,7 +305,7 @@ func getRows(table models.Table, lf bool, lang models.Language, baseURL string) 
 
 		// Add subrows recursively
 		if len(content.SubRows) > 0 {
-			subRows := createSubRows(content.SubRows, p, lang, baseURL, widths, rowIndex)
+			subRows := createSubRows(content.SubRows, content.Intensity, p, lang, baseURL, widths, rowIndex)
 			rows = append(rows, subRows...)
 			// Update rowIndex based on number of subrows added
 			rowIndex += len(subRows)
@@ -390,16 +390,16 @@ func aggregateSubRowContent(subRows []models.Row, lang models.Language, baseURL 
 
 // createSubRows creates visual rows for subrows with indentation
 // Nested subrows are aggregated into the parent subrow's content instead of creating new rows
-func createSubRows(subRows []models.Row, p props.Text, lang models.Language, baseURL string, widths columnWidths, startRowIndex int) []core.Row {
+func createSubRows(subRows []models.Row, parentIntensity string, p props.Text, lang models.Language, baseURL string, widths columnWidths, startRowIndex int) []core.Row {
 	rows := make([]core.Row, 0)
 	veryLightGray := &props.Color{Red: 248, Green: 248, Blue: 248}
 
 	for i, subRow := range subRows {
 		row := row.New()
-		// Empty amount field for subrows
-		row.Add(col.New(widths.amount).Add(text.New("", p)))
-		// Empty multiplier field for subrows
-		row.Add(col.New(widths.multiplier).Add(text.New("", p)))
+		amount, multiplier := subRowAmountAndMultiplier(subRow)
+		// Repetition fields for subrows (only shown when Amount > 1)
+		row.Add(col.New(widths.amount).Add(text.New(amount, p)))
+		row.Add(col.New(widths.multiplier).Add(text.New(multiplier, p)))
 		// Distance value in distance column
 		row.Add(col.New(widths.distance).Add(text.New(strconv.Itoa(subRow.Distance), p)))
 		// Empty break field for aggregated subrows
@@ -418,8 +418,8 @@ func createSubRows(subRows []models.Row, p props.Text, lang models.Language, bas
 		contentCol.Add(segments...)
 		row.Add(contentCol)
 
-		// Empty intensity field for aggregated subrows
-		row.Add(col.New(widths.intensity).Add(text.New("", p)))
+		// Intensity field for subrows (only shown when different from parent row's intensity)
+		row.Add(col.New(widths.intensity).Add(text.New(subRowIntensity(subRow, parentIntensity), p)))
 		// Empty sum field for subrows
 		row.Add(col.New(widths.volume).Add(text.New("", p)))
 
@@ -432,6 +432,28 @@ func createSubRows(subRows []models.Row, p props.Text, lang models.Language, bas
 	}
 
 	return rows
+}
+
+func subRowAmountAndMultiplier(subRow models.Row) (string, string) {
+	if subRow.Amount <= 1 {
+		return "", ""
+	}
+
+	multiplier := subRow.Multiplier
+	if strings.TrimSpace(multiplier) == "" {
+		multiplier = "x"
+	}
+
+	return strconv.Itoa(subRow.Amount), multiplier
+}
+
+func subRowIntensity(subRow models.Row, parentIntensity string) string {
+	trimmedSub := strings.TrimSpace(subRow.Intensity)
+	if trimmedSub == "" || trimmedSub == strings.TrimSpace(parentIntensity) {
+		return ""
+	}
+
+	return subRow.Intensity
 }
 
 func contentWithEquipment(row models.Row, lang models.Language) string {
