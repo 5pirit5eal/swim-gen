@@ -22,6 +22,7 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/components/text"
 	"github.com/johnfercher/maroto/v2/pkg/config"
 	"github.com/johnfercher/maroto/v2/pkg/consts/align"
+	"github.com/johnfercher/maroto/v2/pkg/consts/border"
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
 	"github.com/johnfercher/maroto/v2/pkg/consts/orientation"
 	"github.com/johnfercher/maroto/v2/pkg/core"
@@ -305,7 +306,7 @@ func getRows(table models.Table, lf bool, lang models.Language, baseURL string) 
 
 		// Add subrows recursively
 		if len(content.SubRows) > 0 {
-			subRows := createSubRows(content.SubRows, p, lang, baseURL, widths, rowIndex)
+			subRows := createSubRows(content.SubRows, content.Intensity, p, lang, baseURL, widths, rowIndex)
 			rows = append(rows, subRows...)
 			// Update rowIndex based on number of subrows added
 			rowIndex += len(subRows)
@@ -388,50 +389,92 @@ func aggregateSubRowContent(subRows []models.Row, lang models.Language, baseURL 
 	return strings.Join(parts, " + ")
 }
 
-// createSubRows creates visual rows for subrows with indentation
+// createSubRows creates visual rows for subrows with left accent border and italic muted text
 // Nested subrows are aggregated into the parent subrow's content instead of creating new rows
-func createSubRows(subRows []models.Row, p props.Text, lang models.Language, baseURL string, widths columnWidths, startRowIndex int) []core.Row {
+func createSubRows(subRows []models.Row, parentIntensity string, p props.Text, lang models.Language, baseURL string, widths columnWidths, startRowIndex int) []core.Row {
 	rows := make([]core.Row, 0)
 	veryLightGray := &props.Color{Red: 248, Green: 248, Blue: 248}
+	accentGray := &props.Color{Red: 80, Green: 80, Blue: 80}
+
+	subRowProps := p
+	subRowProps.Style = fontstyle.Italic
+	subRowProps.Color = &props.Color{Red: 80, Green: 80, Blue: 80}
 
 	for i, subRow := range subRows {
 		row := row.New()
-		// Empty amount field for subrows
-		row.Add(col.New(widths.amount).Add(text.New("", p)))
-		// Empty multiplier field for subrows
-		row.Add(col.New(widths.multiplier).Add(text.New("", p)))
+		amount, multiplier := subRowAmountAndMultiplier(subRow)
+		// Repetition fields for subrows (only shown when Amount > 1)
+		row.Add(col.New(widths.amount).Add(text.New(amount, subRowProps)))
+		row.Add(col.New(widths.multiplier).Add(text.New(multiplier, subRowProps)))
 		// Distance value in distance column
-		row.Add(col.New(widths.distance).Add(text.New(strconv.Itoa(subRow.Distance), p)))
-		// Empty break field for aggregated subrows
-		row.Add(col.New(widths.breakTime).Add(text.New("", p)))
+		row.Add(col.New(widths.distance).Add(text.New(strconv.Itoa(subRow.Distance), subRowProps)))
+		// Break field for subrows (shown when non-empty and not "0")
+		row.Add(col.New(widths.breakTime).Add(text.New(subRowBreak(subRow), subRowProps)))
 
-		// Content with indent indicator and aggregated nested subrow content
+		// Content with aggregated nested subrow content
 		contentCol := col.New(widths.description)
 		indentText := contentWithEquipment(subRow, lang)
 		if len(subRow.SubRows) > 0 {
-			aggregated := aggregateSubRowContent(subRow.SubRows, lang, baseURL, p)
+			aggregated := aggregateSubRowContent(subRow.SubRows, lang, baseURL, subRowProps)
 			if aggregated != "" {
 				indentText = fmt.Sprintf("%s (%s)", indentText, aggregated)
 			}
 		}
-		segments := parseMarkdownLinks(indentText, baseURL, p)
+		segments := parseMarkdownLinks(indentText, baseURL, subRowProps)
 		contentCol.Add(segments...)
 		row.Add(contentCol)
 
-		// Empty intensity field for aggregated subrows
-		row.Add(col.New(widths.intensity).Add(text.New("", p)))
+		// Intensity field for subrows (only shown when different from parent row's intensity)
+		row.Add(col.New(widths.intensity).Add(text.New(subRowIntensity(subRow, parentIntensity), subRowProps)))
 		// Empty sum field for subrows
-		row.Add(col.New(widths.volume).Add(text.New("", p)))
+		row.Add(col.New(widths.volume).Add(text.New("", subRowProps)))
 
-		// Alternate background colors for subrows
-		if (startRowIndex+i)%2 == 1 {
-			row.WithStyle(&props.Cell{BackgroundColor: veryLightGray})
+		// Left accent border and alternating background colors for subrows
+		cellStyle := &props.Cell{
+			BorderType:      border.Left,
+			BorderColor:     accentGray,
+			BorderThickness: 0.8,
 		}
+		if (startRowIndex+i)%2 == 1 {
+			cellStyle.BackgroundColor = veryLightGray
+		}
+		row.WithStyle(cellStyle)
 
 		rows = append(rows, row)
 	}
 
 	return rows
+}
+
+func subRowAmountAndMultiplier(subRow models.Row) (string, string) {
+	if subRow.Amount <= 1 {
+		return "", ""
+	}
+
+	multiplier := subRow.Multiplier
+	if strings.TrimSpace(multiplier) == "" {
+		multiplier = "x"
+	}
+
+	return strconv.Itoa(subRow.Amount), multiplier
+}
+
+func subRowBreak(subRow models.Row) string {
+	trimmed := strings.TrimSpace(subRow.Break)
+	if trimmed == "" || trimmed == "0" {
+		return ""
+	}
+
+	return subRow.Break
+}
+
+func subRowIntensity(subRow models.Row, parentIntensity string) string {
+	trimmedSub := strings.TrimSpace(subRow.Intensity)
+	if trimmedSub == "" || trimmedSub == strings.TrimSpace(parentIntensity) {
+		return ""
+	}
+
+	return subRow.Intensity
 }
 
 func contentWithEquipment(row models.Row, lang models.Language) string {

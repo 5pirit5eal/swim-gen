@@ -545,11 +545,12 @@ func TestHyperlinks(t *testing.T) {
 
 // TestSubRows creates PDFs with subrows (compound sets) for visual inspection.
 // Subrows should have:
-// - Empty amount field
+// - Amount and multiplier fields shown only when Amount > 1
 // - Distance value shown in distance column
+// - Break value shown when non-empty and not "0"
+// - Intensity/tempo shown only when it differs from the parent row's intensity
 // - Empty sum field
-// - Visual indent with "↳" prefix
-// - Alternating background colors
+// - Left accent border, italic muted text, and alternating background colors
 func TestSubRows(t *testing.T) {
 	baseURL := "https://example.com"
 
