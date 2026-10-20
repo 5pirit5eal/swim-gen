@@ -23,7 +23,7 @@
     "@supabase/supabase-js": "^2.111.0",
     "driver.js": "^1.8.0",
     "pinia": "^3.0.4",
-    "vue": "^3.5.40",
+    "vue": "^3.5.44",
     "vue-i18n": "^11.4.8",
     "vue-multiselect": "^3.5.0",
     "vue-router": "^4.6.4",
@@ -54,7 +54,7 @@
     "vite": "^7.3.6",
     "vite-plugin-image-optimizer": "^2.0.3",
     "vite-plugin-vue-devtools": "^8.2.1",
-    "vitest": "^4.0.16",
+    "vitest": "^5.0.5",
     "vue-tsc": "^3.3.9"
   },
   "overrides": {
