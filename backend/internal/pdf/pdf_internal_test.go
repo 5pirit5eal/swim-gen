@@ -143,6 +143,7 @@ func TestSubRowAmountAndIntensityRendering(t *testing.T) {
 	for _, r := range rendered {
 		rowDetails := r.GetStructure().GetData().Details
 		assert.Equal(t, border.Left, rowDetails["prop_border_type"])
+		assert.Equal(t, (&props.Color{Red: 80, Green: 80, Blue: 80}).ToString(), rowDetails["prop_border_color"])
 
 		textDetails := r.GetColumns()[2].GetStructure().GetNexts()[0].GetData().Details
 		assert.Equal(t, fontstyle.Italic, textDetails["prop_font_style"])

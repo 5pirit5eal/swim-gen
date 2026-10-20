@@ -394,7 +394,7 @@ func aggregateSubRowContent(subRows []models.Row, lang models.Language, baseURL 
 func createSubRows(subRows []models.Row, parentIntensity string, p props.Text, lang models.Language, baseURL string, widths columnWidths, startRowIndex int) []core.Row {
 	rows := make([]core.Row, 0)
 	veryLightGray := &props.Color{Red: 248, Green: 248, Blue: 248}
-	accentBlue := &props.Color{Red: 26, Green: 109, Blue: 147}
+	accentGray := &props.Color{Red: 80, Green: 80, Blue: 80}
 
 	subRowProps := p
 	subRowProps.Style = fontstyle.Italic
@@ -432,7 +432,7 @@ func createSubRows(subRows []models.Row, parentIntensity string, p props.Text, l
 		// Left accent border and alternating background colors for subrows
 		cellStyle := &props.Cell{
 			BorderType:      border.Left,
-			BorderColor:     accentBlue,
+			BorderColor:     accentGray,
 			BorderThickness: 0.8,
 		}
 		if (startRowIndex+i)%2 == 1 {
