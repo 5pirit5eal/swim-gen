@@ -2,8 +2,7 @@
  * Represents a segment of parsed content - either plain text or a drill link
  */
 export type ContentSegment =
-  | { type: 'text'; content: string }
-  | { type: 'drill-link'; drillId: string; text: string }
+  { type: 'text'; content: string } | { type: 'drill-link'; drillId: string; text: string }
 
 /**
  * Regex pattern to match markdown links: [text](url)

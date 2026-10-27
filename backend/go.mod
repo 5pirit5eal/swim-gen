@@ -1,6 +1,6 @@
 module github.com/5pirit5eal/swim-gen
 
-go 1.25.5
+go 1.26.0
 
 require (
 	cloud.google.com/go/secretmanager v1.20.0

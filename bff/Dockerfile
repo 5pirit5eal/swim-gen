@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:24-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03 AS builder
+FROM node:26-slim@sha256:36793bcbb160a6a16cede1e62b93f84e26b78a972a8a4c0b879c1c12f22761ec AS builder
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -17,10 +17,10 @@ COPY . .
 RUN npm run build
 
 # Remove devDependencies after build
-RUN npm prune --production
+RUN npm prune --omit=dev
 
 # Stage 2: Create the production image
-FROM node:24-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03
+FROM node:26-slim@sha256:36793bcbb160a6a16cede1e62b93f84e26b78a972a8a4c0b879c1c12f22761ec
 
 # Set the working directory
 WORKDIR /usr/src/app

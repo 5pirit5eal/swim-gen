@@ -20,24 +20,27 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": "^26.12.1"
+  },
   "bugs": {
     "url": "https://github.com/5pirit5eal/swim-gen/issues"
   },
   "homepage": "https://github.com/5pirit5eal/swim-gen#readme",
   "dependencies": {
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^3.1.0",
-    "@opentelemetry/api": "^1.9.1",
-    "@opentelemetry/auto-instrumentations-node": "^0.79.0",
-    "@opentelemetry/resources": "^2.8.0",
-    "@opentelemetry/sdk-node": "^0.221.0",
-    "@opentelemetry/sdk-trace-node": "^2.10.0",
+    "@opentelemetry/api": "~1.9.1",
+    "@opentelemetry/auto-instrumentations-node": "^0.81.2",
+    "@opentelemetry/resources": "^2.12.0",
+    "@opentelemetry/sdk-node": "^0.223.0",
+    "@opentelemetry/sdk-trace-node": "^2.12.0",
     "@opentelemetry/semantic-conventions": "^1.43.0",
-    "axios": "^1.19.0",
+    "axios": "^1.21.0",
     "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.6.1",
-    "google-auth-library": "^10.9.1"
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "google-auth-library": "^11.3.1"
   },
   "overrides": {
     "nanoid": "^3.3.18",
@@ -46,22 +49,23 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/node": "^24.13.3",
-    "@types/supertest": "^6.0.3",
-    "@typescript-eslint/eslint-plugin": "^8.50.0",
-    "@typescript-eslint/parser": "^8.50.0",
-    "@vitest/eslint-plugin": "^1.6.24",
-    "@vitest/ui": "^4.0.16",
+    "@types/node": "^26.6.5",
+    "@types/supertest": "^7.2.1",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
+    "@vitest/eslint-plugin": "^1.6.28",
+    "@vitest/ui": "^5.0.5",
     "dotenv-cli": "^11.0.0",
-    "eslint": "^9.39.5",
+    "eslint": "^10.13.0",
     "eslint-define-config": "^2.1.0",
     "jiti": "^2.7.0",
     "nodemon": "^3.1.14",
-    "prettier": "^3.9.6",
-    "supertest": "^7.2.2",
+    "prettier": "^3.9.10",
+    "supertest": "^7.3.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.65.0",
-    "vitest": "^4.0.16"
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
   }
 }

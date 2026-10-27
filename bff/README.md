@@ -68,7 +68,7 @@ When deployed, this is configured via the `log_level` Terraform variable in `dep
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
+- Node.js 26 LTS (>=26.12.1)
 - npm
 
 ### Installation

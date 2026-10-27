@@ -1,5 +1,5 @@
 ### Build Go server binary
-FROM golang:1.25@sha256:d7ae6dbb143c4eb97788a53a2bfa879cdde91f793c1d44d9f3bc7cb0df2e4e5f AS builder
+FROM golang:1.26@sha256:24a707af49702fa44f02785475d02fb752f6982d3e9c0afb7696e1f0204e7ce9 AS builder
 
 WORKDIR /build
 COPY go.mod go.sum ./
