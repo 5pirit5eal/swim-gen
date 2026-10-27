@@ -70,7 +70,9 @@ func (gc *GoogleGenAIClient) RestructurePlan(ctx context.Context, plan *models.P
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = gps
 	logger.Debug("Requesting restructuring by LLM", "plan", genericPlan.String())
+	finishInference := logInference(logger, "restructure_plan", gc.cfg.Model)
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
+	finishInference(err)
 
 	if err != nil {
 		logger.Error("Error when restructuring plan", httplog.ErrAttr(err))
@@ -137,7 +139,9 @@ func (gc *GoogleGenAIClient) GenerateMetadata(ctx context.Context, plan *models.
 	query := fmt.Sprintf(metadataTemplateStr, models.Abbreviations, genericPlan.Title, genericPlan.Description, string(tableJSON), ms)
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
+	finishInference := logInference(logger, "generate_metadata", gc.cfg.Model)
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
+	finishInference(err)
 	if err != nil {
 		logger.Error("Error when generating answer with LLM", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("Models.GenerateContent: %w", err)

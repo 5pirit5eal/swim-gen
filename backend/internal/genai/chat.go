@@ -71,13 +71,15 @@ func (gc *GoogleGenAIClient) ChatRefine(
 	genCfg := *gc.gcfg
 	genCfg.ThinkingConfig = &genai.ThinkingConfig{
 		IncludeThoughts: false,
-		ThinkingLevel:   genai.ThinkingLevelMedium,
+		ThinkingLevel:   genai.ThinkingLevelLow,
 	}
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = chatSchema
 
 	// Call the LLM
+	finishInference := logInference(logger, "chat_refine", gc.cfg.Model)
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
+	finishInference(err)
 	if err != nil {
 		logger.Error("Error when generating chat response with LLM", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error when generating chat response: %w", err)
