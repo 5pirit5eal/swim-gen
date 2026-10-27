@@ -19,7 +19,7 @@ The app can be displayed with both mobile and larger displays. The latter is rec
 
 **Prerequisites:**
 
-- Node.js >=22.0.0
+- Node.js 26 LTS (>=26.12.1)
 
 ```sh
 npm install

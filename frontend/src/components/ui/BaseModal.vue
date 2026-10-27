@@ -38,7 +38,7 @@ defineEmits<{ close: [] }>()
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: var(color-transparent);
+  background-color: var(--color-transparent);
   z-index: 9998;
   display: flex;
   justify-content: center;
