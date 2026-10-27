@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import TrainingPlanDisplay from '@/components/training/TrainingPlanDisplay.vue'
 import SimplePlanDisplay from '@/components/training/SimplePlanDisplay.vue'
+import InlineMessageContent from '@/components/training/InlineMessageContent.vue'
 import IconSend from '@/components/icons/IconSend.vue'
 import IconStar from '@/components/icons/IconStar.vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
@@ -287,7 +288,8 @@ watch(
               </div>
 
               <div class="message-content">
-                {{ message.content }}
+                <InlineMessageContent v-if="message.role === 'ai'" :content="message.content" />
+                <template v-else>{{ message.content }}</template>
               </div>
 
               <!-- Plan Snapshot (for AI messages) -->

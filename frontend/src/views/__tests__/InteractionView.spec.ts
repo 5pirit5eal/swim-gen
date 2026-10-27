@@ -13,11 +13,16 @@ vi.mock('vue-i18n', () => ({
 }))
 
 // Mock dependencies
-vi.mock('vue-router', () => ({
+vi.mock('vue-router', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('vue-router')>()),
   useRoute: vi.fn(),
   useRouter: vi.fn(() => ({
     push: vi.fn(),
   })),
+}))
+
+vi.mock('@/tutorial/useTutorial', () => ({
+  useTutorial: () => ({ startInteractionTutorial: vi.fn() }),
 }))
 
 vi.mock('@/components/training/TrainingPlanDisplay.vue', () => ({
@@ -97,6 +102,53 @@ describe('InteractionView.vue', () => {
     await tabs[1]!.trigger('click') // Chat tab
     expect(tabs[1]!.classes()).toContain('active')
     expect(wrapper.find('.chat-container').isVisible()).toBe(true)
+  })
+
+  it('formats only model messages and leaves user messages as plain text', async () => {
+    const wrapper = mount(InteractionView, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            initialState: {
+              trainingPlan: {
+                currentPlan: { plan_id: 'test-plan-id', title: 'Test', table: [] },
+                conversation: [],
+              },
+            },
+          }),
+        ],
+        stubs: {
+          IconSend: true,
+          IconStar: true,
+          RouterLink: { props: ['to'], template: '<a><slot /></a>' },
+        },
+      },
+    })
+
+    // Append one message at a time, as in a live conversation.
+    const store = useTrainingPlanStore()
+    const content = '**Fett** *kursiv* [Finger Drag](/drills/finger_drag.webp)'
+    for (const role of ['ai', 'user'] as const) {
+      store.conversation.push({
+        id: role,
+        plan_id: 'test-plan-id',
+        role,
+        content,
+        previous_message_id: null,
+        next_message_id: null,
+        created_at: '2026-10-27T12:00:00Z',
+      })
+      await flushPromises()
+    }
+
+    const modelMessage = wrapper.get('.message-ai .message-content')
+    expect(modelMessage.get('strong').text()).toBe('Fett')
+    expect(modelMessage.get('em').text()).toBe('kursiv')
+    expect(modelMessage.get('a').text()).toBe('Finger Drag')
+    const userMessage = wrapper.get('.message-user .message-content')
+    expect(userMessage.text()).toBe(content)
+    expect(userMessage.find('strong, em, a').exists()).toBe(false)
   })
 
   it('sends a message', async () => {
