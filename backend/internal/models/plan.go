@@ -150,36 +150,6 @@ func GeneratedPlanSchema() (map[string]any, error) {
 		return nil, fmt.Errorf("failed to unmarshal JSON schema: %w", err)
 	}
 
-	// Post-process: make SubRows and Equipment required in the Row definition.
-	// The struct uses `omitempty` on these fields for regular JSON marshaling, which causes
-	// invopop/jsonschema to treat them as optional. We override that here so the LLM always
-	// returns them (as empty arrays when unused), enabling strict schema validation.
-	if defs, ok := result["$defs"].(map[string]any); ok {
-		if rowDef, ok := defs["Row"].(map[string]any); ok {
-			required := []string{}
-			if existing, ok := rowDef["required"].([]any); ok {
-				for _, r := range existing {
-					if s, ok := r.(string); ok {
-						required = append(required, s)
-					}
-				}
-			}
-			for _, field := range []string{"SubRows", "Equipment"} {
-				found := false
-				for _, r := range required {
-					if r == field {
-						found = true
-						break
-					}
-				}
-				if !found {
-					required = append(required, field)
-				}
-			}
-			rowDef["required"] = required
-		}
-	}
-
 	return result, nil
 }
 
@@ -225,8 +195,8 @@ type Row struct {
 	Content    string          `json:"Content" example:"Freestyle swim" jsonschema_description:"Content or description of the row"`
 	Intensity  string          `json:"Intensity" example:"Z1" jsonschema_description:"Intensity level of the activity"`
 	Sum        int             `json:"Sum" example:"400" jsonschema_description:"Total volume or sum for the row"`
-	SubRows    []Row           `json:"SubRows,omitempty" jsonschema_description:"Nested exercise rows for compound sets (parent x (child1 + child2), e.g. 8 x (800 Free + 200 IM)). Parent Distance is auto-calculated from subRows"`
-	Equipment  []EquipmentType `json:"Equipment,omitempty" jsonschema:"description=Equipment needed for this row,enum=Flossen,enum=Kickboard,enum=Handpaddles,enum=Pull buoy,enum=Schnorchel" jsonschema_description:"Equipment needed for this specific row" example:"[\"Flossen\"]"`
+	SubRows    []Row           `json:"SubRows,omitempty" jsonschema:"required" jsonschema_description:"Nested exercise rows for compound sets (parent x (child1 + child2), e.g. 8 x (800 Free + 200 IM)). Parent Distance is auto-calculated from subRows"`
+	Equipment  []EquipmentType `json:"Equipment,omitempty" jsonschema:"required,description=Equipment needed for this row,enum=Flossen,enum=Kickboard,enum=Handpaddles,enum=Pull buoy,enum=Schnorchel" jsonschema_description:"Equipment needed for this specific row" example:"[\"Flossen\"]"`
 }
 
 func (r Row) String() string {

@@ -24,15 +24,6 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProf
 	for _, doc := range planDocs {
 		pdc = append(pdc, doc.PageContent)
 	}
-	var ddc []string
-	for _, doc := range drillDocs {
-		imgName := doc.Metadata["img_name"].(string)
-		imgName = strings.TrimSuffix(imgName, ".png")
-		imgName = strings.TrimSuffix(imgName, ".webp")
-		url := "/drill/" + imgName
-		ddc = append(ddc, doc.PageContent+fmt.Sprintf("\n\nReferenz: [%s](%s)", doc.Metadata["slug"].(string), url))
-	}
-
 	// Create a RAG query for the LLM with the most relevant documents as context
 	query := fmt.Sprintf(
 		ragTemplateStr,
@@ -41,12 +32,18 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProf
 		userProfile,
 		q,
 		strings.Join(pdc, "\n \n"),
-		strings.Join(ddc, "\n \n"),
+		formatDrillDocuments(drillDocs),
 	)
 	genCfg := *gc.gcfg
+	genCfg.ThinkingConfig = &genai.ThinkingConfig{
+		IncludeThoughts: false,
+		ThinkingLevel:   genai.ThinkingLevelLow,
+	}
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = gps
+	finishInference := logInference(logger, "generate_plan", gc.cfg.Model)
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
+	finishInference(err)
 
 	if err != nil {
 		logger.Error("Error when generating answer with LLM", httplog.ErrAttr(err))
@@ -74,6 +71,18 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProf
 	return &p, nil
 }
 
+func formatDrillDocuments(docs []schema.Document) string {
+	var context []string
+	for _, doc := range docs {
+		imgName := doc.Metadata["img_name"].(string)
+		imgName = strings.TrimSuffix(imgName, ".png")
+		imgName = strings.TrimSuffix(imgName, ".webp")
+		url := "/drill/" + imgName
+		context = append(context, doc.PageContent+fmt.Sprintf("\n\nReferenz: [%s](%s)", doc.Metadata["slug"].(string), url))
+	}
+	return strings.Join(context, "\n \n")
+}
+
 // ChoosePlan lets an LLM choose the best fitting plan from the given documents.
 // Returns the plan id of the chosen plan
 func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q, lang string, poolLength any, docs []schema.Document) (string, error) {
@@ -87,7 +96,9 @@ func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q, lang string, poo
 	query := fmt.Sprintf(choosePlanTemplateStr, poolLength, lang, q, dc)
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
+	finishInference := logInference(logger, "choose_plan", gc.cfg.Model)
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
+	finishInference(err)
 	if err != nil {
 		logger.Error("Error when generating answer with LLM", httplog.ErrAttr(err))
 		return "", fmt.Errorf("error generating answer: %w", err)
@@ -123,7 +134,9 @@ func (gc *GoogleGenAIClient) DescribeTable(ctx context.Context, table *models.Ta
 	query := fmt.Sprintf(describeTemplateStr, ds, table.String())
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
+	finishInference := logInference(logger, "describe_table", gc.cfg.Model)
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
+	finishInference(err)
 	if err != nil {
 		return nil, fmt.Errorf("Models.GenerateContent: %w", err)
 	}
@@ -157,9 +170,15 @@ func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.Pla
 	// Create a RAG query for the LLM with the most relevant documents as context
 	query := fmt.Sprintf(translateTemplateStr, lang, models.Abbreviations, plan.Title, plan.Description, string(tableJSON))
 	genCfg := *gc.gcfg
+	genCfg.ThinkingConfig = &genai.ThinkingConfig{
+		IncludeThoughts: false,
+		ThinkingLevel:   genai.ThinkingLevelLow,
+	}
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = gps
+	finishInference := logInference(logger, "translate_plan", gc.cfg.Model)
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
+	finishInference(err)
 	if err != nil {
 		logger.Error("Error when generating answer with LLM", httplog.ErrAttr(err))
 		return nil, fmt.Errorf("error when generating answer with LLM: %w", err)
@@ -207,7 +226,9 @@ func (gc *GoogleGenAIClient) FileToPlan(ctx context.Context, file []byte, filena
 		genai.NewContentFromParts(parts, genai.RoleUser),
 	}
 
+	finishInference := logInference(logger, "file_to_plan", gc.cfg.Model)
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, contents, &genCfg)
+	finishInference(err)
 
 	if err != nil {
 		logger.Error("Error when extracting plan from image with LLM", httplog.ErrAttr(err))

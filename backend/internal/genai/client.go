@@ -35,7 +35,6 @@ func NewGoogleGenAIClient(ctx context.Context, cfg config.Config) (*GoogleGenAIC
 		},
 		ThinkingConfig: &genai.ThinkingConfig{
 			IncludeThoughts: false,
-			ThinkingBudget:  genai.Ptr[int32](0),
 		},
 	}
 	embedCfg := &genai.EmbedContentConfig{

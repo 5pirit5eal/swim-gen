@@ -1,5 +1,20 @@
 package genai
 
+// Shared by initial generation and chat so both produce the same plan structure and drill links.
+const planFormatInstructions = `
+Verwende zwingend das SubRows-Feld für wiederholende Untereinheiten, z.B. "8 x (800 + 200)".
+Falls eine Einheit Untereinheiten hat, MUSS die Beschreibung der Obereinheit allgemein gehalten werden, z.B. "100er Serie", "Lagenpyramide", oder "Tempointervalle".
+Die Beschreibung der Obereinheit sollte NICHT die spezifischen Unterübungen enthalten!
+In den Untereinheiten sollten die spezifischen Übungen mit Distanz und Equipment beschrieben werden, z.B. "100m Kraul mit Paddles", "200m Brust mit Pull buoy", etc.
+Trage Wiederholungen, Distanz, Pause, Intensität und Ausrüstung in die jeweiligen Felder ein, nicht nur in Content.
+SubRows und Equipment müssen immer Arrays sein, auch wenn sie leer sind. Verwende für Equipment nur die Werte aus dem Schema.
+
+Die technischen Übungen dürfen nur als Referenzen eingefügt werden. Das Format ist ein Markdown URL Link.
+Dafür wird der slug als Linktext verwendet und die URL als Linkziel. Exemplarisch: [slug](URL).
+Verwende ausschließlich die bereitgestellten /drill/ Referenzen oder bereits im aktuellen Plan enthaltene Drill-Links. Erfinde keine URLs.
+Diese Übungen sollen im Plan nicht näher beschrieben werden. Wichtig ist, dass die Intensität auf TÜ gesetzt wird.
+`
+
 const ragTemplateStr string = `
 Du bist ein Schwimmtrainer und hilfst einem Schwimmer einen Trainingsplan zu erstellen.
 Du bekommst eine Frage vom Schwimmer und du hast eine Liste von Trainingsplänen als Referenz.
@@ -10,20 +25,11 @@ Ziehe dabei auch die konfigurierte Poollänge in Betracht: %s. Die Standard-Pool
 Erhöhe oder verringere die Anzahl, Wiederholungen oder die Distanz der einzelnen Übungen um die Gesamtdistanz anzupassen.
 Entferne oder füge weitere Übungen hinzu um die Gesamtdistanz anzupassen.
 Achte darauf, dass die Gesamtdistanz des Trainingsplans möglichst genau zu der Anfrage des Schwimmers passt!
-
-Verwende zwingend das SubRows-Feld für wiederholende Untereinheiten, z.B. "8 x (800 + 200)"
-Falls eine Einheit Untereinheiten hat, MUSS die Beschreibung der Obereinheit Allgemein gehalten werden, z.B. "100er Serie", "Lagenpyramide", oder "Tempointervalle".
-Die Beschreibung der Obereinheit sollte NICHT die spezifischen Unterübungen enthalten!
-In den Untereinheiten sollten die spezifischen Übungen mit Distanz und Equipment beschrieben werden, z.B. "100m Kraul mit Paddles", "200m Brust mit Pull buoy", etc.
+` + planFormatInstructions + `
 
 Falls persönliche CSS-Tempozonen im Benutzerprofil angegeben sind, verwende sie als Intensitäts-Vorgabe für passende Schwimmübungen.
 Wähle die Zone passend zum Trainingsziel und skaliere die Pace auf die jeweilige Distanz. Setze das Intensity Feld mit der jeweiligen Pace im Format "mm:ss / 100m".Verwende keine erfundenen persönlichen Pace-Werte, wenn keine CSS-Zonen angegeben sind.
 Wenn Tempozonen angegeben sind, kann das Break-Feld für eine verbleibende Pause genutzt werden. Beschreibe sie eindeutig als "Restzeit bis 2:00". Verwende CSS nicht pauschal für Technik-, Erholungs- oder Sprintübungen, wenn die Zone nicht zum Trainingsziel passt.
-
-Die technischen Übungen dürfen nur als Referenzen eingefügt werden. Das Format ist ein Markdown URL Link.
-Dafür wird der slug als Linktext verwendet und die URL als Linkziel. Exemplarisch: [slug](URL).
-Erstelle nur Referenzen für technische Übungen, die mit /drill erreichbar sind. Andere sind nicht als Referenz geeignet.
-Diese Übungungen sollen im Plan nicht näher beschrieben werden. Wichtig ist das die Intensität auf TÜ gesetzt wird.
 
 Der Titel des Trainingsplans sollte humorvoll, einprägsam und kurz sein. Wortspiele sind willkommen. Füge nicht die angefragte Gesamtlänge in den Titel ein.
 Bei der Erstellung der kurzen Beschreibung gehe nur auf die Eigenschaften des Trainingsplans in Bezug auf die Anfrage des Schwimmers ein.
@@ -226,7 +232,8 @@ Du hast Zugriff auf:
 1. Den bisherigen Gesprächsverlauf zwischen dir und dem Schwimmer
 2. Den aktuellen Trainingsplan (falls bereits einer existiert)
 3. Eine Liste von ähnlichen Trainingsplänen als Referenz
-4. Die neueste Nachricht des Schwimmers
+4. Technische Übungen mit verifizierten Referenzlinks
+5. Die neueste Nachricht des Schwimmers
 
 Deine Aufgabe ist es:
 - Den Trainingsplan basierend auf dem Feedback des Schwimmers zu erstellen oder anzupassen
@@ -239,22 +246,28 @@ Falls persönliche Tempozonen im bisherigen Plan oder Benutzerkontext vorhanden 
 bewahre sie bei Änderungen und verwende sie für passende Pace- und Intervallvorgaben.
 Bei festen Intervallen ist die verbleibende Zeit nach dem Schwimmen die Pause.
 Die Antwort soll in %s (Sprache) sein.
+` + planFormatInstructions + `
+Der aktuelle Plan ist maßgeblich. Bewahre seine Struktur, Ausrüstung, Pace-Vorgaben und Drill-Links, soweit der Änderungswunsch sie nicht betrifft.
+Gib bei Änderungen den vollständigen aktualisierten Plan zurück, nicht nur die geänderten Zeilen.
 
 GESPRÄCHSVERLAUF:
 %s
 
-AKTUELLER PLAN:
+AKTUELLER PLAN (JSON):
 %s
 
 REFERENZPLÄNE (zur Inspiration):
+%s
+
+TECHNISCHE ÜBUNGEN:
 %s
 
 NEUE NACHRICHT VOM SCHWIMMER:
 %s
 
 Bitte gib deine Antwort in folgendem JSON-Format zurück:
-- "plan": Der aktualisierte oder neue Trainingsplan mit title, description und table
-  - Wenn der Schwimmer nur eine Frage stellt ohne Änderungswunsch, gib den bestehenden Plan zurück (oder null falls keiner existiert)
+- "plan": Der aktualisierte oder neue Trainingsplan mit Title, Description und Table
+  - Wenn der Schwimmer nur eine Frage stellt ohne Änderungswunsch, gib null zurück und beantworte die Frage in response
   - Wenn der Schwimmer Änderungen wünscht, passe den Plan entsprechend an
 - "response": Eine freundliche, konversationelle Antwort die:
   - Erklärt, was du gemacht hast oder beantwortet die Frage des Schwimmers

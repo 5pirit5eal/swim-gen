@@ -12,7 +12,7 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.43.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -40,13 +40,7 @@ func Init(ctx context.Context) (func(context.Context) error, error) {
 		return nil, fmt.Errorf("creating Cloud Trace exporter: %w", err)
 	}
 
-	res, err := resource.New(ctx,
-		resource.WithDetectors(gcpdetector.NewDetector()),
-		resource.WithTelemetrySDK(),
-		resource.WithAttributes(
-			semconv.ServiceName(serviceName),
-		),
-	)
+	res, err := newResource(ctx, serviceName)
 	if err != nil {
 		return nil, fmt.Errorf("creating resource: %w", err)
 	}
@@ -72,6 +66,15 @@ func Init(ctx context.Context) (func(context.Context) error, error) {
 	))
 
 	return tp.Shutdown, nil
+}
+
+func newResource(ctx context.Context, serviceName string) (*resource.Resource, error) {
+	// The GCP detector and SDK must emit the same semantic convention schema URL.
+	return resource.New(ctx,
+		resource.WithDetectors(gcpdetector.NewDetector()),
+		resource.WithTelemetrySDK(),
+		resource.WithAttributes(semconv.ServiceName(serviceName)),
+	)
 }
 
 // TraceIDFromContext extracts the trace ID from the current span context.

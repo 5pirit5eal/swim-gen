@@ -4,6 +4,7 @@ import SharePlanButton from '@/components/buttons/ButtonSharePlan.vue'
 import IconEdit from '@/components/icons/IconEdit.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import PlanRowCard from '@/components/training/PlanRowCard.vue'
+import InlineMessageContent from '@/components/training/InlineMessageContent.vue'
 import type { PlanStore, Row } from '@/types'
 import { EQUIPMENT_I18N_KEYS } from '@/utils/rowHelpers'
 import { computed, ref } from 'vue'
@@ -139,7 +140,7 @@ async function toggleEditing() {
             rows="3"
           ></textarea>
           <div v-else-if="store.currentPlan?.description" class="plan-description">
-            "{{ store.currentPlan.description }}"
+            <InlineMessageContent :content="`&quot;${store.currentPlan.description}&quot;`" />
           </div>
         </div>
       </div>

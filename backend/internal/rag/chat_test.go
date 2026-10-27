@@ -25,14 +25,15 @@ func testChatDependencies(t *testing.T) (chatDependencies, *chatDependencyCalls)
 			calls.getConversation = append(calls.getConversation, []string{planID, userID})
 			return nil, nil
 		},
-		buildContext: func(_ context.Context, _ string, _ *models.Plan) ([]schema.Document, error) {
+		buildContext: func(_ context.Context, _ string, _ *models.Plan, _ models.Language) ([]schema.Document, []schema.Document, error) {
 			calls.buildContext++
-			return nil, nil
+			assert.Equal(t, 1, calls.queryMode, "retrieval must use query embeddings")
+			return nil, nil, nil
 		},
 		queryMode: func() {
 			calls.queryMode++
 		},
-		chatRefine: func(_ context.Context, _ string, _ *models.Plan, _, _ string, _ any, _ []schema.Document) (*models.ChatResponse, error) {
+		chatRefine: func(_ context.Context, _ string, _ *models.Plan, _, _ string, _ any, _, _ []schema.Document) (*models.ChatResponse, error) {
 			calls.chatRefine++
 			return &models.ChatResponse{Response: "response"}, nil
 		},
@@ -119,13 +120,15 @@ func TestChatWithContextUsesAuthenticatedUserAndPlanForOwnerPath(t *testing.T) {
 	assert.Equal(t, 1, calls.chatRefine)
 	assert.Equal(t, 2, calls.addMessage)
 	assert.Empty(t, calls.upsertPlan)
+	assert.Equal(t, "Owned plan", updatedPlan.Title)
+	assert.Same(t, updatedPlan, aiMessage.PlanSnapshot)
 }
 
 func TestChatWithContextPreservesPlanUpdateAndSnapshotScope(t *testing.T) {
 	deps, calls := testChatDependencies(t)
 	planID := "00000000-0000-0000-0000-000000000001"
 	userID := "user-a"
-	deps.chatRefine = func(_ context.Context, _ string, _ *models.Plan, _, _ string, _ any, _ []schema.Document) (*models.ChatResponse, error) {
+	deps.chatRefine = func(_ context.Context, _ string, _ *models.Plan, _, _ string, _ any, _, _ []schema.Document) (*models.ChatResponse, error) {
 		calls.chatRefine++
 		return &models.ChatResponse{
 			Response: "updated",
@@ -162,4 +165,48 @@ func TestChatWithContextPropagatesUnexpectedAuthorizationError(t *testing.T) {
 
 	require.Error(t, err)
 	assert.ErrorIs(t, err, backendErr)
+}
+
+func TestChatWithContextPassesGroundingToRefinement(t *testing.T) {
+	deps, calls := testChatDependencies(t)
+	plans := []schema.Document{{PageContent: "Reference plan"}}
+	drills := []schema.Document{{PageContent: "Freestyle drill", Metadata: map[string]any{"slug": "Catch-up", "img_name": "catch-up.webp"}}}
+	deps.buildContext = func(_ context.Context, query string, plan *models.Plan, lang models.Language) ([]schema.Document, []schema.Document, error) {
+		assert.Equal(t, 1, calls.queryMode)
+		assert.Equal(t, "add technique", query)
+		assert.Equal(t, "Owned plan", plan.Title)
+		assert.Equal(t, models.LanguageEN, lang)
+		return plans, drills, nil
+	}
+	deps.chatRefine = func(_ context.Context, _ string, _ *models.Plan, _, _ string, _ any, planDocs, drillDocs []schema.Document) (*models.ChatResponse, error) {
+		calls.chatRefine++
+		assert.Equal(t, plans, planDocs)
+		assert.Equal(t, drills, drillDocs)
+		return &models.ChatResponse{Response: "Which technique?"}, nil
+	}
+
+	_, _, err := (&RAGDB{}).chatWithContext(context.Background(), "plan", "user", "add technique", models.LanguageEN, 25, deps)
+	require.NoError(t, err)
+	assert.Equal(t, 1, calls.chatRefine)
+}
+
+func TestChatWithContextStopsWhenGroundingFails(t *testing.T) {
+	deps, calls := testChatDependencies(t)
+	retrievalErr := errors.New("drill retrieval failed")
+	deps.buildContext = func(context.Context, string, *models.Plan, models.Language) ([]schema.Document, []schema.Document, error) {
+		return nil, nil, retrievalErr
+	}
+
+	_, _, err := (&RAGDB{}).chatWithContext(context.Background(), "plan", "user", "add technique", models.LanguageEN, 25, deps)
+	require.ErrorIs(t, err, retrievalErr)
+	assert.Zero(t, calls.chatRefine)
+	assert.Zero(t, calls.addMessage)
+	assert.Empty(t, calls.upsertPlan)
+}
+
+func TestBuildChatContextRespectsDisabledRAG(t *testing.T) {
+	plans, drills, err := (&RAGDB{}).buildChatContext(context.Background(), "add technique", &models.Plan{}, models.LanguageEN)
+	require.NoError(t, err)
+	assert.Empty(t, plans)
+	assert.Empty(t, drills)
 }
