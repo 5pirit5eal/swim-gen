@@ -6,6 +6,7 @@ import TrainingPlanDisplay from '../TrainingPlanDisplay.vue'
 import { useTrainingPlanStore } from '@/stores/trainingPlan'
 import i18n from '@/plugins/i18n' // Import the i18n instance
 import Multiselect from 'vue-multiselect'
+import { createMemoryHistory, createRouter } from 'vue-router'
 import type { RAGResponse } from '@/types'
 
 /**
@@ -594,6 +595,45 @@ describe('TrainingPlanDisplay.vue', () => {
       const footer = wrapper.find('[data-testid="plan-footer-meta"]')
       expect(footer.exists()).toBe(true)
       expect(footer.text()).toContain(plan.description)
+    })
+
+    it('renders drill links and emphasis in coach notes while keeping raw Markdown editable', async () => {
+      const router = createRouter({
+        history: createMemoryHistory(),
+        routes: [
+          { path: '/', component: { template: '<div />' } },
+          { path: '/drill/:id', name: 'drill', component: { template: '<div />' } },
+        ],
+      })
+      const wrapper = mount(TrainingPlanDisplay, {
+        global: {
+          plugins: [i18n, createTestingPinia({ createSpy: vi.fn }), router],
+        },
+        props: { store: useTrainingPlanStore() },
+      })
+      const store = useTrainingPlanStore()
+      const description =
+        'Die Technikübungen wurden **überarbeitet**: [Windmühlen](/drill/windmuehlen) und [Wasserballkraul](/drill/wasserballkraul). Im zweiten Block schulen [Stuhlschwimmen](/drill/stuhlschwimmen) und [3 Züge, 12 Kicks](/drill/3_zuege_12_kicks) dein _Wassergefühl_.'
+      store.currentPlan = { ...createSimplePlan(), description }
+      await wrapper.vm.$nextTick()
+
+      const notes = wrapper.get('.plan-description')
+      expect(notes.findAll('a').map((link) => link.attributes('href'))).toEqual([
+        '/drill/windmuehlen',
+        '/drill/wasserballkraul',
+        '/drill/stuhlschwimmen',
+        '/drill/3_zuege_12_kicks',
+      ])
+      expect(notes.get('strong').text()).toBe('überarbeitet')
+      expect(notes.get('em').text()).toBe('Wassergefühl')
+      expect(notes.text()).not.toContain('](/drill/')
+      expect(notes.find('.drill-link-wrapper').exists()).toBe(false)
+      expect(store.currentPlan.description).toBe(description)
+
+      await wrapper.get('[data-testid="plan-edit-btn"]').trigger('click')
+      expect((wrapper.get('.edit-description').element as HTMLTextAreaElement).value).toBe(
+        description,
+      )
     })
 
     it('footer/meta region [data-testid="plan-footer-equipment"] shows distinct equipment', async () => {

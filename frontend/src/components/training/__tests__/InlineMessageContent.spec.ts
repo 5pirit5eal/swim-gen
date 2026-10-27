@@ -15,6 +15,28 @@ function mountContent(content: string) {
 }
 
 describe('InlineMessageContent', () => {
+  it('renders all four drill links in the reported German refinement message', () => {
+    const content =
+      'Die Technikübungen wurden komplett überarbeitet und bringen nun neue, spielerische Reize in das Training: In der Kraul-Technikserie fordern [Windmühlen](/drill/windmuehlen) und [Wasserballkraul](/drill/wasserballkraul) deine Schulterbeweglichkeit, deinen Hebel und das Gespür für den Wasserwiderstand heraus. Im zweiten Block schulen [Stuhlschwimmen](/drill/stuhlschwimmen) und [3 Züge, 12 Kicks](/drill/3_zuege_12_kicks) dein Wassergefühl sowie das Timing zwischen Zug und Beinschlag. Der Gesamtumfang von 2500 Metern und die gewohnte Struktur bleiben dabei exakt erhalten.'
+    const wrapper = mountContent(content)
+    const links = wrapper.findAll('a')
+
+    expect(links.map((link) => link.text())).toEqual([
+      'Windmühlen',
+      'Wasserballkraul',
+      'Stuhlschwimmen',
+      '3 Züge, 12 Kicks',
+    ])
+    expect(links.map((link) => link.attributes('href'))).toEqual([
+      '/drill/windmuehlen',
+      '/drill/wasserballkraul',
+      '/drill/stuhlschwimmen',
+      '/drill/3_zuege_12_kicks',
+    ])
+    expect(wrapper.text()).toBe(content.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'))
+    expect(wrapper.find('.drill-link-wrapper').exists()).toBe(false)
+  })
+
   it('renders drill links as real inline anchors without hover cards', async () => {
     const wrapper = mountContent('Try [Finger Drag](/drills/finger_drag.webp) now')
     const link = wrapper.get('a')
