@@ -43,7 +43,7 @@ type ChoiceResult struct {
 // ChatResponse represents the structured response from a chat interaction
 // @Description Response containing both a training plan and conversational response from the chat system
 type ChatResponse struct {
-	Plan     *GeneratedPlan `json:"plan" jsonschema_description:"The training plan created or refined based on the conversation"`
+	Plan     *GeneratedPlan `json:"plan" jsonschema:"nullable" jsonschema_description:"The complete updated training plan, or null when no changes are requested"`
 	Response string         `json:"response" jsonschema_description:"Conversational response explaining the plan or answering the user's question"`
 }
 

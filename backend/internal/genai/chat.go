@@ -21,7 +21,7 @@ func (gc *GoogleGenAIClient) ChatRefine(
 	userMessage string,
 	lang string,
 	poolLength any,
-	contextDocs []schema.Document,
+	contextDocs, drillDocs []schema.Document,
 ) (*models.ChatResponse, error) {
 	logger := httplog.LogEntry(ctx)
 
@@ -44,9 +44,15 @@ func (gc *GoogleGenAIClient) ChatRefine(
 	// Format current plan
 	var currentPlanStr string
 	if currentPlan != nil {
-		currentPlanStr = currentPlan.String()
+		planJSON, err := json.Marshal(models.GeneratedPlan{
+			Title: currentPlan.Title, Description: currentPlan.Description, Table: currentPlan.Table,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal current plan: %w", err)
+		}
+		currentPlanStr = string(planJSON)
 	} else {
-		currentPlanStr = "Noch kein Plan erstellt."
+		currentPlanStr = "null"
 	}
 
 	// Create the chat refinement query
@@ -57,6 +63,7 @@ func (gc *GoogleGenAIClient) ChatRefine(
 		conversationHistory,
 		currentPlanStr,
 		contextStr,
+		formatDrillDocuments(drillDocs),
 		userMessage,
 	)
 
@@ -85,22 +92,11 @@ func (gc *GoogleGenAIClient) ChatRefine(
 	if chatResponse.Plan != nil && len(chatResponse.Plan.Table) > 0 {
 		chatResponse.Plan.Table.FlattenSingleParentRow()
 		// Ensure total row exists
-		if !containsTotal(chatResponse.Plan.Table) {
-			chatResponse.Plan.Table.AddSum()
-		}
+		chatResponse.Plan.Table.AddSum()
 		// Recalculate sums to ensure correctness
 		chatResponse.Plan.Table.UpdateSum()
 	}
 
 	logger.Debug("Chat response generated successfully")
 	return &chatResponse, nil
-}
-
-// containsTotal checks if the table contains a total row
-func containsTotal(table models.Table) bool {
-	if len(table) == 0 {
-		return false
-	}
-	lastRow := table[len(table)-1]
-	return lastRow.Content == "Gesamt" || lastRow.Content == "Total"
 }

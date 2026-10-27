@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/httplog/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/tmc/langchaingo/schema"
+	"github.com/tmc/langchaingo/vectorstores"
 )
 
 var (
@@ -20,9 +21,9 @@ var (
 type chatDependencies struct {
 	getPlanForUser  func(context.Context, string, string) (*models.Plan, error)
 	getConversation func(context.Context, string, string) ([]models.Message, error)
-	buildContext    func(context.Context, string, *models.Plan) ([]schema.Document, error)
+	buildContext    func(context.Context, string, *models.Plan, models.Language) ([]schema.Document, []schema.Document, error)
 	queryMode       func()
-	chatRefine      func(context.Context, string, *models.Plan, string, string, any, []schema.Document) (*models.ChatResponse, error)
+	chatRefine      func(context.Context, string, *models.Plan, string, string, any, []schema.Document, []schema.Document) (*models.ChatResponse, error)
 	addMessage      func(context.Context, string, string, models.Role, string, *string, *models.Plan) (*models.Message, error)
 	upsertPlan      func(context.Context, models.Plan, string) (string, error)
 }
@@ -93,14 +94,13 @@ func (db *RAGDB) chatWithContext(
 
 	// 3. Build context
 	conversationHistory := formatConversationHistory(conversation)
-	contextDocs, err := deps.buildContext(ctx, userMessage, currentPlan)
+	deps.queryMode() // Set embedder to query mode before similarity searches.
+	contextDocs, drillDocs, err := deps.buildContext(ctx, userMessage, currentPlan, lang)
 	if err != nil {
-		logger.Warn("Failed to build chat context, continuing without reference docs", httplog.ErrAttr(err))
-		contextDocs = []schema.Document{} // Continue without context if retrieval fails
+		return nil, nil, fmt.Errorf("failed to build chat context: %w", err)
 	}
 
 	// 4. Call GenAI ChatRefine
-	deps.queryMode() // Set embedder to query mode for any similarity searches
 	chatResponse, err := deps.chatRefine(
 		ctx,
 		conversationHistory,
@@ -109,6 +109,7 @@ func (db *RAGDB) chatWithContext(
 		string(lang),
 		poolLength,
 		contextDocs,
+		drillDocs,
 	)
 	if err != nil {
 		logger.Error("Failed to generate chat response", httplog.ErrAttr(err))
@@ -175,31 +176,31 @@ func (db *RAGDB) chatWithContext(
 	return updatedPlan, aiMsg, nil
 }
 
-// buildChatContext retrieves similar plans from the vector store to provide reference context.
-// This is called when additional context beyond the conversation history might be helpful.
-func (db *RAGDB) buildChatContext(ctx context.Context, userQuery string, currentPlan *models.Plan) ([]schema.Document, error) {
+// buildChatContext retrieves reference plans and language-matched drills for refinement.
+func (db *RAGDB) buildChatContext(ctx context.Context, userQuery string, currentPlan *models.Plan, lang models.Language) ([]schema.Document, []schema.Document, error) {
 	logger := httplog.LogEntry(ctx)
 
 	// Check if RAG context is enabled in config
 	if !db.cfg.Chat.UseRAGContext {
 		logger.Debug("RAG context disabled in config")
-		return []schema.Document{}, nil
+		return nil, nil, nil
 	}
 
-	// Retrieve context if no plan exists yet or if RAG context is enabled
-	if currentPlan == nil || db.cfg.Chat.UseRAGContext {
-		// Perform similarity search for relevant plans
-		docs, err := db.PlanStore.SimilaritySearch(ctx, userQuery, 3)
-		if err != nil {
-			logger.Warn("Similarity search failed", httplog.ErrAttr(err))
-			return []schema.Document{}, nil // Return empty, don't fail the whole request
-		}
-		logger.Debug("Retrieved reference plans", "count", len(docs))
-		return docs, nil
+	// Short follow-ups such as "make it harder" need the current plan's swimming context.
+	searchQuery := userQuery
+	if currentPlan != nil {
+		searchQuery = buildSearchQuery(userQuery, currentPlan.String())
+	}
+	planDocs, err := db.PlanStore.SimilaritySearch(ctx, searchQuery, 3)
+	if err != nil {
+		logger.Warn("Failed to retrieve reference plans", httplog.ErrAttr(err))
+	}
+	drillDocs, err := db.DrillStore.SimilaritySearch(ctx, searchQuery, 10, vectorstores.WithFilters(map[string]any{"language": string(lang)}))
+	if err != nil {
+		return nil, nil, fmt.Errorf("error searching for drill documents: %w", err)
 	}
 
-	// No additional context needed
-	return []schema.Document{}, nil
+	return planDocs, drillDocs, nil
 }
 
 // formatConversationHistory converts message history into a text format suitable for LLM prompts.

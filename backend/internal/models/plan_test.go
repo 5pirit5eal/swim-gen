@@ -131,6 +131,26 @@ func TestGeneratedPlanSchema(t *testing.T) {
 	assert.NotEmpty(t, schema, "Schema should not be empty")
 }
 
+func TestChatSchemaUsesTheSamePlanContract(t *testing.T) {
+	generated, err := models.GeneratedPlanSchema()
+	require.NoError(t, err)
+	chat, err := models.ChatResponseSchema()
+	require.NoError(t, err)
+
+	generatedDefs := generated["$defs"].(map[string]any)
+	chatDefs := chat["$defs"].(map[string]any)
+	for _, name := range []string{"GeneratedPlan", "Table", "Row"} {
+		assert.Equal(t, generatedDefs[name], chatDefs[name], "schema mismatch for %s", name)
+	}
+	row := chatDefs["Row"].(map[string]any)
+	assert.Contains(t, row["required"], "SubRows")
+	assert.Contains(t, row["required"], "Equipment")
+
+	properties := chatDefs["ChatResponse"].(map[string]any)["properties"].(map[string]any)
+	plan := properties["plan"].(map[string]any)
+	assert.Contains(t, plan["oneOf"], map[string]any{"type": "null"})
+}
+
 func TestUpdateSum_NestedRows(t *testing.T) {
 	table := models.Table{
 		{

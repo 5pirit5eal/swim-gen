@@ -24,15 +24,6 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProf
 	for _, doc := range planDocs {
 		pdc = append(pdc, doc.PageContent)
 	}
-	var ddc []string
-	for _, doc := range drillDocs {
-		imgName := doc.Metadata["img_name"].(string)
-		imgName = strings.TrimSuffix(imgName, ".png")
-		imgName = strings.TrimSuffix(imgName, ".webp")
-		url := "/drill/" + imgName
-		ddc = append(ddc, doc.PageContent+fmt.Sprintf("\n\nReferenz: [%s](%s)", doc.Metadata["slug"].(string), url))
-	}
-
 	// Create a RAG query for the LLM with the most relevant documents as context
 	query := fmt.Sprintf(
 		ragTemplateStr,
@@ -41,7 +32,7 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProf
 		userProfile,
 		q,
 		strings.Join(pdc, "\n \n"),
-		strings.Join(ddc, "\n \n"),
+		formatDrillDocuments(drillDocs),
 	)
 	genCfg := *gc.gcfg
 	genCfg.ResponseMIMEType = "application/json"
@@ -72,6 +63,18 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProf
 	// Add the plan to the response
 	logger.Debug("Plan generated successfully")
 	return &p, nil
+}
+
+func formatDrillDocuments(docs []schema.Document) string {
+	var context []string
+	for _, doc := range docs {
+		imgName := doc.Metadata["img_name"].(string)
+		imgName = strings.TrimSuffix(imgName, ".png")
+		imgName = strings.TrimSuffix(imgName, ".webp")
+		url := "/drill/" + imgName
+		context = append(context, doc.PageContent+fmt.Sprintf("\n\nReferenz: [%s](%s)", doc.Metadata["slug"].(string), url))
+	}
+	return strings.Join(context, "\n \n")
 }
 
 // ChoosePlan lets an LLM choose the best fitting plan from the given documents.
