@@ -70,7 +70,7 @@ func TestInferenceThinkingLevelsPreserveDefaults(t *testing.T) {
 		invoke   func() error
 	}{
 		{
-			name: "prompt example", level: genai.ThinkingLevelMinimal, model: gc.cfg.SmallModel,
+			name: "prompt example", level: genai.ThinkingLevelLow, model: gc.cfg.SmallModel,
 			response: "Generate a freestyle session",
 			invoke: func() error {
 				_, err := gc.GeneratePrompt(ctx, models.GeneratePromptRequest{Language: models.LanguageEN})

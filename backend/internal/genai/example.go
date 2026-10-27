@@ -32,7 +32,7 @@ func (c *GoogleGenAIClient) GeneratePrompt(ctx context.Context, req models.Gener
 	genCfg := *c.gcfg
 	genCfg.ThinkingConfig = &genai.ThinkingConfig{
 		IncludeThoughts: false,
-		ThinkingLevel:   genai.ThinkingLevelMinimal,
+		ThinkingLevel:   genai.ThinkingLevelLow,
 	}
 	finishInference := logInference(logger, "generate_prompt", c.cfg.SmallModel)
 	answer, err := c.gc.Models.GenerateContent(ctx, c.cfg.SmallModel, genai.Text(prompt), &genCfg)
