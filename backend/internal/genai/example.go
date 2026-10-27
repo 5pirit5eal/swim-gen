@@ -29,17 +29,12 @@ func (c *GoogleGenAIClient) GeneratePrompt(ctx context.Context, req models.Gener
 
 	prompt := fmt.Sprintf(generatePromptTemplateStr, audienceInstruction, req.Language)
 
-	gcfg := &genai.GenerateContentConfig{
-		CandidateCount: int32(1),
-		Temperature:    genai.Ptr(float32(1.5)),
-		SafetySettings: []*genai.SafetySetting{
-			{Category: genai.HarmCategoryHateSpeech, Threshold: genai.HarmBlockThresholdBlockLowAndAbove},
-			{Category: genai.HarmCategorySexuallyExplicit, Threshold: genai.HarmBlockThresholdBlockLowAndAbove},
-			{Category: genai.HarmCategoryHarassment, Threshold: genai.HarmBlockThresholdBlockLowAndAbove},
-			{Category: genai.HarmCategoryDangerousContent, Threshold: genai.HarmBlockThresholdBlockLowAndAbove},
-		},
+	genCfg := *c.gcfg
+	genCfg.ThinkingConfig = &genai.ThinkingConfig{
+		IncludeThoughts: false,
+		ThinkingLevel:   genai.ThinkingLevelLow,
 	}
-	answer, err := c.gc.Models.GenerateContent(ctx, c.cfg.SmallModel, genai.Text(prompt), gcfg)
+	answer, err := c.gc.Models.GenerateContent(ctx, c.cfg.SmallModel, genai.Text(prompt), &genCfg)
 	if err != nil {
 		logger.Error("Error generating answer", httplog.ErrAttr(err))
 		return "", err

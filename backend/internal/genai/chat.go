@@ -69,6 +69,10 @@ func (gc *GoogleGenAIClient) ChatRefine(
 
 	// Configure generation with structured output
 	genCfg := *gc.gcfg
+	genCfg.ThinkingConfig = &genai.ThinkingConfig{
+		IncludeThoughts: false,
+		ThinkingLevel:   genai.ThinkingLevelMedium,
+	}
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = chatSchema
 

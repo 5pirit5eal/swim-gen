@@ -35,6 +35,10 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProf
 		formatDrillDocuments(drillDocs),
 	)
 	genCfg := *gc.gcfg
+	genCfg.ThinkingConfig = &genai.ThinkingConfig{
+		IncludeThoughts: false,
+		ThinkingLevel:   genai.ThinkingLevelMedium,
+	}
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = gps
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
@@ -160,6 +164,10 @@ func (gc *GoogleGenAIClient) TranslatePlan(ctx context.Context, plan *models.Pla
 	// Create a RAG query for the LLM with the most relevant documents as context
 	query := fmt.Sprintf(translateTemplateStr, lang, models.Abbreviations, plan.Title, plan.Description, string(tableJSON))
 	genCfg := *gc.gcfg
+	genCfg.ThinkingConfig = &genai.ThinkingConfig{
+		IncludeThoughts: false,
+		ThinkingLevel:   genai.ThinkingLevelLow,
+	}
 	genCfg.ResponseMIMEType = "application/json"
 	genCfg.ResponseJsonSchema = gps
 	answer, err := gc.gc.Models.GenerateContent(ctx, gc.cfg.Model, genai.Text(query), &genCfg)
