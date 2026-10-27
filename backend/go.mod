@@ -7,7 +7,7 @@ require (
 	cloud.google.com/go/storage v1.62.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.32.0
 	github.com/georgysavva/scany/v2 v2.1.4
-	github.com/go-chi/chi/v5 v5.2.5
+	github.com/go-chi/chi/v5 v5.4.0
 	github.com/go-chi/httplog/v2 v2.1.1
 	github.com/go-chi/render v1.0.3
 	github.com/gocolly/colly v1.2.0
