@@ -665,3 +665,20 @@ func TestScrapedPlan_MapIncludesURL(t *testing.T) {
 	assert.Equal(t, "Test Title", planMap["title"], "title should be present")
 	assert.Equal(t, "Test Description", planMap["description"], "description should be present")
 }
+
+func TestUpdateSum_ExerciseContentMentioningTotal(t *testing.T) {
+	table := models.Table{
+		{Amount: 4, Multiplier: "x", Distance: 50, Content: "Total Immersion Kraul"},
+		{Amount: 2, Multiplier: "x", Distance: 100, Content: "Kraul mit Gesamtkörperspannung"},
+	}
+
+	table.AddSum()
+	table.UpdateSum()
+
+	require.Len(t, table, 3, "a total row should be appended")
+	assert.Equal(t, 200, table[0].Sum)
+	assert.Equal(t, 200, table[1].Sum)
+	assert.Equal(t, "Gesamt", table[2].Content)
+	assert.Equal(t, 400, table[2].Sum)
+	assert.Equal(t, 400, table.GetTotalVolume())
+}

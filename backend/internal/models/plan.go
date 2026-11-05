@@ -311,6 +311,15 @@ func displayOrDash(value string) string {
 	return value
 }
 
+// IsTotal reports whether the row is the summary row ("Gesamt"/"Total") rather than
+// an exercise whose content happens to mention one of those words, e.g. "Total Immersion".
+func (r Row) IsTotal() bool {
+	if r.Amount != 0 || r.Distance != 0 || len(r.SubRows) > 0 {
+		return false
+	}
+	return strings.Contains(r.Content, "Gesamt") || strings.Contains(r.Content, "Total")
+}
+
 func (r *Row) UpdateSum() {
 	if len(r.SubRows) > 0 {
 		dis := 0
@@ -342,7 +351,7 @@ func (t *Table) AddSum() {
 	// Only add the total row if it doesn't already exist (e.g. from LLM restructuring)
 	if len(*t) > 0 {
 		lastRow := (*t)[len(*t)-1]
-		if strings.Contains(lastRow.Content, "Gesamt") || strings.Contains(lastRow.Content, "Total") {
+		if lastRow.IsTotal() {
 			return
 		}
 	}
@@ -355,7 +364,7 @@ func (t *Table) UpdateSum() {
 	total := 0
 	for i := range *t {
 		row := &(*t)[i]
-		if strings.Contains(row.Content, "Gesamt") || strings.Contains(row.Content, "Total") {
+		if row.IsTotal() {
 			row.Sum = total
 		} else {
 			row.UpdateSum()
@@ -375,7 +384,7 @@ func (t *Table) FlattenSingleParentRow() {
 
 	parentIndex := -1
 	for i, row := range *t {
-		if strings.Contains(row.Content, "Gesamt") || strings.Contains(row.Content, "Total") {
+		if row.IsTotal() {
 			continue
 		}
 		if parentIndex != -1 {
@@ -540,7 +549,7 @@ func (t *Table) FlattenTable(indent string) []string {
 func (t *Table) GetTotalVolume() int {
 	total := 0
 	for _, row := range *t {
-		if !strings.Contains(row.Content, "Gesamt") && !strings.Contains(row.Content, "Total") {
+		if !row.IsTotal() {
 			total += row.Sum
 		}
 	}

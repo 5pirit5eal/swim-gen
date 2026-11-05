@@ -60,7 +60,7 @@ func (gc *GoogleGenAIClient) GeneratePlan(ctx context.Context, q, lang, userProf
 	}
 	p.Table.FlattenSingleParentRow()
 	// Add the total to the table if it is not already present
-	if len(p.Table) == 0 || !strings.Contains(p.Table[len(p.Table)-1].Content, "Gesamt") {
+	if len(p.Table) == 0 || !p.Table[len(p.Table)-1].IsTotal() {
 		p.Table.AddSum()
 	}
 	// Recalculate the sums of the rows to be sure they are correct
@@ -245,7 +245,7 @@ func (gc *GoogleGenAIClient) FileToPlan(ctx context.Context, file []byte, filena
 	}
 	p.Table.FlattenSingleParentRow()
 	// Add the total to the table if it is not already present
-	if len(p.Table) == 0 || !strings.Contains(p.Table[len(p.Table)-1].Content, "Gesamt") {
+	if len(p.Table) == 0 || !p.Table[len(p.Table)-1].IsTotal() {
 		p.Table.AddSum()
 	}
 	// Recalculate the sums of the rows to be sure they are correct
