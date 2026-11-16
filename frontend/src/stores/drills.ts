@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { apiClient, formatError } from '@/api/client'
+import { shuffleArray } from '@/utils/shuffle'
 import type { Drill, DrillFilterOptions, DrillPreview, DrillSearchParams } from '@/types'
 
 export const useDrillsStore = defineStore('drills', () => {
@@ -128,15 +129,16 @@ export const useDrillsStore = defineStore('drills', () => {
       const result = await apiClient.searchDrills({
         lang: drillLang,
         page: 1,
-        limit,
+        limit: 100,
       })
       if (result.success && result.data) {
-        featuredDrills.value = result.data.drills
+        const pool = result.data.drills
         featuredTotal.value = result.data.total
-        result.data.drills.forEach((drill) => {
+        pool.forEach((drill) => {
           const key = getCacheKey(drill.img_name, drillLang)
           drillCache.value.set(key, drill)
         })
+        featuredDrills.value = shuffleArray(pool).slice(0, limit)
       }
     } catch (e) {
       console.error('Failed to fetch featured drills', e)
