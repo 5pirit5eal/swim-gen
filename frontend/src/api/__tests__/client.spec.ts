@@ -241,19 +241,19 @@ describe('ApiClient', () => {
       })
     })
 
-    it('should return timeout error if request takes longer than 60 seconds', async () => {
+    it('should return timeout error if request takes longer than 120 seconds', async () => {
       const error = new Error('The user aborted a request.')
       error.name = 'AbortError'
       mockFetch.mockRejectedValueOnce(error)
 
       const promise = apiClient.query(mockRequest)
-      vi.advanceTimersByTime(60000)
+      vi.advanceTimersByTime(120000)
 
       await expect(promise).resolves.toEqual({
         success: false,
         error: {
           code: 'timeout',
-          message: i18n.global.t('errors.timeout', { time: 60 }),
+          message: i18n.global.t('errors.timeout', { time: 120 }),
           status: 0,
           details: 'The user aborted a request.',
         },

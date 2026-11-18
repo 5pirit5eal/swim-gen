@@ -42,6 +42,7 @@ class ApiClient {
   private baseUrl: string
   public readonly DEFAULT_TIMEOUT_MS: number = 5000 // 5 seconds
   public readonly QUERY_TIMEOUT_MS: number = 60000 // 60 seconds
+  public readonly CREATE_PLAN_TIMEOUT_MS: number = 120000 // 2 minutes
   public readonly PROMPT_TIMEOUT_MS: number = 10000 // 10 seconds
 
   constructor(baseUrl = '/api') {
@@ -159,7 +160,7 @@ class ApiClient {
   }
 
   /**
-   * Query for training plans (may take up to 60 seconds)
+   * Query for training plans (may take up to 2 minutes)
    */
   async query(request: QueryRequest): Promise<ApiResult<RAGResponse>> {
     return this._fetch(
@@ -169,7 +170,7 @@ class ApiClient {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
       },
-      this.QUERY_TIMEOUT_MS,
+      this.CREATE_PLAN_TIMEOUT_MS,
       true,
     )
   }
