@@ -350,6 +350,12 @@ const docTemplate = `{
                         "description": "Results per page (default: 20, max: 100)",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Return a random sample instead of alphabetical order",
+                        "name": "random",
+                        "in": "query"
                     }
                 ],
                 "responses": {

@@ -104,9 +104,25 @@ const totalPages = computed(() => {
       <DrillFilter :initial-filters="searchParams" @update:filters="handleFilterUpdate" />
     </div>
 
+    <!-- Featured Mode Skeleton -->
+    <div
+      v-if="featuredMode && isFeaturedLoading && displayedDrills.length === 0"
+      class="drill-grid featured-grid"
+      aria-hidden="true"
+    >
+      <div v-for="n in limit" :key="n" class="skeleton-card">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-line skeleton-line-title"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line skeleton-line-short"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Loading State -->
     <div
-      v-if="(featuredMode ? isFeaturedLoading : isLoading) && displayedDrills.length === 0"
+      v-else-if="(featuredMode ? isFeaturedLoading : isLoading) && displayedDrills.length === 0"
       class="loading-state"
     >
       <div class="loading-spinner"></div>
@@ -346,6 +362,71 @@ const totalPages = computed(() => {
   border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+.skeleton-card {
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.skeleton-image {
+  aspect-ratio: 16/9;
+  background: var(--color-background-mute);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-content {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+.skeleton-line {
+  height: 0.9rem;
+  border-radius: 4px;
+  background: var(--color-background-mute);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-line-title {
+  height: 1.1rem;
+  width: 70%;
+}
+
+.skeleton-line-short {
+  width: 45%;
+}
+
+.skeleton-image::after,
+.skeleton-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--color-transparent), transparent);
+  animation: skeleton-shimmer 1.4s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-image::after,
+  .skeleton-line::after {
+    animation: none;
+  }
 }
 
 .retry-btn {

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import type { Mock } from 'vitest'
 import { useDrillsStore } from '@/stores/drills'
@@ -35,10 +35,10 @@ function makeDrill(i: number): Drill {
   }
 }
 
-function successResult(drills: Drill[]): ApiResult<DrillSearchResult> {
+function successResult(drills: Drill[], total = drills.length): ApiResult<DrillSearchResult> {
   return {
     success: true,
-    data: { drills, total: drills.length, page: 1, limit: 100 },
+    data: { drills, total, page: 1, limit: 4 },
   }
 }
 
@@ -48,62 +48,40 @@ describe('drills store', () => {
     vi.clearAllMocks()
   })
 
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
   describe('fetchFeaturedDrills', () => {
-    it('requests the full pool and returns a random subset of the given limit', async () => {
-      const pool = Array.from({ length: 20 }, (_, i) => makeDrill(i + 1))
-      mockedSearchDrills.mockResolvedValue(successResult(pool))
+    it('requests a random sample with the given limit', async () => {
+      const drills = Array.from({ length: 4 }, (_, i) => makeDrill(i + 1))
+      mockedSearchDrills.mockResolvedValue(successResult(drills, 44))
 
       const store = useDrillsStore()
       await store.fetchFeaturedDrills('en', 4)
 
-      expect(mockedSearchDrills).toHaveBeenCalledWith({ lang: 'en', page: 1, limit: 100 })
-      expect(store.featuredDrills).toHaveLength(4)
-      expect(store.featuredTotal).toBe(20)
-      store.featuredDrills.forEach((drill) => {
-        expect(pool).toContainEqual(drill)
+      expect(mockedSearchDrills).toHaveBeenCalledWith({
+        lang: 'en',
+        page: 1,
+        limit: 4,
+        random: true,
       })
+      expect(store.featuredDrills).toEqual(drills)
+      expect(store.featuredTotal).toBe(44)
     })
 
-    it('caches all fetched drills', async () => {
-      const pool = Array.from({ length: 10 }, (_, i) => makeDrill(i + 1))
-      mockedSearchDrills.mockResolvedValue(successResult(pool))
+    it('caps the featured drills at the limit and caches them', async () => {
+      const drills = Array.from({ length: 6 }, (_, i) => makeDrill(i + 1))
+      mockedSearchDrills.mockResolvedValue(successResult(drills, 44))
 
       const store = useDrillsStore()
       await store.fetchFeaturedDrills('de', 4)
 
-      expect(store.drillCache.size).toBe(10)
-      expect(store.drillCache.get('drill-1.webp:de')).toEqual(pool[0])
-    })
-
-    it('picks a deterministic subset when Math.random is mocked', async () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0)
-      const pool = Array.from({ length: 6 }, (_, i) => makeDrill(i + 1))
-      mockedSearchDrills.mockResolvedValue(successResult(pool))
-
-      const store = useDrillsStore()
-      await store.fetchFeaturedDrills('en', 4)
-
-      expect(store.featuredDrills.map((d) => d.slug)).toEqual([
-        'drill-2',
-        'drill-3',
-        'drill-4',
-        'drill-5',
-      ])
-    })
-
-    it('returns fewer drills when the pool is smaller than the limit', async () => {
-      const pool = [makeDrill(1), makeDrill(2)]
-      mockedSearchDrills.mockResolvedValue(successResult(pool))
-
-      const store = useDrillsStore()
-      await store.fetchFeaturedDrills('en', 4)
-
-      expect(store.featuredDrills).toHaveLength(2)
-      expect(store.featuredTotal).toBe(2)
+      expect(mockedSearchDrills).toHaveBeenCalledWith({
+        lang: 'de',
+        page: 1,
+        limit: 4,
+        random: true,
+      })
+      expect(store.featuredDrills).toHaveLength(4)
+      expect(store.drillCache.size).toBe(6)
+      expect(store.drillCache.get('drill-1.webp:de')).toEqual(drills[0])
     })
 
     it('keeps featured drills empty and stops loading when the request fails', async () => {

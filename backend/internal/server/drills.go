@@ -72,6 +72,7 @@ func (rs *RAGService) GetDrillHandler(w http.ResponseWriter, req *http.Request) 
 // @Param difficulty query string false "Difficulty filter (Easy, Medium, Hard)"
 // @Param page query int false "Page number (default: 1)"
 // @Param limit query int false "Results per page (default: 20, max: 100)"
+// @Param random query bool false "Return a random sample instead of alphabetical order"
 // @Success 200 {object} rag.DrillSearchResult
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"
@@ -103,6 +104,7 @@ func (rs *RAGService) SearchDrillsHandler(w http.ResponseWriter, req *http.Reque
 
 	difficulty := req.URL.Query().Get("difficulty")
 	searchQuery := req.URL.Query().Get("q")
+	random := req.URL.Query().Get("random") == "true"
 
 	// Parse pagination
 	page := 1
@@ -127,11 +129,13 @@ func (rs *RAGService) SearchDrillsHandler(w http.ResponseWriter, req *http.Reque
 		SearchQuery:  searchQuery,
 		Page:         page,
 		Limit:        limit,
+		Random:       random,
 	}
 
 	httplog.LogEntrySetField(req.Context(), "lang", slog.StringValue(lang))
 	httplog.LogEntrySetField(req.Context(), "page", slog.IntValue(page))
 	httplog.LogEntrySetField(req.Context(), "limit", slog.IntValue(limit))
+	httplog.LogEntrySetField(req.Context(), "random", slog.BoolValue(random))
 	if searchQuery != "" {
 		httplog.LogEntrySetField(req.Context(), "q", slog.StringValue(searchQuery))
 	}

@@ -794,6 +794,10 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Return a random sample instead of alphabetical order
+        in: query
+        name: random
+        type: boolean
       produces:
       - application/json
       responses:
