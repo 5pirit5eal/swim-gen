@@ -60,6 +60,12 @@
                             "type": "string"
                         }
                     },
+                    "429": {
+                        "description": "AI service rate limit exceeded",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -171,6 +177,12 @@
                     },
                     "404": {
                         "description": "Plan not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "AI service rate limit exceeded",
                         "schema": {
                             "type": "string"
                         }
@@ -527,6 +539,12 @@
                             "type": "string"
                         }
                     },
+                    "429": {
+                        "description": "AI service rate limit exceeded",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -569,6 +587,12 @@
                     },
                     "400": {
                         "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "AI service rate limit exceeded",
                         "schema": {
                             "type": "string"
                         }
@@ -976,6 +1000,12 @@
                     },
                     "400": {
                         "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "AI service rate limit exceeded",
                         "schema": {
                             "type": "string"
                         }

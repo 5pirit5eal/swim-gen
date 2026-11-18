@@ -327,7 +327,9 @@
     "connection_failed": "Verbindung zum Server fehlgeschlagen. Bitte überprüfe deine Internetverbindung und versuche es erneut.",
     "api_request_failed": "API-Anfrage für {endpoint} fehlgeschlagen",
     "upsert_failed": "Trainingsplan konnte nicht aktualisiert werden",
-    "fetch_shared_plan_failed": "Geteilter Trainingsplan konnte nicht abgerufen werden"
+    "fetch_shared_plan_failed": "Geteilter Trainingsplan konnte nicht abgerufen werden",
+    "rate_limited": "Der KI-Dienst ist derzeit stark ausgelastet. Bitte versuche es später erneut oder kontaktiere die Administratoren, falls das Problem weiterhin besteht.",
+    "rate_limited_retrying": "Der KI-Dienst ist ausgelastet. Neuer Versuch in {seconds} Sekunden (Versuch {attempt} von {max})..."
   },
   "login": {
     "login": "Anmelden",

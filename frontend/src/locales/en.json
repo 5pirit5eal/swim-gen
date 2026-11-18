@@ -322,7 +322,9 @@
     "connection_failed": "Failed to connect to the server. Please check your internet connection and try again.",
     "api_request_failed": "API request failed for {endpoint}",
     "fetch_shared_plan_failed": "Failed to fetch shared training plan. It may have been deleted or is no longer available.",
-    "upsert_failed": "Failed to update plan. Please try again."
+    "upsert_failed": "Failed to update plan. Please try again.",
+    "rate_limited": "The AI service is currently very busy. Please try again later, or contact the administrators if the problem persists.",
+    "rate_limited_retrying": "The AI service is busy. Retrying in {seconds} seconds (attempt {attempt} of {max})..."
   },
   "login": {
     "login": "Login",

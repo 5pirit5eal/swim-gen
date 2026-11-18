@@ -128,6 +128,7 @@ func getMimeTypeFromFilename(filename string) (string, error) {
 // @Success 200 {string} string "Plan added successfully"
 // @Failure 400 {string} string "Bad request"
 // @Failure 401 {string} string "Unauthorized"
+// @Failure 429 {string} string "AI service rate limit exceeded"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /add [post]
@@ -168,7 +169,7 @@ func (rs *RAGService) UploadPlanHandler(w http.ResponseWriter, req *http.Request
 		desc, err = rs.db.Client.DescribeTable(req.Context(), &dpr.Table)
 		if err != nil {
 			logger.Error("Error when generating description with LLM", httplog.ErrAttr(err))
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			writeServiceError(w, err, err.Error())
 			return
 		}
 		switch {
@@ -218,6 +219,7 @@ func (rs *RAGService) UploadPlanHandler(w http.ResponseWriter, req *http.Request
 // @Param image formData file true "File containing a plan (PNG, JPEG, or PDF)"
 // @Success 200 {object} models.RAGResponse "Plan ID of the converted plan"
 // @Failure 400 {string} string "Bad request or unsupported file type"
+// @Failure 429 {string} string "AI service rate limit exceeded"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /file-to-plan [post]
@@ -281,7 +283,7 @@ func (rs *RAGService) FileToPlanHandler(w http.ResponseWriter, req *http.Request
 	resp, err := rs.db.Client.FileToPlan(req.Context(), fileBytes, header.Filename, mimeType, models.Language(language))
 	if err != nil {
 		logger.Error("Failed to convert file to plan in the database", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeServiceError(w, err, err.Error())
 		return
 	}
 

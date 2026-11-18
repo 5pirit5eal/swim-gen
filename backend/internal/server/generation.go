@@ -20,6 +20,7 @@ import (
 // @Param request body models.GeneratePromptRequest true "Request to generate a prompt"
 // @Success 200 {object} models.GeneratedPromptResponse "Generated prompt response"
 // @Failure 400 {string} string "Bad request"
+// @Failure 429 {string} string "AI service rate limit exceeded"
 // @Failure 500 {string} string "Internal server error"
 // @Router /generate-prompt [post]
 func (rs *RAGService) GeneratePromptHandler(w http.ResponseWriter, req *http.Request) {
@@ -38,7 +39,7 @@ func (rs *RAGService) GeneratePromptHandler(w http.ResponseWriter, req *http.Req
 	prompt, err := rs.db.Client.GeneratePrompt(req.Context(), *gpr)
 	if err != nil {
 		logger.Error("Error generating prompt", httplog.ErrAttr(err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeServiceError(w, err, err.Error())
 		return
 	}
 
@@ -59,6 +60,7 @@ func (rs *RAGService) GeneratePromptHandler(w http.ResponseWriter, req *http.Req
 // @Param query body models.QueryRequest true "Query parameters"
 // @Success 200 {object} models.RAGResponse "Query results"
 // @Failure 400 {string} string "Bad request"
+// @Failure 429 {string} string "AI service rate limit exceeded"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /query [post]
@@ -103,7 +105,7 @@ func (rs *RAGService) QueryHandler(w http.ResponseWriter, req *http.Request) {
 			http.Error(w, "Method may only be 'choose' or 'generate', invalid choice.", http.StatusBadRequest)
 			return
 		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeServiceError(w, err, err.Error())
 		return
 	}
 	// Recalculate the sums of the rows to be sure they are correct

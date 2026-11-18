@@ -30,6 +30,7 @@ import {
 import i18n from '@/plugins/i18n'
 import type { Message } from '@/types'
 import { useAuthStore } from '@/stores/auth'
+import { toast } from 'vue3-toastify'
 
 export function formatError(error: { message?: string; details?: string }): string {
   if (error.details && error.details !== error.message) {
@@ -43,6 +44,9 @@ class ApiClient {
   public readonly DEFAULT_TIMEOUT_MS: number = 5000 // 5 seconds
   public readonly QUERY_TIMEOUT_MS: number = 60000 // 60 seconds
   public readonly PROMPT_TIMEOUT_MS: number = 10000 // 10 seconds
+  public readonly RATE_LIMIT_MAX_RETRIES: number = 3 // retries after a 429 response
+  private readonly RATE_LIMIT_FIRST_BACKOFF_MS: number = 5000 // 5 seconds before the first retry
+  private readonly RATE_LIMIT_BACKOFF_MS: number = 15000 // 15 seconds before each further retry
 
   constructor(baseUrl = '/api') {
     this.baseUrl = baseUrl
@@ -54,6 +58,33 @@ class ApiClient {
   }
 
   private async _fetch<T>(
+    endpoint: string,
+    options: RequestInit,
+    timeout: number,
+    authenticated = false,
+    maxRetries = 0,
+  ): Promise<ApiResult<T>> {
+    let retry = 0
+    for (;;) {
+      const result = await this._fetchOnce<T>(endpoint, options, timeout, authenticated)
+      if (result.success || result.error?.status !== 429 || retry >= maxRetries) {
+        return result
+      }
+      retry += 1
+      const backoffMs =
+        retry === 1 ? this.RATE_LIMIT_FIRST_BACKOFF_MS : this.RATE_LIMIT_BACKOFF_MS
+      toast.info(
+        i18n.global.t('errors.rate_limited_retrying', {
+          attempt: retry,
+          max: maxRetries,
+          seconds: backoffMs / 1000,
+        }),
+      )
+      await new Promise((resolve) => setTimeout(resolve, backoffMs))
+    }
+  }
+
+  private async _fetchOnce<T>(
     endpoint: string,
     options: RequestInit,
     timeout: number,
@@ -102,7 +133,10 @@ class ApiClient {
         return {
           success: false,
           error: {
-            message: i18n.global.t('errors.api_request_failed', { endpoint }),
+            message:
+              response.status === 429
+                ? i18n.global.t('errors.rate_limited')
+                : i18n.global.t('errors.api_request_failed', { endpoint }),
             status: response.status,
             details: response.statusText,
           },
@@ -155,6 +189,8 @@ class ApiClient {
         body: JSON.stringify(request),
       },
       this.PROMPT_TIMEOUT_MS,
+      false,
+      this.RATE_LIMIT_MAX_RETRIES,
     )
   }
 
@@ -171,6 +207,7 @@ class ApiClient {
       },
       this.QUERY_TIMEOUT_MS,
       true,
+      this.RATE_LIMIT_MAX_RETRIES,
     )
   }
 
@@ -268,6 +305,7 @@ class ApiClient {
       },
       this.QUERY_TIMEOUT_MS,
       true,
+      this.RATE_LIMIT_MAX_RETRIES,
     )
   }
 
@@ -350,6 +388,7 @@ class ApiClient {
       },
       this.QUERY_TIMEOUT_MS, // This might take a while
       true,
+      this.RATE_LIMIT_MAX_RETRIES,
     )
   }
 

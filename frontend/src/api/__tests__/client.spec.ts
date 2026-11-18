@@ -2,6 +2,16 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { apiClient } from '../client'
 import { ApiEndpoints } from '@/types'
 import i18n from '@/plugins/i18n'
+import { toast } from 'vue3-toastify'
+
+vi.mock('vue3-toastify', () => ({
+  toast: {
+    info: vi.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+    warning: vi.fn(),
+  },
+}))
 
 // Mock global fetch
 const mockFetch = vi.fn()
@@ -325,6 +335,98 @@ describe('ApiClient', () => {
           message: i18n.global.t('errors.connection_failed'),
           status: 0,
           details: 'Network error',
+        },
+      })
+    })
+  })
+
+  describe('rate limit (429) handling', () => {
+    const mockQueryRequest = { content: 'Generate a swim plan', language: 'en' }
+    const mockQueryResponse = { plan_id: '123', title: 'Plan', description: '', table: [] }
+    const tooManyRequests = () => ({
+      ok: false,
+      status: 429,
+      statusText: 'Too Many Requests',
+      headers: new Headers(),
+    })
+
+    it('should retry a 429 response with backoff and succeed', async () => {
+      mockFetch
+        .mockResolvedValueOnce(tooManyRequests())
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
+          json: () => Promise.resolve(mockQueryResponse),
+        })
+
+      const promise = apiClient.query(mockQueryRequest)
+      await vi.advanceTimersByTimeAsync(5000) // first backoff: 5 seconds
+      const result = await promise
+
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+      expect(result).toEqual({ success: true, data: mockQueryResponse })
+      expect(toast.info).toHaveBeenCalledWith(
+        i18n.global.t('errors.rate_limited_retrying', { attempt: 1, max: 3, seconds: 5 }),
+      )
+    })
+
+    it('should retry up to 3 times with 5s then 15s backoff and then fail with a rate limit error', async () => {
+      mockFetch.mockResolvedValue(tooManyRequests())
+
+      const promise = apiClient.query(mockQueryRequest)
+      await vi.advanceTimersByTimeAsync(5000) // first backoff: 5 seconds
+      await vi.advanceTimersByTimeAsync(15000) // second backoff: 15 seconds
+      await vi.advanceTimersByTimeAsync(15000) // third backoff: 15 seconds
+      const result = await promise
+
+      expect(mockFetch).toHaveBeenCalledTimes(4) // initial request + 3 retries
+      expect(result).toEqual({
+        success: false,
+        error: {
+          message: i18n.global.t('errors.rate_limited'),
+          status: 429,
+          details: 'Too Many Requests',
+        },
+      })
+      expect(toast.info).toHaveBeenCalledTimes(3)
+      expect(toast.info).toHaveBeenNthCalledWith(
+        2,
+        i18n.global.t('errors.rate_limited_retrying', { attempt: 2, max: 3, seconds: 15 }),
+      )
+      expect(toast.info).toHaveBeenNthCalledWith(
+        3,
+        i18n.global.t('errors.rate_limited_retrying', { attempt: 3, max: 3, seconds: 15 }),
+      )
+    })
+
+    it('should not retry non-429 error responses', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        headers: new Headers(),
+      })
+
+      const result = await apiClient.query(mockQueryRequest)
+
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      expect(result.success).toBe(false)
+      expect(result.error?.status).toBe(500)
+    })
+
+    it('should return the rate limit error message on 429 without retry for endpoints without retries', async () => {
+      mockFetch.mockResolvedValueOnce(tooManyRequests())
+
+      const result = await apiClient.checkHealth()
+
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      expect(result).toEqual({
+        success: false,
+        error: {
+          message: i18n.global.t('errors.rate_limited'),
+          status: 429,
+          details: 'Too Many Requests',
         },
       })
     })

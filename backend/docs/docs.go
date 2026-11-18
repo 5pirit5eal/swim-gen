@@ -67,6 +67,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "429": {
+                        "description": "AI service rate limit exceeded",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -178,6 +184,12 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Plan not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "AI service rate limit exceeded",
                         "schema": {
                             "type": "string"
                         }
@@ -534,6 +546,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "429": {
+                        "description": "AI service rate limit exceeded",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -576,6 +594,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "AI service rate limit exceeded",
                         "schema": {
                             "type": "string"
                         }
@@ -983,6 +1007,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "AI service rate limit exceeded",
                         "schema": {
                             "type": "string"
                         }

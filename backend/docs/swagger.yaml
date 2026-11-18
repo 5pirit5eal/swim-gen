@@ -604,6 +604,10 @@ paths:
           description: Unauthorized
           schema:
             type: string
+        "429":
+          description: AI service rate limit exceeded
+          schema:
+            type: string
         "500":
           description: Internal server error
           schema:
@@ -677,6 +681,10 @@ paths:
             type: string
         "404":
           description: Plan not found
+          schema:
+            type: string
+        "429":
+          description: AI service rate limit exceeded
           schema:
             type: string
         "500":
@@ -912,6 +920,10 @@ paths:
           description: Bad request or unsupported file type
           schema:
             type: string
+        "429":
+          description: AI service rate limit exceeded
+          schema:
+            type: string
         "500":
           description: Internal server error
           schema:
@@ -942,6 +954,10 @@ paths:
             $ref: '#/definitions/models.GeneratedPromptResponse'
         "400":
           description: Bad request
+          schema:
+            type: string
+        "429":
+          description: AI service rate limit exceeded
           schema:
             type: string
         "500":
@@ -1202,6 +1218,10 @@ paths:
             $ref: '#/definitions/models.RAGResponse'
         "400":
           description: Bad request
+          schema:
+            type: string
+        "429":
+          description: AI service rate limit exceeded
           schema:
             type: string
         "500":

@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/5pirit5eal/swim-gen/internal/genai"
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/5pirit5eal/swim-gen/internal/rag"
 	"github.com/go-chi/httplog/v2"
@@ -24,6 +25,7 @@ import (
 // @Failure 400 {string} string "Bad request"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 404 {string} string "Plan not found"
+// @Failure 429 {string} string "AI service rate limit exceeded"
 // @Failure 500 {string} string "Internal server error"
 // @Security BearerAuth
 // @Router /chat [post]
@@ -90,6 +92,8 @@ func (rs *RAGService) ChatHandler(w http.ResponseWriter, req *http.Request) {
 			http.Error(w, "plan_id is required", http.StatusBadRequest)
 		case errors.Is(err, rag.ErrChatPlanNotFound):
 			http.Error(w, "Plan not found", http.StatusNotFound)
+		case genai.IsRateLimitError(err):
+			http.Error(w, rateLimitErrorMessage, http.StatusTooManyRequests)
 		default:
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 		}
