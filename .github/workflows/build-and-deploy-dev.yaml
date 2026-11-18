@@ -25,6 +25,28 @@ jobs:
       base_sha: ${{ steps.get-data.outputs.base_sha }}
       head_repo_full_name: ${{ steps.get-data.outputs.head_repo_full_name }}
     steps:
+      - name: Check commenter permission
+        if: github.event_name == 'issue_comment'
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const username = context.payload.comment.user.login;
+            const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: username,
+            });
+            const allowed = ['admin', 'maintain', 'write'].includes(data.permission);
+            core.info(`Commenter ${username} has permission '${data.permission}' (allowed: ${allowed})`);
+            if (!allowed) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                body: `⛔ @${username} is not authorized to trigger \`.deploy dev\`. Required permission: admin, maintain or write (current: ${data.permission}).`,
+              });
+              core.setFailed(`User ${username} is not authorized to trigger .deploy dev (permission: ${data.permission})`);
+            }
       - name: Get deployment data
         id: get-data
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -160,7 +182,8 @@ jobs:
 
   react-to-comment:
     name: 👍 React to deploy comment
-    if: github.event.issue.pull_request && contains(github.event.comment.body, '.deploy dev')
+    needs: get-deployment-data
+    if: needs.get-deployment-data.result == 'success' && github.event.issue.pull_request && contains(github.event.comment.body, '.deploy dev')
     runs-on: ubuntu-latest
     steps:
       - name: Add reaction to comment
@@ -207,8 +230,8 @@ jobs:
 
   comment-on-failure:
     name: ❗ Comment on deployment failure
-    needs: opentofu-services
-    if: failure() && github.event_name != 'workflow_dispatch' && github.event.issue.pull_request
+    needs: [opentofu-services, get-deployment-data]
+    if: failure() && needs.get-deployment-data.result == 'success' && github.event_name != 'workflow_dispatch' && github.event.issue.pull_request
     runs-on: ubuntu-latest
     steps:
       - name: Comment on PR about failure
