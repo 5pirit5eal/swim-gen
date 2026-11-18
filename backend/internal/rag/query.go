@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/5pirit5eal/swim-gen/internal/models"
 	"github.com/go-chi/httplog/v2"
+	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
 )
@@ -26,21 +28,38 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	// Set the embedder to query mode
 	db.Client.QueryMode()
 	searchQuery := buildSearchQuery(query, userProfile)
-	var planDocs []schema.Document
-	var err error
-	switch {
-	case searchQuery == "" && filter == nil:
+	if searchQuery == "" && filter == nil {
 		return nil, fmt.Errorf("either a query or a filter must be provided")
-	case searchQuery == "" && filter != nil:
-		planDocs, err = db.PlanStore.Search(ctx, 5, vectorstores.WithFilters(filter))
-	case searchQuery != "" && filter == nil:
-		planDocs, err = db.PlanStore.SimilaritySearch(ctx, searchQuery, 5)
-	case searchQuery != "" && filter != nil:
-		planDocs, err = db.PlanStore.SimilaritySearch(ctx, searchQuery, 5, vectorstores.WithFilters(filter))
 	}
+	embedder, err := db.queryEmbedder(ctx, searchQuery)
 	if err != nil {
-		logger.Error("Error searching for plan documents", httplog.ErrAttr(err))
-		return nil, fmt.Errorf("error searching for plan documents: %w", err)
+		logger.Error("Error embedding search query", httplog.ErrAttr(err))
+		return nil, err
+	}
+
+	var planDocs, drillDocs []schema.Document
+	var planErr, drillErr error
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		planDocs, planErr = db.searchPlanDocuments(ctx, searchQuery, filter, embedder)
+	}()
+	if method == "generate" {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			drillDocs, drillErr = db.searchDrillDocuments(ctx, searchQuery, lang, embedder)
+		}()
+	}
+	wg.Wait()
+	if planErr != nil {
+		logger.Error("Error searching for plan documents", httplog.ErrAttr(planErr))
+		return nil, fmt.Errorf("error searching for plan documents: %w", planErr)
+	}
+	if drillErr != nil {
+		logger.Error("Error searching for drill documents", httplog.ErrAttr(drillErr))
+		return nil, fmt.Errorf("error searching for drill documents: %w", drillErr)
 	}
 
 	logger.Debug("Documents found", "count", len(planDocs))
@@ -48,13 +67,6 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	var plan models.Planable
 	switch method {
 	case "generate":
-		var drillDocs []schema.Document
-		drillDocs, err = db.DrillStore.SimilaritySearch(ctx, searchQuery, 10, vectorstores.WithFilters(map[string]any{"language": string(lang)}))
-		if err != nil {
-			logger.Error("Error searching for drill documents", httplog.ErrAttr(err))
-			return nil, fmt.Errorf("error searching for drill documents: %w", err)
-		}
-
 		plan, err = db.Client.GeneratePlan(ctx, query, string(lang), userProfile, poolLength, planDocs, drillDocs)
 		if err != nil {
 			logger.Error("Error generating plan", httplog.ErrAttr(err))
@@ -95,6 +107,28 @@ func (db *RAGDB) Query(ctx context.Context, query string, lang models.Language, 
 	logger.Debug("Plan generated successfully", "plan", genericPlan)
 
 	return genericPlan, nil
+}
+
+func (db *RAGDB) searchPlanDocuments(ctx context.Context, searchQuery string, filter map[string]any, embedder embeddings.Embedder) ([]schema.Document, error) {
+	if searchQuery == "" {
+		return db.PlanStore.Search(ctx, 5, vectorstores.WithFilters(filter))
+	}
+	opts := make([]vectorstores.Option, 0, 2)
+	if embedder != nil {
+		opts = append(opts, vectorstores.WithEmbedder(embedder))
+	}
+	if filter != nil {
+		opts = append(opts, vectorstores.WithFilters(filter))
+	}
+	return db.PlanStore.SimilaritySearch(ctx, searchQuery, 5, opts...)
+}
+
+func (db *RAGDB) searchDrillDocuments(ctx context.Context, searchQuery string, lang models.Language, embedder embeddings.Embedder) ([]schema.Document, error) {
+	opts := []vectorstores.Option{vectorstores.WithFilters(map[string]any{"language": string(lang)})}
+	if embedder != nil {
+		opts = append(opts, vectorstores.WithEmbedder(embedder))
+	}
+	return db.DrillStore.SimilaritySearch(ctx, searchQuery, 10, opts...)
 }
 
 func buildSearchQuery(query, userProfile string) string {
