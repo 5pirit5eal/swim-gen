@@ -132,13 +132,12 @@ export const useDrillsStore = defineStore('drills', () => {
         random: true,
       })
       if (result.success && result.data) {
-        const drills = result.data.drills
+        featuredDrills.value = result.data.drills
         featuredTotal.value = result.data.total
-        drills.forEach((drill) => {
+        result.data.drills.forEach((drill) => {
           const key = getCacheKey(drill.img_name, drillLang)
           drillCache.value.set(key, drill)
         })
-        featuredDrills.value = drills.slice(0, limit)
       }
     } catch (e) {
       console.error('Failed to fetch featured drills', e)

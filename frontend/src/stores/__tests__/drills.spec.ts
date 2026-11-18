@@ -66,8 +66,8 @@ describe('drills store', () => {
       expect(store.featuredTotal).toBe(44)
     })
 
-    it('caps the featured drills at the limit and caches them', async () => {
-      const drills = Array.from({ length: 6 }, (_, i) => makeDrill(i + 1))
+    it('caches the returned drills', async () => {
+      const drills = Array.from({ length: 4 }, (_, i) => makeDrill(i + 1))
       mockedSearchDrills.mockResolvedValue(successResult(drills, 44))
 
       const store = useDrillsStore()
@@ -79,8 +79,8 @@ describe('drills store', () => {
         limit: 4,
         random: true,
       })
-      expect(store.featuredDrills).toHaveLength(4)
-      expect(store.drillCache.size).toBe(6)
+      expect(store.featuredDrills).toEqual(drills)
+      expect(store.drillCache.size).toBe(4)
       expect(store.drillCache.get('drill-1.webp:de')).toEqual(drills[0])
     })
 
