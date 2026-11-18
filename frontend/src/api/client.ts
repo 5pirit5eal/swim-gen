@@ -431,6 +431,7 @@ class ApiClient {
 
     if (params.q) query.append('q', params.q)
     if (params.difficulty) query.append('difficulty', params.difficulty)
+    if (params.random) query.append('random', 'true')
 
     if (params.target_groups) {
       params.target_groups.forEach((g) => query.append('target_groups', g))

@@ -79,6 +79,51 @@ describe('DrillList.vue', () => {
     expect(links.some((l) => l.attributes('href') === '/drills')).toBe(true)
   })
 
+  it('renders skeleton cards while featured drills are loading', async () => {
+    const wrapper = mount(DrillList, {
+      props: {
+        featuredMode: true,
+        limit: 4,
+      },
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            initialState: {
+              drills: {
+                featuredDrills: [],
+                featuredTotal: 0,
+                isFeaturedLoading: true,
+                searchResults: [],
+                searchTotal: 0,
+                isLoading: false,
+                error: null,
+                searchParams: { page: 1, limit: 12 },
+              },
+            },
+          }),
+          i18n,
+        ],
+        stubs: {
+          DrillCard: {
+            props: ['drill'],
+            template: '<div class="stubbed-drill-card">{{ drill.title }}</div>',
+          },
+          DrillFilter: true,
+          RouterLink: {
+            props: ['to'],
+            template: '<a :href="to"><slot /></a>',
+          },
+        },
+      },
+    })
+
+    const skeletons = wrapper.findAll('.skeleton-card')
+    expect(skeletons.length).toBe(4)
+    expect(wrapper.find('.loading-spinner').exists()).toBe(false)
+    expect(wrapper.findAll('.stubbed-drill-card').length).toBe(0)
+  })
+
   it('renders full mode with filters, full items, and pagination', async () => {
     const wrapper = mount(DrillList, {
       props: {

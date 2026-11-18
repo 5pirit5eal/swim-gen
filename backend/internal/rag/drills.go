@@ -20,6 +20,7 @@ type DrillSearchParams struct {
 	SearchQuery  string   `json:"search_query,omitempty"`
 	Page         int      `json:"page"`
 	Limit        int      `json:"limit"`
+	Random       bool     `json:"random,omitempty"`
 }
 
 // DrillSearchResult contains paginated drill search results
@@ -132,12 +133,7 @@ func (db *RAGDB) SearchDrills(ctx context.Context, params DrillSearchParams) (*D
 
 	// Fetch paginated results
 	offset := (params.Page - 1) * params.Limit
-	dataQuery := fmt.Sprintf(`
-		SELECT cmetadata FROM drill_embeddings
-		WHERE %s
-		ORDER BY cmetadata->>'title'
-		LIMIT $%d OFFSET $%d
-	`, whereClause, argIndex, argIndex+1)
+	dataQuery := buildDrillDataQuery(whereClause, argIndex, params.Random)
 	args = append(args, params.Limit, offset)
 
 	rows, err := db.Conn.Query(ctx, dataQuery, args...)
@@ -173,6 +169,19 @@ func (db *RAGDB) SearchDrills(ctx context.Context, params DrillSearchParams) (*D
 		Page:   params.Page,
 		Limit:  params.Limit,
 	}, nil
+}
+
+func buildDrillDataQuery(whereClause string, argIndex int, random bool) string {
+	orderBy := "cmetadata->>'title'"
+	if random {
+		orderBy = "RANDOM()"
+	}
+	return fmt.Sprintf(`
+		SELECT cmetadata FROM drill_embeddings
+		WHERE %s
+		ORDER BY %s
+		LIMIT $%d OFFSET $%d
+	`, whereClause, orderBy, argIndex, argIndex+1)
 }
 
 // DrillFilterOptions contains unique values for filter dropdowns

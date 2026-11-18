@@ -129,6 +129,7 @@ export const useDrillsStore = defineStore('drills', () => {
         lang: drillLang,
         page: 1,
         limit,
+        random: true,
       })
       if (result.success && result.data) {
         featuredDrills.value = result.data.drills

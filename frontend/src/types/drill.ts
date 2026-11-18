@@ -45,6 +45,7 @@ export interface DrillSearchParams {
   styles?: string[]
   page: number
   limit: number
+  random?: boolean
 }
 
 export interface DrillSearchResult {
