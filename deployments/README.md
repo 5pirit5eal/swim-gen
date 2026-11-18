@@ -73,7 +73,7 @@ Notes
 The project follows a trunk-based development model where all changes are committed directly to the `main` branch.
 
 - **Validation**: On every commit to `main`, automated tests and linters run to validate the changes.
-- **Deployment**: Deployments to the `dev` environment are triggered by adding a `.deploy dev` comment to a commit on the `main` branch. This action initiates a workflow that builds the services and deploys them to Cloud Run. Deployments to `prod` need to be triggered in the Github actions UI.
+- **Deployment**: Deployments to the `dev` environment are triggered by adding a `.deploy dev` comment to a pull request. This action initiates a workflow that builds the services and deploys them to Cloud Run. Only users with write access to the repository (admin, maintain or write) may use this comment command; the workflow rejects comments from anyone else. Deployments to `prod` need to be triggered in the Github actions UI.
 
 It is strongly recommended to rely on the CI/CD pipeline for all deployments to ensure consistency and safety.
 
